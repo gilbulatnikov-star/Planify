@@ -1,0 +1,207 @@
+// Hebrew labels for the entire app
+export const he = {
+  // Navigation
+  nav: {
+    dashboard: "לוח בקרה",
+    projects: "פרויקטים",
+    clients: "לקוחות",
+    equipment: "ציוד",
+    financials: "כספים",
+    calendar: "לוח תוכן",
+  },
+
+  // Dashboard
+  dashboard: {
+    title: "לוח בקרה",
+    activeProjects: "פרויקטים פעילים",
+    upcomingShoots: "צילומים קרובים",
+    pendingDeadlines: "דדליינים ממתינים",
+    monthlyRevenue: "הכנסה חודשית",
+    outstandingInvoices: "חשבוניות פתוחות",
+    conversionRate: "יחס המרה",
+    recentProjects: "פרויקטים אחרונים",
+    recentClients: "לקוחות אחרונים",
+    noProjects: "אין פרויקטים פעילים",
+    noShoots: "אין צילומים קרובים",
+  },
+
+  // Projects
+  project: {
+    title: "פרויקטים",
+    newProject: "פרויקט חדש",
+    phases: {
+      pre_production: "קדם-הפקה",
+      production: "הפקה",
+      post_production: "פוסט-פרודקשן",
+      delivered: "נמסר",
+    },
+    statuses: {
+      pitching: "פיצ׳ינג",
+      scripting: "כתיבת תסריט",
+      moodboards: "מודבורדים",
+      location_scouting: "סקאוטינג לוקיישנים",
+      scheduled: "מתוכנן",
+      shooting: "בצילומים",
+      wrapping: "סיום צילומים",
+      ingest_sync: "קליטה וסנכרון",
+      rough_cut: "גרסה גולמית",
+      revisions_v1: "תיקונים V1",
+      revisions_v2: "תיקונים V2",
+      color_sound: "צבע וסאונד",
+      final_delivery: "מסירה סופית",
+      delivered: "נמסר",
+      archived: "בארכיון",
+    },
+    types: {
+      youtube: "YouTube",
+      music_video: "קליפ",
+      commercial: "פרסומת",
+      corporate: "תדמית",
+      social: "סושיאל",
+    },
+    shootDate: "תאריך צילום",
+    deadline: "דדליין",
+    budget: "תקציב",
+    client: "לקוח",
+    description: "תיאור",
+    type: "סוג פרויקט",
+  },
+
+  // Clients
+  client: {
+    title: "לקוחות וליידים",
+    newClient: "לקוח חדש",
+    newLead: "ליד חדש",
+    name: "שם",
+    email: "אימייל",
+    phone: "טלפון",
+    company: "חברה",
+    notes: "הערות",
+    type: "סוג",
+    types: {
+      lead: "ליד",
+      client: "לקוח",
+    },
+    leadSource: "מקור ליד",
+    leadSources: {
+      linkedin: "LinkedIn",
+      organic: "אורגני",
+      referral: "הפניה",
+      website: "אתר",
+      social: "רשתות חברתיות",
+      other: "אחר",
+    },
+    leadStatus: "סטטוס ליד",
+    leadStatuses: {
+      new: "חדש",
+      contacted: "נוצר קשר",
+      qualified: "מתאים",
+      proposal_sent: "הצעה נשלחה",
+      won: "נסגר",
+      lost: "אבוד",
+    },
+    interactions: "היסטוריית אינטראקציות",
+    interactionTypes: {
+      call: "שיחה",
+      email: "אימייל",
+      meeting: "פגישה",
+      note: "הערה",
+    },
+  },
+
+  // Equipment
+  equipment: {
+    title: "ציוד",
+    newItem: "פריט חדש",
+    name: "שם",
+    category: "קטגוריה",
+    brand: "מותג",
+    model: "דגם",
+    serialNumber: "מספר סריאלי",
+    purchasePrice: "מחיר רכישה",
+    status: "סטטוס",
+    categories: {
+      camera: "מצלמה",
+      lens: "עדשה",
+      drone: "רחפן",
+      lighting: "תאורה",
+      audio: "אודיו",
+      grip: "גריפ",
+      other: "אחר",
+    },
+    statuses: {
+      available: "זמין",
+      rented: "מושכר",
+      in_repair: "בתיקון",
+      retired: "לא בשימוש",
+    },
+  },
+
+  // Financials
+  financial: {
+    title: "כספים",
+    quotes: "הצעות מחיר",
+    invoices: "חשבוניות",
+    expenses: "הוצאות",
+    newQuote: "הצעת מחיר חדשה",
+    newInvoice: "חשבונית חדשה",
+    newExpense: "הוצאה חדשה",
+    subtotal: "סכום ביניים",
+    tax: 'מע"מ (17%)',
+    total: 'סה"כ',
+    status: "סטטוס",
+    quoteStatuses: {
+      draft: "טיוטה",
+      sent: "נשלחה",
+      accepted: "אושרה",
+      declined: "נדחתה",
+    },
+    invoiceStatuses: {
+      draft: "טיוטה",
+      sent: "נשלחה",
+      paid: "שולמה",
+      overdue: "באיחור",
+      cancelled: "בוטלה",
+    },
+    expenseCategories: {
+      overhead: "הוצאה חודשית קבועה",
+      project: "הוצאה לפרויקט",
+      gear_purchase: "רכישת ציוד",
+      vehicle_travel: "רכב/נסיעות",
+      other: "אחר",
+    },
+  },
+
+  // Content Calendar
+  calendar: {
+    title: "לוח תוכן",
+    newContent: "תוכן חדש",
+    contentTypes: {
+      client_shoot: "צילום ללקוח",
+      youtube_long: "YouTube / ארוך",
+      short_form: "תוכן קצר / Reels",
+    },
+    statuses: {
+      planned: "מתוכנן",
+      editing: "בעריכה",
+      ready: "מוכן לפרסום",
+      published: "פורסם",
+    },
+    noContent: "אין תוכן מתוכנן",
+    upcomingContent: "תוכן וצילומים קרובים",
+  },
+
+  // Common
+  common: {
+    save: "שמור",
+    cancel: "ביטול",
+    delete: "מחק",
+    edit: "ערוך",
+    add: "הוסף",
+    search: "חיפוש",
+    filter: "סינון",
+    noResults: "לא נמצאו תוצאות",
+    loading: "טוען...",
+    currency: "₪",
+  },
+} as const;
