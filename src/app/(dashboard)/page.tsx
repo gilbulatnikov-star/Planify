@@ -11,7 +11,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/app/components/dashboard/stat-card";
 import { DashboardAnimations } from "@/app/components/dashboard/dashboard-animations";
+import { QuickNotesWidget } from "@/app/components/dashboard/quick-notes-widget";
+import { TodoWidget } from "@/app/components/dashboard/todo-widget";
 import { getDashboardStats, getRecentProjects, getUpcomingContent } from "@/lib/db/queries";
+import {
+  getOrCreateQuickNote,
+  getTodos,
+} from "@/lib/actions/widget-actions";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
 import { he } from "@/lib/he";
 
@@ -22,16 +28,18 @@ const contentTypeDots: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
-  const [stats, recentProjects, upcomingContent] = await Promise.all([
+  const [stats, recentProjects, upcomingContent, quickNote, todos] = await Promise.all([
     getDashboardStats(),
     getRecentProjects(),
     getUpcomingContent(),
+    getOrCreateQuickNote(),
+    getTodos(),
   ]);
 
   return (
     <DashboardAnimations>
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold bg-gradient-to-l from-cyan-300 via-white to-white bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold text-gray-900">
           {he.dashboard.title}
         </h1>
 
@@ -75,8 +83,8 @@ export default async function DashboardPage() {
           <Card className="glass-card transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <div className="rounded-lg bg-cyan-500/10 p-1.5">
-                  <Camera className="h-4 w-4 text-cyan-400" />
+                <div className="rounded-lg bg-gray-100 p-1.5">
+                  <Camera className="h-4 w-4 text-gray-500" />
                 </div>
                 {he.dashboard.upcomingShoots}
               </CardTitle>
@@ -91,7 +99,7 @@ export default async function DashboardPage() {
                     return (
                       <div
                         key={project.id}
-                        className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 transition-all duration-200 hover:bg-white/[0.04] hover:border-cyan-500/20"
+                        className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
                       >
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
@@ -114,8 +122,8 @@ export default async function DashboardPage() {
           <Card className="glass-card transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <div className="rounded-lg bg-cyan-500/10 p-1.5">
-                  <Clock className="h-4 w-4 text-cyan-400" />
+                <div className="rounded-lg bg-gray-100 p-1.5">
+                  <Clock className="h-4 w-4 text-gray-500" />
                 </div>
                 {he.dashboard.pendingDeadlines}
               </CardTitle>
@@ -130,7 +138,7 @@ export default async function DashboardPage() {
                     return (
                       <div
                         key={project.id}
-                        className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 transition-all duration-200 hover:bg-white/[0.04] hover:border-cyan-500/20"
+                        className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
                       >
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
@@ -154,8 +162,8 @@ export default async function DashboardPage() {
         <Card className="glass-card transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <div className="rounded-lg bg-cyan-500/10 p-1.5">
-                <CalendarDays className="h-4 w-4 text-cyan-400" />
+              <div className="rounded-lg bg-gray-100 p-1.5">
+                <CalendarDays className="h-4 w-4 text-gray-500" />
               </div>
               {he.calendar.upcomingContent}
             </CardTitle>
@@ -171,7 +179,7 @@ export default async function DashboardPage() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 transition-all duration-200 hover:bg-white/[0.04] hover:border-cyan-500/20"
+                      className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
                     >
                       <div className="flex items-center gap-2">
                         <span className={`w-2.5 h-2.5 rounded-full ${dot} flex-shrink-0`} />
@@ -188,7 +196,7 @@ export default async function DashboardPage() {
                       <Badge
                         className={
                           he.calendar.statuses[item.status as keyof typeof he.calendar.statuses]
-                            ? "bg-cyan-500/15 text-cyan-300 border-0"
+                            ? "bg-gray-100 text-gray-700 border-0"
                             : ""
                         }
                       >
@@ -202,6 +210,12 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Dashboard Widgets Grid */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          <QuickNotesWidget initialContent={quickNote?.content ?? ""} />
+          <TodoWidget initialTodos={todos} />
+        </div>
+
         {/* Recent Projects */}
         <Card className="glass-card transition-all duration-300">
           <CardHeader>
@@ -212,7 +226,7 @@ export default async function DashboardPage() {
               {recentProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 transition-all duration-200 hover:bg-white/[0.04] hover:border-cyan-500/20"
+                  className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
                 >
                   <div className="flex items-center gap-3">
                     <div>
@@ -223,10 +237,10 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-cyan-500/30 text-cyan-300">
+                    <Badge variant="outline" className="border-gray-200 text-gray-600">
                       {he.project.phases[project.phase as keyof typeof he.project.phases] ?? project.phase}
                     </Badge>
-                    <Badge className="bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30">
+                    <Badge className="bg-gray-900 text-white hover:bg-gray-800">
                       {he.project.statuses[project.status as keyof typeof he.project.statuses] ?? project.status}
                     </Badge>
                   </div>

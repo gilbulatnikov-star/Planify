@@ -15,8 +15,8 @@ export function StatCard({ title, value, icon: Icon, description }: StatCardProp
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {title}
         </CardTitle>
-        <div className="rounded-lg bg-cyan-500/10 p-2 transition-colors duration-300 group-hover:bg-cyan-500/20">
-          <Icon className="h-4 w-4 text-cyan-400" />
+        <div className="rounded-lg bg-gray-100 p-2 transition-colors duration-300 group-hover:bg-gray-200">
+          <Icon className="h-4 w-4 text-gray-900" />
         </div>
       </CardHeader>
       <CardContent>

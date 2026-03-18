@@ -3,13 +3,34 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 // ==========================================
 // GIL PRODUCTIONS CRM — Database Schema
 // ==========================================
+
+// ---------- USERS / AUTH ----------
+model User {
+  id                  String    @id @default(cuid())
+  email               String    @unique
+  password            String
+  name                String?
+  role                String?   // videographer, photographer, smm, editor, producer, agency
+  primaryGoal         String?   // shoots_gear, retainer, financials, scripts
+  teamSize            String?   // solo, small, studio
+  onboardingCompleted Boolean   @default(false)
+
+  // Billing & subscription
+  subscriptionPlan    String    @default("FREE")    // FREE | MONTHLY | ANNUAL
+  subscriptionStatus  String?                        // ACTIVE | CANCELED | PAST_DUE
+  stripeCustomerId    String?                        // Stripe / Lemon Squeezy customer ID
+  subscriptionEndsAt  DateTime?                      // renewal / expiry date
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
 // ---------- CLIENTS & LEADS ----------
 model Client {
@@ -30,10 +51,12 @@ model Client {
   leadStatus String @default("new") // new, contacted, qualified, proposal_sent, won, lost
 
   projects         Project[]
+  scripts          Script[]
   interactions     Interaction[]
   invoices         Invoice[]
   quotes           Quote[]
   scheduledContent ScheduledContent[]
+  travelLogs       TravelLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -73,10 +96,12 @@ model Project {
   deliveredAt DateTime?
 
   tasks            Task[]
+  scripts          Script[]
   gearAssignments  GearAssignment[]
   invoices         Invoice[]
   quotes           Quote[]
   scheduledContent ScheduledContent[]
+  travelLogs       TravelLog[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -158,8 +183,8 @@ model QuoteItem {
 model Invoice {
   id            String @id @default(cuid())
   invoiceNumber String @unique
-  clientId      String
-  client        Client @relation(fields: [clientId], references: [id])
+  clientId      String?
+  client        Client? @relation(fields: [clientId], references: [id])
   projectId     String?
   project       Project? @relation(fields: [projectId], references: [id])
 
@@ -218,4 +243,145 @@ model ScheduledContent {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// ---------- DASHBOARD WIDGETS ----------
+model QuickNote {
+  id        String   @id @default(cuid())
+  content   String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Todo {
+  id          String    @id @default(cuid())
+  text        String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model QuickLink {
+  id        String   @id @default(cuid())
+  name      String
+  url       String
+  icon      String   @default("link")
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model GearStatus {
+  id        String   @id @default(cuid())
+  key       String   @unique // sd_cards, footage, batteries
+  label     String
+  isReady   Boolean  @default(false)
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- CONTACTS / CREW ROLODEX ----------
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  category  String   // editor, camera_op, makeup, actor, rental_house, studio
+  phone     String?
+  email     String?
+  dailyRate Float?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- SUBSCRIPTIONS TRACKER ----------
+model Subscription {
+  id              String    @id @default(cuid())
+  serviceName     String
+  billingCycle    String    // monthly, yearly
+  amount          Float
+  nextBillingDate DateTime?
+  status          String    @default("active") // active, cancelled
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+// ---------- TRAVEL LOG ----------
+model TravelLog {
+  id          String   @id @default(cuid())
+  date        DateTime
+  origin      String
+  destination String
+  kilometers  Float
+  purpose     String?
+  clientId    String?
+  client      Client?  @relation(fields: [clientId], references: [id])
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------- ASSET & LICENSE LIBRARY ----------
+model Asset {
+  id          String   @id @default(cuid())
+  name        String
+  type        String   // music, sfx, font, stock_footage
+  source      String?  // artlist, envato, etc
+  originalUrl String?
+  licensePath String?
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ---------- INSPIRATION BOARD ----------
+model InspirationCategory {
+  id           String        @id @default(cuid())
+  name         String        @unique
+  label        String
+  color        String        @default("cyan")
+  sortOrder    Int           @default(0)
+  createdAt    DateTime      @default(now())
+  inspirations Inspiration[]
+}
+
+model Inspiration {
+  id         String               @id @default(cuid())
+  title      String
+  url        String?
+  category   String
+  categoryId String?
+  categoryRel InspirationCategory? @relation(fields: [categoryId], references: [id])
+  notes      String?
+  createdAt  DateTime             @default(now())
+  updatedAt  DateTime             @updatedAt
+}
+
+// ---------- CHEAT SHEETS / SOPs ----------
+model CheatSheet {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @default("")
+  category  String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ---------- SCRIPTS ----------
+model Script {
+  id           String   @id @default(cuid())
+  title        String   @default("סקריפט ללא כותרת")
+  content      String   @default("")
+  platform     String   @default("youtube") // youtube, tiktok, instagram, podcast, commercial
+  duration     String   @default("") // e.g. "60 שניות"
+  notes        String   @default("")
+  shotListData String   @default("[]") // JSON array of ShotItem
+  projectId    String?
+  project      Project? @relation(fields: [projectId], references: [id])
+  clientId     String?
+  client       Client?  @relation(fields: [clientId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }

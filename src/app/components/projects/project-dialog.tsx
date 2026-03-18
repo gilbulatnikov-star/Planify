@@ -14,13 +14,14 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createProject, updateProject } from "@/lib/actions/project-actions";
+import { createClientQuick } from "@/lib/actions/client-actions";
+import { Plus, X } from "lucide-react";
 
 interface ProjectDialogProps {
   project?: {
@@ -49,31 +50,31 @@ const PROJECT_TYPES = [
 ] as const;
 
 const PHASES = [
-  { value: "pre_production", label: "קדם-הפקה" },
-  { value: "production", label: "הפקה" },
-  { value: "post_production", label: "פוסט-פרודקשן" },
-  { value: "delivered", label: "נמסר" },
+  { value: "pre_production", label: "לפני הצילומים" },
+  { value: "production",     label: "ימי צילום" },
+  { value: "post_production", label: "עריכה" },
+  { value: "delivered",      label: "הושלם" },
 ] as const;
 
 const STATUS_OPTIONS: Record<string, { value: string; label: string }[]> = {
   pre_production: [
-    { value: "pitching", label: "פיצ׳ינג" },
-    { value: "scripting", label: "כתיבת תסריט" },
-    { value: "moodboards", label: "מודבורדים" },
-    { value: "location_scouting", label: "סקאוטינג לוקיישנים" },
+    { value: "pitching",          label: "בגיבוש" },
+    { value: "scripting",         label: "כתיבת תסריט" },
+    { value: "moodboards",        label: "בניית תדמית" },
+    { value: "location_scouting", label: "חיפוש לוקיישן" },
   ],
   production: [
     { value: "scheduled", label: "מתוכנן" },
-    { value: "shooting", label: "בצילומים" },
-    { value: "wrapping", label: "סיום צילומים" },
+    { value: "shooting",  label: "בצילומים" },
+    { value: "wrapping",  label: "סיום צילומים" },
   ],
   post_production: [
-    { value: "ingest_sync", label: "קליטה וסנכרון" },
-    { value: "rough_cut", label: "גרסה גולמית" },
-    { value: "revisions_v1", label: "תיקונים V1" },
-    { value: "revisions_v2", label: "תיקונים V2" },
-    { value: "color_sound", label: "צבע וסאונד" },
-    { value: "final_delivery", label: "מסירה סופית" },
+    { value: "ingest_sync",    label: "העברת חומרים" },
+    { value: "rough_cut",      label: "גרסה ראשונה" },
+    { value: "revisions_v1",   label: "תיקון ראשון" },
+    { value: "revisions_v2",   label: "תיקון שני" },
+    { value: "color_sound",    label: "גימור" },
+    { value: "final_delivery", label: "מסירה ללקוח" },
   ],
   delivered: [
     { value: "delivered", label: "נמסר" },
@@ -103,6 +104,9 @@ export function ProjectDialog({
   const [status, setStatus] = useState(project?.status ?? "pitching");
   const [clientId, setClientId] = useState(project?.clientId ?? "");
   const [projectType, setProjectType] = useState(project?.projectType ?? "");
+  const [newClientMode, setNewClientMode] = useState(false);
+  const [newClientName, setNewClientName] = useState("");
+  const [localClients, setLocalClients] = useState(clients);
 
   useEffect(() => {
     if (open) {
@@ -110,8 +114,11 @@ export function ProjectDialog({
       setStatus(project?.status ?? "pitching");
       setClientId(project?.clientId ?? "");
       setProjectType(project?.projectType ?? "");
+      setNewClientMode(false);
+      setNewClientName("");
+      setLocalClients(clients);
     }
-  }, [open, project]);
+  }, [open, project, clients]);
 
   useEffect(() => {
     const options = STATUS_OPTIONS[phase];
@@ -126,13 +133,25 @@ export function ProjectDialog({
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
-    // Manually inject all select-controlled values
-    formData.set("phase", phase);
-    formData.set("status", status);
-    formData.set("clientId", clientId);
-    formData.set("projectType", projectType);
-
     startTransition(async () => {
+      let resolvedClientId = clientId;
+
+      // Create new client inline if needed
+      if (newClientMode && newClientName.trim()) {
+        const res = await createClientQuick(newClientName.trim());
+        if (!res.success) return;
+        resolvedClientId = res.client.id;
+        setLocalClients((prev) => [...prev, res.client]);
+        setClientId(res.client.id);
+        setNewClientMode(false);
+        setNewClientName("");
+      }
+
+      formData.set("phase", phase);
+      formData.set("status", status);
+      formData.set("clientId", resolvedClientId);
+      formData.set("projectType", projectType);
+
       const result = isEditing
         ? await updateProject(project!.id, formData)
         : await createProject(formData);
@@ -173,21 +192,40 @@ export function ProjectDialog({
             {/* Client */}
             <div className="space-y-2">
               <Label>לקוח</Label>
-              <Select
-                value={clientId}
-                onValueChange={(v) => setClientId(v ?? "")}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="בחר לקוח" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((client) => (
-                    <SelectItem key={client.id} value={client.id}>
-                      {client.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {newClientMode ? (
+                <div className="flex gap-1.5">
+                  <Input
+                    autoFocus
+                    value={newClientName}
+                    onChange={(e) => setNewClientName(e.target.value)}
+                    placeholder="שם הלקוח החדש..."
+                    className="flex-1 h-9 text-sm"
+                  />
+                  <button type="button" onClick={() => { setNewClientMode(false); setNewClientName(""); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <Select value={clientId} onValueChange={(v) => setClientId(v ?? "")}>
+                  <SelectTrigger className="w-full">
+                    <span className="flex flex-1">{clientId ? (localClients.find(c => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}</span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {localClients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
+                    ))}
+                    <div className="mx-1 my-1 border-t border-gray-100" />
+                    <button
+                      type="button"
+                      onClick={() => { setNewClientMode(true); setClientId(""); }}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />הוסף לקוח חדש
+                    </button>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* Project Type */}
@@ -198,7 +236,7 @@ export function ProjectDialog({
                 onValueChange={(v) => setProjectType(v ?? "")}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="בחר סוג" />
+                  <span className="flex flex-1">{projectType ? (PROJECT_TYPES.find(t => t.value === projectType)?.label ?? projectType) : "בחר סוג"}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {PROJECT_TYPES.map((type) => (
@@ -218,7 +256,7 @@ export function ProjectDialog({
                 onValueChange={(value) => value != null && setPhase(value)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <span className="flex flex-1">{PHASES.find(p => p.value === phase)?.label ?? phase}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {PHASES.map((p) => (
@@ -238,7 +276,7 @@ export function ProjectDialog({
                 onValueChange={(value) => value != null && setStatus(value)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <span className="flex flex-1">{statusOptions.find(s => s.value === status)?.label ?? status}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {statusOptions.map((s) => (

@@ -7,8 +7,7 @@ import { prisma } from "@/lib/db/prisma";
 
 export async function createInvoice(formData: FormData) {
   try {
-    const clientId = formData.get("clientId") as string;
-    if (!clientId) return { success: false, error: "Client is required" };
+    const clientId = (formData.get("clientId") as string) || undefined;
 
     const amountStr = formData.get("amount") as string;
     const amount = amountStr ? parseFloat(amountStr) : NaN;
@@ -16,7 +15,7 @@ export async function createInvoice(formData: FormData) {
 
     const status = (formData.get("status") as string) || "draft";
     const dateStr = formData.get("date") as string;
-    const projectId = (formData.get("projectId") as string) || null;
+    const projectId = (formData.get("projectId") as string) || undefined;
     const externalLink = (formData.get("externalLink") as string) || null;
     const notes = (formData.get("notes") as string) || null;
 
@@ -31,12 +30,13 @@ export async function createInvoice(formData: FormData) {
       data: {
         invoiceNumber,
         clientId,
-        projectId: projectId || undefined,
+        projectId,
         status,
         subtotal: amount,
         tax,
         total,
         dueDate: dateStr ? new Date(dateStr) : null,
+        paidAt: status === "paid" ? new Date() : null,
         externalLink,
         notes,
       },
@@ -115,6 +115,63 @@ export async function deleteInvoice(id: string) {
   }
 }
 
+export async function updateInvoiceStatus(id: string, status: string) {
+  try {
+    await prisma.invoice.update({
+      where: { id },
+      data: {
+        status,
+        paidAt: status === "paid" ? new Date() : null,
+      },
+    });
+
+    revalidatePath("/financials");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update status",
+    };
+  }
+}
+
+// ============ QUOTE ACTIONS ============
+
+export async function updateQuoteStatus(id: string, status: string) {
+  try {
+    await prisma.quote.update({
+      where: { id },
+      data: { status },
+    });
+
+    revalidatePath("/financials");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update status",
+    };
+  }
+}
+
+export async function deleteQuote(id: string) {
+  try {
+    await prisma.quoteItem.deleteMany({ where: { quoteId: id } });
+    await prisma.quote.delete({ where: { id } });
+
+    revalidatePath("/financials");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete quote",
+    };
+  }
+}
+
 // ============ EXPENSE ACTIONS ============
 
 export async function createExpense(formData: FormData) {
@@ -147,6 +204,7 @@ export async function createExpense(formData: FormData) {
         amount,
         date: new Date(dateStr),
         vendor: (formData.get("vendor") as string) || null,
+        receiptUrl: (formData.get("receiptUrl") as string) || null,
         notes: (formData.get("notes") as string) || null,
       },
     });

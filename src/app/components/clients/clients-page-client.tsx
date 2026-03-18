@@ -70,7 +70,7 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
   }
 
   const statCards = [
-    { label: "לקוחות פעילים", value: allClients.length, icon: Users, color: "from-cyan-400 to-teal-500" },
+    { label: "לקוחות פעילים", value: allClients.length, icon: Users, color: "from-gray-700 to-gray-900" },
     { label: "לידים", value: allLeads.length, icon: UserPlus, color: "from-violet-400 to-purple-500" },
     { label: "סה״כ אנשי קשר", value: clients.length, icon: Contact, color: "from-amber-400 to-orange-500" },
   ];
@@ -79,16 +79,17 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
     return (
       <Card className="glass-card overflow-hidden">
         <CardContent className="p-0">
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow className="border-white/[0.06] hover:bg-transparent">
+              <TableRow className="border-gray-100 hover:bg-transparent">
                 <TableHead className="text-muted-foreground">{he.client.name}</TableHead>
-                <TableHead className="text-muted-foreground">{he.client.company}</TableHead>
-                <TableHead className="text-muted-foreground">{he.client.email}</TableHead>
-                <TableHead className="text-muted-foreground">{he.client.phone}</TableHead>
-                <TableHead className="text-muted-foreground">{he.client.leadSource}</TableHead>
+                <TableHead className="hidden md:table-cell text-muted-foreground">{he.client.company}</TableHead>
+                <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.email}</TableHead>
+                <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.phone}</TableHead>
+                <TableHead className="hidden md:table-cell text-muted-foreground">{he.client.leadSource}</TableHead>
                 <TableHead className="text-muted-foreground">סטטוס</TableHead>
-                <TableHead className="text-muted-foreground">פרויקטים</TableHead>
+                <TableHead className="hidden sm:table-cell text-muted-foreground">פרויקטים</TableHead>
                 <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
               </TableRow>
             </TableHeader>
@@ -96,19 +97,19 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
               {filtered.map((client) => (
                 <TableRow
                   key={client.id}
-                  className="border-white/[0.04] transition-all duration-200 hover:bg-cyan-500/[0.04] group"
+                  className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
                 >
                   <TableCell className="font-medium">{client.name}</TableCell>
-                  <TableCell className="text-muted-foreground">{client.company ?? "—"}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">
+                  <TableCell className="hidden md:table-cell text-muted-foreground">{client.company ?? "—"}</TableCell>
+                  <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
                     {client.email ?? "—"}
                   </TableCell>
-                  <TableCell dir="ltr" className="text-left text-muted-foreground">
+                  <TableCell dir="ltr" className="hidden sm:table-cell text-left text-muted-foreground">
                     {client.phone ?? "—"}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden md:table-cell">
                     {client.leadSource ? (
-                      <Badge variant="outline" className="border-white/10 text-muted-foreground">
+                      <Badge variant="outline" className="border-gray-200 text-muted-foreground">
                         {he.client.leadSources[
                           client.leadSource as keyof typeof he.client.leadSources
                         ] ?? client.leadSource}
@@ -121,8 +122,8 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
                     <Badge
                       className={
                         client.type === "client"
-                          ? "bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25 border-0"
-                          : "bg-violet-500/15 text-violet-300 hover:bg-violet-500/25 border-0"
+                          ? "bg-cyan-50 text-cyan-700 hover:bg-gray-200 border-0"
+                          : "bg-violet-50 text-violet-700 hover:bg-violet-100 border-0"
                       }
                     >
                       {client.type === "client"
@@ -132,15 +133,15 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
                           ] ?? client.leadStatus}
                     </Badge>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="hidden sm:table-cell">
                     <span className="text-sm text-muted-foreground">{client.projects.length}</span>
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors duration-200"
+                        className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
                         onClick={() => handleEdit(client)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -148,7 +149,7 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-red-500/10 text-destructive transition-colors duration-200"
+                        className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
                         onClick={() =>
                           setDeleteTarget({ id: client.id, name: client.name })
                         }
@@ -171,6 +172,7 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
               )}
             </TableBody>
           </Table>
+          </div>
         </CardContent>
       </Card>
     );
@@ -184,13 +186,13 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold bg-gradient-to-l from-cyan-300 via-white to-white bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold text-gray-900">
           {he.client.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white hover:from-cyan-400 hover:to-teal-400 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all duration-300 border-0"
+          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.client.newClient}
@@ -215,14 +217,14 @@ export function ClientsPageClient({ clients }: { clients: ClientData[] }) {
 
       <motion.div variants={fadeUp}>
         <Tabs defaultValue="clients" dir="rtl">
-          <TabsList className="bg-white/[0.04] border border-white/[0.06]">
-            <TabsTrigger value="clients" className="data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-300 transition-all duration-200">
+          <TabsList className="bg-gray-50 border border-gray-100">
+            <TabsTrigger value="clients" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200">
               לקוחות ({allClients.length})
             </TabsTrigger>
-            <TabsTrigger value="leads" className="data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-300 transition-all duration-200">
+            <TabsTrigger value="leads" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200">
               לידים ({allLeads.length})
             </TabsTrigger>
-            <TabsTrigger value="all" className="data-[state=active]:bg-cyan-500/15 data-[state=active]:text-cyan-300 transition-all duration-200">
+            <TabsTrigger value="all" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200">
               הכל ({clients.length})
             </TabsTrigger>
           </TabsList>

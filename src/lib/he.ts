@@ -8,6 +8,14 @@ export const he = {
     equipment: "ציוד",
     financials: "כספים",
     calendar: "לוח תוכן",
+    contacts: "אנשי קשר",
+    subscriptions: "הוצאות חודשיות",
+    travelLog: "יומן נסיעות",
+    assets: "רישיונות",
+    inspiration: "השראה",
+    cheatSheets: "מדריכים",
+    scripts: "תסריטים",
+    billing: "מנוי ותמחור",
   },
 
   // Dashboard
@@ -30,26 +38,26 @@ export const he = {
     title: "פרויקטים",
     newProject: "פרויקט חדש",
     phases: {
-      pre_production: "קדם-הפקה",
-      production: "הפקה",
-      post_production: "פוסט-פרודקשן",
-      delivered: "נמסר",
+      pre_production: "לפני הצילומים",
+      production: "ימי צילום",
+      post_production: "עריכה",
+      delivered: "הושלם",
     },
     statuses: {
-      pitching: "פיצ׳ינג",
+      pitching: "בגיבוש",
       scripting: "כתיבת תסריט",
-      moodboards: "מודבורדים",
-      location_scouting: "סקאוטינג לוקיישנים",
+      moodboards: "בניית תדמית",
+      location_scouting: "חיפוש לוקיישן",
       scheduled: "מתוכנן",
       shooting: "בצילומים",
       wrapping: "סיום צילומים",
-      ingest_sync: "קליטה וסנכרון",
-      rough_cut: "גרסה גולמית",
-      revisions_v1: "תיקונים V1",
-      revisions_v2: "תיקונים V2",
-      color_sound: "צבע וסאונד",
-      final_delivery: "מסירה סופית",
-      delivered: "נמסר",
+      ingest_sync: "העברת חומרים",
+      rough_cut: "גרסה ראשונה",
+      revisions_v1: "תיקון ראשון",
+      revisions_v2: "תיקון שני",
+      color_sound: "גימור",
+      final_delivery: "מסירה ללקוח",
+      delivered: "הושלם",
       archived: "בארכיון",
     },
     types: {
@@ -177,9 +185,9 @@ export const he = {
     title: "לוח תוכן",
     newContent: "תוכן חדש",
     contentTypes: {
-      client_shoot: "צילום ללקוח",
-      youtube_long: "YouTube / ארוך",
-      short_form: "תוכן קצר / Reels",
+      client_shoot: "צילום לקוח",
+      youtube_long: "יוטיוב ארוך",
+      short_form: "קצר",
     },
     statuses: {
       planned: "מתוכנן",
@@ -189,6 +197,131 @@ export const he = {
     },
     noContent: "אין תוכן מתוכנן",
     upcomingContent: "תוכן וצילומים קרובים",
+  },
+
+  // Contacts / Crew Rolodex
+  contacts: {
+    title: "אנשי קשר",
+    newContact: "איש קשר חדש",
+    categories: {
+      editor: "עורך",
+      stills_photographer: "צלם סטילס",
+      video_photographer: "צלם וידאו",
+      lighting: "תאורן",
+      director: "במאי",
+      art: "ארט",
+      production_assistant: "עוזר הפקה",
+      producer: "מפיק",
+      three_d: "תלת מימד",
+      sound_designer: "מעצב סאונד",
+      makeup: "איפור",
+      actor: "שחקן/ית",
+      rental_house: "השכרת ציוד",
+      studio: "סטודיו",
+      social_manager: "מנהל/ת סושיאל",
+    },
+  },
+
+  // Subscriptions
+  subscriptions: {
+    title: "הוצאות חודשיות",
+    newSubscription: "מנוי חדש",
+    totalMonthly: "עלות חודשית כוללת",
+    cycles: {
+      monthly: "חודשי",
+      yearly: "שנתי",
+    },
+    statuses: {
+      active: "פעיל",
+      cancelled: "בוטל",
+    },
+  },
+
+  // Travel Log
+  travelLog: {
+    title: "יומן נסיעות",
+    newEntry: "נסיעה חדשה",
+    totalKm: "סה״כ ק״מ החודש",
+    origin: "מוצא",
+    destination: "יעד",
+    kilometers: "ק״מ",
+  },
+
+  // Asset Library
+  assets: {
+    title: "רישיונות",
+    newAsset: "נכס חדש",
+    types: {
+      music: "מוזיקה",
+      sfx: "אפקטים קוליים",
+      font: "פונט",
+      stock_footage: "סטוק וידאו",
+    },
+  },
+
+  // Inspiration Board
+  inspiration: {
+    title: "לוח השראה",
+    newItem: "השראה חדשה",
+    categories: {
+      lighting: "תאורה",
+      editing: "עריכה",
+      hooks: "הוקים",
+      thumbnails: "תמונות ממוזערות",
+    },
+  },
+
+  // Cheat Sheets
+  cheatSheets: {
+    title: "מדריכים ונהלים",
+    newSheet: "מדריך חדש",
+  },
+
+  // Scripts
+  scripts: {
+    title: "תסריטים",
+    newScript: "תסריט חדש",
+    untitled: "תסריט ללא כותרת",
+    editor: {
+      placeholder: "התחל לכתוב את התסריט שלך...",
+      saving: "שומר...",
+      saved: "נשמר",
+      unsaved: "לא נשמר",
+    },
+    ai: {
+      title: "AI Copilot",
+      generateTab: "צור",
+      upgradeTab: "שדרג",
+      instructTab: "הוראות",
+      generatePlaceholder: "תאר את התסריט שאתה רוצה (נושא, אורך, פלטפורמה)...",
+      instructPlaceholder: "ספר ל-AI מה לשנות...",
+      generateButton: "צור תסריט",
+      upgradeButton: "שדרג תסריט",
+      applyButton: "החל",
+      generating: "יוצר...",
+      upgrading: "משדרג...",
+      applying: "מחיל...",
+    },
+    noScripts: "אין תסריטים עדיין",
+    deleteConfirm: "האם למחוק את התסריט?",
+  },
+
+  // Dashboard Widgets
+  widgets: {
+    quickNotes: "פתקים מהירים",
+    quickNotesPlaceholder: "רשום רעיונות כאן...",
+    todos: "משימות יומיות",
+    todosPlaceholder: "הוסף משימה...",
+    quickLinks: "קישורים מהירים",
+    newLink: "קישור חדש",
+    gearReset: "סטטוס ציוד",
+    gearItems: {
+      sd_cards: "כרטיסי SD",
+      footage: "גיבוי חומרים",
+      batteries: "סוללות",
+    },
+    gearReady: "מוכן",
+    gearNotReady: "דורש טיפול",
   },
 
   // Common

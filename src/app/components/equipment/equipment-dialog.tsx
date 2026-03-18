@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -146,7 +145,7 @@ export function EquipmentDialog({
                 onValueChange={(v) => v && setCategory(v)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <span className="flex flex-1">{categories.find(cat => cat.value === category)?.label ?? category}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((cat) => (
@@ -214,7 +213,7 @@ export function EquipmentDialog({
                 onValueChange={(v) => v && setStatus(v)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <span className="flex flex-1">{statuses.find(s => s.value === status)?.label ?? status}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {statuses.map((s) => (

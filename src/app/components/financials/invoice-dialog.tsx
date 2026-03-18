@@ -16,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -27,7 +26,7 @@ interface InvoiceDialogProps {
   invoice?: {
     id: string;
     invoiceNumber: string;
-    clientId: string;
+    clientId: string | null;
     projectId: string | null;
     status: string;
     subtotal: number;
@@ -120,7 +119,7 @@ export function InvoiceDialog({
               <Label htmlFor="clientId">לקוח</Label>
               <Select value={clientId} onValueChange={(v) => v && setClientId(v)}>
                 <SelectTrigger id="clientId" className="w-full">
-                  <SelectValue placeholder="בחר לקוח" />
+                  <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
@@ -137,7 +136,7 @@ export function InvoiceDialog({
               <Label htmlFor="projectId">פרויקט</Label>
               <Select value={projectId} onValueChange={(v) => v && setProjectId(v)}>
                 <SelectTrigger id="projectId" className="w-full">
-                  <SelectValue placeholder="בחר פרויקט (אופציונלי)" />
+                  <span className="flex flex-1">{projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : "בחר פרויקט (אופציונלי)"}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -168,7 +167,7 @@ export function InvoiceDialog({
               <Label htmlFor="status">סטטוס</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v)}>
                 <SelectTrigger id="status" className="w-full">
-                  <SelectValue placeholder="בחר סטטוס" />
+                  <span className="flex flex-1">{invoiceStatuses.find(s => s.value === status)?.label ?? status}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {invoiceStatuses.map((s) => (

@@ -3,6 +3,29 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 
+export async function getClients() {
+  return prisma.client.findMany({
+    orderBy: { name: "asc" },
+    select: { id: true, name: true },
+  });
+}
+
+export async function createClientQuick(name: string) {
+  try {
+    if (!name.trim()) return { success: false as const, error: "שם נדרש" };
+    const client = await prisma.client.create({
+      data: { name: name.trim(), type: "client", leadStatus: "new" },
+      select: { id: true, name: true },
+    });
+    revalidatePath("/clients");
+    revalidatePath("/projects");
+    revalidatePath("/");
+    return { success: true as const, client };
+  } catch (error) {
+    return { success: false as const, error: error instanceof Error ? error.message : "שגיאה" };
+  }
+}
+
 export async function createClient(formData: FormData) {
   try {
     const name = formData.get("name") as string;

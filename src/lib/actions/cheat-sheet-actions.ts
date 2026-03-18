@@ -1,0 +1,92 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { prisma } from "@/lib/db/prisma";
+
+export async function createCheatSheet(formData: FormData) {
+  try {
+    const title = formData.get("title") as string;
+    if (!title) {
+      return { success: false, error: "Title is required" };
+    }
+
+    const category = formData.get("category") as string;
+    if (!category) {
+      return { success: false, error: "Category is required" };
+    }
+
+    // Get the max sortOrder for this category and add 1
+    const maxSort = await prisma.cheatSheet.findFirst({
+      where: { category },
+      orderBy: { sortOrder: "desc" },
+      select: { sortOrder: true },
+    });
+
+    await prisma.cheatSheet.create({
+      data: {
+        title,
+        category,
+        content: (formData.get("content") as string) || "",
+        sortOrder: (maxSort?.sortOrder ?? -1) + 1,
+      },
+    });
+
+    revalidatePath("/cheat-sheets");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to create cheat sheet",
+    };
+  }
+}
+
+export async function updateCheatSheet(id: string, formData: FormData) {
+  try {
+    const title = formData.get("title") as string;
+    if (!title) {
+      return { success: false, error: "Title is required" };
+    }
+
+    const category = formData.get("category") as string;
+    if (!category) {
+      return { success: false, error: "Category is required" };
+    }
+
+    await prisma.cheatSheet.update({
+      where: { id },
+      data: {
+        title,
+        category,
+        content: (formData.get("content") as string) || "",
+      },
+    });
+
+    revalidatePath("/cheat-sheets");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update cheat sheet",
+    };
+  }
+}
+
+export async function deleteCheatSheet(id: string) {
+  try {
+    await prisma.cheatSheet.delete({
+      where: { id },
+    });
+
+    revalidatePath("/cheat-sheets");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete cheat sheet",
+    };
+  }
+}

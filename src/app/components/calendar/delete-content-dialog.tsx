@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -24,6 +25,7 @@ export function DeleteContentDialog({
   open,
   onOpenChange,
 }: DeleteContentDialogProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -31,6 +33,8 @@ export function DeleteContentDialog({
       const result = await deleteScheduledContent(contentId);
       if (result.success) {
         onOpenChange(false);
+        // Force re-fetch server data so deleted events disappear immediately
+        router.refresh();
       }
     });
   }

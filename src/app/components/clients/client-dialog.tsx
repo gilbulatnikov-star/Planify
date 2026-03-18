@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -70,16 +69,27 @@ export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) 
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
 
+  const knownSources = leadSourceOptions.map((o) => o.value) as string[];
+
+  // If the stored value isn't a known option, treat it as a custom "other" value
+  const toLeadSourceState = (v: string | null) =>
+    !v ? "" : knownSources.includes(v) ? v : "other";
+  const toCustomState = (v: string | null) =>
+    !v || knownSources.includes(v) ? "" : v;
+
   const [type, setType] = useState(client?.type ?? "lead");
-  const [leadSource, setLeadSource] = useState(client?.leadSource ?? "");
+  const [leadSource, setLeadSource] = useState(() => toLeadSourceState(client?.leadSource ?? null));
+  const [customLeadSource, setCustomLeadSource] = useState(() => toCustomState(client?.leadSource ?? null));
   const [leadStatus, setLeadStatus] = useState(client?.leadStatus ?? "new");
 
   useEffect(() => {
     if (open) {
       setType(client?.type ?? "lead");
-      setLeadSource(client?.leadSource ?? "");
+      setLeadSource(toLeadSourceState(client?.leadSource ?? null));
+      setCustomLeadSource(toCustomState(client?.leadSource ?? null));
       setLeadStatus(client?.leadStatus ?? "new");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, client]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -87,8 +97,11 @@ export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) 
     const form = e.currentTarget;
     const formData = new FormData(form);
 
+    const finalLeadSource =
+      leadSource === "other" ? customLeadSource.trim() : leadSource;
+
     formData.set("type", type);
-    formData.set("leadSource", leadSource);
+    formData.set("leadSource", finalLeadSource);
     formData.set("leadStatus", leadStatus);
 
     startTransition(async () => {
@@ -161,7 +174,7 @@ export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) 
               <Label>סוג</Label>
               <Select value={type} onValueChange={(v) => setType(v ?? "lead")}>
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <span className="flex flex-1">{typeOptions.find(o => o.value === type)?.label ?? type}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {typeOptions.map((option) => (
@@ -175,9 +188,15 @@ export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) 
 
             <div className="grid gap-2">
               <Label>מקור ליד</Label>
-              <Select value={leadSource} onValueChange={(v) => setLeadSource(v ?? "")}>
+              <Select value={leadSource} onValueChange={(v) => { setLeadSource(v ?? ""); setCustomLeadSource(""); }}>
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="בחר מקור" />
+                  <span className="flex flex-1">
+                    {leadSource === "other" && customLeadSource
+                      ? customLeadSource
+                      : leadSource
+                        ? (leadSourceOptions.find(o => o.value === leadSource)?.label ?? leadSource)
+                        : "בחר מקור"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {leadSourceOptions.map((option) => (
@@ -187,13 +206,22 @@ export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) 
                   ))}
                 </SelectContent>
               </Select>
+              {leadSource === "other" && (
+                <Input
+                  placeholder="ציין מקור ידנית..."
+                  value={customLeadSource}
+                  onChange={(e) => setCustomLeadSource(e.target.value)}
+                  autoFocus
+                  dir="rtl"
+                />
+              )}
             </div>
 
             <div className="grid gap-2 sm:col-span-2">
               <Label>סטטוס ליד</Label>
               <Select value={leadStatus} onValueChange={(v) => setLeadStatus(v ?? "new")}>
                 <SelectTrigger className="w-full">
-                  <SelectValue />
+                  <span className="flex flex-1">{leadStatusOptions.find(o => o.value === leadStatus)?.label ?? leadStatus}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {leadStatusOptions.map((option) => (

@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
-import { Heebo } from "next/font/google";
+import { Noto_Sans_Hebrew } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SessionProvider } from "@/app/components/layout/session-provider";
 import "./globals.css";
 
-const heebo = Heebo({
-  variable: "--font-heebo",
+const notoSansHebrew = Noto_Sans_Hebrew({
+  variable: "--font-noto-sans-hebrew",
   subsets: ["hebrew", "latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Gil Productions CRM",
+  title: "Planify",
   description: "מערכת ניהול לקוחות ופרויקטים — גיל הפקות",
 };
 
@@ -19,9 +21,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl" className="dark">
-      <body className={`${heebo.variable} font-sans antialiased`}>
-        <TooltipProvider>{children}</TooltipProvider>
+    <html lang="he" dir="rtl">
+      <body className={`${notoSansHebrew.variable} font-sans antialiased`}>
+        <SessionProvider>
+          <TooltipProvider>{children}</TooltipProvider>
+        </SessionProvider>
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef } from "react";
+import { Paperclip, X, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -32,6 +32,7 @@ interface ExpenseDialogProps {
     date: Date;
     vendor: string | null;
     notes: string | null;
+    receiptUrl?: string | null;
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,11 +62,35 @@ export function ExpenseDialog({
   const [isPending, startTransition] = useTransition();
   const isEditing = !!expense;
   const [category, setCategory] = useState(expense?.category ?? "other");
+  const [receiptUrl, setReceiptUrl] = useState(expense?.receiptUrl ?? "");
+  const [receiptName, setReceiptName] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/upload-file", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.fileUrl) {
+        setReceiptUrl(data.fileUrl);
+        setReceiptName(data.fileName ?? file.name);
+      }
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("category", category);
+    if (receiptUrl) formData.set("receiptUrl", receiptUrl);
 
     startTransition(async () => {
       const result = isEditing
@@ -81,6 +106,8 @@ export function ExpenseDialog({
   function handleOpenChange(open: boolean) {
     if (open) {
       setCategory(expense?.category ?? "other");
+      setReceiptUrl(expense?.receiptUrl ?? "");
+      setReceiptName("");
     }
     onOpenChange(open);
   }
@@ -117,7 +144,7 @@ export function ExpenseDialog({
               <Label htmlFor="category">קטגוריה</Label>
               <Select value={category} onValueChange={(v) => v && setCategory(v)}>
                 <SelectTrigger id="category" className="w-full">
-                  <SelectValue placeholder="בחר קטגוריה" />
+                  <span className="flex flex-1">{expenseCategories.find(cat => cat.value === category)?.label ?? category}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {expenseCategories.map((cat) => (
@@ -177,6 +204,31 @@ export function ExpenseDialog({
                 name="notes"
                 defaultValue={expense?.notes ?? ""}
               />
+            </div>
+
+            {/* צרף קבלה */}
+            <div className="col-span-2 space-y-2">
+              <Label>צרף קבלה / PDF</Label>
+              {receiptUrl ? (
+                <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
+                  <Paperclip className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <a href={receiptUrl} target="_blank" rel="noopener noreferrer"
+                    className="flex-1 truncate text-emerald-700 hover:underline">
+                    {receiptName || receiptUrl.split("/").pop()}
+                  </a>
+                  <button type="button" onClick={() => { setReceiptUrl(""); setReceiptName(""); }}
+                    className="text-gray-400 hover:text-red-500 transition-colors">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <label className={`flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm transition-colors ${uploading ? "border-gray-200 text-gray-400" : "border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-50"}`}>
+                  {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
+                  {uploading ? "מעלה..." : "לחץ לצירוף קובץ (PDF, JPG, PNG)"}
+                  <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png"
+                    className="hidden" onChange={handleFileSelect} disabled={uploading} />
+                </label>
+              )}
             </div>
           </div>
 

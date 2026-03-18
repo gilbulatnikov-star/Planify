@@ -3,6 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 
+export async function getProjects() {
+  return prisma.project.findMany({
+    orderBy: { title: "asc" },
+    select: { id: true, title: true },
+  });
+}
+
 export async function createProject(formData: FormData) {
   try {
     const title = formData.get("title") as string;

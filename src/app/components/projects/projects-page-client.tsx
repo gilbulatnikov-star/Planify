@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarPlus, FolderPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ type ClientOption = { id: string; name: string };
 
 const phases = [
   { key: "pre_production", label: he.project.phases.pre_production, color: "from-violet-500 to-purple-600" },
-  { key: "production", label: he.project.phases.production, color: "from-cyan-500 to-teal-500" },
+  { key: "production", label: he.project.phases.production, color: "from-gray-800 to-gray-900" },
   { key: "post_production", label: he.project.phases.post_production, color: "from-amber-500 to-orange-500" },
   { key: "delivered", label: he.project.phases.delivered, color: "from-emerald-500 to-green-500" },
 ];
@@ -85,13 +85,13 @@ export function ProjectsPageClient({
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold bg-gradient-to-l from-cyan-300 via-white to-white bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold text-gray-900">
           {he.project.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white hover:from-cyan-400 hover:to-teal-400 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all duration-300 border-0"
+          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.project.newProject}
@@ -108,7 +108,7 @@ export function ProjectsPageClient({
                   {phase.label}
                 </h2>
               </div>
-              <Badge variant="secondary" className="text-xs bg-white/[0.06] border-0">
+              <Badge variant="secondary" className="text-xs bg-gray-100 border-0">
                 {phase.projects.length}
               </Badge>
             </div>
@@ -133,11 +133,50 @@ export function ProjectsPageClient({
                             {project.client?.name ?? "—"}
                           </p>
                         </div>
-                        <div className="flex items-center gap-0.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                          {project.shootDate && (
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              title="הוסף ל-Google Calendar"
+                              className="h-6 w-6 hover:bg-blue-50 hover:text-blue-700"
+                              onClick={() => {
+                                const d = new Date(project.shootDate!);
+                                const fmt = (dt: Date) =>
+                                  dt.toISOString().replace(/[-:]/g, "").split(".")[0];
+                                const start = fmt(d);
+                                const end = fmt(new Date(d.getTime() + 8 * 3600000));
+                                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(project.title)}&dates=${start}/${end}&details=${encodeURIComponent(`פרויקט: ${project.title}${project.client?.name ? ` | לקוח: ${project.client.name}` : ""}`)}&sf=true&output=xml`;
+                                window.open(url, "_blank", "noopener");
+                              }}
+                            >
+                              <CalendarPlus className="h-3 w-3" />
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 hover:bg-cyan-500/10 hover:text-cyan-400"
+                            title="צור תיקיית Drive"
+                            className="h-6 w-6 hover:bg-green-50 hover:text-green-700"
+                            onClick={async () => {
+                              const folderName = `${project.shootDate ? new Date(project.shootDate).getFullYear() + " - " : ""}${project.client?.name ?? "ללא לקוח"} - ${project.title}`;
+                              const res = await fetch("/api/google/drive", {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ action: "create_folder", folderName }),
+                              });
+                              const data = await res.json();
+                              if (data.folderUrl) window.open(data.folderUrl, "_blank", "noopener");
+                              else if (data.setupRequired) alert("חיבור Google Drive דורש הגדרה. ראה /api/google/drive/route.ts להוראות.");
+                              else alert(data.error ?? "שגיאה ביצירת תיקייה");
+                            }}
+                          >
+                            <FolderPlus className="h-3 w-3" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 hover:bg-gray-100 hover:text-gray-900"
                             onClick={() => handleEdit(project)}
                           >
                             <Pencil className="h-3 w-3" />
@@ -145,7 +184,7 @@ export function ProjectsPageClient({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 hover:bg-red-500/10 text-destructive"
+                            className="h-6 w-6 hover:bg-red-50 text-destructive"
                             onClick={() =>
                               setDeleteTarget({
                                 id: project.id,
@@ -160,13 +199,13 @@ export function ProjectsPageClient({
 
                       <div className="flex items-center gap-2 flex-wrap">
                         {project.projectType && (
-                          <Badge variant="outline" className="text-xs border-white/10 text-muted-foreground">
+                          <Badge variant="outline" className="text-xs border-gray-200 text-muted-foreground">
                             {he.project.types[
                               project.projectType as keyof typeof he.project.types
                             ] ?? project.projectType}
                           </Badge>
                         )}
-                        <Badge className="text-xs bg-cyan-500/15 text-cyan-300 hover:bg-cyan-500/25 border-0">
+                        <Badge className="text-xs bg-cyan-50 text-cyan-700 hover:bg-gray-200 border-0">
                           {he.project.statuses[
                             project.status as keyof typeof he.project.statuses
                           ] ?? project.status}
@@ -194,9 +233,9 @@ export function ProjectsPageClient({
                               {completedTasks}/{totalTasks}
                             </span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-white/[0.06]">
+                          <div className="h-1.5 rounded-full bg-gray-100">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-teal-400 transition-all duration-500"
+                              className="h-full rounded-full bg-gradient-to-r from-gray-700 to-gray-800 transition-all duration-500"
                               style={{
                                 width: `${(completedTasks / totalTasks) * 100}%`,
                               }}
@@ -209,7 +248,7 @@ export function ProjectsPageClient({
                 );
               })}
               {phase.projects.length === 0 && (
-                <div className="rounded-xl border border-dashed border-white/[0.08] p-6 text-center bg-white/[0.01]">
+                <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center bg-gray-50/30">
                   <p className="text-xs text-muted-foreground">אין פרויקטים</p>
                 </div>
               )}

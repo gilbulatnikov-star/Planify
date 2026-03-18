@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db/prisma";
 import { FinancialsPageClient } from "@/app/components/financials/financials-page-client";
 
 export default async function FinancialsPage() {
-  const [invoices, quotes, expenses, clients, projects] = await Promise.all([
+  const [invoices, quotes, expenses, clients, projects, subscriptions] = await Promise.all([
     prisma.invoice.findMany({
       include: {
         client: { select: { name: true } },
@@ -28,7 +28,14 @@ export default async function FinancialsPage() {
       select: { id: true, title: true },
       orderBy: { title: "asc" },
     }),
+    prisma.subscription.findMany({
+      orderBy: { serviceName: "asc" },
+    }),
   ]);
+
+  const totalMonthlyCost = subscriptions
+    .filter((s) => s.status === "active")
+    .reduce((sum, s) => sum + (s.billingCycle === "yearly" ? s.amount / 12 : s.amount), 0);
 
   return (
     <FinancialsPageClient
@@ -37,6 +44,8 @@ export default async function FinancialsPage() {
       expenses={expenses}
       clients={clients}
       projects={projects}
+      subscriptions={subscriptions}
+      totalMonthlyCost={totalMonthlyCost}
     />
   );
 }

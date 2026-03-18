@@ -20,10 +20,10 @@ import { he } from "@/lib/he";
 import { formatCurrency } from "@/lib/utils/format";
 
 const statusStyles: Record<string, string> = {
-  available: "bg-emerald-500/15 text-emerald-300 border-0",
-  rented: "bg-cyan-500/15 text-cyan-300 border-0",
-  in_repair: "bg-red-500/15 text-red-300 border-0",
-  retired: "bg-white/[0.06] text-muted-foreground border-0",
+  available: "bg-emerald-50 text-emerald-700 border-0",
+  rented: "bg-cyan-50 text-cyan-700 border-0",
+  in_repair: "bg-red-50 text-red-700 border-0",
+  retired: "bg-gray-100 text-gray-500 border-0",
 };
 
 type EquipmentData = {
@@ -90,13 +90,13 @@ export function EquipmentPageClient({
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold bg-gradient-to-l from-cyan-300 via-white to-white bg-clip-text text-transparent">
+        <h1 className="text-2xl font-bold text-gray-900">
           {he.equipment.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white hover:from-cyan-400 hover:to-teal-400 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all duration-300 border-0"
+          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.equipment.newItem}
@@ -117,16 +117,17 @@ export function EquipmentPageClient({
       <motion.div variants={fadeUp}>
         <Card className="glass-card overflow-hidden">
           <CardContent className="p-0">
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-white/[0.06] hover:bg-transparent">
+                <TableRow className="border-gray-100 hover:bg-transparent">
                   <TableHead className="text-muted-foreground">{he.equipment.name}</TableHead>
-                  <TableHead className="text-muted-foreground">{he.equipment.category}</TableHead>
-                  <TableHead className="text-muted-foreground">{he.equipment.brand}</TableHead>
-                  <TableHead className="text-muted-foreground">{he.equipment.model}</TableHead>
+                  <TableHead className="hidden sm:table-cell text-muted-foreground">{he.equipment.category}</TableHead>
+                  <TableHead className="hidden md:table-cell text-muted-foreground">{he.equipment.brand}</TableHead>
+                  <TableHead className="hidden md:table-cell text-muted-foreground">{he.equipment.model}</TableHead>
                   <TableHead className="text-muted-foreground">{he.equipment.status}</TableHead>
-                  <TableHead className="text-muted-foreground">{he.equipment.purchasePrice}</TableHead>
-                  <TableHead className="text-muted-foreground">משויך לפרויקט</TableHead>
+                  <TableHead className="hidden sm:table-cell text-muted-foreground">{he.equipment.purchasePrice}</TableHead>
+                  <TableHead className="hidden lg:table-cell text-muted-foreground">משויך לפרויקט</TableHead>
                   <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
@@ -134,31 +135,31 @@ export function EquipmentPageClient({
                 {equipment.map((item) => (
                   <TableRow
                     key={item.id}
-                    className="border-white/[0.04] transition-all duration-200 hover:bg-cyan-500/[0.04] group"
+                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
                   >
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="border-white/10 text-muted-foreground">
+                    <TableCell className="hidden sm:table-cell">
+                      <Badge variant="outline" className="border-gray-200 text-muted-foreground">
                         {he.equipment.categories[
                           item.category as keyof typeof he.equipment.categories
                         ] ?? item.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">{item.brand ?? "—"}</TableCell>
-                    <TableCell className="text-muted-foreground">{item.model ?? "—"}</TableCell>
+                    <TableCell className="hidden md:table-cell text-muted-foreground">{item.brand ?? "—"}</TableCell>
+                    <TableCell className="hidden md:table-cell text-muted-foreground">{item.model ?? "—"}</TableCell>
                     <TableCell>
-                      <Badge className={statusStyles[item.status] ?? "bg-white/[0.06] text-muted-foreground border-0"}>
+                      <Badge className={statusStyles[item.status] ?? "bg-gray-100 text-gray-500 border-0"}>
                         {he.equipment.statuses[
                           item.status as keyof typeof he.equipment.statuses
                         ] ?? item.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="hidden sm:table-cell text-muted-foreground">
                       {item.purchasePrice
                         ? formatCurrency(item.purchasePrice)
                         : "—"}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="hidden lg:table-cell text-muted-foreground">
                       {item.gearAssignments.length > 0
                         ? item.gearAssignments
                             .map((ga) => ga.project.title)
@@ -166,11 +167,11 @@ export function EquipmentPageClient({
                         : "—"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 hover:bg-cyan-500/10 hover:text-cyan-400 transition-colors duration-200"
+                          className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
                           onClick={() => handleEdit(item)}
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -178,7 +179,7 @@ export function EquipmentPageClient({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 hover:bg-red-500/10 text-destructive transition-colors duration-200"
+                          className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
                           onClick={() =>
                             setDeleteTarget({ id: item.id, name: item.name })
                           }
@@ -191,6 +192,7 @@ export function EquipmentPageClient({
                 ))}
               </TableBody>
             </Table>
+            </div>
           </CardContent>
         </Card>
       </motion.div>

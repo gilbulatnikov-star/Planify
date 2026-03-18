@@ -6,9 +6,13 @@ import {
   LayoutDashboard,
   FolderKanban,
   Users,
-  Camera,
   Receipt,
   CalendarDays,
+  Contact,
+  CreditCard,
+  Sparkles,
+  FileText,
+  Crown,
 } from "lucide-react";
 import {
   Sidebar,
@@ -24,12 +28,16 @@ import {
 import { he } from "@/lib/he";
 
 const navItems = [
-  { href: "/", label: he.nav.dashboard, icon: LayoutDashboard },
-  { href: "/projects", label: he.nav.projects, icon: FolderKanban },
-  { href: "/clients", label: he.nav.clients, icon: Users },
-  { href: "/equipment", label: he.nav.equipment, icon: Camera },
-  { href: "/financials", label: he.nav.financials, icon: Receipt },
-  { href: "/calendar", label: he.nav.calendar, icon: CalendarDays },
+  { href: "/", label: he.nav.dashboard, icon: LayoutDashboard, tourId: "nav-dashboard" },
+  { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
+  { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
+  { href: "/financials", label: he.nav.financials, icon: Receipt, tourId: "nav-financials" },
+  { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
+  { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
+  { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
+  { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard, tourId: "nav-subscriptions" },
+  { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
+  { href: "/billing", label: he.nav.billing, icon: Crown, tourId: "nav-billing" },
 ];
 
 export function AppSidebar() {
@@ -37,14 +45,14 @@ export function AppSidebar() {
 
   return (
     <Sidebar side="right" collapsible="icon">
-      <SidebarHeader className="border-b border-white/[0.06] px-4 py-4">
+      <SidebarHeader className="border-b border-border px-4 py-4">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-400 to-teal-500 text-white font-bold text-sm shadow-lg shadow-cyan-500/20 transition-all duration-300 group-hover:shadow-cyan-500/40 group-hover:scale-105">
-            GP
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 text-white font-bold text-sm shadow-sm transition-all duration-300 group-hover:scale-105">
+            P
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold tracking-tight bg-gradient-to-l from-cyan-300 to-white bg-clip-text text-transparent">
-              Gil Productions
+            <span className="text-sm font-bold tracking-tight text-gray-900">
+              Planify
             </span>
             <span className="text-[11px] text-muted-foreground">
               מערכת ניהול
@@ -63,18 +71,18 @@ export function AppSidebar() {
                     ? pathname === "/"
                     : pathname.startsWith(item.href);
                 return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
                       tooltip={item.label}
                       className={`transition-all duration-200 ${
                         isActive
-                          ? "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 shadow-sm shadow-cyan-500/5"
-                          : "hover:bg-white/[0.04] text-muted-foreground hover:text-foreground"
+                          ? "bg-gray-900 text-white font-medium shadow-sm"
+                          : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                       }`}
                     >
-                      <item.icon className={`h-4 w-4 ${isActive ? "text-cyan-400" : ""}`} />
+                      <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -85,9 +93,9 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-white/[0.06] p-4 group-data-[collapsible=icon]:hidden">
-        <p className="text-[11px] text-muted-foreground/60 text-center">
-          Gil Productions CRM v1.0
+      <SidebarFooter className="border-t border-border p-4 group-data-[collapsible=icon]:hidden">
+        <p className="text-[11px] text-muted-foreground text-center">
+          Planify v1.0
         </p>
       </SidebarFooter>
     </Sidebar>

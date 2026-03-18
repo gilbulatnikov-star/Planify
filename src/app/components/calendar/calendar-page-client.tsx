@@ -16,13 +16,25 @@ import {
   isSameDay,
   isToday,
 } from "date-fns";
+
 import { he as heLocale } from "date-fns/locale";
-import { ChevronRight, ChevronLeft, Plus, Pencil, Trash2 } from "lucide-react";
+import {
+  ChevronRight,
+  ChevronLeft,
+  Plus,
+  Trash2,
+  Globe,
+  User,
+  X,
+  Download,
+  CalendarPlus,
+  ChevronDown,
+} from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { ContentDialog } from "./content-dialog";
 import { DeleteContentDialog } from "./delete-content-dialog";
+import { CalendarExportStudio } from "./calendar-export-studio";
 import { he } from "@/lib/he";
 
 type ContentItem = {
@@ -38,17 +50,25 @@ type ContentItem = {
   project: { id: string; title: string } | null;
 };
 
-const contentTypeColors: Record<string, { bg: string; text: string; dot: string }> = {
-  client_shoot: { bg: "bg-blue-500/15", text: "text-blue-300", dot: "bg-blue-400" },
-  youtube_long: { bg: "bg-red-500/15", text: "text-red-300", dot: "bg-red-400" },
-  short_form: { bg: "bg-purple-500/15", text: "text-purple-300", dot: "bg-purple-400" },
-};
-
-const statusStyles: Record<string, string> = {
-  planned: "bg-white/[0.06] text-muted-foreground border-0",
-  editing: "bg-amber-500/15 text-amber-300 border-0",
-  ready: "bg-cyan-500/15 text-cyan-300 border-0",
-  published: "bg-emerald-500/15 text-emerald-300 border-0",
+const contentTypeColors: Record<
+  string,
+  { bg: string; text: string; dot: string }
+> = {
+  client_shoot: {
+    bg: "bg-blue-50",
+    text: "text-blue-700",
+    dot: "bg-blue-500",
+  },
+  youtube_long: {
+    bg: "bg-red-50",
+    text: "text-red-700",
+    dot: "bg-red-500",
+  },
+  short_form: {
+    bg: "bg-purple-50",
+    text: "text-purple-700",
+    dot: "bg-purple-500",
+  },
 };
 
 const stagger = {
@@ -61,7 +81,11 @@ const stagger = {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.35, ease: "easeOut" as const },
+  },
 };
 
 const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
@@ -71,24 +95,73 @@ export function CalendarPageClient({
   clients,
   projects,
   initialMonth,
+  activeClientId,
 }: {
   content: ContentItem[];
   clients: { id: string; name: string }[];
   projects: { id: string; title: string }[];
   initialMonth: string;
+  activeClientId: string | null;
+  activeClientName: string | null;
 }) {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date(initialMonth));
 
+  // Local state for client filtering — instant reactivity
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(
+    activeClientId,
+  );
+
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingContent, setEditingContent] = useState<ContentItem | null>(null);
+  const [editingContent, setEditingContent] = useState<ContentItem | null>(
+    null,
+  );
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [exportStudioOpen, setExportStudioOpen] = useState(false);
+  const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
+
+  const isIsolated = !!selectedClientId;
+
+  // Derive active client name from local state
+  const selectedClientName = selectedClientId
+    ? clients.find((c) => c.id === selectedClientId)?.name ?? null
+    : null;
+
+  // Build URL with current params preserved
+  function buildUrl(overrides: {
+    month?: string;
+    clientId?: string | null;
+  }) {
+    const monthStr =
+      overrides.month ?? format(currentMonth, "yyyy-MM");
+    const clientStr =
+      overrides.clientId !== undefined
+        ? overrides.clientId
+        : selectedClientId;
+
+    const params = new URLSearchParams();
+    params.set("month", monthStr);
+    if (clientStr) params.set("clientId", clientStr);
+    return `/calendar?${params.toString()}`;
+  }
 
   function navigateMonth(direction: "prev" | "next") {
-    const newMonth = direction === "prev" ? subMonths(currentMonth, 1) : addMonths(currentMonth, 1);
+    const newMonth =
+      direction === "prev"
+        ? subMonths(currentMonth, 1)
+        : addMonths(currentMonth, 1);
     setCurrentMonth(newMonth);
-    router.push(`/calendar?month=${format(newMonth, "yyyy-MM")}`);
+    router.push(buildUrl({ month: format(newMonth, "yyyy-MM") }));
+    // Force fresh data fetch to pick up events created on overflow days
+    router.refresh();
+  }
+
+  function handleClientSwitch(clientId: string | null) {
+    // Update local state instantly for immediate UI re-render
+    setSelectedClientId(clientId);
+    // Sync URL for bookmarkability (replace, not push — avoids history spam)
+    router.replace(buildUrl({ clientId }));
   }
 
   function handleDayClick(day: Date) {
@@ -109,10 +182,28 @@ export function CalendarPageClient({
     setDialogOpen(true);
   }
 
+  function buildGCalUrl(item: ContentItem) {
+    const fmt = (dt: Date) =>
+      dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const d = new Date(item.date);
+    d.setHours(12, 0, 0, 0);
+    const end = new Date(d.getTime() + 3600000);
+    const details = [
+      item.client?.name ? `לקוח: ${item.client.name}` : "",
+      item.contentType,
+      item.notes ?? "",
+    ].filter(Boolean).join(" | ");
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${fmt(d)}/${fmt(end)}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
+  }
+
+  const visibleItems = content.filter(
+    (item) => !selectedClientId || item.clientId === selectedClientId,
+  );
+
   // Build calendar grid
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
-  const calStart = startOfWeek(monthStart); // Sunday start
+  const calStart = startOfWeek(monthStart);
   const calEnd = endOfWeek(monthEnd);
 
   const weeks: Date[][] = [];
@@ -127,7 +218,12 @@ export function CalendarPageClient({
   }
 
   function getContentForDay(day: Date) {
-    return content.filter((item) => isSameDay(new Date(item.date), day));
+    return content.filter((item) => {
+      if (!isSameDay(new Date(item.date), day)) return false;
+      // Client-side filtering: show only selected client's content
+      if (selectedClientId && item.clientId !== selectedClientId) return false;
+      return true;
+    });
   }
 
   return (
@@ -137,28 +233,119 @@ export function CalendarPageClient({
       animate="show"
       className="space-y-6"
     >
-      {/* Header */}
-      <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold bg-gradient-to-l from-cyan-300 via-white to-white bg-clip-text text-transparent">
+      {/* Header row */}
+      <motion.div
+        variants={fadeUp}
+        className="flex items-center justify-between"
+      >
+        <h1 className="text-2xl font-bold text-gray-900">
           {he.calendar.title}
         </h1>
-        <Button
-          size="sm"
-          onClick={handleCreateNew}
-          className="bg-gradient-to-r from-cyan-500 to-teal-500 text-white hover:from-cyan-400 hover:to-teal-400 shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 transition-all duration-300 border-0"
-        >
-          <Plus className="h-4 w-4 me-2" />
-          {he.calendar.newContent}
-        </Button>
+
+        <div className="flex items-center gap-2">
+          {/* Client selector dropdown */}
+          <div className="relative group">
+            <button className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+              {isIsolated
+                ? <><User className="h-3.5 w-3.5 text-gray-500" /><span>{selectedClientName}</span></>
+                : <><Globe className="h-3.5 w-3.5 text-gray-400" /><span>בחר לקוח</span></>
+              }
+              <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+            </button>
+            <div className="absolute left-0 top-full z-50 mt-1 hidden min-w-[180px] rounded-xl border border-gray-200 bg-white py-1.5 shadow-xl group-hover:block">
+              <button
+                onClick={() => handleClientSwitch(null)}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${!isIsolated ? "font-semibold text-gray-900" : "text-gray-600"}`}
+              >
+                <Globe className="h-3.5 w-3.5 text-gray-400" />כל הלקוחות
+              </button>
+              {clients.length > 0 && <div className="mx-3 my-1 border-t border-gray-100" />}
+              {clients.map((client) => (
+                <button
+                  key={client.id}
+                  onClick={() => handleClientSwitch(client.id)}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${selectedClientId === client.id ? "font-semibold text-gray-900" : "text-gray-600"}`}
+                >
+                  <User className="h-3.5 w-3.5 text-gray-400" />{client.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Add to Google Calendar — popover with individual links */}
+          <div className="relative">
+            <button
+              onClick={() => setCalendarPopoverOpen((v) => !v)}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
+            >
+              <CalendarPlus className="h-4 w-4 text-blue-500" />
+              הוסף לגוגל קלנדר
+              <ChevronDown className="h-3 w-3 text-gray-400" />
+            </button>
+            {calendarPopoverOpen && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setCalendarPopoverOpen(false)} />
+                <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
+                  <div className="px-3 py-2 border-b border-gray-100">
+                    <p className="text-xs font-semibold text-gray-500">בחר אירוע להוספה לגוגל קלנדר</p>
+                  </div>
+                  {visibleItems.length === 0 ? (
+                    <p className="px-3 py-3 text-xs text-gray-400">אין אירועים בתצוגה הנוכחית</p>
+                  ) : (
+                    <div className="max-h-64 overflow-y-auto py-1">
+                      {visibleItems.map((item) => (
+                        <a
+                          key={item.id}
+                          href={buildGCalUrl(item)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={() => setCalendarPopoverOpen(false)}
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                        >
+                          <CalendarPlus className="h-3.5 w-3.5 text-blue-400 shrink-0" />
+                          <span className="flex-1 truncate">{item.title}</span>
+                          <span className="text-xs text-gray-400 shrink-0">
+                            {format(new Date(item.date), "d/M")}
+                          </span>
+                        </a>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Export as image/PDF */}
+          <button
+            onClick={() => setExportStudioOpen(true)}
+            className="flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-3 py-2 text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm"
+          >
+            <Download className="h-4 w-4" />
+            ייצוא כקובץ
+          </button>
+
+          <Button
+            size="sm"
+            onClick={handleCreateNew}
+            className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          >
+            <Plus className="h-4 w-4 me-2" />
+            {he.calendar.newContent}
+          </Button>
+        </div>
       </motion.div>
 
       {/* Month navigation */}
-      <motion.div variants={fadeUp} className="flex items-center justify-center gap-4">
+      <motion.div
+        variants={fadeUp}
+        className="flex items-center justify-center gap-4"
+      >
         <Button
           variant="ghost"
           size="icon"
           onClick={() => navigateMonth("next")}
-          className="hover:bg-white/[0.06] h-8 w-8"
+          className="hover:bg-gray-50 h-8 w-8"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
@@ -169,7 +356,7 @@ export function CalendarPageClient({
           variant="ghost"
           size="icon"
           onClick={() => navigateMonth("prev")}
-          className="hover:bg-white/[0.06] h-8 w-8"
+          className="hover:bg-gray-50 h-8 w-8"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
@@ -180,7 +367,7 @@ export function CalendarPageClient({
         <Card className="glass-card overflow-hidden">
           <CardContent className="p-0">
             {/* Day headers */}
-            <div className="grid grid-cols-7 border-b border-white/[0.06]">
+            <div className="grid grid-cols-7 border-b border-gray-100">
               {dayNames.map((name) => (
                 <div
                   key={name}
@@ -193,7 +380,10 @@ export function CalendarPageClient({
 
             {/* Weeks */}
             {weeks.map((week, wi) => (
-              <div key={wi} className="grid grid-cols-7 border-b border-white/[0.04] last:border-0">
+              <div
+                key={wi}
+                className="grid grid-cols-7 border-b border-gray-100 last:border-0"
+              >
                 {week.map((day, di) => {
                   const dayContent = getContentForDay(day);
                   const inMonth = isSameMonth(day, currentMonth);
@@ -203,7 +393,7 @@ export function CalendarPageClient({
                     <div
                       key={di}
                       onClick={() => handleDayClick(day)}
-                      className={`min-h-[100px] p-1.5 border-l border-white/[0.04] first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-cyan-500/[0.03] ${
+                      className={`min-h-[100px] p-1.5 border-l border-gray-100 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
                         !inMonth ? "opacity-30" : ""
                       }`}
                     >
@@ -211,7 +401,7 @@ export function CalendarPageClient({
                         <span
                           className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${
                             today
-                              ? "bg-cyan-500 text-white"
+                              ? "bg-gray-900 text-white"
                               : "text-muted-foreground"
                           }`}
                         >
@@ -220,7 +410,9 @@ export function CalendarPageClient({
                       </div>
                       <div className="space-y-0.5">
                         {dayContent.map((item) => {
-                          const colors = contentTypeColors[item.contentType] ?? contentTypeColors.client_shoot;
+                          const colors =
+                            contentTypeColors[item.contentType] ??
+                            contentTypeColors.client_shoot;
                           return (
                             <div
                               key={item.id}
@@ -228,21 +420,40 @@ export function CalendarPageClient({
                                 e.stopPropagation();
                                 handleEditContent(item);
                               }}
-                              className={`${colors.bg} ${colors.text} text-[10px] leading-tight px-1.5 py-0.5 rounded truncate cursor-pointer hover:brightness-125 transition-all duration-150 group/item relative`}
+                              className={`${colors.bg} ${colors.text} text-[10px] leading-tight px-1.5 py-0.5 rounded truncate cursor-pointer hover:brightness-110 transition-all duration-150 group/item relative`}
                             >
                               <span className="flex items-center gap-1">
-                                <span className={`w-1.5 h-1.5 rounded-full ${colors.dot} flex-shrink-0`} />
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${colors.dot} flex-shrink-0`}
+                                />
                                 <span className="truncate">{item.title}</span>
                               </span>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteTarget(item.id);
-                                }}
-                                className="absolute left-0.5 top-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity"
-                              >
-                                <Trash2 className="h-2.5 w-2.5 text-red-400" />
-                              </button>
+                              {/* Hover actions: delete + add to Google Calendar */}
+                              <div className="absolute left-0.5 top-0.5 flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteTarget(item.id);
+                                  }}
+                                >
+                                  <Trash2 className="h-2.5 w-2.5 text-red-500" />
+                                </button>
+                                <button
+                                  title="הוסף ל-Google Calendar"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    const d = new Date(item.date);
+                                    const fmt = (dt: Date) =>
+                                      dt.toISOString().replace(/[-:]/g, "").split(".")[0];
+                                    const start = fmt(d);
+                                    const end = fmt(new Date(d.getTime() + 3600000));
+                                    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${start}/${end}&details=${encodeURIComponent(item.client?.name ? `לקוח: ${item.client.name}` : "")}&sf=true&output=xml`;
+                                    window.open(url, "_blank", "noopener");
+                                  }}
+                                >
+                                  <CalendarPlus className="h-2.5 w-2.5 text-blue-500" />
+                                </button>
+                              </div>
                             </div>
                           );
                         })}
@@ -257,25 +468,39 @@ export function CalendarPageClient({
       </motion.div>
 
       {/* Content type legend */}
-      <motion.div variants={fadeUp} className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+      <motion.div
+        variants={fadeUp}
+        className="flex items-center justify-center gap-6 text-xs text-muted-foreground"
+      >
         {Object.entries(contentTypeColors).map(([type, colors]) => (
           <div key={type} className="flex items-center gap-1.5">
             <span className={`w-2.5 h-2.5 rounded-full ${colors.dot}`} />
             <span>
-              {he.calendar.contentTypes[type as keyof typeof he.calendar.contentTypes] ?? type}
+              {he.calendar.contentTypes[
+                type as keyof typeof he.calendar.contentTypes
+              ] ?? type}
             </span>
           </div>
         ))}
       </motion.div>
 
-      {/* Dialogs */}
+      {/* Dialogs — auto-set clientId when in isolated mode */}
       <ContentDialog
         content={editingContent}
         defaultDate={selectedDate}
+        defaultClientId={selectedClientId}
         clients={clients}
         projects={projects}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+      />
+
+      <CalendarExportStudio
+        open={exportStudioOpen}
+        onClose={() => setExportStudioOpen(false)}
+        content={content.filter((item) => !selectedClientId || item.clientId === selectedClientId)}
+        currentMonth={currentMonth}
+        clientName={selectedClientName ?? ""}
       />
 
       {deleteTarget && (

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +17,6 @@ import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
@@ -38,6 +38,7 @@ interface ContentDialogProps {
     notes: string | null;
   } | null;
   defaultDate?: string;
+  defaultClientId?: string | null;
   clients: { id: string; name: string }[];
   projects: { id: string; title: string }[];
   open: boolean;
@@ -45,9 +46,9 @@ interface ContentDialogProps {
 }
 
 const contentTypes = [
-  { value: "client_shoot", label: "צילום ללקוח" },
-  { value: "youtube_long", label: "YouTube / ארוך" },
-  { value: "short_form", label: "תוכן קצר / Reels" },
+  { value: "client_shoot", label: "צילום לקוח" },
+  { value: "youtube_long", label: "יוטיוב ארוך" },
+  { value: "short_form", label: "קצר" },
 ] as const;
 
 const contentStatuses = [
@@ -68,17 +69,19 @@ function formatDateForInput(date: Date): string {
 export function ContentDialog({
   content,
   defaultDate,
+  defaultClientId,
   clients,
   projects,
   open,
   onOpenChange,
 }: ContentDialogProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!content;
 
   const [contentType, setContentType] = useState(content?.contentType ?? "client_shoot");
   const [status, setStatus] = useState(content?.status ?? "planned");
-  const [clientId, setClientId] = useState(content?.clientId ?? "");
+  const [clientId, setClientId] = useState(content?.clientId ?? defaultClientId ?? "");
   const [projectId, setProjectId] = useState(content?.projectId ?? "");
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -96,6 +99,8 @@ export function ContentDialog({
 
       if (result.success) {
         onOpenChange(false);
+        // Force re-fetch server data so new/updated events appear immediately
+        router.refresh();
       }
     });
   }
@@ -104,7 +109,7 @@ export function ContentDialog({
     if (open) {
       setContentType(content?.contentType ?? "client_shoot");
       setStatus(content?.status ?? "planned");
-      setClientId(content?.clientId ?? "");
+      setClientId(content?.clientId ?? defaultClientId ?? "");
       setProjectId(content?.projectId ?? "");
     }
     onOpenChange(open);
@@ -158,7 +163,7 @@ export function ContentDialog({
               <Label htmlFor="contentType">סוג תוכן</Label>
               <Select value={contentType} onValueChange={(v) => v && setContentType(v)}>
                 <SelectTrigger id="contentType" className="w-full">
-                  <SelectValue placeholder="בחר סוג" />
+                  <span className="flex flex-1">{contentTypes.find(t => t.value === contentType)?.label ?? contentType}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {contentTypes.map((t) => (
@@ -175,7 +180,7 @@ export function ContentDialog({
               <Label htmlFor="status">סטטוס</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v)}>
                 <SelectTrigger id="status" className="w-full">
-                  <SelectValue placeholder="בחר סטטוס" />
+                  <span className="flex flex-1">{contentStatuses.find(s => s.value === status)?.label ?? status}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {contentStatuses.map((s) => (
@@ -192,7 +197,7 @@ export function ContentDialog({
               <Label htmlFor="clientId">לקוח (אופציונלי)</Label>
               <Select value={clientId} onValueChange={(v) => v && setClientId(v)}>
                 <SelectTrigger id="clientId" className="w-full">
-                  <SelectValue placeholder="בחר לקוח" />
+                  <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
@@ -209,7 +214,7 @@ export function ContentDialog({
               <Label htmlFor="projectId">פרויקט (אופציונלי)</Label>
               <Select value={projectId} onValueChange={(v) => v && setProjectId(v)}>
                 <SelectTrigger id="projectId" className="w-full">
-                  <SelectValue placeholder="בחר פרויקט" />
+                  <span className="flex flex-1">{projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : "בחר פרויקט"}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
