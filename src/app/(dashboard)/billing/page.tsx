@@ -15,13 +15,14 @@ import { useRouter } from "next/navigation";
 
 const FEATURES = [
   { label: "פרויקטים",              free: "1", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "לקוחות",                free: "2", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
+  { label: "לקוחות",                free: "3", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
   { label: "אנשי קשר",              free: "2", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
   { label: "מסמכים להעלאה",         free: "5", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
   { label: "תסריטים",               free: "1", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
   { label: "לוחות השראה (פריטים)",  free: "2", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
   { label: "לוחות מודבורד",         free: "1", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "לוח קנבן",              free: true,  monthly: true,  annual: true  },
+  { label: "משימות יומיות",          free: "3",   monthly: "ללא הגבלה", annual: "ללא הגבלה" },
+  { label: "לוח משימות",             free: true,  monthly: true,  annual: true  },
   { label: "חשבוניות והצעות מחיר",  free: false, monthly: true,  annual: true  },
   { label: "לוח תוכן",              free: false, monthly: true,  annual: true  },
   { label: "ניהול הוצאות",          free: false, monthly: true,  annual: true  },

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CheckSquare, Trash2 } from "lucide-react";
+import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { he } from "@/lib/he";
 import {
   createTodo,
@@ -20,12 +21,16 @@ interface TodoItem {
 
 interface TodoWidgetProps {
   initialTodos: TodoItem[];
+  todosLimit: number; // -1 = unlimited
 }
 
-export function TodoWidget({ initialTodos }: TodoWidgetProps) {
+export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [newTask, setNewTask] = useState("");
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  const atLimit = todosLimit !== -1 && initialTodos.length >= todosLimit;
 
   // Sort: uncompleted first, then completed
   const sortedTodos = [...initialTodos].sort((a, b) => {
@@ -35,6 +40,7 @@ export function TodoWidget({ initialTodos }: TodoWidgetProps) {
 
   function handleAddTodo(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key !== "Enter" || !newTask.trim()) return;
+    if (atLimit) { setUpgradeOpen(true); return; }
 
     const text = newTask.trim();
     setNewTask("");
@@ -60,6 +66,13 @@ export function TodoWidget({ initialTodos }: TodoWidgetProps) {
   }
 
   return (
+    <>
+    <UpgradeDialog
+      open={upgradeOpen}
+      onClose={() => setUpgradeOpen(false)}
+      feature="משימות יומיות"
+      limit={todosLimit}
+    />
     <Card className="glass-card">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -74,7 +87,7 @@ export function TodoWidget({ initialTodos }: TodoWidgetProps) {
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           onKeyDown={handleAddTodo}
-          placeholder={he.widgets.todosPlaceholder}
+          placeholder={atLimit ? `מגבלת ${todosLimit} משימות — לחץ Enter לשדרוג` : he.widgets.todosPlaceholder}
           className="bg-transparent"
           disabled={isPending}
         />
@@ -135,5 +148,6 @@ export function TodoWidget({ initialTodos }: TodoWidgetProps) {
         </div>
       </CardContent>
     </Card>
+    </>
   );
 }

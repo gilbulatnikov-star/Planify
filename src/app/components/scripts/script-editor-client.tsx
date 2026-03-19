@@ -263,12 +263,13 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
 
 // ─── Storyboard Card ──────────────────────────────────────────────────────────
 
-function StoryboardCard({ shot, customShotNo, onUpdate }: {
+function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
   shot: ShotItem; customShotNo: boolean;
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+    <div className="group rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       {/* Frame */}
       <div className="relative bg-gray-100 h-36">
         {shot.frameUrl ? (
@@ -299,10 +300,18 @@ function StoryboardCard({ shot, customShotNo, onUpdate }: {
       </div>
       {/* Info */}
       <div className="p-3 space-y-1.5">
-        <div className="flex gap-1.5 flex-wrap">
-          {shot.shotSize && <span className="rounded-full bg-indigo-50 text-indigo-600 px-2 py-0.5 text-[10px] font-semibold">{shot.shotSize}</span>}
-          {shot.lens && <span className="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-[10px] font-semibold">{shot.lens}</span>}
-          {shot.movement && <span className="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-[10px] font-semibold">{shot.movement}</span>}
+        <div className="flex items-start justify-between gap-1">
+          <div className="flex gap-1.5 flex-wrap flex-1">
+            {shot.shotSize && <span className="rounded-full bg-indigo-50 text-indigo-600 px-2 py-0.5 text-[10px] font-semibold">{shot.shotSize}</span>}
+            {shot.lens && <span className="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-[10px] font-semibold">{shot.lens}</span>}
+            {shot.movement && <span className="rounded-full bg-gray-100 text-gray-600 px-2 py-0.5 text-[10px] font-semibold">{shot.movement}</span>}
+          </div>
+          <button
+            onClick={() => onDelete(shot.id)}
+            className="flex h-5 w-5 shrink-0 items-center justify-center rounded text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
         </div>
         <textarea
           value={shot.content}
@@ -485,6 +494,7 @@ export function ScriptEditorClient({
   const [displayMode, setDisplayMode] = useState<DisplayMode>("storyboard");
   const [cinemaUpgradeOpen, setCinemaUpgradeOpen] = useState(false);
   const [callsheetUpgradeOpen, setCallsheetUpgradeOpen] = useState(false);
+  const [storyboardUpgradeOpen, setStoryboardUpgradeOpen] = useState(false);
   const [scriptCtxMenu, setScriptCtxMenu] = useState<{ x: number; y: number; text: string } | null>(null);
   const [foldMode, setFoldMode] = useState<FoldMode>("unfold");
   const [customShotNo, setCustomShotNo] = useState(false);
@@ -595,14 +605,27 @@ export function ScriptEditorClient({
   }
 
   function addSelectedTextToShotList(text: string) {
+    if (!isPro && displayMode === "storyboard" && shotList.length >= STORYBOARD_FREE_LIMIT) {
+      setStoryboardUpgradeOpen(true);
+      return;
+    }
     const shot: ShotItem = { ...newShot(shotList.length + 1), content: text };
     setShotList((prev) => [...prev, shot]);
     setActiveTab("shotlist");
     setScriptCtxMenu(null);
   }
 
+  const STORYBOARD_FREE_LIMIT = 5;
+  const storyboardAtLimit = !isPro && displayMode === "storyboard" && shotList.length >= STORYBOARD_FREE_LIMIT;
+
   // Shot list
-  function addShot() { setShotList((prev) => [...prev, newShot(prev.length + 1)]); }
+  function addShot() {
+    if (!isPro && displayMode === "storyboard" && shotList.length >= STORYBOARD_FREE_LIMIT) {
+      setStoryboardUpgradeOpen(true);
+      return;
+    }
+    setShotList((prev) => [...prev, newShot(prev.length + 1)]);
+  }
   function updateShot(id: string, field: keyof ShotItem, value: string) {
     setShotList((prev) => prev.map((s) => s.id === id ? { ...s, [field]: value } : s));
   }
@@ -649,6 +672,12 @@ export function ScriptEditorClient({
       onClose={() => setCallsheetUpgradeOpen(false)}
       feature="קול שיט"
       limit={-1}
+    />
+    <UpgradeDialog
+      open={storyboardUpgradeOpen}
+      onClose={() => setStoryboardUpgradeOpen(false)}
+      feature="שוטים בסטורי בורד"
+      limit={STORYBOARD_FREE_LIMIT}
     />
     <div className="flex h-[calc(100vh-80px)] flex-col">
 
@@ -918,10 +947,17 @@ export function ScriptEditorClient({
                   )}
                 </div>
 
-                <button onClick={addShot}
-                  className="flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-3 py-2 text-xs font-medium hover:bg-gray-800 transition-colors">
-                  <Plus className="h-3.5 w-3.5" />הוסף שוט
-                </button>
+                {storyboardAtLimit ? (
+                  <button onClick={() => setStoryboardUpgradeOpen(true)}
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-white px-3 py-2 text-xs font-medium hover:bg-amber-600 transition-colors">
+                    🔒 Pro — עוד שוטים
+                  </button>
+                ) : (
+                  <button onClick={addShot}
+                    className="flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-3 py-2 text-xs font-medium hover:bg-gray-800 transition-colors">
+                    <Plus className="h-3.5 w-3.5" />הוסף שוט
+                  </button>
+                )}
               </div>
             </div>
 
@@ -940,13 +976,22 @@ export function ScriptEditorClient({
               <div className="flex-1 overflow-auto p-5">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {orderedShots.map((shot) => (
-                    <StoryboardCard key={shot.id} shot={shot} customShotNo={customShotNo} onUpdate={updateShot} />
+                    <StoryboardCard key={shot.id} shot={shot} customShotNo={customShotNo} onUpdate={updateShot} onDelete={deleteShot} />
                   ))}
-                  <button onClick={addShot}
-                    className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white text-gray-300 hover:border-gray-300 hover:text-gray-400 transition-colors min-h-[200px]">
-                    <Plus className="h-6 w-6" />
-                    <span className="text-xs">הוסף שוט</span>
-                  </button>
+                  {storyboardAtLimit ? (
+                    <button onClick={() => setStoryboardUpgradeOpen(true)}
+                      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 text-amber-500 hover:border-amber-300 transition-colors min-h-[200px] text-center px-2">
+                      <span className="text-2xl">🔒</span>
+                      <span className="text-xs font-medium">מגבלת {STORYBOARD_FREE_LIMIT} שוטים</span>
+                      <span className="text-[10px] text-amber-400">שדרג ל-Pro</span>
+                    </button>
+                  ) : (
+                    <button onClick={addShot}
+                      className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white text-gray-300 hover:border-gray-300 hover:text-gray-400 transition-colors min-h-[200px]">
+                      <Plus className="h-6 w-6" />
+                      <span className="text-xs">הוסף שוט</span>
+                    </button>
+                  )}
                 </div>
               </div>
             ) : (

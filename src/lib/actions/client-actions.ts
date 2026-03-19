@@ -57,6 +57,9 @@ export async function createClient(formData: FormData) {
       if (count >= limits.clients) return { success: false, quotaExceeded: true };
     }
 
+    const tagsRaw = (formData.get("tags") as string) || "";
+    const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+
     await prisma.client.create({
       data: {
         name,
@@ -72,6 +75,9 @@ export async function createClient(formData: FormData) {
         type: (formData.get("type") as string) || "lead",
         leadSource: (formData.get("leadSource") as string) || null,
         leadStatus: (formData.get("leadStatus") as string) || "new",
+        isActive: formData.get("isActive") !== "false",
+        isRetainer: formData.get("isRetainer") === "true",
+        tags,
         userId: userId ?? undefined,
       },
     });
@@ -94,6 +100,9 @@ export async function updateClient(id: string, formData: FormData) {
       return { success: false, error: "Name is required" };
     }
 
+    const tagsRaw = (formData.get("tags") as string) || "";
+    const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+
     await prisma.client.update({
       where: { id },
       data: {
@@ -110,6 +119,9 @@ export async function updateClient(id: string, formData: FormData) {
         type: (formData.get("type") as string) || "lead",
         leadSource: (formData.get("leadSource") as string) || null,
         leadStatus: (formData.get("leadStatus") as string) || "new",
+        isActive: formData.get("isActive") !== "false",
+        isRetainer: formData.get("isRetainer") === "true",
+        tags,
       },
     });
 

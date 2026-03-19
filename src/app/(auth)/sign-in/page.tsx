@@ -39,10 +39,14 @@ export default function SignInPage() {
     <div className="w-full max-w-md">
       {/* Logo */}
       <div className="text-center mb-8">
-        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-900 text-white font-bold text-xl shadow-lg mb-4">
-          P
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0a0a0a] shadow-lg mb-4">
+          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-10">
+            <rect x="3" y="3" width="30" height="30" rx="9" fill="#0a0a0a"/>
+            <rect x="9" y="8" width="18" height="12" rx="5" fill="white"/>
+            <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
+          </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">ברוך שובך ל-Planify</h1>
+        <h1 className="text-2xl font-bold text-gray-900">ברוך שובך ל-Qlipy</h1>
         <p className="text-sm text-gray-500 mt-1">היכנס לחשבון שלך להמשיך</p>
       </div>
 

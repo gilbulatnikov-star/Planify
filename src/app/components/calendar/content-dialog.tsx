@@ -26,7 +26,7 @@ import {
   updateScheduledContent,
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
-import { Plus, X, Check } from "lucide-react";
+import { Plus, X, Check, Trash2 } from "lucide-react";
 
 // ─── Color options ────────────────────────────────────────────────────────────
 
@@ -61,6 +61,7 @@ interface ContentDialogProps {
   projects: { id: string; title: string }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onRequestDelete?: (id: string) => void;
 }
 
 function formatDateForInput(date: Date): string {
@@ -81,6 +82,7 @@ export function ContentDialog({
   projects,
   open,
   onOpenChange,
+  onRequestDelete,
 }: ContentDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -277,7 +279,18 @@ export function ContentDialog({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex-row-reverse sm:flex-row gap-2">
+            {isEditing && onRequestDelete && (
+              <Button
+                type="button"
+                variant="outline"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 me-auto"
+                onClick={() => { onOpenChange(false); onRequestDelete(content!.id); }}
+              >
+                <Trash2 className="h-4 w-4 me-1.5" />
+                מחיקה
+              </Button>
+            )}
             <DialogClose render={<Button variant="outline" />}>
               ביטול
             </DialogClose>

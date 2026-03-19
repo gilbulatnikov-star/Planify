@@ -26,7 +26,7 @@ const TOOLTIP_GAP = 18;
 const steps = [
   {
     target: null as string | null,
-    title: "ברוכים הבאים ל-Planify! 🎬",
+    title: "ברוכים הבאים ל-Qlipy! 🎬",
     description:
       "זהו ה-CRM שבנוי במיוחד לאנשי תוכן, מצלמים ומפיקים. בואו נסביר לך מה יש כאן בכמה שניות.",
     icon: Sparkles,

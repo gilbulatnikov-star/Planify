@@ -35,7 +35,7 @@ export async function POST(request: Request) {
         name: name?.trim() || null,
         email: email.toLowerCase().trim(),
         password: hashedPassword,
-        onboardingCompleted: false,
+        onboardingCompleted: true,
       },
     });
 

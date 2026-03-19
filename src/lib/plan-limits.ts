@@ -12,6 +12,7 @@ export interface PlanLimits {
   moodboards: number;      // total moodboard canvases
   moodboardNodes: number;  // items per moodboard canvas
   inspirationRefs: number; // items in inspiration board
+  todos: number;           // daily tasks
 }
 
 export interface PlanMeta {
@@ -33,10 +34,11 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
     contacts:        2,
     documents:       5,
     scripts:         1,
-    clients:         2,
+    clients:         3,
     moodboards:      1,   // total moodboard canvases
     moodboardNodes:  3,   // items per moodboard canvas
     inspirationRefs: 2,   // items in inspiration board
+    todos:           3,   // daily tasks
   },
   MONTHLY: {
     projects:        -1,  // unlimited
@@ -47,6 +49,7 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
     moodboards:      -1,
     moodboardNodes:  -1,
     inspirationRefs: -1,
+    todos:           -1,
   },
   ANNUAL: {
     projects:        -1,
@@ -57,6 +60,7 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
     moodboards:      -1,
     moodboardNodes:  -1,
     inspirationRefs: -1,
+    todos:           -1,
   },
 };
 

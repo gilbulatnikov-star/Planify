@@ -35,6 +35,9 @@ type ClientData = {
   type: string;
   leadSource: string | null;
   leadStatus: string;
+  isActive: boolean;
+  isRetainer: boolean;
+  tags: string[];
   projects: { id: string }[];
   _count: { interactions: number };
 };
@@ -51,6 +54,53 @@ const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as const } },
 };
+
+// Lead pipeline steps in order
+const PIPELINE_STEPS = [
+  { key: "new",           label: "חדש" },
+  { key: "contacted",     label: "נוצר קשר" },
+  { key: "qualified",     label: "מתאים" },
+  { key: "proposal_sent", label: "הצעה נשלחה" },
+  { key: "won",           label: "נסגר" },
+  { key: "lost",          label: "אבוד" },
+];
+
+function LeadStatusPipeline({ status }: { status: string }) {
+  if (status === "lost") {
+    return (
+      <span className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
+        אבוד
+      </span>
+    );
+  }
+  if (status === "won") {
+    return (
+      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+        ✓ נסגר
+      </span>
+    );
+  }
+
+  const steps = PIPELINE_STEPS.filter((s) => s.key !== "won" && s.key !== "lost");
+  const currentIdx = steps.findIndex((s) => s.key === status);
+  const currentLabel = steps[currentIdx]?.label ?? status;
+
+  return (
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-gray-700">{currentLabel}</span>
+      <div className="flex gap-0.5">
+        {steps.map((s, i) => (
+          <div
+            key={s.key}
+            className={`h-1 w-5 rounded-full transition-colors ${
+              i <= currentIdx ? "bg-indigo-500" : "bg-gray-200"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[]; planLimit: number }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -76,8 +126,8 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
   }
 
   const statCards = [
-    { label: "לקוחות פעילים", value: allClients.length, icon: Users,     color: "from-gray-700 to-gray-900" },
-    { label: "לידים",          value: allLeads.length,   icon: UserPlus,  color: "from-violet-400 to-purple-500" },
+    { label: "לקוחות פעילים", value: allClients.filter(c => c.isActive).length, icon: Users, color: "from-gray-700 to-gray-900" },
+    { label: "לידים",          value: allLeads.length, icon: UserPlus, color: "from-violet-400 to-purple-500" },
   ];
 
   function renderTable(filtered: ClientData[]) {
@@ -85,98 +135,102 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
       <Card className="glass-card overflow-hidden">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-gray-100 hover:bg-transparent">
-                <TableHead className="text-muted-foreground">{he.client.name}</TableHead>
-                <TableHead className="hidden md:table-cell text-muted-foreground">{he.client.company}</TableHead>
-                <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.email}</TableHead>
-                <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.phone}</TableHead>
-                <TableHead className="hidden md:table-cell text-muted-foreground">{he.client.leadSource}</TableHead>
-                <TableHead className="text-muted-foreground">סטטוס</TableHead>
-                <TableHead className="hidden sm:table-cell text-muted-foreground">פרויקטים</TableHead>
-                <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((client) => (
-                <TableRow
-                  key={client.id}
-                  className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
-                >
-                  <TableCell className="font-medium">{client.name}</TableCell>
-                  <TableCell className="hidden md:table-cell text-muted-foreground">{client.company ?? "—"}</TableCell>
-                  <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
-                    {client.email ?? "—"}
-                  </TableCell>
-                  <TableCell dir="ltr" className="hidden sm:table-cell text-left text-muted-foreground">
-                    {client.phone ?? "—"}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {client.leadSource ? (
-                      <Badge variant="outline" className="border-gray-200 text-muted-foreground">
-                        {he.client.leadSources[
-                          client.leadSource as keyof typeof he.client.leadSources
-                        ] ?? client.leadSource}
-                      </Badge>
-                    ) : (
-                      "—"
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      className={
-                        client.type === "client"
-                          ? "bg-cyan-50 text-cyan-700 hover:bg-gray-200 border-0"
-                          : "bg-violet-50 text-violet-700 hover:bg-violet-100 border-0"
-                      }
-                    >
-                      {client.type === "client"
-                        ? he.client.types.client
-                        : he.client.leadStatuses[
-                            client.leadStatus as keyof typeof he.client.leadStatuses
-                          ] ?? client.leadStatus}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="hidden sm:table-cell">
-                    <span className="text-sm text-muted-foreground">{client.projects.length}</span>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
-                        onClick={() => handleEdit(client)}
-                      >
-                        <Pencil className="h-3.5 w-3.5" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
-                        onClick={() =>
-                          setDeleteTarget({ id: client.id, name: client.name })
-                        }
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </TableCell>
+            <Table>
+              <TableHeader>
+                <TableRow className="border-gray-100 hover:bg-transparent">
+                  <TableHead className="text-muted-foreground">{he.client.name}</TableHead>
+                  <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.email}</TableHead>
+                  <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.phone}</TableHead>
+                  <TableHead className="text-muted-foreground">סטטוס</TableHead>
+                  <TableHead className="hidden sm:table-cell text-muted-foreground">פרויקטים</TableHead>
+                  <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
                 </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell
-                    colSpan={8}
-                    className="text-center text-muted-foreground py-12"
+              </TableHeader>
+              <TableBody>
+                {filtered.map((client) => (
+                  <TableRow
+                    key={client.id}
+                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50"
                   >
-                    {he.common.noResults}
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    {/* Name */}
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className={`font-medium ${!client.isActive && client.type === "client" ? "text-muted-foreground" : ""}`}>
+                          {client.name}
+                        </span>
+                        {client.type === "client" && (
+                          <div className="flex gap-1">
+                            {!client.isActive && (
+                              <span className="text-[10px] text-gray-400">לא פעיל</span>
+                            )}
+                            {client.isRetainer && (
+                              <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] text-emerald-700 font-medium">
+                                ריטיינר
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
+
+                    {/* Email */}
+                    <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
+                      {client.email ?? "—"}
+                    </TableCell>
+
+                    {/* Phone */}
+                    <TableCell dir="ltr" className="hidden sm:table-cell text-left text-muted-foreground">
+                      {client.phone ?? "—"}
+                    </TableCell>
+
+                    {/* Status */}
+                    <TableCell>
+                      {client.type === "client" ? (
+                        <Badge className={`border-0 text-xs ${client.isActive ? "bg-cyan-50 text-cyan-700" : "bg-gray-100 text-gray-500"}`}>
+                          {client.isActive ? "לקוח פעיל" : "לא פעיל"}
+                        </Badge>
+                      ) : (
+                        <LeadStatusPipeline status={client.leadStatus} />
+                      )}
+                    </TableCell>
+
+                    {/* Projects count */}
+                    <TableCell className="hidden sm:table-cell">
+                      <span className="text-sm text-muted-foreground">{client.projects.length}</span>
+                    </TableCell>
+
+                    {/* Actions - always visible */}
+                    <TableCell>
+                      <div className="flex items-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                          onClick={() => handleEdit(client)}
+                        >
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
+                          onClick={() => setDeleteTarget({ id: client.id, name: client.name })}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                      {he.common.noResults}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
         </CardContent>
       </Card>

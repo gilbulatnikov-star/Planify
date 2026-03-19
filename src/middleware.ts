@@ -35,30 +35,18 @@ export default auth((req) => {
 
   // Already logged in — redirect away from sign-in/sign-up
   if (isLoggedIn && isAuthPage) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const onboardingCompleted = (session?.user as any)?.onboardingCompleted;
-    return NextResponse.redirect(new URL(onboardingCompleted ? "/" : "/onboarding", req.nextUrl));
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
-  // Logged in but onboarding not done — API routes return 403 JSON, pages redirect
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onboardingCompleted = (session?.user as any)?.onboardingCompleted;
-  if (isLoggedIn && !onboardingCompleted && !isOnboarding && !isPublicApi) {
-    if (isInternalApi) {
-      return NextResponse.json({ error: "Onboarding required" }, { status: 403 });
-    }
-    return NextResponse.redirect(new URL("/onboarding", req.nextUrl));
-  }
-
-  // Onboarding done — redirect away from /onboarding
-  if (isLoggedIn && onboardingCompleted && isOnboarding) {
+  // Redirect away from /onboarding (no longer needed)
+  if (isLoggedIn && isOnboarding) {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
   // ── Trial expiry check ──────────────────────────────────────────────────────
   // FREE plan accounts are locked after 3 days from creation.
   // Billing pages stay accessible so the user can upgrade.
-  if (isLoggedIn && onboardingCompleted && !isBillingPage && !isPublicApi) {
+  if (isLoggedIn && !isBillingPage && !isPublicApi) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const subscriptionPlan = (session?.user as any)?.subscriptionPlan ?? "FREE";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

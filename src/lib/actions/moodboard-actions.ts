@@ -16,8 +16,11 @@ export async function getMoodboards() {
 }
 
 export async function getMoodboard(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return null;
   return prisma.moodboard.findUnique({
-    where: { id },
+    where: { id, userId },
     include: { project: { select: { id: true, title: true } } },
   });
 }

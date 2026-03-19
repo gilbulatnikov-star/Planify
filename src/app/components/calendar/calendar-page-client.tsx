@@ -313,7 +313,7 @@ export function CalendarPageClient({
         <Card className="glass-card overflow-hidden">
           <CardContent className="p-0">
             <div className="overflow-x-auto">
-              <div className="min-w-[560px]">
+              <div className="min-w-[700px]">
                 {/* Day headers */}
                 <div className="grid grid-cols-7 border-b border-gray-100">
                   {dayNames.map((name) => (
@@ -344,39 +344,25 @@ export function CalendarPageClient({
                             </span>
                           </div>
 
-                          {/* Events */}
-                          <div className="flex flex-col gap-0.5">
-                            {dayContent.map((item) => {
+                          {/* Events — colored chips with title */}
+                          <div className="flex flex-col gap-0.5 mt-1 w-full">
+                            {dayContent.slice(0, 3).map((item) => {
                               const c = getColor(item.color);
                               return (
                                 <div
                                   key={item.id}
                                   onClick={(e) => { e.stopPropagation(); handleEditContent(item); }}
-                                  className={`${c.bg} ${c.text} text-[10px] sm:text-[11px] leading-tight px-1 sm:px-1.5 py-0.5 sm:py-1 rounded border ${c.border} cursor-pointer hover:brightness-95 transition-all duration-150 group/item relative`}
+                                  title={item.title}
+                                  className={`flex items-start gap-1 rounded px-1 py-0.5 cursor-pointer hover:brightness-95 transition-all ${c.bg}`}
                                 >
-                                  {/* Tooltip */}
-                                  <div className="absolute bottom-full right-0 mb-1.5 z-50 pointer-events-none opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
-                                    <div className="bg-gray-900 text-white text-[11px] font-medium rounded-lg px-2.5 py-1.5 shadow-xl whitespace-nowrap max-w-[220px]">
-                                      {item.title}
-                                      {item.client && <span className="text-gray-400 mr-1.5">· {item.client.name}</span>}
-                                    </div>
-                                    <div className="w-2 h-2 bg-gray-900 rotate-45 absolute -bottom-1 right-3" />
-                                  </div>
-
-                                  <span className="flex items-center gap-0.5 sm:gap-1">
-                                    <span className={`w-1.5 h-1.5 rounded-full ${c.dot} flex-shrink-0`} />
-                                    <span className="truncate">{item.title}</span>
-                                  </span>
-
-                                  {/* Hover delete */}
-                                  <div className="absolute left-0.5 top-0.5 flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                    <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(item.id); }}>
-                                      <Trash2 className="h-2.5 w-2.5 text-red-500" />
-                                    </button>
-                                  </div>
+                                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-[3px] ${c.dot}`} />
+                                  <span className={`text-[10px] font-medium leading-tight break-words min-w-0 line-clamp-2 ${c.text}`}>{item.title}</span>
                                 </div>
                               );
                             })}
+                            {dayContent.length > 3 && (
+                              <span className="text-[9px] text-gray-400 leading-none px-1">+{dayContent.length - 3}</span>
+                            )}
                           </div>
                         </div>
                       );
@@ -389,9 +375,9 @@ export function CalendarPageClient({
         </Card>
       </motion.div>
 
-      {/* ── Mobile events list ── */}
+      {/* ── Events list (all screens) ── */}
       {monthEvents.length > 0 && (
-        <motion.div variants={fadeUp} className="sm:hidden">
+        <motion.div variants={fadeUp} className="">
           <h3 className="text-sm font-semibold text-gray-700 mb-3">
             אירועים — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
           </h3>
@@ -435,6 +421,7 @@ export function CalendarPageClient({
         projects={projects}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        onRequestDelete={(id) => { setDeleteTarget(id); }}
       />
 
       <CalendarExportStudio

@@ -37,6 +37,8 @@ interface ClientDialogProps {
     type: string;
     leadSource: string | null;
     leadStatus: string;
+    isActive: boolean;
+    isRetainer: boolean;
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -72,7 +74,6 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
 
   const knownSources = leadSourceOptions.map((o) => o.value) as string[];
 
-  // If the stored value isn't a known option, treat it as a custom "other" value
   const toLeadSourceState = (v: string | null) =>
     !v ? "" : knownSources.includes(v) ? v : "other";
   const toCustomState = (v: string | null) =>
@@ -82,6 +83,8 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
   const [leadSource, setLeadSource] = useState(() => toLeadSourceState(client?.leadSource ?? null));
   const [customLeadSource, setCustomLeadSource] = useState(() => toCustomState(client?.leadSource ?? null));
   const [leadStatus, setLeadStatus] = useState(client?.leadStatus ?? "new");
+  const [isActive, setIsActive] = useState(client?.isActive ?? true);
+  const [isRetainer, setIsRetainer] = useState(client?.isRetainer ?? false);
 
   useEffect(() => {
     if (open) {
@@ -89,6 +92,8 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
       setLeadSource(toLeadSourceState(client?.leadSource ?? null));
       setCustomLeadSource(toCustomState(client?.leadSource ?? null));
       setLeadStatus(client?.leadStatus ?? "new");
+      setIsActive(client?.isActive ?? true);
+      setIsRetainer(client?.isRetainer ?? false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, client]);
@@ -104,6 +109,8 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
     formData.set("type", type);
     formData.set("leadSource", finalLeadSource);
     formData.set("leadStatus", leadStatus);
+    formData.set("isActive", String(isActive));
+    formData.set("isRetainer", String(isRetainer));
 
     startTransition(async () => {
       const result = isEditing
@@ -136,41 +143,22 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="name">שם *</Label>
-              <Input
-                id="name"
-                name="name"
-                required
-                defaultValue={client?.name ?? ""}
-              />
+              <Input id="name" name="name" required defaultValue={client?.name ?? ""} />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="email">אימייל</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                defaultValue={client?.email ?? ""}
-              />
+              <Input id="email" name="email" type="email" defaultValue={client?.email ?? ""} />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="phone">טלפון</Label>
-              <Input
-                id="phone"
-                name="phone"
-                type="tel"
-                defaultValue={client?.phone ?? ""}
-              />
+              <Input id="phone" name="phone" type="tel" defaultValue={client?.phone ?? ""} />
             </div>
 
             <div className="grid gap-2">
               <Label htmlFor="company">חברה</Label>
-              <Input
-                id="company"
-                name="company"
-                defaultValue={client?.company ?? ""}
-              />
+              <Input id="company" name="company" defaultValue={client?.company ?? ""} />
             </div>
           </div>
 
@@ -184,6 +172,22 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
                 </SelectTrigger>
                 <SelectContent>
                   {typeOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="grid gap-2">
+              <Label>סטטוס ליד</Label>
+              <Select value={leadStatus} onValueChange={(v) => setLeadStatus(v ?? "new")}>
+                <SelectTrigger className="w-full">
+                  <span className="flex flex-1">{leadStatusOptions.find(o => o.value === leadStatus)?.label ?? leadStatus}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {leadStatusOptions.map((option) => (
                     <SelectItem key={option.value} value={option.value}>
                       {option.label}
                     </SelectItem>
@@ -223,20 +227,48 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
               )}
             </div>
 
-            <div className="grid gap-2 sm:col-span-2">
-              <Label>סטטוס ליד</Label>
-              <Select value={leadStatus} onValueChange={(v) => setLeadStatus(v ?? "new")}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{leadStatusOptions.find(o => o.value === leadStatus)?.label ?? leadStatus}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {leadStatusOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            {/* Active / Retainer toggles */}
+            <div className="grid gap-3">
+              <Label>מצב</Label>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isActive}
+                    onClick={() => setIsActive(!isActive)}
+                    className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+                      isActive ? "bg-emerald-500" : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+                        isActive ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-sm text-gray-700">לקוח פעיל</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isRetainer}
+                    onClick={() => setIsRetainer(!isRetainer)}
+                    className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+                      isRetainer ? "bg-violet-500" : "bg-gray-300"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+                        isRetainer ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-sm text-gray-700">ריטיינר</span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -244,67 +276,34 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
               <Label htmlFor="website">אתר</Label>
-              <Input
-                id="website"
-                name="website"
-                type="url"
-                defaultValue={client?.website ?? ""}
-              />
+              <Input id="website" name="website" type="url" defaultValue={client?.website ?? ""} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="instagram">Instagram</Label>
-              <Input
-                id="instagram"
-                name="instagram"
-                defaultValue={client?.instagram ?? ""}
-              />
+              <Input id="instagram" name="instagram" defaultValue={client?.instagram ?? ""} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="youtube">YouTube</Label>
-              <Input
-                id="youtube"
-                name="youtube"
-                defaultValue={client?.youtube ?? ""}
-              />
+              <Input id="youtube" name="youtube" defaultValue={client?.youtube ?? ""} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="linkedin">LinkedIn</Label>
-              <Input
-                id="linkedin"
-                name="linkedin"
-                defaultValue={client?.linkedin ?? ""}
-              />
+              <Input id="linkedin" name="linkedin" defaultValue={client?.linkedin ?? ""} />
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="tiktok">TikTok</Label>
-              <Input
-                id="tiktok"
-                name="tiktok"
-                defaultValue={client?.tiktok ?? ""}
-              />
+              <Input id="tiktok" name="tiktok" defaultValue={client?.tiktok ?? ""} />
             </div>
           </div>
 
           {/* Notes */}
           <div className="grid gap-2">
             <Label htmlFor="notes">הערות</Label>
-            <Textarea
-              id="notes"
-              name="notes"
-              defaultValue={client?.notes ?? ""}
-            />
+            <Textarea id="notes" name="notes" defaultValue={client?.notes ?? ""} />
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               ביטול
             </Button>
             <Button type="submit" disabled={isPending}>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 80" fill="none">
+  <!-- Q shape: rounded-rect outer with inner hole -->
+  <rect x="2" y="2" width="72" height="72" rx="20" ry="20" fill="#0a0a0a"/>
+  <rect x="16" y="16" width="44" height="30" rx="10" ry="10" fill="white"/>
+  <!-- Blue teardrop drop at bottom-right of Q -->
+  <ellipse cx="58" cy="58" rx="10" ry="13" fill="#38b6ff" transform="rotate(-15 58 58)"/>
+  <!-- LIPY text -->
+  <text x="88" y="58" font-family="Arial Black, Arial, sans-serif" font-weight="900" font-size="46" fill="#0a0a0a" letter-spacing="-1">LIPY</text>
+</svg>

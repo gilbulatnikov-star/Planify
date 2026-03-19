@@ -218,7 +218,7 @@ export function ScriptCallSheet({
 
           {/* Footer */}
           <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: "12px", display: "flex", justifyContent: "space-between", fontSize: "10px", color: t.subText }}>
-            <span>הופק ע"י Planify</span>
+            <span>הופק ע"י Qlipy</span>
             <span>{today}</span>
           </div>
         </div>

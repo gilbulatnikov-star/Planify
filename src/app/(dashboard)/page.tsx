@@ -20,6 +20,8 @@ import {
 } from "@/lib/actions/widget-actions";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
 import { he } from "@/lib/he";
+import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 const contentTypeDots: Record<string, string> = {
   client_shoot: "bg-blue-400",
@@ -28,6 +30,10 @@ const contentTypeDots: Record<string, string> = {
 };
 
 export default async function DashboardPage() {
+  const session = await auth();
+  const plan = session?.user?.subscriptionPlan ?? "FREE";
+  const todosLimit = getLimitsForPlan(plan).todos;
+
   const [stats, recentProjects, upcomingContent, quickNote, todos] = await Promise.all([
     getDashboardStats(),
     getRecentProjects(),
@@ -213,7 +219,7 @@ export default async function DashboardPage() {
         {/* Dashboard Widgets Grid */}
         <div className="grid gap-6 lg:grid-cols-2">
           <QuickNotesWidget initialContent={quickNote?.content ?? ""} />
-          <TodoWidget initialTodos={todos} />
+          <TodoWidget initialTodos={todos} todosLimit={todosLimit} />
         </div>
 
         {/* Recent Projects */}

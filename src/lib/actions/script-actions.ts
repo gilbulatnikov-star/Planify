@@ -19,8 +19,11 @@ export async function getScripts() {
 }
 
 export async function getScript(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return null;
   return prisma.script.findUnique({
-    where: { id },
+    where: { id, userId },
     include: {
       project: { select: { id: true, title: true } },
       client: { select: { id: true, name: true } },

@@ -12,7 +12,7 @@ import {
   isSameDay,
 } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
-import { X, Download, Image as ImageIcon, Grid3X3, List, Paintbrush, Sun, Moon } from "lucide-react";
+import { X, Download, Image as ImageIcon, Grid3X3, List, Paintbrush, Sun, Moon, ZoomIn, ZoomOut } from "lucide-react";
 
 type ContentItem = {
   id: string;
@@ -157,7 +157,7 @@ function GridPreview({
           ))}
         </tbody>
       </table>
-      <div style={{ marginTop: "10px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Planify</div>
+      <div style={{ marginTop: "10px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Qlipy</div>
     </div>
   );
 }
@@ -219,7 +219,7 @@ function TimelinePreview({
           </tbody>
         </table>
       )}
-      <div style={{ marginTop: "14px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Planify</div>
+      <div style={{ marginTop: "14px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Qlipy</div>
     </div>
   );
 }
@@ -238,6 +238,7 @@ export function CalendarExportStudio({
   const [layout, setLayout] = useState<"grid" | "timeline">("grid");
   const [darkMode, setDarkMode] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [zoom, setZoom] = useState(0.7);
 
   const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -338,14 +339,14 @@ export function CalendarExportStudio({
   const previewProps = { content, currentMonth, themeColor, logoUrl, clientName, darkMode };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl flex flex-col w-full max-w-5xl max-h-[92vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:p-4">
+      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col w-full sm:max-w-5xl h-[95vh] sm:max-h-[92vh] overflow-hidden">
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-gray-900">ייצוא ללקוח</h2>
-            <p className="text-sm text-gray-500">
+            <h2 className="text-base sm:text-lg font-bold text-gray-900">ייצוא ללקוח</h2>
+            <p className="text-xs sm:text-sm text-gray-500">
               {clientName || "כל הלקוחות"} — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
             </p>
           </div>
@@ -354,10 +355,51 @@ export function CalendarExportStudio({
           </button>
         </div>
 
+        {/* Mobile controls strip */}
+        <div className="sm:hidden flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50 shrink-0 overflow-x-auto">
+          {/* Layout */}
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white shrink-0">
+            <button onClick={() => setLayout("grid")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "grid" ? "bg-gray-900 text-white" : "text-gray-500"}`}>
+              <Grid3X3 className="h-3 w-3" /> לוח
+            </button>
+            <button onClick={() => setLayout("timeline")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "timeline" ? "bg-gray-900 text-white" : "text-gray-500"}`}>
+              <List className="h-3 w-3" /> רשימה
+            </button>
+          </div>
+          {/* Theme */}
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white shrink-0">
+            <button onClick={() => setDarkMode(false)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-gray-100 text-gray-900" : "text-gray-400"}`}>
+              <Sun className="h-3 w-3" />
+            </button>
+            <button onClick={() => setDarkMode(true)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-gray-900 text-white" : "text-gray-400"}`}>
+              <Moon className="h-3 w-3" />
+            </button>
+          </div>
+          {/* Colors */}
+          <div className="flex gap-1.5 shrink-0">
+            {PRESET_COLORS.map((c) => (
+              <button key={c.hex} onClick={() => setThemeColor(c.hex)}
+                style={{ background: c.hex }}
+                className={`h-6 w-6 rounded-full transition-all ${themeColor === c.hex ? "ring-2 ring-offset-1 ring-gray-400 scale-110" : ""}`}
+              />
+            ))}
+          </div>
+          {/* Zoom */}
+          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white shrink-0 ms-auto">
+            <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50">
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <span className="px-2 py-1.5 text-xs text-gray-500 border-x border-gray-200 min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50">
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+
         <div className="flex flex-1 overflow-hidden min-h-0">
 
-          {/* Controls Panel */}
-          <div className="w-64 flex-shrink-0 border-l border-gray-100 bg-gray-50 p-5 flex flex-col gap-6 overflow-y-auto">
+          {/* Controls Panel — desktop only */}
+          <div className="hidden sm:flex w-64 flex-shrink-0 border-l border-gray-100 bg-gray-50 p-5 flex-col gap-6 overflow-y-auto">
 
             {/* Layout */}
             <div>
@@ -428,11 +470,25 @@ export function CalendarExportStudio({
                 </button>
               )}
             </div>
+
+            {/* Zoom — desktop */}
+            <div>
+              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">זום תצוגה</p>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50">
+                  <ZoomOut className="h-4 w-4" />
+                </button>
+                <span className="flex-1 text-center text-sm font-medium text-gray-700">{Math.round(zoom * 100)}%</span>
+                <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50">
+                  <ZoomIn className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Preview */}
-          <div className={`flex-1 overflow-auto p-6 flex items-start justify-center transition-colors ${darkMode ? "bg-slate-900" : "bg-gray-100"}`}>
-            <div className="shadow-2xl rounded-xl overflow-hidden w-full max-w-3xl">
+          <div className={`flex-1 overflow-auto p-3 sm:p-6 flex items-start justify-center transition-colors ${darkMode ? "bg-slate-900" : "bg-gray-100"}`}>
+            <div className="shadow-2xl rounded-xl overflow-hidden origin-top" style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: `${100 / zoom}%` }}>
               <div ref={exportRef}>
                 {layout === "grid"
                   ? <GridPreview {...previewProps} />
@@ -443,18 +499,18 @@ export function CalendarExportStudio({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
-          <p className="text-xs text-gray-400">הלוגו, הצבעים והתוכן הם לצורך תצוגת לקוח בלבד</p>
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50 shrink-0">
+          <p className="hidden sm:block text-xs text-gray-400">הלוגו, הצבעים והתוכן הם לצורך תצוגת לקוח בלבד</p>
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <button onClick={downloadPNG} disabled={exporting}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40">
               <Download className="h-4 w-4 text-indigo-500" />
-              {exporting ? "מייצא..." : "הורד PNG"}
+              {exporting ? "מייצא..." : "PNG"}
             </button>
             <button onClick={downloadPDF} disabled={exporting}
-              className="flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-40">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-40">
               <Download className="h-4 w-4" />
-              {exporting ? "מייצא..." : "הורד PDF"}
+              {exporting ? "מייצא..." : "PDF"}
             </button>
           </div>
         </div>

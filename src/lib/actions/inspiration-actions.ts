@@ -18,13 +18,14 @@ export async function createInspiration(formData: FormData) {
       return { success: false, error: "Category is required" };
     }
 
-    const cat = await prisma.inspirationCategory.findUnique({ where: { id: categoryId } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
+    const cat = await prisma.inspirationCategory.findUnique({ where: { id: categoryId, userId } });
     if (!cat) {
       return { success: false, error: "Category not found" };
     }
-
-    const session = await auth();
-    const userId = session?.user?.id;
 
     await prisma.inspiration.create({
       data: {
@@ -33,7 +34,7 @@ export async function createInspiration(formData: FormData) {
         categoryId: cat.id,
         url: (formData.get("url") as string) || null,
         notes: (formData.get("notes") as string) || null,
-        userId: userId ?? undefined,
+        userId,
       },
     });
 
@@ -60,13 +61,17 @@ export async function updateInspiration(id: string, formData: FormData) {
       return { success: false, error: "Category is required" };
     }
 
-    const cat = await prisma.inspirationCategory.findUnique({ where: { id: categoryId } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
+    const cat = await prisma.inspirationCategory.findUnique({ where: { id: categoryId, userId } });
     if (!cat) {
       return { success: false, error: "Category not found" };
     }
 
     await prisma.inspiration.update({
-      where: { id },
+      where: { id, userId },
       data: {
         title,
         category: cat.name,
@@ -89,9 +94,11 @@ export async function updateInspiration(id: string, formData: FormData) {
 
 export async function deleteInspiration(id: string) {
   try {
-    await prisma.inspiration.delete({
-      where: { id },
-    });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
+    await prisma.inspiration.delete({ where: { id, userId } });
 
     revalidatePath("/inspiration");
     revalidatePath("/");
@@ -115,7 +122,6 @@ export async function createInspirationCategory(formData: FormData) {
 
     const color = (formData.get("color") as string) || "cyan";
 
-    // Generate a slug-like name from the label
     const name = label
       .toLowerCase()
       .replace(/[^a-zA-Z0-9\u0590-\u05FF]/g, "_")
@@ -124,13 +130,16 @@ export async function createInspirationCategory(formData: FormData) {
 
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
 
-    // Get max sortOrder
-    const maxSort = await prisma.inspirationCategory.aggregate({ _max: { sortOrder: true } });
+    const maxSort = await prisma.inspirationCategory.aggregate({
+      where: { userId },
+      _max: { sortOrder: true },
+    });
     const sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
 
     await prisma.inspirationCategory.create({
-      data: { name: name || `cat_${Date.now()}`, label, color, sortOrder, userId: userId ?? undefined },
+      data: { name: name || `cat_${Date.now()}`, label, color, sortOrder, userId },
     });
 
     revalidatePath("/inspiration");
@@ -155,8 +164,12 @@ export async function updateInspirationCategory(id: string, formData: FormData) 
 
     const color = (formData.get("color") as string) || "cyan";
 
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
     await prisma.inspirationCategory.update({
-      where: { id },
+      where: { id, userId },
       data: { label, color },
     });
 
@@ -172,13 +185,16 @@ export async function updateInspirationCategory(id: string, formData: FormData) 
 
 export async function deleteInspirationCategory(id: string) {
   try {
-    // Check if there are inspirations using this category
-    const count = await prisma.inspiration.count({ where: { categoryId: id } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
+    const count = await prisma.inspiration.count({ where: { categoryId: id, userId } });
     if (count > 0) {
       return { success: false, error: `לא ניתן למחוק קטגוריה עם ${count} פריטי השראה. העבר אותם קודם לקטגוריה אחרת.` };
     }
 
-    await prisma.inspirationCategory.delete({ where: { id } });
+    await prisma.inspirationCategory.delete({ where: { id, userId } });
 
     revalidatePath("/inspiration");
     return { success: true };

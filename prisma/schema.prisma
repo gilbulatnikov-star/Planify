@@ -71,6 +71,9 @@ model Client {
   type       String @default("lead") // lead | client
   leadSource String? // linkedin, organic, referral, website, social, other
   leadStatus String @default("new") // new, contacted, qualified, proposal_sent, won, lost
+  isActive   Boolean @default(true)  // is the client currently active
+  isRetainer Boolean @default(false) // on a recurring retainer
+  tags       String[] @default([])   // custom attribute tags
 
   userId    String?
   user      User?   @relation(fields: [userId], references: [id])

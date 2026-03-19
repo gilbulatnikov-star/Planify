@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 // ==========================================
 // QUICK NOTES
@@ -77,10 +78,22 @@ export async function createTodo(text: string) {
     }
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.todos !== -1) {
+      const count = await prisma.todo.count({ where: { userId } });
+      if (count >= limits.todos) {
+        return { success: false, quotaExceeded: true as const };
+      }
+    }
+
     await prisma.todo.create({
-      data: { text: text.trim(), userId: userId ?? undefined },
+      data: { text: text.trim(), userId },
     });
     revalidatePath("/");
+    revalidatePath("/tasks");
     return { success: true };
   } catch (error) {
     return {
@@ -92,7 +105,10 @@ export async function createTodo(text: string) {
 
 export async function toggleTodo(id: string) {
   try {
-    const todo = await prisma.todo.findUnique({ where: { id } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+    const todo = await prisma.todo.findUnique({ where: { id, userId } });
     if (!todo) {
       return { success: false, error: "Todo not found" };
     }
@@ -105,6 +121,7 @@ export async function toggleTodo(id: string) {
       },
     });
     revalidatePath("/");
+    revalidatePath("/tasks");
     return { success: true };
   } catch (error) {
     return {
@@ -116,8 +133,12 @@ export async function toggleTodo(id: string) {
 
 export async function deleteTodo(id: string) {
   try {
-    await prisma.todo.delete({ where: { id } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+    await prisma.todo.delete({ where: { id, userId } });
     revalidatePath("/");
+    revalidatePath("/tasks");
     return { success: true };
   } catch (error) {
     return {
@@ -161,6 +182,7 @@ export async function createQuickLink(formData: FormData) {
     const userId = session?.user?.id;
 
     const maxOrder = await prisma.quickLink.aggregate({
+      where: { userId },
       _max: { sortOrder: true },
     });
 
@@ -187,7 +209,10 @@ export async function createQuickLink(formData: FormData) {
 
 export async function deleteQuickLink(id: string) {
   try {
-    await prisma.quickLink.delete({ where: { id } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+    await prisma.quickLink.delete({ where: { id, userId } });
     revalidatePath("/");
     return { success: true };
   } catch (error) {
@@ -239,7 +264,11 @@ export async function getGearStatuses() {
 
 export async function toggleGearStatus(id: string) {
   try {
-    const status = await prisma.gearStatus.findUnique({ where: { id } });
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+
+    const status = await prisma.gearStatus.findUnique({ where: { id, userId } });
     if (!status) {
       return { success: false, error: "Gear status not found" };
     }

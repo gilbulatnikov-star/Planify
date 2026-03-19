@@ -16,6 +16,7 @@ import {
   ChevronDown,
   FileBarChart2,
   Crown,
+  ListTodo,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession } from "next-auth/react";
@@ -32,6 +33,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarFooter,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { he } from "@/lib/he";
 
@@ -44,6 +46,7 @@ const navItems = [
   { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
   { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
   { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
+  { href: "/tasks", label: "משימות", icon: ListTodo, tourId: "nav-tasks" },
 ];
 
 const financialsSubItems = [
@@ -53,12 +56,14 @@ const financialsSubItems = [
 
 // Shared className for all menu buttons – overrides the hardcoded text-left
 const btnBase = "!text-right transition-all duration-200";
-const btnActive = `${btnBase} bg-gray-900 text-white font-medium shadow-sm`;
-const btnIdle   = `${btnBase} text-gray-500 hover:bg-gray-100 hover:text-gray-900`;
+const btnActive = `${btnBase} bg-[#0a0a0a] text-white font-medium shadow-sm`;
+const btnIdle   = `${btnBase} text-gray-500 hover:bg-gray-100 hover:text-[#0a0a0a]`;
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
 
   const isFinancialsActive =
     pathname.startsWith("/financials") || pathname.startsWith("/subscriptions");
@@ -73,13 +78,18 @@ export function AppSidebar() {
   return (
     <Sidebar side="right" collapsible="icon" dir="rtl">
       {/* ── Logo header ── */}
-      <SidebarHeader className="border-b border-border px-4 py-4">
-        <Link href="/" className="flex w-full items-center gap-3 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 text-white font-bold text-sm shadow-sm transition-all duration-300 group-hover:scale-105 shrink-0">
-            P
+      <SidebarHeader className="border-b border-border px-4 py-3">
+        <Link href="/" className="flex w-full items-center gap-2.5 group">
+          {/* Icon mark — Q with blue drop */}
+          <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#0a0a0a] shadow-sm transition-all duration-300 group-hover:scale-105 overflow-hidden">
+            <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7">
+              <rect x="3" y="3" width="30" height="30" rx="9" fill="#0a0a0a"/>
+              <rect x="9" y="8" width="18" height="12" rx="5" fill="white"/>
+              <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
+            </svg>
           </div>
           <div className="flex flex-col items-end group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold tracking-tight text-gray-900">Planify</span>
+            <span className="text-sm font-black tracking-tight text-[#0a0a0a]">Qlipy</span>
             <span className="text-[11px] text-muted-foreground">מערכת ניהול</span>
           </div>
         </Link>
@@ -112,7 +122,8 @@ export function AppSidebar() {
               {/* ── כספים (collapsible) ── */}
               <SidebarMenuItem data-tour="nav-financials">
                 <SidebarMenuButton
-                  onClick={() => setFinancialsOpen((v) => !v)}
+                  render={isCollapsed ? <Link href="/financials" /> : undefined}
+                  onClick={isCollapsed ? undefined : () => setFinancialsOpen((v) => !v)}
                   isActive={isFinancialsActive}
                   tooltip={he.nav.financials}
                   className={isFinancialsActive ? btnActive : btnIdle}
