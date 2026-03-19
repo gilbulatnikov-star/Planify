@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Camera, Image, Share2, Film, Clapperboard, Building2,
@@ -146,22 +146,17 @@ export default function OnboardingPage() {
       });
 
       if (res.ok) {
-        await update({ onboardingCompleted: true });
         setDone(true);
+        update({ onboardingCompleted: true }).catch(() => {});
         setTimeout(() => {
-          router.push("/");
-          router.refresh();
-        }, 1500);
+          window.location.href = "/";
+        }, 1200);
       } else {
-        // API failed — skip onboarding and go home anyway
-        await update({ onboardingCompleted: true });
-        router.push("/");
-        router.refresh();
+        update({ onboardingCompleted: true }).catch(() => {});
+        window.location.href = "/";
       }
     } catch {
-      // Network error — go home anyway
-      router.push("/");
-      router.refresh();
+      window.location.href = "/";
     }
   }
 
@@ -208,8 +203,16 @@ export default function OnboardingPage() {
     <div className="min-h-screen bg-gray-950 flex flex-col" dir="rtl">
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-6">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-gray-900 font-bold text-sm">
-          P
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-gray-900 font-bold text-sm">
+            P
+          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: "/sign-in" })}
+            className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+          >
+            יציאה
+          </button>
         </div>
         <div className="flex items-center gap-2">
           {steps.map((_, i) => (
