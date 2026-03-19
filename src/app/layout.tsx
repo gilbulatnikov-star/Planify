@@ -12,7 +12,17 @@ const notoSansHebrew = Noto_Sans_Hebrew({
 
 export const metadata: Metadata = {
   title: "Planify",
-  description: "מערכת ניהול לקוחות ופרויקטים — גיל הפקות",
+  description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
+  openGraph: {
+    title: "Planify",
+    description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
+    siteName: "Planify",
+  },
+  twitter: {
+    card: "summary",
+    title: "Planify",
+    description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
+  },
 };
 
 export default function RootLayout({
