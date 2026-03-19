@@ -49,7 +49,10 @@ export async function updateUserPlan(userId: string, plan: string) {
   await requireAdmin();
   await prisma.user.update({
     where: { id: userId },
-    data: { subscriptionPlan: plan },
+    data: {
+      subscriptionPlan: plan,
+      subscriptionStatus: plan === "FREE" ? null : "ACTIVE",
+    },
   });
   revalidatePath("/admin");
 }
