@@ -55,8 +55,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   callbacks: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    jwt({ token, user, trigger, session }: { token: any; user?: any; trigger?: string; session?: any }) {
-      if (user) {
+    async jwt({ token, user, account, trigger, session }: { token: any; user?: any; account?: any; trigger?: string; session?: any }) {
+      // Google sign-in: find or create user in Prisma
+      if (user && account?.provider === "google") {
+        let dbUser = await prisma.user.findUnique({ where: { email: user.email! } });
+        if (!dbUser) {
+          dbUser = await prisma.user.create({
+            data: {
+              email: user.email!,
+              name: user.name ?? null,
+              password: "",
+            },
+          });
+        }
+        token.sub                = dbUser.id;
+        token.onboardingCompleted = dbUser.onboardingCompleted;
+        token.subscriptionPlan   = dbUser.subscriptionPlan;
+        token.createdAt          = dbUser.createdAt.toISOString();
+      } else if (user) {
+        // Credentials sign-in
         token.onboardingCompleted = user.onboardingCompleted ?? false;
         token.subscriptionPlan   = user.subscriptionPlan ?? "FREE";
         token.createdAt          = user.createdAt ?? new Date().toISOString();
