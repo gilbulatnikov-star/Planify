@@ -1,7 +1,22 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 import { TravelLogPageClient } from "@/app/components/travel-log/travel-log-page-client";
 
 export default async function TravelLogPage() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return (
+      <TravelLogPageClient
+        travelLogs={[]}
+        totalKmThisMonth={0}
+        clients={[]}
+        projects={[]}
+      />
+    );
+  }
+
   // Current month boundaries
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -10,6 +25,7 @@ export default async function TravelLogPage() {
   const [allTravelLogs, currentMonthLogs, clients, projects] =
     await Promise.all([
       prisma.travelLog.findMany({
+        where: { userId },
         include: {
           client: { select: { id: true, name: true } },
           project: { select: { id: true, title: true } },
@@ -18,6 +34,7 @@ export default async function TravelLogPage() {
       }),
       prisma.travelLog.findMany({
         where: {
+          userId,
           date: {
             gte: startOfMonth,
             lte: endOfMonth,
@@ -26,10 +43,12 @@ export default async function TravelLogPage() {
         select: { kilometers: true },
       }),
       prisma.client.findMany({
+        where: { userId },
         select: { id: true, name: true },
         orderBy: { name: "asc" },
       }),
       prisma.project.findMany({
+        where: { userId },
         select: { id: true, title: true },
         orderBy: { title: "asc" },
       }),

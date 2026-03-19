@@ -1,8 +1,17 @@
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 import { SubscriptionsPageClient } from "@/app/components/subscriptions/subscriptions-page-client";
 
 export default async function SubscriptionsPage() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  if (!userId) {
+    return <SubscriptionsPageClient subscriptions={[]} totalMonthlyCost={0} />;
+  }
+
   const subscriptions = await prisma.subscription.findMany({
+    where: { userId },
     orderBy: [{ status: "asc" }, { serviceName: "asc" }],
   });
 
