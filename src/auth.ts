@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import Google from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 import { authConfig } from "./auth.config";
@@ -24,6 +25,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
   trustHost: true,
   providers: [
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+      Google({
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        authorization: { params: { prompt: "consent", access_type: "offline", response_type: "code" } },
+      }),
+    ] : []),
     Credentials({
       credentials: { email: {}, password: {} },
       authorize: async (credentials) => {

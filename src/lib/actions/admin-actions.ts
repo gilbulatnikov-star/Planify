@@ -18,15 +18,13 @@ async function requireAdmin() {
 
 export async function getAdminStats() {
   await requireAdmin();
-  const [totalUsers, freeUsers, monthlyUsers, annualUsers, totalProjects, totalScripts] = await Promise.all([
+  const [totalUsers, freeUsers, monthlyUsers, annualUsers] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { subscriptionPlan: "FREE" } }),
     prisma.user.count({ where: { subscriptionPlan: "MONTHLY" } }),
     prisma.user.count({ where: { subscriptionPlan: "ANNUAL" } }),
-    prisma.project.count(),
-    prisma.script.count(),
   ]);
-  return { totalUsers, freeUsers, monthlyUsers, annualUsers, totalProjects, totalScripts };
+  return { totalUsers, freeUsers, monthlyUsers, annualUsers };
 }
 
 export async function getAdminUsers() {
@@ -35,32 +33,15 @@ export async function getAdminUsers() {
     orderBy: { createdAt: "desc" },
   });
 
-  // Get per-user counts
-  const userIds = users.map(u => u.id);
-  const [projectCounts, scriptCounts, contactCounts] = await Promise.all([
-    prisma.project.groupBy({ by: ["id"], where: { id: { in: userIds } }, _count: true }).then(() =>
-      // projects don't have userId — for now count all
-      Promise.resolve({} as Record<string, number>)
-    ),
-    prisma.script.groupBy({ by: ["id"], where: { id: { in: userIds } }, _count: true }).then(() =>
-      Promise.resolve({} as Record<string, number>)
-    ),
-    Promise.resolve({} as Record<string, number>),
-  ]);
-
   return users.map(u => ({
     id: u.id,
     name: u.name,
     email: u.email,
-    role: u.role,
     subscriptionPlan: u.subscriptionPlan,
     subscriptionStatus: u.subscriptionStatus,
+    subscriptionEndsAt: u.subscriptionEndsAt,
     onboardingCompleted: u.onboardingCompleted,
     createdAt: u.createdAt,
-    updatedAt: u.updatedAt,
-    projectCount: projectCounts[u.id] ?? 0,
-    scriptCount: scriptCounts[u.id] ?? 0,
-    contactCount: contactCounts[u.id] ?? 0,
   }));
 }
 
@@ -76,5 +57,18 @@ export async function updateUserPlan(userId: string, plan: string) {
 export async function deleteUser(userId: string) {
   await requireAdmin();
   await prisma.user.delete({ where: { id: userId } });
+  revalidatePath("/admin");
+}
+
+export async function resetUserPassword(userId: string, newPassword: string) {
+  await requireAdmin();
+  const bcrypt = await import("bcryptjs");
+  const hashed = await bcrypt.hash(newPassword, 10);
+  await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+}
+
+export async function updateUserSubscriptionExpiry(userId: string, endsAt: Date | null) {
+  await requireAdmin();
+  await prisma.user.update({ where: { id: userId }, data: { subscriptionEndsAt: endsAt } });
   revalidatePath("/admin");
 }

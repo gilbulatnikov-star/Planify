@@ -67,7 +67,7 @@ export default async function MoodboardListPage() {
                 </div>
               </Link>
               {/* Actions */}
-              <div className="absolute top-3 left-3 flex gap-1.5 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity">
+              <div className="absolute top-3 left-3 flex gap-1.5 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity delay-75">
                 <Link
                   href={`/moodboard/${board.id}`}
                   className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow border border-gray-200 hover:bg-gray-50 transition-colors"

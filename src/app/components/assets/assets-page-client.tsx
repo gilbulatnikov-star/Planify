@@ -190,7 +190,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
                       {asset.notes ?? "—"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200">
+                      <div className="flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 delay-75">
                         <Button
                           variant="ghost"
                           size="icon"

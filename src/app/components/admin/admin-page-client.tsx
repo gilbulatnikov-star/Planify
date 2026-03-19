@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, FileText, FolderOpen } from "lucide-react";
-import { updateUserPlan, deleteUser } from "@/lib/actions/admin-actions";
+import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar } from "lucide-react";
+import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionExpiry } from "@/lib/actions/admin-actions";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
 
@@ -10,15 +10,11 @@ type UserRow = {
   id: string;
   name: string | null;
   email: string;
-  role: string | null;
   subscriptionPlan: string;
   subscriptionStatus: string | null;
+  subscriptionEndsAt: Date | null;
   onboardingCompleted: boolean;
   createdAt: Date;
-  updatedAt: Date;
-  projectCount: number;
-  scriptCount: number;
-  contactCount: number;
 };
 
 type Stats = {
@@ -26,8 +22,6 @@ type Stats = {
   freeUsers: number;
   monthlyUsers: number;
   annualUsers: number;
-  totalProjects: number;
-  totalScripts: number;
 };
 
 const PLAN_LABELS: Record<string, string> = {
@@ -45,7 +39,12 @@ const PLAN_COLORS: Record<string, string> = {
 export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow[] }) {
   const [search, setSearch] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const [passwordModal, setPasswordModal] = useState<{ userId: string; name: string } | null>(null);
+  const [expiryModal, setExpiryModal] = useState<{ userId: string; name: string; current: Date | null } | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [newExpiry, setNewExpiry] = useState("");
   const [isPending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const filtered = users.filter(u =>
     u.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -60,6 +59,28 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
     startTransition(async () => {
       await deleteUser(userId);
       setConfirmDelete(null);
+    });
+  }
+
+  function handleResetPassword() {
+    if (!passwordModal || !newPassword) return;
+    startTransition(async () => {
+      await resetUserPassword(passwordModal.userId, newPassword);
+      setPasswordModal(null);
+      setNewPassword("");
+      setFeedback("הסיסמה עודכנה בהצלחה");
+      setTimeout(() => setFeedback(null), 3000);
+    });
+  }
+
+  function handleUpdateExpiry() {
+    if (!expiryModal) return;
+    startTransition(async () => {
+      await updateUserSubscriptionExpiry(expiryModal.userId, newExpiry ? new Date(newExpiry) : null);
+      setExpiryModal(null);
+      setNewExpiry("");
+      setFeedback("תוקף המנוי עודכן");
+      setTimeout(() => setFeedback(null), 3000);
     });
   }
 
@@ -79,15 +100,20 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
       </div>
 
       <div className="px-8 py-6 space-y-6">
+        {/* Feedback */}
+        {feedback && (
+          <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-700 font-medium">
+            {feedback}
+          </div>
+        )}
+
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "סה״כ משתמשים", value: stats.totalUsers, icon: Users, color: "text-gray-700" },
             { label: "חינמי", value: stats.freeUsers, icon: Users, color: "text-gray-500" },
             { label: "Pro חודשי", value: stats.monthlyUsers, icon: Crown, color: "text-blue-600" },
             { label: "Pro שנתי", value: stats.annualUsers, icon: Crown, color: "text-amber-600" },
-            { label: "פרויקטים", value: stats.totalProjects, icon: FolderOpen, color: "text-purple-600" },
-            { label: "תסריטים", value: stats.totalScripts, icon: FileText, color: "text-green-600" },
           ].map(s => (
             <div key={s.label} className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
               <s.icon className={`h-5 w-5 ${s.color} mb-2`} />
@@ -116,12 +142,12 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
               <thead>
                 <tr className="border-b border-gray-100 bg-gray-50">
                   <th className="text-right px-5 py-3 font-medium text-gray-500">משתמש</th>
-                  <th className="text-right px-5 py-3 font-medium text-gray-500">תפקיד</th>
                   <th className="text-right px-5 py-3 font-medium text-gray-500">מנוי</th>
+                  <th className="text-right px-5 py-3 font-medium text-gray-500">תוקף</th>
                   <th className="text-right px-5 py-3 font-medium text-gray-500">סטטוס</th>
                   <th className="text-right px-5 py-3 font-medium text-gray-500">הצטרף</th>
                   <th className="text-right px-5 py-3 font-medium text-gray-500">שינוי מנוי</th>
-                  <th className="px-5 py-3"></th>
+                  <th className="px-5 py-3 text-right font-medium text-gray-500">פעולות</th>
                 </tr>
               </thead>
               <tbody>
@@ -134,14 +160,22 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
                         <p className="text-xs text-gray-500">{user.email}</p>
                       </div>
                     </td>
-                    {/* Role */}
-                    <td className="px-5 py-3.5 text-gray-600">{user.role ?? "—"}</td>
                     {/* Plan */}
                     <td className="px-5 py-3.5">
                       <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${PLAN_COLORS[user.subscriptionPlan] ?? PLAN_COLORS.FREE}`}>
                         {user.subscriptionPlan !== "FREE" && <Crown className="h-3 w-3" />}
                         {PLAN_LABELS[user.subscriptionPlan] ?? user.subscriptionPlan}
                       </span>
+                    </td>
+                    {/* Expiry */}
+                    <td className="px-5 py-3.5 text-xs">
+                      {user.subscriptionEndsAt ? (
+                        <span className={new Date(user.subscriptionEndsAt) < new Date() ? "text-red-500 font-medium" : "text-gray-600"}>
+                          {format(new Date(user.subscriptionEndsAt), "d MMM yyyy", { locale: heLocale })}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
                     </td>
                     {/* Status */}
                     <td className="px-5 py-3.5">
@@ -166,32 +200,37 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
                         <option value="ANNUAL">Pro שנתי</option>
                       </select>
                     </td>
-                    {/* Delete */}
+                    {/* Actions */}
                     <td className="px-5 py-3.5">
-                      {confirmDelete === user.id ? (
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => handleDelete(user.id)}
-                            disabled={isPending}
-                            className="rounded-lg bg-red-600 px-2.5 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50"
-                          >
-                            מחק
-                          </button>
-                          <button
-                            onClick={() => setConfirmDelete(null)}
-                            className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs text-gray-600 hover:bg-gray-50"
-                          >
-                            ביטול
-                          </button>
-                        </div>
-                      ) : (
+                      <div className="flex items-center gap-1.5">
+                        {/* Reset password */}
                         <button
-                          onClick={() => setConfirmDelete(user.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors"
+                          onClick={() => setPasswordModal({ userId: user.id, name: user.name ?? user.email })}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-blue-50 hover:text-blue-500 transition-colors"
+                          title="איפוס סיסמה"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Key className="h-3.5 w-3.5" />
                         </button>
-                      )}
+                        {/* Expiry */}
+                        <button
+                          onClick={() => { setExpiryModal({ userId: user.id, name: user.name ?? user.email, current: user.subscriptionEndsAt }); setNewExpiry(user.subscriptionEndsAt ? format(new Date(user.subscriptionEndsAt), "yyyy-MM-dd") : ""); }}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-amber-50 hover:text-amber-500 transition-colors"
+                          title="עדכון תוקף מנוי"
+                        >
+                          <Calendar className="h-3.5 w-3.5" />
+                        </button>
+                        {/* Delete */}
+                        {confirmDelete === user.id ? (
+                          <div className="flex items-center gap-1">
+                            <button onClick={() => handleDelete(user.id)} disabled={isPending} className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50">מחק</button>
+                            <button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-gray-200 px-2 py-1 text-xs text-gray-600 hover:bg-gray-50">ביטול</button>
+                          </div>
+                        ) : (
+                          <button onClick={() => setConfirmDelete(user.id)} className="flex h-7 w-7 items-center justify-center rounded-lg text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors" title="מחק משתמש">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -208,6 +247,48 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
           </div>
         </div>
       </div>
+
+      {/* Password Modal */}
+      {passwordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setPasswordModal(null)}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()} dir="rtl">
+            <h2 className="text-base font-bold text-gray-900 mb-1">איפוס סיסמה</h2>
+            <p className="text-sm text-gray-500 mb-4">{passwordModal.name}</p>
+            <input
+              type="password"
+              placeholder="סיסמה חדשה..."
+              value={newPassword}
+              onChange={e => setNewPassword(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+            <div className="flex gap-2">
+              <button onClick={handleResetPassword} disabled={isPending || !newPassword} className="flex-1 rounded-xl bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50">עדכן סיסמה</button>
+              <button onClick={() => setPasswordModal(null)} className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm text-gray-600 hover:bg-gray-50">ביטול</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Expiry Modal */}
+      {expiryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setExpiryModal(null)}>
+          <div className="bg-white rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()} dir="rtl">
+            <h2 className="text-base font-bold text-gray-900 mb-1">תוקף מנוי</h2>
+            <p className="text-sm text-gray-500 mb-4">{expiryModal.name}</p>
+            <input
+              type="date"
+              value={newExpiry}
+              onChange={e => setNewExpiry(e.target.value)}
+              className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
+            />
+            <div className="flex gap-2">
+              <button onClick={handleUpdateExpiry} disabled={isPending} className="flex-1 rounded-xl bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-50">עדכן</button>
+              <button onClick={() => { setExpiryModal(null); updateUserSubscriptionExpiry(expiryModal.userId, null); }} className="rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-red-500 hover:bg-red-50">הסר תוקף</button>
+              <button onClick={() => setExpiryModal(null)} className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm text-gray-600 hover:bg-gray-50">ביטול</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

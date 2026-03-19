@@ -124,6 +124,7 @@ export default function SignInPage() {
           <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
+              onClick={() => signIn("google", { callbackUrl: "/" })}
               className="h-11 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
             >
               <svg className="h-4 w-4" viewBox="0 0 24 24">

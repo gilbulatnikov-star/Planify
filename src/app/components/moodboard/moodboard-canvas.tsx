@@ -1046,12 +1046,14 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
   // Always-fresh nodes ref — lets isAtNodeLimit work correctly in stale closures
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
+  const planLimitRef = useRef(planLimit);
+  planLimitRef.current = planLimit;
 
   // Returns true if adding more nodes is blocked by the plan limit
   function isAtNodeLimit() {
-    if (planLimit === -1) return false;
+    if (planLimitRef.current === -1) return false;
     const realNodes = nodesRef.current.filter(n => n.data._drawLayer !== "true");
-    return realNodes.length >= planLimit;
+    return realNodes.length >= planLimitRef.current;
   }
   const [title, setTitle]       = useState(initialTitle);
   const [editingTitle, setET]   = useState(false);
