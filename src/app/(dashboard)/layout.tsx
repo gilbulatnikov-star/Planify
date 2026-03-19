@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/components/layout/app-sidebar";
 import { UserMenu } from "@/app/components/layout/user-menu";
