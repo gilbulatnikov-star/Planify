@@ -18,10 +18,11 @@ export async function createCheatSheet(formData: FormData) {
 
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
 
     // Get the max sortOrder for this category and add 1
     const maxSort = await prisma.cheatSheet.findFirst({
-      where: { category, userId: userId ?? undefined },
+      where: { category, userId },
       orderBy: { sortOrder: "desc" },
       select: { sortOrder: true },
     });
@@ -32,7 +33,7 @@ export async function createCheatSheet(formData: FormData) {
         category,
         content: (formData.get("content") as string) || "",
         sortOrder: (maxSort?.sortOrder ?? -1) + 1,
-        userId: userId ?? undefined,
+        userId,
       },
     });
 

@@ -7,8 +7,9 @@ import { auth } from "@/auth";
 export async function getMoodboards() {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return [];
   return prisma.moodboard.findMany({
-    where: { userId: userId ?? undefined },
+    where: { userId },
     orderBy: { updatedAt: "desc" },
     include: { project: { select: { id: true, title: true } } },
   });

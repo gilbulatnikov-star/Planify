@@ -12,10 +12,11 @@ export async function getOrCreateQuickNote() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
-    let note = await prisma.quickNote.findFirst({ where: { userId: userId ?? undefined } });
+    if (!userId) return null;
+    let note = await prisma.quickNote.findFirst({ where: { userId } });
     if (!note) {
       note = await prisma.quickNote.create({
-        data: { content: "", userId: userId ?? undefined },
+        data: { content: "", userId },
       });
     }
     return note;
@@ -29,9 +30,10 @@ export async function updateQuickNote(content: string) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
-    const note = await prisma.quickNote.findFirst({ where: { userId: userId ?? undefined } });
+    if (!userId) return { success: false, error: "לא מחובר" };
+    const note = await prisma.quickNote.findFirst({ where: { userId } });
     if (!note) {
-      await prisma.quickNote.create({ data: { content, userId: userId ?? undefined } });
+      await prisma.quickNote.create({ data: { content, userId } });
     } else {
       await prisma.quickNote.update({
         where: { id: note.id },
@@ -56,8 +58,9 @@ export async function getTodos() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return [];
     const todos = await prisma.todo.findMany({
-      where: { userId: userId ?? undefined },
+      where: { userId },
       orderBy: { createdAt: "desc" },
     });
     return todos;
@@ -132,8 +135,9 @@ export async function getQuickLinks() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return [];
     const links = await prisma.quickLink.findMany({
-      where: { userId: userId ?? undefined },
+      where: { userId },
       orderBy: { sortOrder: "asc" },
     });
     return links;
@@ -203,8 +207,9 @@ export async function getGearStatuses() {
   try {
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return [];
 
-    let statuses = await prisma.gearStatus.findMany({ where: { userId: userId ?? undefined } });
+    let statuses = await prisma.gearStatus.findMany({ where: { userId } });
 
     if (statuses.length === 0) {
       const defaults = [
@@ -218,11 +223,11 @@ export async function getGearStatuses() {
           key: d.key,
           label: d.label,
           isReady: false,
-          userId: userId ?? undefined,
+          userId,
         })),
       });
 
-      statuses = await prisma.gearStatus.findMany({ where: { userId: userId ?? undefined } });
+      statuses = await prisma.gearStatus.findMany({ where: { userId } });
     }
 
     return statuses;

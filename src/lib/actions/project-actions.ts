@@ -8,8 +8,9 @@ import { getLimitsForPlan } from "@/lib/plan-limits";
 export async function getProjects() {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return [];
   return prisma.project.findMany({
-    where: { userId: userId ?? undefined },
+    where: { userId },
     orderBy: { title: "asc" },
     select: { id: true, title: true },
   });
@@ -27,8 +28,9 @@ export async function createProject(formData: FormData) {
     const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
+    if (!userId) return { success: false as const, error: "לא מחובר" };
     if (limits.projects !== -1) {
-      const count = await prisma.project.count({ where: { userId: userId ?? undefined } });
+      const count = await prisma.project.count({ where: { userId } });
       if (count >= limits.projects) {
         return { success: false as const, quotaExceeded: true as const };
       }

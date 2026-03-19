@@ -8,8 +8,9 @@ import { getLimitsForPlan } from "@/lib/plan-limits";
 export async function getClients() {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return [];
   return prisma.client.findMany({
-    where: { userId: userId ?? undefined },
+    where: { userId },
     orderBy: { name: "asc" },
     select: { id: true, name: true },
   });
@@ -22,8 +23,9 @@ export async function createClientQuick(name: string) {
     const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
+    if (!userId) return { success: false as const, error: "לא מחובר" };
     if (limits.clients !== -1) {
-      const count = await prisma.client.count({ where: { userId: userId ?? undefined } });
+      const count = await prisma.client.count({ where: { userId } });
       if (count >= limits.clients) return { success: false as const, quotaExceeded: true as const, error: "הגעת למגבלת הלקוחות" };
     }
     const client = await prisma.client.create({
@@ -49,8 +51,9 @@ export async function createClient(formData: FormData) {
     const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
+    if (!userId) return { success: false, error: "לא מחובר" };
     if (limits.clients !== -1) {
-      const count = await prisma.client.count({ where: { userId: userId ?? undefined } });
+      const count = await prisma.client.count({ where: { userId } });
       if (count >= limits.clients) return { success: false, quotaExceeded: true };
     }
 

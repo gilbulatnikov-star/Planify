@@ -5,6 +5,17 @@ export async function getDashboardStats() {
   const session = await auth();
   const userId = session?.user?.id;
 
+  if (!userId) {
+    return {
+      activeProjects: 0,
+      upcomingShoots: [],
+      pendingDeadlines: [],
+      monthlyRevenue: 0,
+      outstandingAmount: 0,
+      conversionRate: 0,
+    };
+  }
+
   const now = new Date();
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -20,13 +31,13 @@ export async function getDashboardStats() {
     wonLeads,
   ] = await Promise.all([
     prisma.project.count({
-      where: { phase: { not: "delivered" }, userId: userId ?? undefined },
+      where: { phase: { not: "delivered" }, userId },
     }),
     prisma.project.findMany({
       where: {
         shootDate: { gte: now },
         phase: { in: ["pre_production", "production"] },
-        userId: userId ?? undefined,
+        userId,
       },
       include: { client: true },
       orderBy: { shootDate: "asc" },
@@ -36,7 +47,7 @@ export async function getDashboardStats() {
       where: {
         deadline: { gte: now, lte: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) },
         phase: { not: "delivered" },
-        userId: userId ?? undefined,
+        userId,
       },
       include: { client: true },
       orderBy: { deadline: "asc" },
@@ -47,16 +58,16 @@ export async function getDashboardStats() {
       where: {
         status: "paid",
         paidAt: { gte: startOfMonth, lte: endOfMonth },
-        userId: userId ?? undefined,
+        userId,
       },
     }),
     prisma.invoice.aggregate({
       _sum: { total: true },
-      where: { status: { in: ["sent", "overdue"] }, userId: userId ?? undefined },
+      where: { status: { in: ["sent", "overdue"] }, userId },
     }),
-    prisma.client.count({ where: { type: "client", userId: userId ?? undefined } }),
-    prisma.client.count({ where: { type: "lead", userId: userId ?? undefined } }),
-    prisma.client.count({ where: { type: "lead", leadStatus: "won", userId: userId ?? undefined } }),
+    prisma.client.count({ where: { type: "client", userId } }),
+    prisma.client.count({ where: { type: "lead", userId } }),
+    prisma.client.count({ where: { type: "lead", leadStatus: "won", userId } }),
   ]);
 
   const allLeadsEver = totalLeads + wonLeads;
@@ -75,8 +86,9 @@ export async function getDashboardStats() {
 export async function getRecentProjects() {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return [];
   return prisma.project.findMany({
-    where: { userId: userId ?? undefined },
+    where: { userId },
     include: { client: true },
     orderBy: { updatedAt: "desc" },
     take: 5,
@@ -86,13 +98,14 @@ export async function getRecentProjects() {
 export async function getUpcomingContent() {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return [];
   const now = new Date();
   const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
   return prisma.scheduledContent.findMany({
     where: {
       date: { gte: now, lte: weekFromNow },
-      userId: userId ?? undefined,
+      userId,
     },
     include: {
       client: { select: { name: true } },

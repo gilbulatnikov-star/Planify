@@ -22,8 +22,9 @@ export async function createContact(formData: FormData) {
     const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
+    if (!userId) return { success: false as const, error: "לא מחובר" };
     if (limits.contacts !== -1) {
-      const count = await prisma.contact.count({ where: { userId: userId ?? undefined } });
+      const count = await prisma.contact.count({ where: { userId } });
       if (count >= limits.contacts) {
         return { success: false as const, quotaExceeded: true as const };
       }

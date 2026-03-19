@@ -7,8 +7,9 @@ import { getLimitsForPlan } from "@/lib/plan-limits";
 export async function getScripts() {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return [];
   return prisma.script.findMany({
-    where: { userId: userId ?? undefined },
+    where: { userId },
     orderBy: { updatedAt: "desc" },
     include: {
       project: { select: { id: true, title: true } },
@@ -38,8 +39,9 @@ export async function createScript(data: {
   const userId = session?.user?.id;
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const limits = getLimitsForPlan(plan);
+  if (!userId) return { success: false as const, error: "לא מחובר" };
   if (limits.scripts !== -1) {
-    const count = await prisma.script.count({ where: { userId: userId ?? undefined } });
+    const count = await prisma.script.count({ where: { userId } });
     if (count >= limits.scripts) {
       return { quotaExceeded: true as const };
     }

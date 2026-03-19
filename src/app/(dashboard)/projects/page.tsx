@@ -4,19 +4,27 @@ import { getLimitsForPlan } from "@/lib/plan-limits";
 import { ProjectsPageClient } from "@/app/components/projects/projects-page-client";
 
 export default async function ProjectsPage() {
-  const [projects, clients, session] = await Promise.all([
-    prisma.project.findMany({
-      include: {
-        client: { select: { id: true, name: true } },
-        tasks: { select: { id: true, completed: true } },
-      },
-      orderBy: { updatedAt: "desc" },
-    }),
-    prisma.client.findMany({
-      select: { id: true, name: true },
-      orderBy: { name: "asc" },
-    }),
-    auth(),
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  const [projects, clients] = await Promise.all([
+    userId
+      ? prisma.project.findMany({
+          where: { userId },
+          include: {
+            client: { select: { id: true, name: true } },
+            tasks: { select: { id: true, completed: true } },
+          },
+          orderBy: { updatedAt: "desc" },
+        })
+      : [],
+    userId
+      ? prisma.client.findMany({
+          where: { userId },
+          select: { id: true, name: true },
+          orderBy: { name: "asc" },
+        })
+      : [],
   ]);
 
   const plan = session?.user?.subscriptionPlan ?? "FREE";
