@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 // ─── Inspiration CRUD ───
 
@@ -22,6 +23,9 @@ export async function createInspiration(formData: FormData) {
       return { success: false, error: "Category not found" };
     }
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.inspiration.create({
       data: {
         title,
@@ -29,6 +33,7 @@ export async function createInspiration(formData: FormData) {
         categoryId: cat.id,
         url: (formData.get("url") as string) || null,
         notes: (formData.get("notes") as string) || null,
+        userId: userId ?? undefined,
       },
     });
 
@@ -117,12 +122,15 @@ export async function createInspirationCategory(formData: FormData) {
       .replace(/_+/g, "_")
       .replace(/^_|_$/g, "");
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     // Get max sortOrder
     const maxSort = await prisma.inspirationCategory.aggregate({ _max: { sortOrder: true } });
     const sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
 
     await prisma.inspirationCategory.create({
-      data: { name: name || `cat_${Date.now()}`, label, color, sortOrder },
+      data: { name: name || `cat_${Date.now()}`, label, color, sortOrder, userId: userId ?? undefined },
     });
 
     revalidatePath("/inspiration");

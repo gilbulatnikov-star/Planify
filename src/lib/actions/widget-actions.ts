@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 // ==========================================
 // QUICK NOTES
@@ -9,10 +10,12 @@ import { prisma } from "@/lib/db/prisma";
 
 export async function getOrCreateQuickNote() {
   try {
-    let note = await prisma.quickNote.findFirst();
+    const session = await auth();
+    const userId = session?.user?.id;
+    let note = await prisma.quickNote.findFirst({ where: { userId: userId ?? undefined } });
     if (!note) {
       note = await prisma.quickNote.create({
-        data: { content: "" },
+        data: { content: "", userId: userId ?? undefined },
       });
     }
     return note;
@@ -24,9 +27,11 @@ export async function getOrCreateQuickNote() {
 
 export async function updateQuickNote(content: string) {
   try {
-    const note = await prisma.quickNote.findFirst();
+    const session = await auth();
+    const userId = session?.user?.id;
+    const note = await prisma.quickNote.findFirst({ where: { userId: userId ?? undefined } });
     if (!note) {
-      await prisma.quickNote.create({ data: { content } });
+      await prisma.quickNote.create({ data: { content, userId: userId ?? undefined } });
     } else {
       await prisma.quickNote.update({
         where: { id: note.id },
@@ -49,7 +54,10 @@ export async function updateQuickNote(content: string) {
 
 export async function getTodos() {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const todos = await prisma.todo.findMany({
+      where: { userId: userId ?? undefined },
       orderBy: { createdAt: "desc" },
     });
     return todos;
@@ -64,8 +72,10 @@ export async function createTodo(text: string) {
     if (!text.trim()) {
       return { success: false, error: "Text is required" };
     }
+    const session = await auth();
+    const userId = session?.user?.id;
     await prisma.todo.create({
-      data: { text: text.trim() },
+      data: { text: text.trim(), userId: userId ?? undefined },
     });
     revalidatePath("/");
     return { success: true };
@@ -120,7 +130,10 @@ export async function deleteTodo(id: string) {
 
 export async function getQuickLinks() {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
     const links = await prisma.quickLink.findMany({
+      where: { userId: userId ?? undefined },
       orderBy: { sortOrder: "asc" },
     });
     return links;
@@ -140,6 +153,9 @@ export async function createQuickLink(formData: FormData) {
       return { success: false, error: "Name and URL are required" };
     }
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     const maxOrder = await prisma.quickLink.aggregate({
       _max: { sortOrder: true },
     });
@@ -150,6 +166,7 @@ export async function createQuickLink(formData: FormData) {
         url,
         icon,
         sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
+        userId: userId ?? undefined,
       },
     });
 
@@ -184,7 +201,10 @@ export async function deleteQuickLink(id: string) {
 
 export async function getGearStatuses() {
   try {
-    let statuses = await prisma.gearStatus.findMany();
+    const session = await auth();
+    const userId = session?.user?.id;
+
+    let statuses = await prisma.gearStatus.findMany({ where: { userId: userId ?? undefined } });
 
     if (statuses.length === 0) {
       const defaults = [
@@ -198,10 +218,11 @@ export async function getGearStatuses() {
           key: d.key,
           label: d.label,
           isReady: false,
+          userId: userId ?? undefined,
         })),
       });
 
-      statuses = await prisma.gearStatus.findMany();
+      statuses = await prisma.gearStatus.findMany({ where: { userId: userId ?? undefined } });
     }
 
     return statuses;

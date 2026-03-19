@@ -6,7 +6,10 @@ import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function getProjects() {
+  const session = await auth();
+  const userId = session?.user?.id;
   return prisma.project.findMany({
+    where: { userId: userId ?? undefined },
     orderBy: { title: "asc" },
     select: { id: true, title: true },
   });
@@ -21,10 +24,11 @@ export async function createProject(formData: FormData) {
 
     // ── Quota check ────────────────────────────────────────────────────────────
     const session = await auth();
+    const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
     if (limits.projects !== -1) {
-      const count = await prisma.project.count();
+      const count = await prisma.project.count({ where: { userId: userId ?? undefined } });
       if (count >= limits.projects) {
         return { success: false as const, quotaExceeded: true as const };
       }
@@ -47,6 +51,7 @@ export async function createProject(formData: FormData) {
         budget: budget !== null && !isNaN(budget) ? budget : null,
         shootDate: shootDateStr ? new Date(shootDateStr) : null,
         deadline: deadlineStr ? new Date(deadlineStr) : null,
+        userId: userId ?? undefined,
       },
     });
 

@@ -30,6 +30,28 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Relations
+  clients              Client[]
+  contacts             Contact[]
+  projects             Project[]
+  scripts              Script[]
+  moodboards           Moodboard[]
+  assets               Asset[]
+  inspirationCategories InspirationCategory[]
+  inspirations         Inspiration[]
+  subscriptions        Subscription[]
+  travelLogs           TravelLog[]
+  scheduledContents    ScheduledContent[]
+  invoices             Invoice[]
+  quotes               Quote[]
+  expenses             Expense[]
+  equipment            Equipment[]
+  cheatSheets          CheatSheet[]
+  quickNotes           QuickNote[]
+  todos                Todo[]
+  quickLinks           QuickLink[]
+  gearStatuses         GearStatus[]
 }
 
 // ---------- CLIENTS & LEADS ----------
@@ -49,6 +71,9 @@ model Client {
   type       String @default("lead") // lead | client
   leadSource String? // linkedin, organic, referral, website, social, other
   leadStatus String @default("new") // new, contacted, qualified, proposal_sent, won, lost
+
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
 
   projects         Project[]
   scripts          Script[]
@@ -80,6 +105,8 @@ model Project {
   description String?
   clientId    String?
   client      Client? @relation(fields: [clientId], references: [id])
+  userId      String?
+  user        User?   @relation(fields: [userId], references: [id])
 
   phase  String @default("pre_production") // pre_production, production, post_production, delivered
   status String @default("pitching")
@@ -132,6 +159,9 @@ model Equipment {
   status        String    @default("available") // available, rented, in_repair, retired
   notes         String?
 
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+
   gearAssignments GearAssignment[]
 
   createdAt DateTime @default(now())
@@ -157,6 +187,8 @@ model Quote {
   client      Client @relation(fields: [clientId], references: [id])
   projectId   String?
   project     Project? @relation(fields: [projectId], references: [id])
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
 
   status     String   @default("draft") // draft, sent, accepted, declined
   subtotal   Float    @default(0)
@@ -188,6 +220,8 @@ model Invoice {
   client        Client? @relation(fields: [clientId], references: [id])
   projectId     String?
   project       Project? @relation(fields: [projectId], references: [id])
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id])
 
   status       String    @default("draft") // draft, sent, paid, overdue, cancelled
   subtotal     Float     @default(0)
@@ -224,6 +258,9 @@ model Expense {
   receiptUrl  String?
   notes       String?
 
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
+
   createdAt DateTime @default(now())
 }
 
@@ -240,6 +277,9 @@ model ScheduledContent {
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
 
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
+
   notes String?
 
   createdAt DateTime @default(now())
@@ -250,6 +290,8 @@ model ScheduledContent {
 model QuickNote {
   id        String   @id @default(cuid())
   content   String   @default("")
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -259,6 +301,8 @@ model Todo {
   text        String
   completed   Boolean   @default(false)
   completedAt DateTime?
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -269,16 +313,22 @@ model QuickLink {
   url       String
   icon      String   @default("link")
   sortOrder Int      @default(0)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
 model GearStatus {
   id        String   @id @default(cuid())
-  key       String   @unique // sd_cards, footage, batteries
+  key       String   // sd_cards, footage, batteries
   label     String
   isReady   Boolean  @default(false)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
   updatedAt DateTime @updatedAt
+
+  @@unique([key, userId])
 }
 
 // ---------- CONTACTS / CREW ROLODEX ----------
@@ -290,6 +340,8 @@ model Contact {
   email     String?
   dailyRate Float?
   notes     String?
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -303,6 +355,8 @@ model Subscription {
   nextBillingDate DateTime?
   status          String    @default("active") // active, cancelled
   notes           String?
+  userId          String?
+  user            User?     @relation(fields: [userId], references: [id])
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -319,6 +373,8 @@ model TravelLog {
   client      Client?  @relation(fields: [clientId], references: [id])
   projectId   String?
   project     Project? @relation(fields: [projectId], references: [id])
+  userId      String?
+  user        User?   @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -332,6 +388,8 @@ model Asset {
   originalUrl String?
   licensePath String?
   notes       String?
+  userId      String?
+  user        User?   @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -339,12 +397,16 @@ model Asset {
 // ---------- INSPIRATION BOARD ----------
 model InspirationCategory {
   id           String        @id @default(cuid())
-  name         String        @unique
+  name         String
   label        String
   color        String        @default("cyan")
   sortOrder    Int           @default(0)
+  userId       String?
+  user         User?         @relation(fields: [userId], references: [id])
   createdAt    DateTime      @default(now())
   inspirations Inspiration[]
+
+  @@unique([name, userId])
 }
 
 model Inspiration {
@@ -355,6 +417,8 @@ model Inspiration {
   categoryId String?
   categoryRel InspirationCategory? @relation(fields: [categoryId], references: [id])
   notes      String?
+  userId     String?
+  user       User?               @relation(fields: [userId], references: [id])
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
 }
@@ -366,6 +430,8 @@ model CheatSheet {
   content   String   @default("")
   category  String
   sortOrder Int      @default(0)
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -383,6 +449,8 @@ model Script {
   project      Project? @relation(fields: [projectId], references: [id])
   clientId     String?
   client       Client?  @relation(fields: [clientId], references: [id])
+  userId       String?
+  user         User?   @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -395,6 +463,8 @@ model Moodboard {
   edgesData String   @default("[]") // JSON array of Edge objects
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

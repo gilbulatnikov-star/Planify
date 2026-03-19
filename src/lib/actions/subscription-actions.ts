@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 export async function createSubscription(formData: FormData) {
   try {
@@ -21,6 +22,9 @@ export async function createSubscription(formData: FormData) {
     const nextBillingDateStr = formData.get("nextBillingDate") as string;
     const notes = (formData.get("notes") as string) || null;
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.subscription.create({
       data: {
         serviceName,
@@ -31,6 +35,7 @@ export async function createSubscription(formData: FormData) {
           : null,
         status,
         notes,
+        userId: userId ?? undefined,
       },
     });
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 export async function createEquipment(formData: FormData) {
   try {
@@ -18,6 +19,9 @@ export async function createEquipment(formData: FormData) {
     const purchasePriceStr = formData.get("purchasePrice") as string;
     const purchasePrice = purchasePriceStr ? parseFloat(purchasePriceStr) : null;
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.equipment.create({
       data: {
         name,
@@ -28,6 +32,7 @@ export async function createEquipment(formData: FormData) {
         purchasePrice: purchasePrice !== null && !isNaN(purchasePrice) ? purchasePrice : null,
         status: (formData.get("status") as string) || "available",
         notes: (formData.get("notes") as string) || null,
+        userId: userId ?? undefined,
       },
     });
 

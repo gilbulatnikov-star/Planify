@@ -19,10 +19,11 @@ export async function createContact(formData: FormData) {
 
     // ── Quota check ────────────────────────────────────────────────────────────
     const session = await auth();
+    const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
     if (limits.contacts !== -1) {
-      const count = await prisma.contact.count();
+      const count = await prisma.contact.count({ where: { userId: userId ?? undefined } });
       if (count >= limits.contacts) {
         return { success: false as const, quotaExceeded: true as const };
       }
@@ -39,6 +40,7 @@ export async function createContact(formData: FormData) {
         email: (formData.get("email") as string) || null,
         dailyRate: dailyRate !== null && !isNaN(dailyRate) ? dailyRate : null,
         notes: (formData.get("notes") as string) || null,
+        userId: userId ?? undefined,
       },
     });
 

@@ -6,7 +6,10 @@ import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function getClients() {
+  const session = await auth();
+  const userId = session?.user?.id;
   return prisma.client.findMany({
+    where: { userId: userId ?? undefined },
     orderBy: { name: "asc" },
     select: { id: true, name: true },
   });
@@ -16,14 +19,15 @@ export async function createClientQuick(name: string) {
   try {
     if (!name.trim()) return { success: false as const, error: "שם נדרש" };
     const session = await auth();
+    const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
     if (limits.clients !== -1) {
-      const count = await prisma.client.count();
+      const count = await prisma.client.count({ where: { userId: userId ?? undefined } });
       if (count >= limits.clients) return { success: false as const, quotaExceeded: true as const, error: "הגעת למגבלת הלקוחות" };
     }
     const client = await prisma.client.create({
-      data: { name: name.trim(), type: "client", leadStatus: "new" },
+      data: { name: name.trim(), type: "client", leadStatus: "new", userId: userId ?? undefined },
       select: { id: true, name: true },
     });
     revalidatePath("/clients");
@@ -42,10 +46,11 @@ export async function createClient(formData: FormData) {
       return { success: false, error: "Name is required" };
     }
     const session = await auth();
+    const userId = session?.user?.id;
     const plan = session?.user?.subscriptionPlan ?? "FREE";
     const limits = getLimitsForPlan(plan);
     if (limits.clients !== -1) {
-      const count = await prisma.client.count();
+      const count = await prisma.client.count({ where: { userId: userId ?? undefined } });
       if (count >= limits.clients) return { success: false, quotaExceeded: true };
     }
 
@@ -64,6 +69,7 @@ export async function createClient(formData: FormData) {
         type: (formData.get("type") as string) || "lead",
         leadSource: (formData.get("leadSource") as string) || null,
         leadStatus: (formData.get("leadStatus") as string) || "new",
+        userId: userId ?? undefined,
       },
     });
 

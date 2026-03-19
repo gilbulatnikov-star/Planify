@@ -5,7 +5,10 @@ import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function getScripts() {
+  const session = await auth();
+  const userId = session?.user?.id;
   return prisma.script.findMany({
+    where: { userId: userId ?? undefined },
     orderBy: { updatedAt: "desc" },
     include: {
       project: { select: { id: true, title: true } },
@@ -32,10 +35,11 @@ export async function createScript(data: {
 }) {
   // ── Quota check ──────────────────────────────────────────────────────────────
   const session = await auth();
+  const userId = session?.user?.id;
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const limits = getLimitsForPlan(plan);
   if (limits.scripts !== -1) {
-    const count = await prisma.script.count();
+    const count = await prisma.script.count({ where: { userId: userId ?? undefined } });
     if (count >= limits.scripts) {
       return { quotaExceeded: true as const };
     }
@@ -47,6 +51,7 @@ export async function createScript(data: {
       platform: data.platform || "youtube",
       projectId: data.projectId || null,
       clientId: data.clientId || null,
+      userId: userId ?? undefined,
     },
   });
   revalidatePath("/scripts");

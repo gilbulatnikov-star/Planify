@@ -2,9 +2,13 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 export async function getMoodboards() {
+  const session = await auth();
+  const userId = session?.user?.id;
   return prisma.moodboard.findMany({
+    where: { userId: userId ?? undefined },
     orderBy: { updatedAt: "desc" },
     include: { project: { select: { id: true, title: true } } },
   });
@@ -18,8 +22,10 @@ export async function getMoodboard(id: string) {
 }
 
 export async function createMoodboard(title?: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
   const board = await prisma.moodboard.create({
-    data: { title: title ?? "Moodboard חדש" },
+    data: { title: title ?? "Moodboard חדש", userId: userId ?? undefined },
   });
   revalidatePath("/moodboard");
   return board;

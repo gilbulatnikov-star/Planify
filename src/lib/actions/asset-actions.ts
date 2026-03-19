@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 export async function createAsset(formData: FormData) {
   try {
@@ -15,6 +16,9 @@ export async function createAsset(formData: FormData) {
       return { success: false, error: "Type is required" };
     }
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.asset.create({
       data: {
         name,
@@ -22,6 +26,7 @@ export async function createAsset(formData: FormData) {
         source: (formData.get("source") as string) || null,
         originalUrl: (formData.get("originalUrl") as string) || null,
         notes: (formData.get("notes") as string) || null,
+        userId: userId ?? undefined,
       },
     });
 

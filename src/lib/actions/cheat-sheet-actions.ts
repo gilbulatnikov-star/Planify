@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 export async function createCheatSheet(formData: FormData) {
   try {
@@ -15,9 +16,12 @@ export async function createCheatSheet(formData: FormData) {
       return { success: false, error: "Category is required" };
     }
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     // Get the max sortOrder for this category and add 1
     const maxSort = await prisma.cheatSheet.findFirst({
-      where: { category },
+      where: { category, userId: userId ?? undefined },
       orderBy: { sortOrder: "desc" },
       select: { sortOrder: true },
     });
@@ -28,6 +32,7 @@ export async function createCheatSheet(formData: FormData) {
         category,
         content: (formData.get("content") as string) || "",
         sortOrder: (maxSort?.sortOrder ?? -1) + 1,
+        userId: userId ?? undefined,
       },
     });
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 // ============ INVOICE ACTIONS ============
 
@@ -18,6 +19,9 @@ export async function createInvoice(formData: FormData) {
     const projectId = (formData.get("projectId") as string) || undefined;
     const externalLink = (formData.get("externalLink") as string) || null;
     const notes = (formData.get("notes") as string) || null;
+
+    const session = await auth();
+    const userId = session?.user?.id;
 
     // Auto-generate invoice number
     const count = await prisma.invoice.count();
@@ -39,6 +43,7 @@ export async function createInvoice(formData: FormData) {
         paidAt: status === "paid" ? new Date() : null,
         externalLink,
         notes,
+        userId: userId ?? undefined,
       },
     });
 
@@ -197,6 +202,9 @@ export async function createExpense(formData: FormData) {
       return { success: false, error: "Date is required" };
     }
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.expense.create({
       data: {
         description,
@@ -206,6 +214,7 @@ export async function createExpense(formData: FormData) {
         vendor: (formData.get("vendor") as string) || null,
         receiptUrl: (formData.get("receiptUrl") as string) || null,
         notes: (formData.get("notes") as string) || null,
+        userId: userId ?? undefined,
       },
     });
 

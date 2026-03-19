@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 export async function createScheduledContent(formData: FormData) {
   try {
@@ -17,6 +18,9 @@ export async function createScheduledContent(formData: FormData) {
     const projectId = (formData.get("projectId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.scheduledContent.create({
       data: {
         title,
@@ -26,6 +30,7 @@ export async function createScheduledContent(formData: FormData) {
         clientId: clientId || undefined,
         projectId: projectId || undefined,
         notes,
+        userId: userId ?? undefined,
       },
     });
 

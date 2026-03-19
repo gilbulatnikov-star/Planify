@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
 
 export async function createTravelEntry(formData: FormData) {
   try {
@@ -30,6 +31,9 @@ export async function createTravelEntry(formData: FormData) {
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
 
+    const session = await auth();
+    const userId = session?.user?.id;
+
     await prisma.travelLog.create({
       data: {
         date: new Date(dateStr),
@@ -39,6 +43,7 @@ export async function createTravelEntry(formData: FormData) {
         purpose,
         clientId: clientId || null,
         projectId: projectId || null,
+        userId: userId ?? undefined,
       },
     });
 
