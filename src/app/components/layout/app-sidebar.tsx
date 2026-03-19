@@ -17,9 +17,10 @@ import {
   FileBarChart2,
   Crown,
   ListTodo,
+  LogOut,
 } from "lucide-react";
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
@@ -47,6 +48,7 @@ const navItems = [
   { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
   { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
   { href: "/tasks", label: "משימות", icon: ListTodo, tourId: "nav-tasks" },
+  { href: "/billing", label: "תוכנית המנוי", icon: Crown, tourId: "nav-billing" },
 ];
 
 const financialsSubItems = [
@@ -80,12 +82,13 @@ export function AppSidebar() {
       {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-border px-4 py-3">
         <Link href="/" className="flex w-full items-center gap-2.5 group">
-          {/* Collapsed: Q icon only */}
-          <div className="relative hidden group-data-[collapsible=icon]:flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-[#0a0a0a] shadow-sm transition-all duration-300 group-hover:scale-105 overflow-hidden">
-            <svg viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7">
-              <rect x="2" y="2" width="72" height="72" rx="20" fill="#0a0a0a"/>
-              <rect x="16" y="16" width="44" height="30" rx="10" fill="white"/>
-              <ellipse cx="58" cy="58" rx="10" ry="13" fill="#38b6ff" transform="rotate(-15 58 58)"/>
+          {/* Collapsed: Q icon only (pill ring style) */}
+          <div className="relative hidden group-data-[collapsible=icon]:flex h-9 w-9 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105">
+            <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-9 w-auto">
+              <rect x="18" y="18" width="170" height="122" rx="61"
+                fill="none" stroke="#0a0a0a" strokeWidth="28" strokeLinecap="round"
+                strokeDasharray="420 58" strokeDashoffset="243"/>
+              <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
             </svg>
           </div>
           {/* Expanded: full logo */}
@@ -168,32 +171,15 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ── Footer: subscription + profile ── */}
-      <SidebarFooter className="border-t border-border p-3 space-y-1">
-        {/* Billing */}
+      {/* ── Footer: sign out ── */}
+      <SidebarFooter className="border-t border-border p-3">
         <SidebarMenuButton
-          render={<Link href="/billing" />}
-          isActive={pathname.startsWith("/billing")}
-          tooltip="ניהול המנוי"
-          className={pathname.startsWith("/billing") ? btnActive : btnIdle}
+          onClick={() => signOut({ callbackUrl: "/login" })}
+          tooltip="יציאה מהמערכת"
+          className={`${btnIdle} cursor-pointer`}
         >
-          <Crown className="h-4 w-4 shrink-0" />
-          <span className="truncate group-data-[collapsible=icon]:hidden">ניהול המנוי</span>
-        </SidebarMenuButton>
-
-        {/* Profile */}
-        <SidebarMenuButton
-          render={<Link href="/settings/profile" />}
-          isActive={pathname.startsWith("/settings")}
-          tooltip={user?.name ?? "פרופיל"}
-          className={`${pathname.startsWith("/settings") ? btnActive : btnIdle} gap-2`}
-        >
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0a0a0a] text-white text-[10px] font-bold">
-            {initials}
-          </div>
-          <span className="truncate text-sm group-data-[collapsible=icon]:hidden">
-            {user?.name ?? user?.email ?? "פרופיל"}
-          </span>
+          <LogOut className="h-4 w-4 shrink-0" />
+          <span className="truncate group-data-[collapsible=icon]:hidden">יציאה מהמערכת</span>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
