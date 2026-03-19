@@ -32,10 +32,10 @@ const FEATURES = [
 // ─── Cell ─────────────────────────────────────────────────────────────────────
 
 function Cell({ value }: { value: boolean | string }) {
-  if (value === true)  return <Check className="h-4 w-4 text-violet-500 mx-auto" />;
+  if (value === true)  return <Check className="h-4 w-4 text-emerald-500 mx-auto" />;
   if (value === false) return <Minus className="h-4 w-4 text-gray-300 mx-auto" />;
   return (
-    <span className={`text-sm font-semibold ${value === "ללא הגבלה" ? "text-violet-600" : "text-gray-700"}`}>
+    <span className={`text-sm font-semibold ${value === "ללא הגבלה" ? "text-emerald-600" : "text-gray-700"}`}>
       {value}
     </span>
   );
@@ -124,7 +124,7 @@ export default function BillingPricingPage() {
         {/* Pro Annual — highlighted, center */}
         <div
           className="relative flex flex-col rounded-2xl p-7 shadow-2xl md:-my-3 z-10"
-          style={{ background: "linear-gradient(160deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%)" }}
+          style={{ background: "linear-gradient(160deg, #1e40af 0%, #4f46e5 50%, #7c3aed 100%)" }}
         >
           {/* Badge */}
           <div className="absolute -top-4 right-1/2 translate-x-1/2">
@@ -134,7 +134,7 @@ export default function BillingPricingPage() {
           </div>
 
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 mb-5">
-            <Crown className="h-5 w-5 text-white" />
+            <Crown className="h-5 w-5 text-yellow-300" />
           </div>
           <p className="text-lg font-bold text-white mb-1">Pro שנתי</p>
           <p className="text-xs text-white/50 mb-5">חיוב שנתי — ₪590 לשנה</p>
@@ -147,7 +147,7 @@ export default function BillingPricingPage() {
 
           <button
             onClick={() => handleSelect("ANNUAL")}
-            className="mb-7 w-full rounded-xl py-3.5 text-sm font-black transition-all duration-200 bg-white text-indigo-900 hover:bg-gray-100 shadow-lg"
+            className="mb-7 w-full rounded-xl py-3.5 text-sm font-black transition-all duration-200 bg-white text-gray-900 hover:bg-gray-100 shadow-lg"
           >
             התחל עכשיו
           </button>
@@ -164,7 +164,7 @@ export default function BillingPricingPage() {
               "חודשיים חינם",
             ].map((f) => (
               <div key={f} className="flex items-center gap-2.5">
-                <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/20">
+                <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/15">
                   <Check className="h-2.5 w-2.5 text-white" />
                 </div>
                 <span className="text-sm text-white/80">{f}</span>
@@ -225,7 +225,7 @@ export default function BillingPricingPage() {
               <tr className="border-b border-gray-100">
                 <th className="px-6 py-4 text-sm font-semibold text-gray-500 text-right w-2/5 bg-gray-50">פיצ&#39;ר</th>
                 <th className="px-4 py-4 text-sm font-bold text-gray-500 text-center bg-gray-50">חינמי</th>
-                <th className="px-4 py-4 text-sm font-black text-indigo-700 text-center" style={{ background: "rgba(238,237,255,0.6)" }}>Pro שנתי</th>
+                <th className="px-4 py-4 text-sm font-black text-gray-900 text-center" style={{ background: "rgba(241,245,249,0.8)" }}>Pro שנתי</th>
                 <th className="px-4 py-4 text-sm font-bold text-gray-700 text-center bg-gray-50">Pro חודשי</th>
               </tr>
             </thead>
@@ -234,7 +234,7 @@ export default function BillingPricingPage() {
                 <tr key={row.label} className={`border-b border-gray-50 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/30"}`}>
                   <td className="px-6 py-3.5 text-sm text-gray-700 font-medium">{row.label}</td>
                   <td className="px-4 py-3.5 text-center"><Cell value={row.free} /></td>
-                  <td className="px-4 py-3.5 text-center" style={{ background: "rgba(238,237,255,0.3)" }}><Cell value={row.annual} /></td>
+                  <td className="px-4 py-3.5 text-center" style={{ background: "rgba(241,245,249,0.5)" }}><Cell value={row.annual} /></td>
                   <td className="px-4 py-3.5 text-center"><Cell value={row.monthly} /></td>
                 </tr>
               ))}

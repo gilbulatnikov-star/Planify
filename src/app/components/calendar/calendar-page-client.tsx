@@ -70,7 +70,6 @@ function getColor(color?: string | null) {
 }
 
 const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
-const dayNamesShort = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -317,10 +316,9 @@ export function CalendarPageClient({
               <div className="min-w-[560px]">
                 {/* Day headers */}
                 <div className="grid grid-cols-7 border-b border-gray-100">
-                  {dayNames.map((name, i) => (
-                    <div key={name} className="py-2 text-center text-xs font-medium text-muted-foreground">
-                      <span className="hidden sm:inline">{name}</span>
-                      <span className="sm:hidden">{dayNamesShort[i]}</span>
+                  {dayNames.map((name) => (
+                    <div key={name} className="py-2.5 text-center text-xs font-semibold text-gray-500">
+                      {name}
                     </div>
                   ))}
                 </div>
@@ -337,7 +335,7 @@ export function CalendarPageClient({
                         <div
                           key={di}
                           onClick={() => handleDayClick(day)}
-                          className={`min-h-[80px] sm:min-h-[100px] p-1 sm:p-1.5 border-l border-gray-100 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${!inMonth ? "opacity-30" : ""}`}
+                          className={`min-h-[90px] p-1.5 border-l border-gray-100 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${!inMonth ? "opacity-30" : ""}`}
                         >
                           {/* Day number */}
                           <div className="flex items-center justify-between mb-1">
