@@ -77,6 +77,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.onboardingCompleted = user.onboardingCompleted ?? false;
         token.subscriptionPlan   = user.subscriptionPlan ?? "FREE";
         token.createdAt          = user.createdAt ?? new Date().toISOString();
+      } else if (token.sub) {
+        // Subsequent requests — refresh plan from DB so plan upgrades take effect immediately
+        const fresh = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { subscriptionPlan: true, onboardingCompleted: true },
+        });
+        if (fresh) {
+          token.subscriptionPlan   = fresh.subscriptionPlan;
+          token.onboardingCompleted = fresh.onboardingCompleted;
+        }
       }
       if (trigger === "update") {
         if (session?.onboardingCompleted !== undefined) token.onboardingCompleted = session.onboardingCompleted;
