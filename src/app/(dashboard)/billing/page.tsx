@@ -83,18 +83,16 @@ export default function BillingPricingPage() {
             className={`relative inline-flex h-7 w-14 shrink-0 rounded-full transition-colors duration-300 ${isAnnual ? "bg-[#38b6ff]" : "bg-gray-300"}`}
           >
             <span
-              className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform mt-1 ${
-                isAnnual ? "translate-x-8" : "translate-x-1"
+              className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-300 mt-1 ${
+                isAnnual ? "translate-x-1" : "translate-x-8"
               }`}
             />
           </button>
           <span className={`text-sm font-semibold flex items-center gap-1.5 ${billing === "annual" ? "text-[#0a0a0a]" : "text-gray-400"}`}>
             שנתי
-            {isAnnual && (
-              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-600">
-                חיסכון ₪118
-              </span>
-            )}
+            <span className={`inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-600 transition-opacity duration-200 ${isAnnual ? "opacity-100" : "opacity-0"}`}>
+              חיסכון ₪118
+            </span>
           </span>
         </div>
       </div>
@@ -107,7 +105,7 @@ export default function BillingPricingPage() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 mb-5">
             <Sparkles className="h-5 w-5 text-gray-400" />
           </div>
-          <p className="text-xl font-black text-[#0a0a0a] mb-1">חינמי</p>
+          <p className="text-xl font-black text-[#0a0a0a] mb-1">Qlipy חינמי</p>
           <p className="text-xs text-gray-400 mb-6">ניסיון של 3 ימים</p>
 
           <div className="mb-1">
@@ -144,7 +142,7 @@ export default function BillingPricingPage() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 mb-5">
             <Crown className="h-5 w-5 text-white" />
           </div>
-          <p className="text-xl font-black text-white mb-1">Pro {isAnnual ? "שנתי" : "חודשי"}</p>
+          <p className="text-xl font-black text-white mb-1">Qlipy Pro {isAnnual ? "שנתי" : "חודשי"}</p>
           <p className="text-xs text-white/40 mb-6">{isAnnual ? "חיוב שנתי" : "חיוב חודשי, ביטול בכל עת"}</p>
 
           <div className="mb-1 flex items-end gap-1.5">
@@ -193,7 +191,7 @@ export default function BillingPricingPage() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="px-6 py-4 text-sm font-semibold text-gray-400 text-right bg-gray-50">פיצ&#39;ר</th>
-                <th className="px-4 py-4 text-sm font-bold text-gray-400 text-center bg-gray-50">חינמי</th>
+                <th className="px-4 py-4 text-sm font-bold text-gray-400 text-center bg-gray-50">Qlipy חינמי</th>
                 <th className="px-4 py-4 text-sm font-black text-[#0a0a0a] text-center bg-[#38b6ff]/5">
                   Pro {isAnnual ? "שנתי" : "חודשי"}
                 </th>

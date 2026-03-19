@@ -80,21 +80,21 @@ export function AppSidebar() {
     <Sidebar side="right" collapsible="icon" dir="rtl">
       {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-border px-4 py-3">
-        <Link href="/" className="flex w-full items-center gap-2.5 group">
-          {/* Collapsed: Q icon only (pill ring style) */}
-          <div className="relative hidden group-data-[collapsible=icon]:flex h-9 w-9 shrink-0 items-center justify-center transition-all duration-300 group-hover:scale-105">
-            <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-9 w-auto">
+        <Link href="/" className="flex w-full items-center justify-center group">
+          {/* Collapsed: Q icon only */}
+          <div className="relative hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all duration-300 group-hover:scale-105">
+            <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 w-auto">
               <rect x="18" y="18" width="170" height="122" rx="61"
                 fill="none" stroke="#0a0a0a" strokeWidth="28" strokeLinecap="round"
                 strokeDasharray="420 58" strokeDashoffset="243"/>
               <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
             </svg>
           </div>
-          {/* Expanded: full logo */}
+          {/* Expanded: full logo centered */}
           <img
             src="/qlipy-logo.png"
             alt="Qlipy"
-            className="h-10 w-auto group-data-[collapsible=icon]:hidden transition-all duration-300 group-hover:scale-105"
+            className="h-8 w-auto group-data-[collapsible=icon]:hidden transition-all duration-300 group-hover:scale-105"
           />
         </Link>
       </SidebarHeader>
