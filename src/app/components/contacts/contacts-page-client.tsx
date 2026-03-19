@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, Search, Phone, Mail, Banknote } from "lucide-react";
+import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,14 +57,19 @@ const categoryColors: Record<string, string> = {
   social_manager: "bg-pink-50 text-pink-700",
 };
 
-const allCategories = ["editor", "stills_photographer", "video_photographer", "lighting", "director", "art", "production_assistant", "producer", "three_d", "sound_designer", "makeup", "actor", "rental_house", "studio", "social_manager"] as const;
+const PRESET_CATEGORIES_LIST = ["editor", "stills_photographer", "video_photographer", "lighting", "director", "art", "production_assistant", "producer", "three_d", "sound_designer", "makeup", "actor", "rental_house", "studio", "social_manager"] as const;
+const PRESET_SET = new Set<string>(PRESET_CATEGORIES_LIST);
 
-export function ContactsPageClient({ contacts }: { contacts: ContactData[] }) {
+export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactData[]; planLimit: number }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<ContactData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  // Discover any custom categories already in the contacts list
+  const extraCategories = Array.from(new Set(contacts.map(c => c.category).filter(c => !PRESET_SET.has(c))));
 
   function handleEdit(contact: ContactData) {
     setEditingContact(contact);
@@ -71,6 +77,10 @@ export function ContactsPageClient({ contacts }: { contacts: ContactData[] }) {
   }
 
   function handleCreate() {
+    if (planLimit !== -1 && contacts.length >= planLimit) {
+      setUpgradeOpen(true);
+      return;
+    }
     setEditingContact(null);
     setDialogOpen(true);
   }
@@ -120,10 +130,13 @@ export function ContactsPageClient({ contacts }: { contacts: ContactData[] }) {
           className="h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 w-full sm:w-auto sm:min-w-[160px]"
         >
           <option value="">כל הקטגוריות</option>
-          {allCategories.map((cat) => (
+          {PRESET_CATEGORIES_LIST.map((cat) => (
             <option key={cat} value={cat}>
               {he.contacts.categories[cat as keyof typeof he.contacts.categories]}
             </option>
+          ))}
+          {extraCategories.map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
       </motion.div>
@@ -141,7 +154,7 @@ export function ContactsPageClient({ contacts }: { contacts: ContactData[] }) {
                       {he.contacts.categories[contact.category as keyof typeof he.contacts.categories] ?? contact.category}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                     <Button
                       variant="ghost"
                       size="icon"
@@ -198,10 +211,18 @@ export function ContactsPageClient({ contacts }: { contacts: ContactData[] }) {
       </motion.div>
 
       {/* Dialogs */}
+      <UpgradeDialog
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="אנשי קשר"
+        limit={planLimit}
+      />
       <ContactDialog
         contact={editingContact}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        extraCategories={extraCategories}
+        onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
       />
 
       {deleteTarget && (

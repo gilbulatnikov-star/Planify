@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   Plus,
@@ -15,6 +15,11 @@ import {
   ArrowRightLeft,
   Upload,
   RefreshCw,
+  ChevronRight,
+  ChevronLeft,
+  CalendarDays,
+  SlidersHorizontal,
+  X,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -149,6 +154,11 @@ const quoteStatusFlow: { value: string; label: string }[] = [
   { value: "declined", label: "נדחתה" },
 ];
 
+const HEBREW_MONTHS = [
+  "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
+  "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
+];
+
 export function FinancialsPageClient({
   invoices,
   quotes,
@@ -167,6 +177,62 @@ export function FinancialsPageClient({
   totalMonthlyCost: number;
 }) {
   const [isPending, startTransition] = useTransition();
+
+  // Month navigation
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [selectedYear, setSelectedYear]   = useState(now.getFullYear());
+  const [pickerOpen, setPickerOpen]       = useState(false);
+  const [pickerYear, setPickerYear]       = useState(now.getFullYear());
+  const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Date range filter
+  const [dateFilterOpen, setDateFilterOpen] = useState(false);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo]     = useState("");
+  const hasDateFilter = !!dateFrom || !!dateTo;
+
+  // Close picker on outside click
+  useEffect(() => {
+    function handle(e: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(e.target as Node)) {
+        setPickerOpen(false);
+      }
+    }
+    if (pickerOpen) document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [pickerOpen]);
+
+  // In RTL: right arrow = older (prev), left arrow = newer (next)
+  function goPrev() {
+    if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear(y => y - 1); }
+    else setSelectedMonth(m => m - 1);
+  }
+  function goNext() {
+    if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear(y => y + 1); }
+    else setSelectedMonth(m => m + 1);
+  }
+  function pickMonth(m: number) {
+    setSelectedMonth(m);
+    setSelectedYear(pickerYear);
+    setPickerOpen(false);
+  }
+
+  function inSelectedMonth(date: Date | null | undefined): boolean {
+    if (!date) return false;
+    const d = new Date(date);
+    return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
+  }
+  function inDateRange(date: Date | null | undefined): boolean {
+    if (!date) return false;
+    const d = new Date(date);
+    if (dateFrom && d < new Date(dateFrom)) return false;
+    if (dateTo   && d > new Date(dateTo + "T23:59:59")) return false;
+    return true;
+  }
+  function matchesFilter(date: Date | null | undefined): boolean {
+    return hasDateFilter ? inDateRange(date) : inSelectedMonth(date);
+  }
 
   // Invoice state
   const [invoiceDialogOpen, setInvoiceDialogOpen] = useState(false);
@@ -194,13 +260,18 @@ export function FinancialsPageClient({
   // Upload state
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
-  const totalRevenue = invoices
+  // Filter all data
+  const filteredInvoices = invoices.filter((i) => matchesFilter(i.dueDate));
+  const filteredQuotes   = quotes.filter((q)   => matchesFilter(q.validUntil));
+  const filteredExpenses = expenses.filter((e)  => matchesFilter(e.date));
+
+  const totalRevenue = filteredInvoices
     .filter((i) => i.status === "paid")
     .reduce((sum, i) => sum + i.total, 0);
-  const totalOutstanding = invoices
+  const totalOutstanding = filteredInvoices
     .filter((i) => ["sent", "overdue"].includes(i.status))
     .reduce((sum, i) => sum + i.total, 0);
-  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0) + totalMonthlyCost;
+  const totalExpenses = filteredExpenses.reduce((sum, e) => sum + e.amount, 0) + totalMonthlyCost;
 
   function handleCreateInvoice() {
     setEditingInvoice(null);
@@ -289,6 +360,149 @@ export function FinancialsPageClient({
         </Button>
       </motion.div>
 
+      {/* Month navigator + filters */}
+      <motion.div variants={fadeUp} className="space-y-3">
+        <div className="flex items-center gap-2 justify-center flex-wrap">
+
+          {/* Month nav bar */}
+          <div className="relative flex items-center gap-1 bg-white border border-gray-100 rounded-2xl px-3 py-2 shadow-sm" dir="rtl">
+            {/* RTL: right = older, left = newer */}
+            <button
+              onClick={goPrev}
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              title="חודש קודם"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
+            <div className="text-sm font-bold text-gray-900 min-w-[130px] text-center select-none">
+              {hasDateFilter ? (
+                <span className="text-violet-700">סינון תאריכים</span>
+              ) : (
+                `${HEBREW_MONTHS[selectedMonth]} ${selectedYear}`
+              )}
+            </div>
+
+            <button
+              onClick={goNext}
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              title="חודש הבא"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+
+            {/* Calendar picker button */}
+            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <button
+              onClick={() => { setPickerOpen(v => !v); setPickerYear(selectedYear); }}
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              title="בחר חודש"
+            >
+              <CalendarDays className="h-4 w-4" />
+            </button>
+
+            {/* Month picker popover */}
+            {pickerOpen && (
+              <div
+                ref={pickerRef}
+                className="absolute top-full mt-2 right-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 w-64"
+                dir="rtl"
+              >
+                {/* Year nav inside picker */}
+                <div className="flex items-center justify-between mb-3">
+                  <button onClick={() => setPickerYear(y => y - 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-gray-100">
+                    <ChevronRight className="h-4 w-4 text-gray-500" />
+                  </button>
+                  <span className="text-sm font-bold text-gray-900">{pickerYear}</span>
+                  <button onClick={() => setPickerYear(y => y + 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-gray-100">
+                    <ChevronLeft className="h-4 w-4 text-gray-500" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {HEBREW_MONTHS.map((label, idx) => {
+                    const isSel = idx === selectedMonth && pickerYear === selectedYear;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => pickMonth(idx)}
+                        className={`rounded-xl py-1.5 text-xs font-medium transition-colors ${
+                          isSel
+                            ? "bg-gray-900 text-white"
+                            : "hover:bg-gray-100 text-gray-700"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Date filter toggle button */}
+          <button
+            onClick={() => setDateFilterOpen(v => !v)}
+            className={`flex items-center gap-2 h-[44px] px-4 rounded-2xl border text-sm font-medium transition-all shadow-sm ${
+              hasDateFilter
+                ? "bg-violet-600 text-white border-violet-600"
+                : "bg-white border-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            <SlidersHorizontal className="h-4 w-4" />
+            סינון תאריכים
+            {hasDateFilter && (
+              <span
+                onClick={(e) => { e.stopPropagation(); setDateFrom(""); setDateTo(""); }}
+                className="flex items-center justify-center h-4 w-4 rounded-full bg-white/20 hover:bg-white/40"
+              >
+                <X className="h-2.5 w-2.5" />
+              </span>
+            )}
+          </button>
+        </div>
+
+        {/* Date range filter panel */}
+        {dateFilterOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -6 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 justify-center flex-wrap"
+            dir="rtl"
+          >
+            <div className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+              <label className="text-xs text-gray-500 font-medium whitespace-nowrap">מתאריך</label>
+              <input
+                type="date"
+                value={dateFrom}
+                onChange={e => setDateFrom(e.target.value)}
+                className="text-sm text-gray-900 bg-transparent border-0 outline-none cursor-pointer"
+                dir="ltr"
+              />
+            </div>
+            <div className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+              <label className="text-xs text-gray-500 font-medium whitespace-nowrap">עד תאריך</label>
+              <input
+                type="date"
+                value={dateTo}
+                onChange={e => setDateTo(e.target.value)}
+                min={dateFrom}
+                className="text-sm text-gray-900 bg-transparent border-0 outline-none cursor-pointer"
+                dir="ltr"
+              />
+            </div>
+            {hasDateFilter && (
+              <button
+                onClick={() => { setDateFrom(""); setDateTo(""); }}
+                className="text-xs text-gray-500 hover:text-gray-900 underline underline-offset-2"
+              >
+                נקה סינון
+              </button>
+            )}
+          </motion.div>
+        )}
+      </motion.div>
+
       <motion.div
         variants={fadeUp}
         className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:grid-cols-4"
@@ -324,19 +538,19 @@ export function FinancialsPageClient({
               value="invoices"
               className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
             >
-              {he.financial.invoices} ({invoices.length})
+              {he.financial.invoices} ({filteredInvoices.length})
             </TabsTrigger>
             <TabsTrigger
               value="quotes"
               className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
             >
-              {he.financial.quotes} ({quotes.length})
+              {he.financial.quotes} ({filteredQuotes.length})
             </TabsTrigger>
             <TabsTrigger
               value="expenses"
               className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
             >
-              {he.financial.expenses} ({expenses.length})
+              {he.financial.expenses} ({filteredExpenses.length})
             </TabsTrigger>
             <TabsTrigger
               value="subscriptions"
@@ -388,7 +602,7 @@ export function FinancialsPageClient({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {invoices.map((inv) => (
+                    {filteredInvoices.map((inv) => (
                       <TableRow
                         key={inv.id}
                         className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
@@ -546,7 +760,7 @@ export function FinancialsPageClient({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {quotes.map((q) => (
+                    {filteredQuotes.map((q) => (
                       <TableRow
                         key={q.id}
                         className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
@@ -681,7 +895,7 @@ export function FinancialsPageClient({
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {expenses.map((exp) => (
+                    {filteredExpenses.map((exp) => (
                       <TableRow
                         key={exp.id}
                         className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
@@ -709,7 +923,7 @@ export function FinancialsPageClient({
                           {exp.vendor ?? "—"}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                          <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                             <Button
                               variant="ghost"
                               size="icon"

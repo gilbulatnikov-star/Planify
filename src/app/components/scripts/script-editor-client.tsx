@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { updateScript } from "@/lib/actions/script-actions";
 import { ScriptCallSheet } from "./script-call-sheet";
+import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -252,7 +253,7 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
       {/* Delete */}
       <td className={`${cellPad} w-10 text-center`}>
         <button onClick={() => onDelete(shot.id)}
-          className="p-1 text-gray-200 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100">
+          className="p-1 text-gray-200 hover:text-red-500 transition-colors opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </td>
@@ -346,22 +347,29 @@ function ColumnMenu({ visibleCols, onToggle, onClose }: {
 
 // ─── View Settings Popover ────────────────────────────────────────────────────
 
-function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, customShotNo, setCustomShotNo, shotOrdering, setShotOrdering, onClose }: {
+function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, customShotNo, setCustomShotNo, shotOrdering, setShotOrdering, onClose, isPro, onCinemaLocked }: {
   displayMode: DisplayMode; setDisplayMode: (m: DisplayMode) => void;
   foldMode: FoldMode; setFoldMode: (m: FoldMode) => void;
   customShotNo: boolean; setCustomShotNo: (v: boolean) => void;
   shotOrdering: ShotOrdering; setShotOrdering: (o: ShotOrdering) => void;
   onClose: () => void;
+  isPro: boolean;
+  onCinemaLocked: () => void;
 }) {
   const sectionCls = "px-4 py-3 border-b border-gray-100 last:border-0";
   const labelCls = "mb-3 text-[10px] font-semibold text-gray-400 uppercase tracking-widest";
 
-  function ModeBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+  function ModeBtn({ active, onClick, icon, label, locked }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string; locked?: boolean }) {
     return (
       <button onClick={onClick}
-        className={`flex flex-col items-center gap-1.5 flex-1 rounded-xl py-3 border transition-all ${
+        className={`relative flex flex-col items-center gap-1.5 flex-1 rounded-xl py-3 border transition-all ${
           active ? "border-gray-900 bg-gray-900 text-white" : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50"
         }`}>
+        {locked && (
+          <span className="absolute top-1 left-1 text-amber-400">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-3 w-3"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+          </span>
+        )}
         <div className="text-current">{icon}</div>
         <span className="text-[10px] font-medium leading-tight text-center">{label}</span>
       </button>
@@ -374,12 +382,14 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
       <div className={sectionCls}>
         <div className={labelCls}>מצב תצוגה</div>
         <div className="flex gap-2">
-          <ModeBtn active={displayMode === "image_text"} onClick={() => setDisplayMode("image_text")}
-            icon={<Image className="h-5 w-5" />} label={"תמונה\nוטקסט"} />
-          <ModeBtn active={displayMode === "text"} onClick={() => setDisplayMode("text")}
-            icon={<Type className="h-5 w-5" />} label={"טקסט\nבלבד"} />
           <ModeBtn active={displayMode === "storyboard"} onClick={() => setDisplayMode("storyboard")}
             icon={<LayoutGrid className="h-5 w-5" />} label={"סטורי\nבורד"} />
+          <ModeBtn active={displayMode === "text"} onClick={() => setDisplayMode("text")}
+            icon={<Type className="h-5 w-5" />} label={"טקסט\nבלבד"} />
+          <ModeBtn active={displayMode === "image_text"}
+            onClick={() => isPro ? setDisplayMode("image_text") : onCinemaLocked()}
+            icon={<Image className="h-5 w-5" />} label={"קולנועי"}
+            locked={!isPro} />
         </div>
       </div>
 
@@ -445,11 +455,12 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
 export function ScriptEditorClient({
-  script, clients, projects,
+  script, clients, projects, isPro,
 }: {
   script: Script;
   clients: { id: string; name: string }[];
   projects: { id: string; title: string }[];
+  isPro: boolean;
 }) {
   void clients; void projects;
   const router = useRouter();
@@ -471,12 +482,16 @@ export function ScriptEditorClient({
   const [visibleCols, setVisibleCols] = useState<Set<string>>(
     () => new Set(COLUMNS.filter((c) => c.defaultVisible).map((c) => c.id))
   );
-  const [displayMode, setDisplayMode] = useState<DisplayMode>("image_text");
+  const [displayMode, setDisplayMode] = useState<DisplayMode>("storyboard");
+  const [cinemaUpgradeOpen, setCinemaUpgradeOpen] = useState(false);
+  const [callsheetUpgradeOpen, setCallsheetUpgradeOpen] = useState(false);
+  const [scriptCtxMenu, setScriptCtxMenu] = useState<{ x: number; y: number; text: string } | null>(null);
   const [foldMode, setFoldMode] = useState<FoldMode>("unfold");
   const [customShotNo, setCustomShotNo] = useState(false);
   const [shotOrdering, setShotOrdering] = useState<ShotOrdering>("asc");
   const [showColMenu, setShowColMenu] = useState(false);
   const [showViewMenu, setShowViewMenu] = useState(false);
+  const [showPlatformMenu, setShowPlatformMenu] = useState(false);
 
   // AI state
   const [aiMode, setAiMode] = useState<"idle" | "generate">("idle");
@@ -570,6 +585,22 @@ export function ScriptEditorClient({
     } finally { setChatLoading(false); }
   }
 
+  // Script context menu — right-click selected text → add to shot list
+  function handleScriptContextMenu(e: React.MouseEvent<HTMLTextAreaElement>) {
+    const selected = window.getSelection()?.toString().trim() ||
+      e.currentTarget.value.substring(e.currentTarget.selectionStart, e.currentTarget.selectionEnd).trim();
+    if (!selected) return; // no selection → use native menu
+    e.preventDefault();
+    setScriptCtxMenu({ x: e.clientX, y: e.clientY, text: selected });
+  }
+
+  function addSelectedTextToShotList(text: string) {
+    const shot: ShotItem = { ...newShot(shotList.length + 1), content: text };
+    setShotList((prev) => [...prev, shot]);
+    setActiveTab("shotlist");
+    setScriptCtxMenu(null);
+  }
+
   // Shot list
   function addShot() { setShotList((prev) => [...prev, newShot(prev.length + 1)]); }
   function updateShot(id: string, field: keyof ShotItem, value: string) {
@@ -606,6 +637,19 @@ export function ScriptEditorClient({
 
   // ─── Render ──────────────────────────────────────────────────────────────────
   return (
+    <>
+    <UpgradeDialog
+      open={cinemaUpgradeOpen}
+      onClose={() => setCinemaUpgradeOpen(false)}
+      feature='תצוגה "קולנועי"'
+      limit={-1}
+    />
+    <UpgradeDialog
+      open={callsheetUpgradeOpen}
+      onClose={() => setCallsheetUpgradeOpen(false)}
+      feature="קול שיט"
+      limit={-1}
+    />
     <div className="flex h-[calc(100vh-80px)] flex-col">
 
       {/* ── Top Bar ── */}
@@ -636,25 +680,29 @@ export function ScriptEditorClient({
               </button>
             </div>
           ) : (
-            <div className="relative group">
-              <button className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors">
+            <div className="relative">
+              {showPlatformMenu && <div className="fixed inset-0 z-40" onClick={() => setShowPlatformMenu(false)} />}
+              <button onClick={() => setShowPlatformMenu((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors">
                 <PlatformIcon className={`h-3.5 w-3.5 ${currentPlatform.color}`} />
                 {currentPlatform.label}
                 <ChevronDown className="h-3 w-3 text-gray-400" />
               </button>
-              <div className="absolute left-0 top-full z-50 mt-1 hidden min-w-[150px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg group-hover:block">
-                {PLATFORMS.map((p) => (
-                  <button key={p.value} onClick={() => setPlatform(p.value)}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 ${platform === p.value ? "font-semibold text-gray-900" : "text-gray-600"}`}>
-                    <p.icon className={`h-3.5 w-3.5 ${p.color}`} />{p.label}
+              {showPlatformMenu && (
+                <div className="absolute left-0 top-full z-50 mt-1 min-w-[150px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                  {PLATFORMS.map((p) => (
+                    <button key={p.value} onClick={() => { setPlatform(p.value); setShowPlatformMenu(false); }}
+                      className={`flex w-full items-center gap-2 px-3 py-2 text-xs hover:bg-gray-50 ${platform === p.value ? "font-semibold text-gray-900" : "text-gray-600"}`}>
+                      <p.icon className={`h-3.5 w-3.5 ${p.color}`} />{p.label}
+                    </button>
+                  ))}
+                  <div className="mx-2 my-1 border-t border-gray-100" />
+                  <button onClick={() => { setCustomPlatformMode(true); setPlatform(""); setShowPlatformMenu(false); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-xs text-gray-500 hover:bg-gray-50">
+                    <Megaphone className="h-3.5 w-3.5 text-gray-400" />אחר...
                   </button>
-                ))}
-                <div className="mx-2 my-1 border-t border-gray-100" />
-                <button onClick={() => { setCustomPlatformMode(true); setPlatform(""); }}
-                  className="flex w-full items-center gap-2 px-3 py-2 text-xs text-gray-500 hover:bg-gray-50">
-                  <Megaphone className="h-3.5 w-3.5 text-gray-400" />אחר...
-                </button>
-              </div>
+                </div>
+              )}
             </div>
           )}
           <div className="flex items-center gap-1 text-xs text-gray-400">
@@ -666,18 +714,23 @@ export function ScriptEditorClient({
 
       {/* ── Tab Bar ── */}
       <div className="flex items-center border-b border-gray-200 bg-white px-4 shrink-0">
-        {TABS.map(({ id, label, Icon, badge }) => (
-          <button key={id} onClick={() => setActiveTab(id)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              activeTab === id ? "border-gray-900 text-gray-900" : "border-transparent text-gray-400 hover:text-gray-600"
-            }`}>
-            <Icon className="h-3.5 w-3.5" />
-            {label}
-            {badge !== undefined && badge > 0 && (
-              <span className="rounded-full bg-gray-100 text-gray-500 px-1.5 py-0.5 text-[10px] font-medium">{badge}</span>
-            )}
-          </button>
-        ))}
+        {TABS.map(({ id, label, Icon, badge }) => {
+          const locked = id === "callsheet" && !isPro;
+          return (
+            <button key={id}
+              onClick={() => locked ? setCallsheetUpgradeOpen(true) : setActiveTab(id)}
+              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === id ? "border-gray-900 text-gray-900" : "border-transparent text-gray-400 hover:text-gray-600"
+              }`}>
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+              {locked && <span className="text-amber-400 text-[10px]">★ פרו</span>}
+              {!locked && badge !== undefined && badge > 0 && (
+                <span className="rounded-full bg-gray-100 text-gray-500 px-1.5 py-0.5 text-[10px] font-medium">{badge}</span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* ── Content Area ── */}
@@ -692,10 +745,30 @@ export function ScriptEditorClient({
                   ref={textareaRef}
                   defaultValue={content}
                   onChange={(e) => { setContent(e.target.value); autoResize(e.target); }}
+                  onContextMenu={handleScriptContextMenu}
                   placeholder="התחל לכתוב את התסריט שלך..."
                   className="w-full rounded-xl border border-gray-200 bg-white p-6 text-base leading-8 text-gray-800 shadow-sm outline-none focus:border-gray-300 focus:shadow-md resize-none overflow-hidden"
                   style={{ direction: "rtl", fontFamily: "inherit", minHeight: "400px" }}
                 />
+                {/* Right-click context menu */}
+                {scriptCtxMenu && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setScriptCtxMenu(null)} />
+                    <div
+                      className="fixed z-50 rounded-xl border border-gray-200 bg-white py-1.5 shadow-xl min-w-[180px]"
+                      style={{ top: scriptCtxMenu.y, left: scriptCtxMenu.x }}
+                      dir="rtl"
+                    >
+                      <button
+                        className="flex w-full items-center gap-2.5 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                        onClick={() => addSelectedTextToShotList(scriptCtxMenu.text)}
+                      >
+                        <Film className="h-3.5 w-3.5 text-gray-400" />
+                        הוסף לשוט ליסט
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
 
               <button
@@ -839,6 +912,8 @@ export function ScriptEditorClient({
                       customShotNo={customShotNo} setCustomShotNo={setCustomShotNo}
                       shotOrdering={shotOrdering} setShotOrdering={setShotOrdering}
                       onClose={() => setShowViewMenu(false)}
+                      isPro={isPro}
+                      onCinemaLocked={() => { setShowViewMenu(false); setCinemaUpgradeOpen(true); }}
                     />
                   )}
                 </div>
@@ -917,5 +992,6 @@ export function ScriptEditorClient({
 
       </div>
     </div>
+    </>
   );
 }

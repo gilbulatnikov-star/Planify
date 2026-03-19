@@ -12,8 +12,13 @@ import {
   CreditCard,
   Sparkles,
   FileText,
+  LayoutTemplate,
+  ChevronDown,
+  FileBarChart2,
   Crown,
 } from "lucide-react";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
@@ -23,6 +28,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { he } from "@/lib/he";
@@ -31,72 +39,149 @@ const navItems = [
   { href: "/", label: he.nav.dashboard, icon: LayoutDashboard, tourId: "nav-dashboard" },
   { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
   { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
-  { href: "/financials", label: he.nav.financials, icon: Receipt, tourId: "nav-financials" },
   { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
   { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
   { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
-  { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard, tourId: "nav-subscriptions" },
   { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
-  { href: "/billing", label: he.nav.billing, icon: Crown, tourId: "nav-billing" },
+  { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
 ];
+
+const financialsSubItems = [
+  { href: "/financials", label: "חשבוניות והצעות מחיר", icon: Receipt },
+  { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard },
+];
+
+// Shared className for all menu buttons – overrides the hardcoded text-left
+const btnBase = "!text-right transition-all duration-200";
+const btnActive = `${btnBase} bg-gray-900 text-white font-medium shadow-sm`;
+const btnIdle   = `${btnBase} text-gray-500 hover:bg-gray-100 hover:text-gray-900`;
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const isFinancialsActive =
+    pathname.startsWith("/financials") || pathname.startsWith("/subscriptions");
+
+  const [financialsOpen, setFinancialsOpen] = useState(isFinancialsActive);
+
+  const user = session?.user;
+  const initials = user?.name
+    ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+    : user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <Sidebar side="right" collapsible="icon">
+    <Sidebar side="right" collapsible="icon" dir="rtl">
+      {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-border px-4 py-4">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 text-white font-bold text-sm shadow-sm transition-all duration-300 group-hover:scale-105">
+        <Link href="/" className="flex w-full items-center gap-3 group">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-900 text-white font-bold text-sm shadow-sm transition-all duration-300 group-hover:scale-105 shrink-0">
             P
           </div>
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold tracking-tight text-gray-900">
-              Planify
-            </span>
-            <span className="text-[11px] text-muted-foreground">
-              מערכת ניהול
-            </span>
+          <div className="flex flex-col items-end group-data-[collapsible=icon]:hidden">
+            <span className="text-sm font-bold tracking-tight text-gray-900">Planify</span>
+            <span className="text-[11px] text-muted-foreground">מערכת ניהול</span>
           </div>
         </Link>
       </SidebarHeader>
 
+      {/* ── Main nav ── */}
       <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
                 const isActive =
-                  item.href === "/"
-                    ? pathname === "/"
-                    : pathname.startsWith(item.href);
+                  item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.href} data-tour={item.tourId}>
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
                       tooltip={item.label}
-                      className={`transition-all duration-200 ${
-                        isActive
-                          ? "bg-gray-900 text-white font-medium shadow-sm"
-                          : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
-                      }`}
+                      className={isActive ? btnActive : btnIdle}
                     >
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
+                      {/* icon first → rightmost in RTL flex → icon on far right */}
+                      <item.icon className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
               })}
+
+              {/* ── כספים (collapsible) ── */}
+              <SidebarMenuItem data-tour="nav-financials">
+                <SidebarMenuButton
+                  onClick={() => setFinancialsOpen((v) => !v)}
+                  isActive={isFinancialsActive}
+                  tooltip={he.nav.financials}
+                  className={isFinancialsActive ? btnActive : btnIdle}
+                >
+                  <FileBarChart2 className="h-4 w-4 shrink-0" />
+                  <ChevronDown
+                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
+                      financialsOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                  <span className="truncate">{he.nav.financials}</span>
+                </SidebarMenuButton>
+
+                {financialsOpen && (
+                  <SidebarMenuSub>
+                    {financialsSubItems.map((sub) => {
+                      const isSubActive = pathname.startsWith(sub.href);
+                      return (
+                        <SidebarMenuSubItem key={sub.href}>
+                          <SidebarMenuSubButton
+                            render={<Link href={sub.href} />}
+                            isActive={isSubActive}
+                            className={`!text-right transition-all duration-200 ${
+                              isSubActive
+                                ? "bg-gray-100 text-gray-900 font-medium"
+                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                            }`}
+                          >
+                            <sub.icon className="h-3.5 w-3.5 shrink-0" />
+                            <span className="truncate">{sub.label}</span>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      );
+                    })}
+                  </SidebarMenuSub>
+                )}
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-border p-4 group-data-[collapsible=icon]:hidden">
-        <p className="text-[11px] text-muted-foreground text-center">
-          Planify v1.0
-        </p>
+      {/* ── Footer: subscription + profile ── */}
+      <SidebarFooter className="border-t border-border p-3 space-y-1">
+        {/* Billing */}
+        <SidebarMenuButton
+          render={<Link href="/billing" />}
+          isActive={pathname.startsWith("/billing")}
+          tooltip="ניהול המנוי"
+          className={pathname.startsWith("/billing") ? btnActive : btnIdle}
+        >
+          <Crown className="h-4 w-4 shrink-0" />
+          <span className="truncate group-data-[collapsible=icon]:hidden">ניהול המנוי</span>
+        </SidebarMenuButton>
+
+        {/* Profile */}
+        <SidebarMenuButton
+          render={<Link href="/settings/profile" />}
+          isActive={pathname.startsWith("/settings")}
+          tooltip={user?.name ?? "פרופיל"}
+          className={`${pathname.startsWith("/settings") ? btnActive : btnIdle} gap-2`}
+        >
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-700 text-white text-[10px] font-bold">
+            {initials}
+          </div>
+          <span className="truncate text-sm group-data-[collapsible=icon]:hidden">
+            {user?.name ?? user?.email ?? "פרופיל"}
+          </span>
+        </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>
   );

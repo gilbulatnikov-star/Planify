@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import {
   FileText,
   Plus,
@@ -44,18 +45,30 @@ type Script = {
 
 export function ScriptsPageClient({
   scripts,
+  planLimit,
 }: {
   scripts: Script[];
   clients: { id: string; name: string }[];
   projects: { id: string; title: string }[];
+  planLimit: number;
 }) {
   const router = useRouter();
   const [creating, setCreating] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   async function handleCreate() {
+    if (planLimit !== -1 && scripts.length >= planLimit) {
+      setUpgradeOpen(true);
+      return;
+    }
     setCreating(true);
-    const script = await createScript({});
-    router.push(`/scripts/${script.id}`);
+    const result = await createScript({});
+    if ("quotaExceeded" in result) {
+      setUpgradeOpen(true);
+      setCreating(false);
+      return;
+    }
+    router.push(`/scripts/${result.id}`);
   }
 
   async function handleDelete(id: string, e: React.MouseEvent) {
@@ -66,6 +79,13 @@ export function ScriptsPageClient({
   }
 
   return (
+    <>
+    <UpgradeDialog
+      open={upgradeOpen}
+      onClose={() => setUpgradeOpen(false)}
+      feature="תסריטים"
+      limit={planLimit}
+    />
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">תסריטים</h1>
@@ -151,5 +171,6 @@ export function ScriptsPageClient({
         </div>
       )}
     </div>
+    </>
   );
 }

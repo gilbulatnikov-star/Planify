@@ -247,57 +247,60 @@ export function CalendarExportStudio({
     reader.readAsDataURL(file);
   }, []);
 
-  async function captureOffScreen() {
-    if (!exportRef.current) return null;
-    const { default: html2canvas } = await import("html2canvas");
-    const bg = darkMode ? "#0b1120" : "#ffffff";
+  // ── Capture: SVG foreignObject approach — no html2canvas, no CSS interference ──
+  async function captureToCanvas(): Promise<HTMLCanvasElement> {
     const srcEl = exportRef.current;
+    if (!srcEl) throw new Error("preview element not found");
+
+    const bg  = darkMode ? "#0b1120" : "#ffffff";
+    const SCALE = 2;
+
+    // The GridPreview / TimelinePreview use ONLY inline styles.
+    // Strip any residual class="" attrs for safety, then render via SVG foreignObject
+    // so no browser stylesheet (including Tailwind's oklch) is ever touched.
     const w = srcEl.scrollWidth;
-
-    // html2canvas v1.4.1 crashes on Tailwind v4's oklch() computed colors.
-    // Fix: extract outerHTML as a plain string, strip ALL class="..." attributes
-    // via regex so no Tailwind styles apply, then inject into a fresh off-screen
-    // div (never part of the live DOM's CSS cascade) and capture that instead.
+    const h = srcEl.scrollHeight;
     const cleanHtml = srcEl.outerHTML.replace(/\s+class="[^"]*"/g, "");
-    const container = document.createElement("div");
-    container.style.cssText = `position:fixed;top:0;left:-9999px;width:${w}px;z-index:-1;background-color:${bg};`;
-    container.innerHTML = cleanHtml;
-    document.body.appendChild(container);
 
-    // html2canvas v1.4.1 parses ALL page stylesheets and crashes on Tailwind v4's
-    // oklch() colors. Temporarily disable every stylesheet while capturing —
-    // the clone uses only inline styles so it renders correctly without them.
-    const sheets = [...document.styleSheets];
-    sheets.forEach((s) => { try { s.disabled = true; } catch { /* cross-origin */ } });
+    const svgXml = [
+      `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">`,
+      `<foreignObject width="${w}" height="${h}">`,
+      `<div xmlns="http://www.w3.org/1999/xhtml"`,
+      ` style="width:${w}px;height:${h}px;overflow:hidden;background:${bg};">`,
+      cleanHtml,
+      `</div></foreignObject></svg>`,
+    ].join("");
 
-    try {
-      return await html2canvas(container.firstElementChild as HTMLElement, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: bg,
-        logging: false,
-        width: w,
-      });
-    } finally {
-      document.body.removeChild(container);
-      sheets.forEach((s) => { try { s.disabled = false; } catch { /* cross-origin */ } });
-    }
+    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgXml)}`;
+
+    return new Promise<HTMLCanvasElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width  = w * SCALE;
+        canvas.height = h * SCALE;
+        const ctx = canvas.getContext("2d")!;
+        ctx.fillStyle = bg;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, w * SCALE, h * SCALE);
+        resolve(canvas);
+      };
+      img.onerror = () => reject(new Error("SVG render failed"));
+      img.src = dataUrl;
+    });
   }
 
   async function downloadPNG() {
     setExporting(true);
     try {
-      const canvas = await captureOffScreen();
-      if (!canvas) return;
+      const canvas = await captureToCanvas();
       const link = document.createElement("a");
       link.download = `לוח-תוכן-${clientName || "export"}-${format(currentMonth, "yyyy-MM")}.png`;
       link.href = canvas.toDataURL("image/png");
-      document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
     } catch (err) {
       console.error("PNG export failed:", err);
+      alert("ייצוא PNG נכשל — נסה שוב");
     } finally {
       setExporting(false);
     }
@@ -306,19 +309,25 @@ export function CalendarExportStudio({
   async function downloadPDF() {
     setExporting(true);
     try {
-      const canvas = await captureOffScreen();
-      if (!canvas) return;
+      const canvas = await captureToCanvas();
       const { default: jsPDF } = await import("jspdf");
-      const pdf = new jsPDF({
-        orientation: canvas.width > canvas.height ? "landscape" : "portrait",
-        unit: "px",
-        format: [canvas.width, canvas.height],
-        hotfixes: ["px_scaling"],
-      });
-      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, canvas.width, canvas.height);
+
+      // Fit the canvas inside A4 landscape (297×210 mm)
+      const PAGE_W = 297;
+      const PAGE_H = 210;
+      const aspect = canvas.width / canvas.height;
+      let imgW = PAGE_W;
+      let imgH = PAGE_W / aspect;
+      if (imgH > PAGE_H) { imgH = PAGE_H; imgW = PAGE_H * aspect; }
+      const x = (PAGE_W - imgW) / 2;
+      const y = (PAGE_H - imgH) / 2;
+
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", x, y, imgW, imgH);
       pdf.save(`לוח-תוכן-${clientName || "export"}-${format(currentMonth, "yyyy-MM")}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
+      alert("ייצוא PDF נכשל — נסה שוב");
     } finally {
       setExporting(false);
     }

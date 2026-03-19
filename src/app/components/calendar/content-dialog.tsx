@@ -25,6 +25,8 @@ import {
   createScheduledContent,
   updateScheduledContent,
 } from "@/lib/actions/calendar-actions";
+import { createClientQuick } from "@/lib/actions/client-actions";
+import { Plus, X } from "lucide-react";
 
 interface ContentDialogProps {
   content?: {
@@ -44,19 +46,6 @@ interface ContentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const contentTypes = [
-  { value: "client_shoot", label: "צילום לקוח" },
-  { value: "youtube_long", label: "יוטיוב ארוך" },
-  { value: "short_form", label: "קצר" },
-] as const;
-
-const contentStatuses = [
-  { value: "planned", label: "מתוכנן" },
-  { value: "editing", label: "בעריכה" },
-  { value: "ready", label: "מוכן לפרסום" },
-  { value: "published", label: "פורסם" },
-] as const;
 
 function formatDateForInput(date: Date): string {
   const d = new Date(date);
@@ -79,58 +68,68 @@ export function ContentDialog({
   const [isPending, startTransition] = useTransition();
   const isEditing = !!content;
 
-  const [contentType, setContentType] = useState(content?.contentType ?? "client_shoot");
-  const [status, setStatus] = useState(content?.status ?? "planned");
-  const [clientId, setClientId] = useState(content?.clientId ?? defaultClientId ?? "");
-  const [projectId, setProjectId] = useState(content?.projectId ?? "");
+  const [clientId, setClientId]           = useState(content?.clientId ?? defaultClientId ?? "");
+  const [projectId, setProjectId]         = useState(content?.projectId ?? "");
+  const [newClientMode, setNewClientMode] = useState(false);
+  const [newClientName, setNewClientName] = useState("");
+  const [localClients, setLocalClients]   = useState(clients);
+
+  function handleOpenChange(open: boolean) {
+    if (open) {
+      setClientId(content?.clientId ?? defaultClientId ?? "");
+      setProjectId(content?.projectId ?? "");
+      setNewClientMode(false);
+      setNewClientName("");
+      setLocalClients(clients);
+    }
+    onOpenChange(open);
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    formData.set("contentType", contentType);
-    formData.set("status", status);
-    formData.set("clientId", clientId);
-    formData.set("projectId", projectId);
 
     startTransition(async () => {
+      let resolvedClientId = clientId;
+
+      // Create new client inline if needed
+      if (newClientMode && newClientName.trim()) {
+        const res = await createClientQuick(newClientName.trim());
+        if (!res.success) return;
+        resolvedClientId = res.client.id;
+        setLocalClients((prev) => [...prev, res.client]);
+        setClientId(res.client.id);
+        setNewClientMode(false);
+        setNewClientName("");
+      }
+
+      formData.set("clientId",  resolvedClientId);
+      formData.set("projectId", projectId);
+
       const result = isEditing
         ? await updateScheduledContent(content.id, formData)
         : await createScheduledContent(formData);
 
       if (result.success) {
         onOpenChange(false);
-        // Force re-fetch server data so new/updated events appear immediately
         router.refresh();
       }
     });
-  }
-
-  function handleOpenChange(open: boolean) {
-    if (open) {
-      setContentType(content?.contentType ?? "client_shoot");
-      setStatus(content?.status ?? "planned");
-      setClientId(content?.clientId ?? defaultClientId ?? "");
-      setProjectId(content?.projectId ?? "");
-    }
-    onOpenChange(open);
   }
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "עריכת תוכן" : "תוכן חדש"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "עריכת תוכן" : "תוכן חדש"}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "ערוך את פרטי התוכן"
-              : "הוסף תוכן חדש ללוח"}
+            {isEditing ? "ערוך את פרטי התוכן" : "הוסף תוכן חדש ללוח"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit}>
           <div className="grid grid-cols-2 gap-4 py-4">
+
             {/* כותרת */}
             <div className="col-span-2 space-y-2">
               <Label htmlFor="title">כותרת</Label>
@@ -143,7 +142,7 @@ export function ContentDialog({
             </div>
 
             {/* תאריך */}
-            <div className="space-y-2">
+            <div className="col-span-2 space-y-2">
               <Label htmlFor="date">תאריך</Label>
               <Input
                 id="date"
@@ -158,69 +157,68 @@ export function ContentDialog({
               />
             </div>
 
-            {/* סוג תוכן */}
-            <div className="space-y-2">
-              <Label htmlFor="contentType">סוג תוכן</Label>
-              <Select value={contentType} onValueChange={(v) => v && setContentType(v)}>
-                <SelectTrigger id="contentType" className="w-full">
-                  <span className="flex flex-1">{contentTypes.find(t => t.value === contentType)?.label ?? contentType}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {contentTypes.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* סטטוס */}
-            <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
-              <Select value={status} onValueChange={(v) => v && setStatus(v)}>
-                <SelectTrigger id="status" className="w-full">
-                  <span className="flex flex-1">{contentStatuses.find(s => s.value === status)?.label ?? status}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {contentStatuses.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             {/* לקוח */}
-            <div className="space-y-2">
-              <Label htmlFor="clientId">לקוח (אופציונלי)</Label>
-              <Select value={clientId} onValueChange={(v) => v && setClientId(v)}>
-                <SelectTrigger id="clientId" className="w-full">
-                  <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="col-span-2 space-y-2">
+              <Label>לקוח (אופציונלי)</Label>
+              {newClientMode ? (
+                <div className="flex gap-1.5">
+                  <Input
+                    autoFocus
+                    value={newClientName}
+                    onChange={(e) => setNewClientName(e.target.value)}
+                    placeholder="שם הלקוח החדש..."
+                    className="flex-1 h-9 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => { setNewClientMode(false); setNewClientName(""); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <Select value={clientId} onValueChange={(v) => setClientId(v ?? "")}>
+                  <SelectTrigger className="w-full">
+                    <span className="flex flex-1">
+                      {clientId
+                        ? (localClients.find((c) => c.id === clientId)?.name ?? clientId)
+                        : "בחר לקוח"}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">ללא לקוח</SelectItem>
+                    {localClients.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                    ))}
+                    <div className="mx-1 my-1 border-t border-gray-100" />
+                    <button
+                      type="button"
+                      onClick={() => { setNewClientMode(true); setClientId(""); }}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />הוסף לקוח חדש
+                    </button>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* פרויקט */}
-            <div className="space-y-2">
-              <Label htmlFor="projectId">פרויקט (אופציונלי)</Label>
-              <Select value={projectId} onValueChange={(v) => v && setProjectId(v)}>
-                <SelectTrigger id="projectId" className="w-full">
-                  <span className="flex flex-1">{projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : "בחר פרויקט"}</span>
+            <div className="col-span-2 space-y-2">
+              <Label>פרויקט (אופציונלי)</Label>
+              <Select value={projectId} onValueChange={(v) => setProjectId(v ?? "")}>
+                <SelectTrigger className="w-full">
+                  <span className="flex flex-1">
+                    {projectId
+                      ? (projects.find((p) => p.id === projectId)?.title ?? projectId)
+                      : "בחר פרויקט"}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="">ללא פרויקט</SelectItem>
                   {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.title}
-                    </SelectItem>
+                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -242,11 +240,7 @@ export function ContentDialog({
               ביטול
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending
-                ? "שומר..."
-                : isEditing
-                  ? "עדכון תוכן"
-                  : "הוספת תוכן"}
+              {isPending ? "שומר..." : isEditing ? "עדכון תוכן" : "הוספת תוכן"}
             </Button>
           </DialogFooter>
         </form>

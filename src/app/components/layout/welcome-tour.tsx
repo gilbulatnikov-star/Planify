@@ -50,7 +50,7 @@ const steps = [
   },
   {
     target: '[data-tour="nav-clients"]' as string | null,
-    title: "לקוחות ולידים",
+    title: "לקוחות",
     description:
       "נהל לידים, לקוחות קיימים ואינטראקציות. ראה בקצב אחד מי מוכן לסגירה ומה הסטטוס של כל ליד.",
     icon: Users,

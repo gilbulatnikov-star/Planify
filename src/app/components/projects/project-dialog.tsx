@@ -21,7 +21,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createProject, updateProject } from "@/lib/actions/project-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Check } from "lucide-react";
+
+const CUSTOM_TYPES_KEY = "gp_custom_project_types";
 
 interface ProjectDialogProps {
   project?: {
@@ -39,48 +41,30 @@ interface ProjectDialogProps {
   clients: { id: string; name: string }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onQuotaExceeded?: () => void;
 }
 
-const PROJECT_TYPES = [
-  { value: "youtube", label: "YouTube" },
+// ─── Project type options ─────────────────────────────────────────────────────
+
+const BASE_PROJECT_TYPES = [
+  { value: "youtube",     label: "YouTube" },
   { value: "music_video", label: "קליפ" },
-  { value: "commercial", label: "פרסומת" },
-  { value: "corporate", label: "תדמית" },
-  { value: "social", label: "סושיאל" },
-] as const;
+  { value: "commercial",  label: "פרסומת" },
+  { value: "corporate",   label: "תדמית" },
+  { value: "social",      label: "סושיאל" },
+];
 
-const PHASES = [
-  { value: "pre_production", label: "לפני הצילומים" },
-  { value: "production",     label: "ימי צילום" },
+// ─── Status (formerly "Phase") options ───────────────────────────────────────
+
+const STATUS_OPTIONS = [
+  { value: "pre_production",  label: "לפני הצילומים" },
+  { value: "production",      label: "ימי צילום" },
   { value: "post_production", label: "עריכה" },
-  { value: "delivered",      label: "הושלם" },
-] as const;
+  { value: "revisions",       label: "תיקונים" },
+  { value: "delivered",       label: "הושלם" },
+];
 
-const STATUS_OPTIONS: Record<string, { value: string; label: string }[]> = {
-  pre_production: [
-    { value: "pitching",          label: "בגיבוש" },
-    { value: "scripting",         label: "כתיבת תסריט" },
-    { value: "moodboards",        label: "בניית תדמית" },
-    { value: "location_scouting", label: "חיפוש לוקיישן" },
-  ],
-  production: [
-    { value: "scheduled", label: "מתוכנן" },
-    { value: "shooting",  label: "בצילומים" },
-    { value: "wrapping",  label: "סיום צילומים" },
-  ],
-  post_production: [
-    { value: "ingest_sync",    label: "העברת חומרים" },
-    { value: "rough_cut",      label: "גרסה ראשונה" },
-    { value: "revisions_v1",   label: "תיקון ראשון" },
-    { value: "revisions_v2",   label: "תיקון שני" },
-    { value: "color_sound",    label: "גימור" },
-    { value: "final_delivery", label: "מסירה ללקוח" },
-  ],
-  delivered: [
-    { value: "delivered", label: "נמסר" },
-    { value: "archived", label: "בארכיון" },
-  ],
-};
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDateForInput(date: Date | null | undefined): string {
   if (!date) return "";
@@ -91,43 +75,85 @@ function formatDateForInput(date: Date | null | undefined): string {
   return `${year}-${month}-${day}`;
 }
 
+function loadCustomTypes(): { value: string; label: string }[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(CUSTOM_TYPES_KEY) ?? "[]"); } catch { return []; }
+}
+
+// ─── Component ────────────────────────────────────────────────────────────────
+
 export function ProjectDialog({
   project,
   clients,
   open,
   onOpenChange,
+  onQuotaExceeded,
 }: ProjectDialogProps) {
   const isEditing = !!project;
   const [isPending, startTransition] = useTransition();
 
+  // Phase / status (single dropdown, renamed to "סטטוס")
   const [phase, setPhase] = useState(project?.phase ?? "pre_production");
-  const [status, setStatus] = useState(project?.status ?? "pitching");
+
+  // Client
   const [clientId, setClientId] = useState(project?.clientId ?? "");
-  const [projectType, setProjectType] = useState(project?.projectType ?? "");
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients] = useState(clients);
 
+  // Project type with custom categories
+  const [customTypes, setCustomTypes] = useState<{ value: string; label: string }[]>(loadCustomTypes);
+  const allProjectTypes = [...BASE_PROJECT_TYPES, ...customTypes];
+
+  const resolveInitType = (val: string | null) => {
+    if (!val) return "";
+    if (allProjectTypes.some((t) => t.value === val)) return val;
+    return "other";
+  };
+  const resolveInitCustom = (val: string | null) => {
+    if (!val) return "";
+    if (allProjectTypes.some((t) => t.value === val)) return "";
+    return val;
+  };
+
+  const [projectType, setProjectType] = useState(() => resolveInitType(project?.projectType ?? null));
+  const [customProjectType, setCustomProjectType] = useState(() => resolveInitCustom(project?.projectType ?? null));
+  const [addingNewType, setAddingNewType] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
+
+  // Reset on open
   useEffect(() => {
     if (open) {
       setPhase(project?.phase ?? "pre_production");
-      setStatus(project?.status ?? "pitching");
       setClientId(project?.clientId ?? "");
-      setProjectType(project?.projectType ?? "");
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
+
+      const fresh = loadCustomTypes();
+      setCustomTypes(fresh);
+      const all = [...BASE_PROJECT_TYPES, ...fresh];
+      const pt = project?.projectType ?? "";
+      setProjectType(!pt || all.some((t) => t.value === pt) ? pt : "other");
+      setCustomProjectType(!pt || all.some((t) => t.value === pt) ? "" : pt);
+      setAddingNewType(false);
+      setNewTypeName("");
     }
   }, [open, project, clients]);
 
-  useEffect(() => {
-    const options = STATUS_OPTIONS[phase];
-    if (options && !options.some((opt) => opt.value === status)) {
-      setStatus(options[0].value);
-    }
-  }, [phase, status]);
-
-  const statusOptions = STATUS_OPTIONS[phase] ?? [];
+  // Add a new custom type to localStorage + local state
+  function handleAddCustomType() {
+    const label = newTypeName.trim();
+    if (!label) return;
+    const value = `custom_${label.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+    const updated = [...customTypes, { value, label }];
+    setCustomTypes(updated);
+    localStorage.setItem(CUSTOM_TYPES_KEY, JSON.stringify(updated));
+    setProjectType(value);
+    setCustomProjectType("");
+    setAddingNewType(false);
+    setNewTypeName("");
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -136,7 +162,6 @@ export function ProjectDialog({
     startTransition(async () => {
       let resolvedClientId = clientId;
 
-      // Create new client inline if needed
       if (newClientMode && newClientName.trim()) {
         const res = await createClientQuick(newClientName.trim());
         if (!res.success) return;
@@ -147,46 +172,52 @@ export function ProjectDialog({
         setNewClientName("");
       }
 
+      const finalType =
+        projectType === "other"
+          ? customProjectType.trim()
+          : projectType;
+
       formData.set("phase", phase);
-      formData.set("status", status);
+      formData.set("status", phase); // keep status in sync with phase
       formData.set("clientId", resolvedClientId);
-      formData.set("projectType", projectType);
+      formData.set("projectType", finalType);
 
       const result = isEditing
         ? await updateProject(project!.id, formData)
         : await createProject(formData);
 
-      if (result.success) {
+      if ("quotaExceeded" in result && result.quotaExceeded) {
         onOpenChange(false);
+        onQuotaExceeded?.();
+        return;
       }
+
+      if (result.success) onOpenChange(false);
     });
   }
+
+  const typeLabel =
+    projectType === "other"
+      ? customProjectType || "אחר"
+      : allProjectTypes.find((t) => t.value === projectType)?.label ?? "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "עריכת פרויקט" : "פרויקט חדש"}
-          </DialogTitle>
+          <DialogTitle>{isEditing ? "עריכת פרויקט" : "פרויקט חדש"}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? "ערוך את פרטי הפרויקט"
-              : "הזן את פרטי הפרויקט החדש"}
+            {isEditing ? "ערוך את פרטי הפרויקט" : "הזן את פרטי הפרויקט החדש"}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
+
             {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">שם פרויקט</Label>
-              <Input
-                id="title"
-                name="title"
-                required
-                defaultValue={project?.title ?? ""}
-              />
+              <Input id="title" name="title" required defaultValue={project?.title ?? ""} />
             </div>
 
             {/* Client */}
@@ -201,15 +232,20 @@ export function ProjectDialog({
                     placeholder="שם הלקוח החדש..."
                     className="flex-1 h-9 text-sm"
                   />
-                  <button type="button" onClick={() => { setNewClientMode(false); setNewClientName(""); }}
-                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => { setNewClientMode(false); setNewClientName(""); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors"
+                  >
                     <X className="h-4 w-4" />
                   </button>
                 </div>
               ) : (
                 <Select value={clientId} onValueChange={(v) => setClientId(v ?? "")}>
                   <SelectTrigger className="w-full">
-                    <span className="flex flex-1">{clientId ? (localClients.find(c => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}</span>
+                    <span className="flex flex-1">
+                      {clientId ? (localClients.find((c) => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}
+                    </span>
                   </SelectTrigger>
                   <SelectContent>
                     {localClients.map((client) => (
@@ -231,58 +267,79 @@ export function ProjectDialog({
             {/* Project Type */}
             <div className="space-y-2">
               <Label>סוג פרויקט</Label>
-              <Select
-                value={projectType}
-                onValueChange={(v) => setProjectType(v ?? "")}
-              >
+              <Select value={projectType} onValueChange={(v) => { setProjectType(v ?? ""); if (v !== "other") setCustomProjectType(""); }}>
                 <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{projectType ? (PROJECT_TYPES.find(t => t.value === projectType)?.label ?? projectType) : "בחר סוג"}</span>
+                  <span className="flex flex-1">{typeLabel || "בחר סוג"}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {PROJECT_TYPES.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>
-                      {type.label}
-                    </SelectItem>
+                  {allProjectTypes.map((type) => (
+                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                   ))}
+                  <SelectItem value="other">אחר</SelectItem>
+                  <div className="mx-1 my-1 border-t border-gray-100" />
+                  {addingNewType ? (
+                    <div className="flex gap-1.5 px-1 py-1">
+                      <Input
+                        autoFocus
+                        value={newTypeName}
+                        onChange={(e) => setNewTypeName(e.target.value)}
+                        placeholder="שם הקטגוריה..."
+                        className="flex-1 h-7 text-xs"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") { e.preventDefault(); handleAddCustomType(); }
+                          if (e.key === "Escape") setAddingNewType(false);
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddCustomType}
+                        className="flex h-7 w-7 items-center justify-center rounded bg-gray-900 text-white hover:bg-gray-700 transition-colors shrink-0"
+                      >
+                        <Check className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAddingNewType(false)}
+                        className="flex h-7 w-7 items-center justify-center rounded border border-gray-200 text-gray-400 hover:text-red-500 transition-colors shrink-0"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setAddingNewType(true)}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />הוסף קטגוריה
+                    </button>
+                  )}
                 </SelectContent>
               </Select>
+              {/* Custom "אחר" text input */}
+              {projectType === "other" && (
+                <Input
+                  autoFocus
+                  value={customProjectType}
+                  onChange={(e) => setCustomProjectType(e.target.value)}
+                  placeholder="ציין סוג פרויקט..."
+                  className="h-9 text-sm mt-1"
+                />
+              )}
             </div>
 
-            {/* Phase */}
-            <div className="space-y-2">
-              <Label>שלב</Label>
-              <Select
-                value={phase}
-                onValueChange={(value) => value != null && setPhase(value)}
-              >
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{PHASES.find(p => p.value === phase)?.label ?? phase}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {PHASES.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Status */}
+            {/* Status (was Phase) */}
             <div className="space-y-2">
               <Label>סטטוס</Label>
-              <Select
-                value={status}
-                onValueChange={(value) => value != null && setStatus(value)}
-              >
+              <Select value={phase} onValueChange={(v) => v != null && setPhase(v)}>
                 <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{statusOptions.find(s => s.value === status)?.label ?? status}</span>
+                  <span className="flex flex-1">
+                    {STATUS_OPTIONS.find((p) => p.value === phase)?.label ?? phase}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
-                  {statusOptions.map((s) => (
-                    <SelectItem key={s.value} value={s.value}>
-                      {s.label}
-                    </SelectItem>
+                  {STATUS_OPTIONS.map((p) => (
+                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -323,7 +380,7 @@ export function ProjectDialog({
               />
             </div>
 
-            {/* Description — full width */}
+            {/* Description */}
             <div className="col-span-2 space-y-2">
               <Label htmlFor="description">תיאור</Label>
               <Textarea
@@ -336,11 +393,7 @@ export function ProjectDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-            >
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               ביטול
             </Button>
             <Button type="submit" disabled={isPending}>

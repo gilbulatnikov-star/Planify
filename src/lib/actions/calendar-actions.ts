@@ -11,10 +11,8 @@ export async function createScheduledContent(formData: FormData) {
     const dateStr = formData.get("date") as string;
     if (!dateStr) return { success: false, error: "Date is required" };
 
-    const contentType = formData.get("contentType") as string;
-    if (!contentType) return { success: false, error: "Content type is required" };
-
-    const status = (formData.get("status") as string) || "planned";
+    const contentType = (formData.get("contentType") as string) || "general";
+    const status = "planned";
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
@@ -50,10 +48,8 @@ export async function updateScheduledContent(id: string, formData: FormData) {
     const dateStr = formData.get("date") as string;
     if (!dateStr) return { success: false, error: "Date is required" };
 
-    const contentType = formData.get("contentType") as string;
-    if (!contentType) return { success: false, error: "Content type is required" };
-
-    const status = (formData.get("status") as string) || "planned";
+    const contentType = (formData.get("contentType") as string) || "general";
+    const status = "planned";
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
     const notes = (formData.get("notes") as string) || null;

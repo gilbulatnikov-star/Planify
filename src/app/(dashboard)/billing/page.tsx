@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   CheckCircle2,
   Zap,
   Crown,
   Sparkles,
-  Loader2,
   FolderOpen,
   Users,
   FileText,
@@ -54,15 +53,12 @@ function PricingCard({
   plan,
   highlighted,
   onSelect,
-  loading,
 }: {
   plan: (typeof PLANS)[number];
   highlighted?: boolean;
   onSelect?: (plan: "MONTHLY" | "ANNUAL") => void;
-  loading: string | null;
 }) {
   const isFree = plan.key === "FREE";
-  const isLoading = loading === plan.key;
   const lim = plan.limits;
   const isUnlimited = (n: number) => n === -1;
   const Icon = isFree ? Sparkles : plan.key === "MONTHLY" ? Zap : Crown;
@@ -118,18 +114,13 @@ function PricingCard({
       ) : (
         <button
           onClick={() => onSelect?.(plan.key as "MONTHLY" | "ANNUAL")}
-          disabled={!!loading}
           className={`mb-5 w-full rounded-xl py-3 text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 ${
             highlighted
-              ? "bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60"
-              : "bg-gray-100 text-gray-900 hover:bg-gray-200 disabled:opacity-60"
+              ? "bg-gray-900 text-white hover:bg-gray-800"
+              : "bg-gray-100 text-gray-900 hover:bg-gray-200"
           }`}
         >
-          {isLoading ? (
-            <><Loader2 className="h-4 w-4 animate-spin" />מעבד...</>
-          ) : (
-            "התחל עכשיו"
-          )}
+          התחל עכשיו
         </button>
       )}
 
@@ -224,7 +215,6 @@ function ComparisonTable() {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function BillingPricingPage() {
-  const [loading, setLoading] = useState<string | null>(null);
   const [trialExpired, setTrialExpired] = useState(false);
   const router = useRouter();
 
@@ -233,19 +223,8 @@ export default function BillingPricingPage() {
     if (params.get("trial_expired") === "true") setTrialExpired(true);
   }, []);
 
-  async function handleSelect(plan: "MONTHLY" | "ANNUAL") {
-    setLoading(plan);
-    try {
-      const res = await fetch("/api/checkout/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await res.json();
-      if (data.url) router.push(data.url);
-    } finally {
-      setLoading(null);
-    }
+  function handleSelect(plan: "MONTHLY" | "ANNUAL") {
+    router.push(`/billing/checkout?plan=${plan}`);
   }
 
   const annualPlan = PLANS.find((p) => p.key === "ANNUAL")!;
@@ -282,7 +261,6 @@ export default function BillingPricingPage() {
             plan={plan}
             highlighted={plan.key === "ANNUAL"}
             onSelect={handleSelect}
-            loading={loading}
           />
         ))}
       </div>
@@ -295,14 +273,9 @@ export default function BillingPricingPage() {
         </div>
         <button
           onClick={() => handleSelect("ANNUAL")}
-          disabled={!!loading}
-          className="shrink-0 rounded-xl bg-white text-gray-900 px-6 py-3 text-sm font-bold hover:bg-gray-100 transition-colors disabled:opacity-60 flex items-center gap-2"
+          className="shrink-0 rounded-xl bg-white text-gray-900 px-6 py-3 text-sm font-bold hover:bg-gray-100 transition-colors flex items-center gap-2"
         >
-          {loading === "ANNUAL" ? (
-            <><Loader2 className="h-4 w-4 animate-spin" />מעבד...</>
-          ) : (
-            <><Crown className="h-4 w-4" />התחל עכשיו — {annualPlan.price}</>
-          )}
+          <Crown className="h-4 w-4" />התחל עכשיו — {annualPlan.price}
         </button>
       </div>
 

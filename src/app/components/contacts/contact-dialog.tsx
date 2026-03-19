@@ -23,6 +23,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { createContact, updateContact } from "@/lib/actions/contact-actions";
 import { he } from "@/lib/he";
+import { Plus, X } from "lucide-react";
 
 interface ContactDialogProps {
   contact?: {
@@ -36,38 +37,61 @@ interface ContactDialogProps {
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Extra custom categories found in the contacts list */
+  extraCategories?: string[];
+  onQuotaExceeded?: () => void;
 }
 
-const categoryOptions = [
-  { value: "editor", label: he.contacts.categories.editor },
-  { value: "stills_photographer", label: he.contacts.categories.stills_photographer },
-  { value: "video_photographer", label: he.contacts.categories.video_photographer },
-  { value: "lighting", label: he.contacts.categories.lighting },
-  { value: "director", label: he.contacts.categories.director },
-  { value: "art", label: he.contacts.categories.art },
+const PRESET_CATEGORIES = [
+  { value: "editor",               label: he.contacts.categories.editor },
+  { value: "stills_photographer",  label: he.contacts.categories.stills_photographer },
+  { value: "video_photographer",   label: he.contacts.categories.video_photographer },
+  { value: "lighting",             label: he.contacts.categories.lighting },
+  { value: "director",             label: he.contacts.categories.director },
+  { value: "art",                  label: he.contacts.categories.art },
   { value: "production_assistant", label: he.contacts.categories.production_assistant },
-  { value: "producer", label: he.contacts.categories.producer },
-  { value: "three_d", label: he.contacts.categories.three_d },
-  { value: "sound_designer", label: he.contacts.categories.sound_designer },
-  { value: "makeup", label: he.contacts.categories.makeup },
-  { value: "actor", label: he.contacts.categories.actor },
-  { value: "rental_house", label: he.contacts.categories.rental_house },
-  { value: "studio", label: he.contacts.categories.studio },
-  { value: "social_manager", label: he.contacts.categories.social_manager },
-] as const;
+  { value: "producer",             label: he.contacts.categories.producer },
+  { value: "three_d",              label: he.contacts.categories.three_d },
+  { value: "sound_designer",       label: he.contacts.categories.sound_designer },
+  { value: "makeup",               label: he.contacts.categories.makeup },
+  { value: "actor",                label: he.contacts.categories.actor },
+  { value: "rental_house",         label: he.contacts.categories.rental_house },
+  { value: "studio",               label: he.contacts.categories.studio },
+  { value: "social_manager",       label: he.contacts.categories.social_manager },
+];
 
-export function ContactDialog({ contact, open, onOpenChange }: ContactDialogProps) {
+const PRESET_VALUES = new Set(PRESET_CATEGORIES.map(c => c.value));
+
+function getCategoryLabel(value: string): string {
+  return PRESET_CATEGORIES.find(c => c.value === value)?.label ?? value;
+}
+
+export function ContactDialog({ contact, open, onOpenChange, extraCategories = [], onQuotaExceeded }: ContactDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!contact;
 
-  const [category, setCategory] = useState(contact?.category ?? "editor");
+  const [category, setCategory]         = useState(contact?.category ?? "editor");
+  const [customMode, setCustomMode]     = useState(false);
+  const [customValue, setCustomValue]   = useState("");
+  const [customList, setCustomList]     = useState<string[]>(extraCategories);
 
   function handleOpenChange(open: boolean) {
     if (open) {
       setCategory(contact?.category ?? "editor");
+      setCustomMode(false);
+      setCustomValue("");
     }
     onOpenChange(open);
+  }
+
+  function confirmCustom() {
+    const v = customValue.trim();
+    if (!v) return;
+    if (!customList.includes(v) && !PRESET_VALUES.has(v)) setCustomList(prev => [...prev, v]);
+    setCategory(v);
+    setCustomMode(false);
+    setCustomValue("");
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -79,6 +103,12 @@ export function ContactDialog({ contact, open, onOpenChange }: ContactDialogProp
       const result = isEditing
         ? await updateContact(contact.id, formData)
         : await createContact(formData);
+
+      if ("quotaExceeded" in result && result.quotaExceeded) {
+        onOpenChange(false);
+        onQuotaExceeded?.();
+        return;
+      }
 
       if (result.success) {
         onOpenChange(false);
@@ -117,18 +147,44 @@ export function ContactDialog({ contact, open, onOpenChange }: ContactDialogProp
             {/* Category */}
             <div className="space-y-2">
               <Label>קטגוריה *</Label>
-              <Select value={category} onValueChange={(v) => v && setCategory(v)}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{categoryOptions.find(o => o.value === category)?.label ?? category}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {categoryOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {customMode ? (
+                <div className="flex gap-1.5">
+                  <Input
+                    autoFocus
+                    value={customValue}
+                    onChange={e => setCustomValue(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); confirmCustom(); } if (e.key === "Escape") { setCustomMode(false); setCustomValue(""); } }}
+                    placeholder="שם קטגוריה חדשה..."
+                    className="flex-1 h-9 text-sm"
+                  />
+                  <Button type="button" size="sm" onClick={confirmCustom} disabled={!customValue.trim()}>אישור</Button>
+                  <button type="button" onClick={() => { setCustomMode(false); setCustomValue(""); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <Select value={category} onValueChange={(v) => v && setCategory(v)}>
+                  <SelectTrigger className="w-full">
+                    <span className="flex flex-1">{getCategoryLabel(category)}</span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PRESET_CATEGORIES.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                    {customList.map(v => (
+                      <SelectItem key={v} value={v}>{v}</SelectItem>
+                    ))}
+                    <div className="mx-1 my-1 border-t border-gray-100" />
+                    <button type="button" onClick={() => setCustomMode(true)}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors">
+                      <Plus className="h-3.5 w-3.5" />הוסף קטגוריה חדשה
+                    </button>
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* Phone */}

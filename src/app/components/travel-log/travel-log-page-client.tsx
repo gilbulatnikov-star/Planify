@@ -189,7 +189,7 @@ export function TravelLogPageClient({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                              className="h-7 w-7 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200"
                             />
                           }
                         >

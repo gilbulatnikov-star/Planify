@@ -40,6 +40,7 @@ interface ClientDialogProps {
   } | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onQuotaExceeded?: () => void;
 }
 
 const typeOptions = [
@@ -65,7 +66,7 @@ const leadStatusOptions = [
   { value: "lost", label: "אבוד" },
 ] as const;
 
-export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) {
+export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: ClientDialogProps) {
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
 
@@ -109,6 +110,11 @@ export function ClientDialog({ client, open, onOpenChange }: ClientDialogProps) 
         ? await updateClient(client.id, formData)
         : await createClient(formData);
 
+      if ("quotaExceeded" in result && result.quotaExceeded) {
+        onOpenChange(false);
+        onQuotaExceeded?.();
+        return;
+      }
       if (result.success) {
         onOpenChange(false);
       }

@@ -15,6 +15,7 @@ export const he = {
     inspiration: "השראה",
     cheatSheets: "מדריכים",
     scripts: "תסריטים",
+    moodboard: "Moodboard",
     billing: "מנוי ותמחור",
   },
 
@@ -77,7 +78,7 @@ export const he = {
 
   // Clients
   client: {
-    title: "לקוחות וליידים",
+    title: "לקוחות",
     newClient: "לקוח חדש",
     newLead: "ליד חדש",
     name: "שם",

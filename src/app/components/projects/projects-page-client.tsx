@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, CalendarPlus, FolderPlus } from "lucide-react";
+import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -29,10 +30,11 @@ type ProjectData = {
 type ClientOption = { id: string; name: string };
 
 const phases = [
-  { key: "pre_production", label: he.project.phases.pre_production, color: "from-violet-500 to-purple-600" },
-  { key: "production", label: he.project.phases.production, color: "from-gray-800 to-gray-900" },
+  { key: "pre_production",  label: he.project.phases.pre_production,  color: "from-violet-500 to-purple-600" },
+  { key: "production",      label: he.project.phases.production,      color: "from-gray-800 to-gray-900" },
   { key: "post_production", label: he.project.phases.post_production, color: "from-amber-500 to-orange-500" },
-  { key: "delivered", label: he.project.phases.delivered, color: "from-emerald-500 to-green-500" },
+  { key: "revisions",       label: "תיקונים",                         color: "from-blue-500 to-cyan-500" },
+  { key: "delivered",       label: he.project.phases.delivered,       color: "from-emerald-500 to-green-500" },
 ];
 
 const stagger = {
@@ -51,9 +53,11 @@ const fadeUp = {
 export function ProjectsPageClient({
   projects,
   clients,
+  planLimit,
 }: {
   projects: ProjectData[];
   clients: ClientOption[];
+  planLimit: number;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
@@ -61,8 +65,13 @@ export function ProjectsPageClient({
     id: string;
     title: string;
   } | null>(null);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   function handleCreate() {
+    if (planLimit !== -1 && projects.length >= planLimit) {
+      setUpgradeOpen(true);
+      return;
+    }
     setEditingProject(null);
     setDialogOpen(true);
   }
@@ -133,7 +142,7 @@ export function ProjectsPageClient({
                             {project.client?.name ?? "—"}
                           </p>
                         </div>
-                        <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                           {project.shootDate && (
                             <Button
                               variant="ghost"
@@ -197,20 +206,15 @@ export function ProjectsPageClient({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {project.projectType && (
+                      {project.projectType && (
+                        <div className="flex items-center gap-2 flex-wrap">
                           <Badge variant="outline" className="text-xs border-gray-200 text-muted-foreground">
                             {he.project.types[
                               project.projectType as keyof typeof he.project.types
                             ] ?? project.projectType}
                           </Badge>
-                        )}
-                        <Badge className="text-xs bg-cyan-50 text-cyan-700 hover:bg-gray-200 border-0">
-                          {he.project.statuses[
-                            project.status as keyof typeof he.project.statuses
-                          ] ?? project.status}
-                        </Badge>
-                      </div>
+                        </div>
+                      )}
 
                       {project.budget && (
                         <p className="text-xs text-muted-foreground">
@@ -257,11 +261,19 @@ export function ProjectsPageClient({
         ))}
       </motion.div>
 
+      <UpgradeDialog
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="פרויקטים"
+        limit={planLimit}
+      />
+
       <ProjectDialog
         project={editingProject}
         clients={clients}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
+        onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
       />
 
       {deleteTarget && (

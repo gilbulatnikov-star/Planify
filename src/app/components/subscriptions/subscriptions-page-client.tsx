@@ -203,7 +203,7 @@ export function SubscriptionsPageClient({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200"
+                              className="h-7 w-7 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200"
                             />
                           }
                         >

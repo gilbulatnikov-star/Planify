@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function getClients() {
   return prisma.client.findMany({
@@ -13,6 +15,13 @@ export async function getClients() {
 export async function createClientQuick(name: string) {
   try {
     if (!name.trim()) return { success: false as const, error: "שם נדרש" };
+    const session = await auth();
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.clients !== -1) {
+      const count = await prisma.client.count();
+      if (count >= limits.clients) return { success: false as const, quotaExceeded: true as const, error: "הגעת למגבלת הלקוחות" };
+    }
     const client = await prisma.client.create({
       data: { name: name.trim(), type: "client", leadStatus: "new" },
       select: { id: true, name: true },
@@ -31,6 +40,13 @@ export async function createClient(formData: FormData) {
     const name = formData.get("name") as string;
     if (!name) {
       return { success: false, error: "Name is required" };
+    }
+    const session = await auth();
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.clients !== -1) {
+      const count = await prisma.client.count();
+      if (count >= limits.clients) return { success: false, quotaExceeded: true };
     }
 
     await prisma.client.create({

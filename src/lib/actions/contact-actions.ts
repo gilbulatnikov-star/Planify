@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function createContact(formData: FormData) {
   try {
@@ -13,6 +15,17 @@ export async function createContact(formData: FormData) {
     const category = formData.get("category") as string;
     if (!category) {
       return { success: false, error: "Category is required" };
+    }
+
+    // ── Quota check ────────────────────────────────────────────────────────────
+    const session = await auth();
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.contacts !== -1) {
+      const count = await prisma.contact.count();
+      if (count >= limits.contacts) {
+        return { success: false as const, quotaExceeded: true as const };
+      }
     }
 
     const dailyRateStr = formData.get("dailyRate") as string;

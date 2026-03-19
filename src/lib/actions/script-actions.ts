@@ -1,6 +1,8 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function getScripts() {
   return prisma.script.findMany({
@@ -28,6 +30,17 @@ export async function createScript(data: {
   projectId?: string;
   clientId?: string;
 }) {
+  // ── Quota check ──────────────────────────────────────────────────────────────
+  const session = await auth();
+  const plan = session?.user?.subscriptionPlan ?? "FREE";
+  const limits = getLimitsForPlan(plan);
+  if (limits.scripts !== -1) {
+    const count = await prisma.script.count();
+    if (count >= limits.scripts) {
+      return { quotaExceeded: true as const };
+    }
+  }
+
   const script = await prisma.script.create({
     data: {
       title: data.title || "תסריט ללא כותרת",

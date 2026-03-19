@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
+import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 export async function getProjects() {
   return prisma.project.findMany({
@@ -15,6 +17,17 @@ export async function createProject(formData: FormData) {
     const title = formData.get("title") as string;
     if (!title) {
       return { success: false, error: "Title is required" };
+    }
+
+    // ── Quota check ────────────────────────────────────────────────────────────
+    const session = await auth();
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.projects !== -1) {
+      const count = await prisma.project.count();
+      if (count >= limits.projects) {
+        return { success: false as const, quotaExceeded: true as const };
+      }
     }
 
     const budgetStr = formData.get("budget") as string;

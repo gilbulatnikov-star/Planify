@@ -148,7 +148,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
                   className="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 border border-gray-100 group hover:bg-gray-50 transition-colors"
                 >
                   <span className="flex-1 text-sm">{cat.label}</span>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity">
                     <Button
                       variant="ghost"
                       size="icon"

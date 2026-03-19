@@ -50,26 +50,8 @@ type ContentItem = {
   project: { id: string; title: string } | null;
 };
 
-const contentTypeColors: Record<
-  string,
-  { bg: string; text: string; dot: string }
-> = {
-  client_shoot: {
-    bg: "bg-blue-50",
-    text: "text-blue-700",
-    dot: "bg-blue-500",
-  },
-  youtube_long: {
-    bg: "bg-red-50",
-    text: "text-red-700",
-    dot: "bg-red-500",
-  },
-  short_form: {
-    bg: "bg-purple-50",
-    text: "text-purple-700",
-    dot: "bg-purple-500",
-  },
-};
+// Single neutral chip style — content type is no longer shown
+const chipStyle = { bg: "bg-gray-900/8", text: "text-gray-800", dot: "bg-gray-500" };
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -120,6 +102,7 @@ export function CalendarPageClient({
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [exportStudioOpen, setExportStudioOpen] = useState(false);
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
+  const [clientMenuOpen, setClientMenuOpen] = useState(false);
 
   const isIsolated = !!selectedClientId;
 
@@ -244,32 +227,36 @@ export function CalendarPageClient({
 
         <div className="flex items-center gap-2">
           {/* Client selector dropdown */}
-          <div className="relative group">
-            <button className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+          <div className="relative">
+            {clientMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setClientMenuOpen(false)} />}
+            <button onClick={() => setClientMenuOpen((v) => !v)}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
               {isIsolated
                 ? <><User className="h-3.5 w-3.5 text-gray-500" /><span>{selectedClientName}</span></>
                 : <><Globe className="h-3.5 w-3.5 text-gray-400" /><span>בחר לקוח</span></>
               }
               <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
             </button>
-            <div className="absolute left-0 top-full z-50 mt-1 hidden min-w-[180px] rounded-xl border border-gray-200 bg-white py-1.5 shadow-xl group-hover:block">
-              <button
-                onClick={() => handleClientSwitch(null)}
-                className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${!isIsolated ? "font-semibold text-gray-900" : "text-gray-600"}`}
-              >
-                <Globe className="h-3.5 w-3.5 text-gray-400" />כל הלקוחות
-              </button>
-              {clients.length > 0 && <div className="mx-3 my-1 border-t border-gray-100" />}
-              {clients.map((client) => (
+            {clientMenuOpen && (
+              <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-gray-200 bg-white py-1.5 shadow-xl">
                 <button
-                  key={client.id}
-                  onClick={() => handleClientSwitch(client.id)}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${selectedClientId === client.id ? "font-semibold text-gray-900" : "text-gray-600"}`}
+                  onClick={() => { handleClientSwitch(null); setClientMenuOpen(false); }}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${!isIsolated ? "font-semibold text-gray-900" : "text-gray-600"}`}
                 >
-                  <User className="h-3.5 w-3.5 text-gray-400" />{client.name}
+                  <Globe className="h-3.5 w-3.5 text-gray-400" />כל הלקוחות
                 </button>
-              ))}
-            </div>
+                {clients.length > 0 && <div className="mx-3 my-1 border-t border-gray-100" />}
+                {clients.map((client) => (
+                  <button
+                    key={client.id}
+                    onClick={() => { handleClientSwitch(client.id); setClientMenuOpen(false); }}
+                    className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${selectedClientId === client.id ? "font-semibold text-gray-900" : "text-gray-600"}`}
+                  >
+                    <User className="h-3.5 w-3.5 text-gray-400" />{client.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Add to Google Calendar — popover with individual links */}
@@ -410,9 +397,7 @@ export function CalendarPageClient({
                       </div>
                       <div className="space-y-0.5">
                         {dayContent.map((item) => {
-                          const colors =
-                            contentTypeColors[item.contentType] ??
-                            contentTypeColors.client_shoot;
+                          const colors = chipStyle;
                           return (
                             <div
                               key={item.id}
@@ -422,6 +407,18 @@ export function CalendarPageClient({
                               }}
                               className={`${colors.bg} ${colors.text} text-[10px] leading-tight px-1.5 py-0.5 rounded truncate cursor-pointer hover:brightness-110 transition-all duration-150 group/item relative`}
                             >
+                              {/* Full-title tooltip on hover */}
+                              <div className="absolute bottom-full right-0 mb-1.5 z-50 pointer-events-none opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
+                                <div className="bg-gray-900 text-white text-[11px] font-medium rounded-lg px-2.5 py-1.5 shadow-xl whitespace-nowrap max-w-[220px] truncate">
+                                  {item.title}
+                                  {item.client && (
+                                    <span className="text-gray-400 mr-1.5">· {item.client.name}</span>
+                                  )}
+                                </div>
+                                {/* Arrow */}
+                                <div className="w-2 h-2 bg-gray-900 rotate-45 absolute -bottom-1 right-3" />
+                              </div>
+
                               <span className="flex items-center gap-1">
                                 <span
                                   className={`w-1.5 h-1.5 rounded-full ${colors.dot} flex-shrink-0`}
@@ -467,22 +464,6 @@ export function CalendarPageClient({
         </Card>
       </motion.div>
 
-      {/* Content type legend */}
-      <motion.div
-        variants={fadeUp}
-        className="flex items-center justify-center gap-6 text-xs text-muted-foreground"
-      >
-        {Object.entries(contentTypeColors).map(([type, colors]) => (
-          <div key={type} className="flex items-center gap-1.5">
-            <span className={`w-2.5 h-2.5 rounded-full ${colors.dot}`} />
-            <span>
-              {he.calendar.contentTypes[
-                type as keyof typeof he.calendar.contentTypes
-              ] ?? type}
-            </span>
-          </div>
-        ))}
-      </motion.div>
 
       {/* Dialogs — auto-set clientId when in isolated mode */}
       <ContentDialog

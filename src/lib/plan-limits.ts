@@ -4,10 +4,14 @@
 export type PlanKey = "FREE" | "MONTHLY" | "ANNUAL";
 
 export interface PlanLimits {
-  projects: number;   // -1 = unlimited
+  projects: number;        // -1 = unlimited
   contacts: number;
   documents: number;
   scripts: number;
+  clients: number;
+  moodboards: number;      // total moodboard canvases
+  moodboardNodes: number;  // items per moodboard canvas
+  inspirationRefs: number; // items in inspiration board
 }
 
 export interface PlanMeta {
@@ -25,22 +29,34 @@ export interface PlanMeta {
 
 export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
   FREE: {
-    projects:  1,    // first project free
-    contacts:  10,
-    documents: 5,
-    scripts:   2,
+    projects:        1,   // first project free
+    contacts:        2,
+    documents:       5,
+    scripts:         1,
+    clients:         2,
+    moodboards:      1,   // total moodboard canvases
+    moodboardNodes:  3,   // items per moodboard canvas
+    inspirationRefs: 2,   // items in inspiration board
   },
   MONTHLY: {
-    projects:  -1,   // unlimited
-    contacts:  -1,
-    documents: -1,
-    scripts:   -1,
+    projects:        -1,  // unlimited
+    contacts:        -1,
+    documents:       -1,
+    scripts:         -1,
+    clients:         -1,
+    moodboards:      -1,
+    moodboardNodes:  -1,
+    inspirationRefs: -1,
   },
   ANNUAL: {
-    projects:  -1,   // unlimited
-    contacts:  -1,
-    documents: -1,
-    scripts:   -1,
+    projects:        -1,
+    contacts:        -1,
+    documents:       -1,
+    scripts:         -1,
+    clients:         -1,
+    moodboards:      -1,
+    moodboardNodes:  -1,
+    inspirationRefs: -1,
   },
 };
 

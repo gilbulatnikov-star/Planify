@@ -97,6 +97,7 @@ model Project {
 
   tasks            Task[]
   scripts          Script[]
+  moodboards       Moodboard[]
   gearAssignments  GearAssignment[]
   invoices         Invoice[]
   quotes           Quote[]
@@ -384,4 +385,16 @@ model Script {
   client       Client?  @relation(fields: [clientId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// ---------- MOODBOARDS ----------
+model Moodboard {
+  id        String   @id @default(cuid())
+  title     String   @default("Moodboard חדש")
+  nodesData String   @default("[]") // JSON array of Node objects
+  edgesData String   @default("[]") // JSON array of Edge objects
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

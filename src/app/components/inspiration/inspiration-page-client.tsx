@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { InspirationDialog } from "./inspiration-dialog";
 import { DeleteInspirationDialog } from "./delete-inspiration-dialog";
 import { CategoryManagerDialog } from "./category-manager-dialog";
+import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { he } from "@/lib/he";
 
 type InspirationData = {
@@ -72,9 +73,11 @@ function isYouTubeUrl(url: string): boolean {
 export function InspirationPageClient({
   inspirations,
   categories,
+  planLimit,
 }: {
   inspirations: InspirationData[];
   categories: CategoryData[];
+  planLimit: number;
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingInspiration, setEditingInspiration] = useState<InspirationData | null>(null);
@@ -82,6 +85,7 @@ export function InspirationPageClient({
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Build a lookup map for categories
   const categoryMap = new Map(categories.map((c) => [c.name, c]));
@@ -92,6 +96,10 @@ export function InspirationPageClient({
   }
 
   function handleCreate() {
+    if (planLimit !== -1 && inspirations.length >= planLimit) {
+      setUpgradeOpen(true);
+      return;
+    }
     setEditingInspiration(null);
     setDialogOpen(true);
   }
@@ -207,7 +215,7 @@ export function InspirationPageClient({
                         {cat?.label ?? item.category}
                       </Badge>
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex-shrink-0 ms-2">
+                    <div className="flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 flex-shrink-0 ms-2">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -259,6 +267,12 @@ export function InspirationPageClient({
       )}
 
       {/* Dialogs */}
+      <UpgradeDialog
+        open={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        feature="רפרנסים בהשראה"
+        limit={planLimit}
+      />
       <InspirationDialog
         inspiration={editingInspiration}
         categories={categories}

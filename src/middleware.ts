@@ -18,9 +18,12 @@ export default auth((req) => {
   // Detect internal API calls (non-auth, non-onboarding) — must return JSON, not redirects
   const isInternalApi = pathname.startsWith("/api/") && !isPublicApi;
 
-  // Trial/billing pages — always accessible to logged-in users
+  // Trial/billing pages + related APIs — always accessible to logged-in users
   const isBillingPage =
-    pathname.startsWith("/billing") || pathname.startsWith("/settings/billing");
+    pathname.startsWith("/billing") ||
+    pathname.startsWith("/settings/billing") ||
+    pathname.startsWith("/api/checkout") ||
+    pathname.startsWith("/api/user/me");
 
   // Not logged in — API routes return 401 JSON, pages redirect to sign-in
   if (!isLoggedIn && !isAuthPage && !isPublicApi) {

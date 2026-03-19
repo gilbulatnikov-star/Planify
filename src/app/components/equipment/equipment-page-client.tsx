@@ -167,7 +167,7 @@ export function EquipmentPageClient({
                         : "—"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
+                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                         <Button
                           variant="ghost"
                           size="icon"
