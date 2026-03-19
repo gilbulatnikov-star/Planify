@@ -93,7 +93,7 @@ export function AppSidebar() {
           </div>
           {/* Expanded: full logo */}
           <img
-            src="/qlipy-logo.svg"
+            src="/qlipy-logo.png"
             alt="Qlipy"
             className="h-10 w-auto group-data-[collapsible=icon]:hidden transition-all duration-300 group-hover:scale-105"
           />
