@@ -83,7 +83,7 @@ export function AppSidebar() {
         <Link href="/" className="flex w-full items-center justify-center group">
           {/* Collapsed: Q icon only */}
           <div className="relative hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all duration-300 group-hover:scale-105">
-            <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-8 w-auto">
+            <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-auto">
               <rect x="18" y="18" width="170" height="122" rx="61"
                 fill="none" stroke="#0a0a0a" strokeWidth="28" strokeLinecap="round"
                 strokeDasharray="420 58" strokeDashoffset="243"/>
@@ -94,7 +94,7 @@ export function AppSidebar() {
           <img
             src="/qlipy-logo.png"
             alt="Qlipy"
-            className="h-8 w-auto group-data-[collapsible=icon]:hidden transition-all duration-300 group-hover:scale-105"
+            className="h-6 w-auto group-data-[collapsible=icon]:hidden transition-all duration-300 group-hover:scale-105"
           />
         </Link>
       </SidebarHeader>
