@@ -48,7 +48,6 @@ const navItems = [
   { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
   { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
   { href: "/tasks", label: "משימות", icon: ListTodo, tourId: "nav-tasks" },
-  { href: "/billing", label: "תוכנית המנוי", icon: Crown, tourId: "nav-billing" },
 ];
 
 const financialsSubItems = [
@@ -171,8 +170,17 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ── Footer: sign out ── */}
-      <SidebarFooter className="border-t border-border p-3">
+      {/* ── Footer: billing + sign out ── */}
+      <SidebarFooter className="border-t border-border p-3 space-y-1">
+        <SidebarMenuButton
+          render={<Link href="/billing" />}
+          isActive={pathname.startsWith("/billing")}
+          tooltip="תוכנית המנוי"
+          className={pathname.startsWith("/billing") ? btnActive : btnIdle}
+        >
+          <Crown className="h-4 w-4 shrink-0" />
+          <span className="truncate group-data-[collapsible=icon]:hidden">תוכנית המנוי</span>
+        </SidebarMenuButton>
         <SidebarMenuButton
           onClick={() => signOut({ callbackUrl: "/login" })}
           tooltip="יציאה מהמערכת"
