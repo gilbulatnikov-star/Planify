@@ -148,7 +148,9 @@ export async function POST(request: Request) {
       // Try text extraction first (works for digital PDFs)
       let pdfText = "";
       try {
-        const pdfParse = (await import("pdf-parse")).default;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const pdfMod: any = await import("pdf-parse");
+        const pdfParse = pdfMod.default ?? pdfMod;
         const pdfData = await pdfParse(buffer);
         pdfText = pdfData.text;
       } catch {
