@@ -1,50 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Check,
-  Minus,
-  Crown,
-  Clock,
-  Zap,
-  Sparkles,
-} from "lucide-react";
+import { Check, Minus, Crown, Clock, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-// ─── Feature rows ─────────────────────────────────────────────────────────────
-
 const FEATURES = [
-  { label: "פרויקטים",              free: "1", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "לקוחות",                free: "3", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "אנשי קשר",              free: "2", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "מסמכים להעלאה",         free: "5", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "תסריטים",               free: "1", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "לוחות השראה (פריטים)",  free: "2", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "לוחות מודבורד",         free: "1", monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "משימות יומיות",          free: "3",   monthly: "ללא הגבלה", annual: "ללא הגבלה" },
-  { label: "לוח משימות",             free: true,  monthly: true,  annual: true  },
-  { label: "חשבוניות והצעות מחיר",  free: false, monthly: true,  annual: true  },
-  { label: "לוח תוכן",              free: false, monthly: true,  annual: true  },
-  { label: "ניהול הוצאות",          free: false, monthly: true,  annual: true  },
-  { label: "עדיפות בתמיכה",         free: false, monthly: false, annual: true  },
-  { label: "חודשיים חינם",          free: false, monthly: false, annual: true  },
+  { label: "פרויקטים",              free: "1",    pro: "ללא הגבלה" },
+  { label: "לקוחות",                free: "3",    pro: "ללא הגבלה" },
+  { label: "אנשי קשר",              free: "2",    pro: "ללא הגבלה" },
+  { label: "מסמכים להעלאה",         free: "5",    pro: "ללא הגבלה" },
+  { label: "תסריטים",               free: "1",    pro: "ללא הגבלה" },
+  { label: "לוחות השראה (פריטים)",  free: "2",    pro: "ללא הגבלה" },
+  { label: "לוחות מודבורד",         free: "1",    pro: "ללא הגבלה" },
+  { label: "משימות יומיות",          free: "3",    pro: "ללא הגבלה" },
+  { label: "חשבוניות והצעות מחיר",  free: false,  pro: true        },
+  { label: "לוח תוכן",              free: false,  pro: true        },
+  { label: "ניהול הוצאות",          free: false,  pro: true        },
+  { label: "עדיפות בתמיכה",         free: false,  pro: true        },
 ];
 
-// ─── Cell ─────────────────────────────────────────────────────────────────────
-
 function Cell({ value }: { value: boolean | string }) {
-  if (value === true)  return <Check className="h-4 w-4 text-emerald-500 mx-auto" />;
-  if (value === false) return <Minus className="h-4 w-4 text-gray-300 mx-auto" />;
+  if (value === true)  return <Check className="h-4 w-4 text-[#38b6ff] mx-auto" />;
+  if (value === false) return <Minus className="h-4 w-4 text-gray-200 mx-auto" />;
   return (
-    <span className={`text-sm font-semibold ${value === "ללא הגבלה" ? "text-emerald-600" : "text-gray-700"}`}>
+    <span className={`text-sm font-semibold ${value === "ללא הגבלה" ? "text-[#38b6ff]" : "text-gray-700"}`}>
       {value}
     </span>
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────────────────────────
-
 export default function BillingPricingPage() {
+  const [billing, setBilling] = useState<"annual" | "monthly">("annual");
   const [trialExpired, setTrialExpired] = useState(false);
   const router = useRouter();
 
@@ -53,12 +39,14 @@ export default function BillingPricingPage() {
     if (params.get("trial_expired") === "true") setTrialExpired(true);
   }, []);
 
-  function handleSelect(plan: "MONTHLY" | "ANNUAL") {
-    router.push(`/billing/checkout?plan=${plan}`);
-  }
+  const isAnnual = billing === "annual";
+  const price = isAnnual ? "₪49" : "₪59";
+  const priceSub = isAnnual ? "/ חודש — חיוב ₪590 לשנה" : "/ חודש — חיוב חודשי";
+  const planKey = isAnnual ? "ANNUAL" : "MONTHLY";
 
   return (
     <div className="min-h-screen" dir="rtl">
+
       {/* Trial expired banner */}
       {trialExpired && (
         <div className="mb-6 flex items-start gap-3 rounded-2xl bg-red-50 border border-red-200 px-5 py-4">
@@ -66,89 +54,112 @@ export default function BillingPricingPage() {
           <div>
             <p className="text-sm font-bold text-red-800">תקופת הניסיון שלך הסתיימה</p>
             <p className="text-xs text-red-600 mt-0.5">
-              ה-3 ימים חלפו. בחר תוכנית כדי להמשיך להשתמש במערכת ולשמור על כל הנתונים שלך.
+              ה-3 ימים חלפו. בחר תוכנית כדי להמשיך להשתמש במערכת.
             </p>
           </div>
         </div>
       )}
 
-      {/* ── Header ── */}
-      <div className="text-center mb-10 space-y-3">
-        <p className="inline-flex items-center gap-1.5 rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-700">
+      {/* Header */}
+      <div className="text-center mb-8 space-y-3">
+        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#38b6ff]/10 px-3 py-1 text-xs font-semibold text-[#38b6ff]">
           <Crown className="h-3.5 w-3.5" /> תמחור שקוף וגמיש
         </p>
-        <h1 className="text-4xl font-black text-gray-900 leading-tight">
+        <h1 className="text-4xl font-black text-[#0a0a0a] leading-tight">
           הכל כלול. ללא הפתעות.
         </h1>
         <p className="text-base text-gray-500 max-w-md mx-auto">
-          בחר תוכנית, שדרג בכל עת. ביטול חופשי — אין חוזים, אין קנסות.
+          ביטול חופשי בכל עת — אין חוזים, אין קנסות.
         </p>
+
+        {/* Billing toggle */}
+        <div className="flex items-center justify-center gap-3 pt-2">
+          <span className={`text-sm font-semibold ${billing === "monthly" ? "text-[#0a0a0a]" : "text-gray-400"}`}>
+            חודשי
+          </span>
+          <button
+            dir="ltr"
+            onClick={() => setBilling(b => b === "annual" ? "monthly" : "annual")}
+            className={`relative inline-flex h-7 w-14 shrink-0 rounded-full transition-colors duration-300 ${isAnnual ? "bg-[#38b6ff]" : "bg-gray-300"}`}
+          >
+            <span
+              className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-sm ring-0 transition-transform mt-1 ${
+                isAnnual ? "translate-x-8" : "translate-x-1"
+              }`}
+            />
+          </button>
+          <span className={`text-sm font-semibold flex items-center gap-1.5 ${billing === "annual" ? "text-[#0a0a0a]" : "text-gray-400"}`}>
+            שנתי
+            {isAnnual && (
+              <span className="inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-600">
+                חיסכון ₪118
+              </span>
+            )}
+          </span>
+        </div>
       </div>
 
-      {/* ── 3 Cards: Free | Annual (highlighted) | Monthly ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mb-14">
+      {/* 2 Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch mb-12 max-w-3xl mx-auto">
 
         {/* Free */}
-        <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 mb-5">
-            <Sparkles className="h-5 w-5 text-gray-500" />
+        <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-100 mb-5">
+            <Sparkles className="h-5 w-5 text-gray-400" />
           </div>
-          <p className="text-lg font-bold text-gray-900 mb-1">חינמי</p>
-          <p className="text-xs text-gray-400 mb-5">ניסיון של 3 ימים</p>
+          <p className="text-xl font-black text-[#0a0a0a] mb-1">חינמי</p>
+          <p className="text-xs text-gray-400 mb-6">ניסיון של 3 ימים</p>
 
           <div className="mb-1">
-            <span className="text-5xl font-black text-gray-900 leading-none">₪0</span>
+            <span className="text-5xl font-black text-[#0a0a0a] leading-none">₪0</span>
           </div>
-          <p className="text-xs text-gray-400 mb-7">ל-3 ימי ניסיון</p>
+          <p className="text-xs text-gray-400 mb-8">ל-3 ימי ניסיון</p>
 
-          <div className="mb-7 w-full rounded-xl py-3 text-sm font-semibold text-center bg-gray-100 text-gray-400 cursor-default select-none">
+          <div className="mb-8 w-full rounded-xl py-3.5 text-sm font-semibold text-center bg-gray-100 text-gray-400 cursor-default select-none">
             התוכנית הנוכחית
           </div>
 
           <div className="flex flex-col gap-3 flex-1">
-            {[
-              "1 פרויקט ראשון",
-              "2 לקוחות + אנשי קשר",
-              "גישה מלאה ל-3 ימים",
-              "ללא כרטיס אשראי",
-            ].map((f) => (
+            {["1 פרויקט ראשון", "3 לקוחות", "גישה מלאה ל-3 ימים", "ללא כרטיס אשראי"].map((f) => (
               <div key={f} className="flex items-center gap-2.5">
                 <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                  <Check className="h-2.5 w-2.5 text-gray-500" />
+                  <Check className="h-2.5 w-2.5 text-gray-400" />
                 </div>
-                <span className="text-sm text-gray-600">{f}</span>
+                <span className="text-sm text-gray-500">{f}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Pro Annual — highlighted, center */}
-        <div
-          className="relative flex flex-col rounded-2xl p-7 shadow-2xl md:-my-3 z-10"
-          style={{ background: "linear-gradient(160deg, #1e40af 0%, #4f46e5 50%, #7c3aed 100%)" }}
-        >
-          {/* Badge */}
-          <div className="absolute -top-4 right-1/2 translate-x-1/2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-1.5 text-xs font-black text-white shadow-lg whitespace-nowrap">
-              ✦ הכי משתלם — חיסכון ₪118
-            </span>
-          </div>
+        {/* Pro */}
+        <div className="relative flex flex-col rounded-2xl p-8 shadow-2xl" style={{ background: "linear-gradient(145deg, #0284c7 0%, #38b6ff 55%, #7dd3fc 100%)" }}>
+          {isAnnual && (
+            <div className="absolute -top-4 right-6">
+              <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-1.5 text-xs font-black text-white shadow-lg whitespace-nowrap">
+                ✦ הכי משתלם
+              </span>
+            </div>
+          )}
 
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 mb-5">
-            <Crown className="h-5 w-5 text-yellow-300" />
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/20 mb-5">
+            <Crown className="h-5 w-5 text-white" />
           </div>
-          <p className="text-lg font-bold text-white mb-1">Pro שנתי</p>
-          <p className="text-xs text-white/50 mb-5">חיוב שנתי — ₪590 לשנה</p>
+          <p className="text-xl font-black text-white mb-1">Pro {isAnnual ? "שנתי" : "חודשי"}</p>
+          <p className="text-xs text-white/40 mb-6">{isAnnual ? "חיוב שנתי" : "חיוב חודשי, ביטול בכל עת"}</p>
 
-          <div className="mb-1 flex items-end gap-1.5" dir="ltr">
-            <span className="text-5xl font-black text-white leading-none">₪49</span>
-            <span className="text-sm text-white/50 mb-1.5">/ חודש</span>
+          <div className="mb-1 flex items-end gap-1.5">
+            <span className="text-5xl font-black text-white leading-none">{price}</span>
+            <span className="text-sm text-white/40 mb-1.5">/ חודש</span>
           </div>
-          <p className="text-xs font-bold text-emerald-400 mb-7">✓ חודשיים חינם לעומת מנוי חודשי</p>
+          <p className="text-xs text-white/40 mb-2">{priceSub}</p>
+          {isAnnual && (
+            <p className="text-xs font-bold text-white/90 mb-6">✓ חודשיים חינם לעומת מנוי חודשי</p>
+          )}
+          {!isAnnual && <div className="mb-6" />}
 
           <button
-            onClick={() => handleSelect("ANNUAL")}
-            className="mb-7 w-full rounded-xl py-3.5 text-sm font-black transition-all duration-200 bg-white text-gray-900 hover:bg-gray-100 shadow-lg"
+            onClick={() => router.push(`/billing/checkout?plan=${planKey}`)}
+            className="mb-8 w-full rounded-xl py-3.5 text-sm font-black transition-all duration-200 bg-[#0a0a0a] text-white hover:bg-[#0a0a0a]/80 shadow-lg"
           >
             התחל עכשיו
           </button>
@@ -161,82 +172,39 @@ export default function BillingPricingPage() {
               "חשבוניות והצעות מחיר",
               "לוח תוכן + תסריטים",
               "לוח השראה ומודבורד",
-              "עדיפות בתמיכה",
-              "חודשיים חינם",
+              ...(isAnnual ? ["עדיפות בתמיכה", "חודשיים חינם"] : []),
             ].map((f) => (
               <div key={f} className="flex items-center gap-2.5">
-                <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/15">
+                <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-white/25">
                   <Check className="h-2.5 w-2.5 text-white" />
                 </div>
-                <span className="text-sm text-white/80">{f}</span>
+                <span className="text-sm text-white/70">{f}</span>
               </div>
             ))}
           </div>
         </div>
-
-        {/* Pro Monthly */}
-        <div className="flex flex-col rounded-2xl border border-gray-200 bg-white p-7 shadow-sm">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-100 mb-5">
-            <Zap className="h-5 w-5 text-gray-600" />
-          </div>
-          <p className="text-lg font-bold text-gray-900 mb-1">Pro חודשי</p>
-          <p className="text-xs text-gray-400 mb-5">חיוב חודשי, ביטול בכל עת</p>
-
-          <div className="mb-1 flex items-end gap-1.5" dir="ltr">
-            <span className="text-5xl font-black text-gray-900 leading-none">₪59</span>
-            <span className="text-sm text-gray-500 mb-1.5">/ חודש</span>
-          </div>
-          <p className="text-xs text-gray-400 mb-7">חיוב חודשי — ₪59 לחודש</p>
-
-          <button
-            onClick={() => handleSelect("MONTHLY")}
-            className="mb-7 w-full rounded-xl py-3 text-sm font-bold transition-all duration-200 bg-gray-100 text-gray-900 hover:bg-gray-200"
-          >
-            התחל עכשיו
-          </button>
-
-          <div className="flex flex-col gap-3 flex-1">
-            {[
-              "פרויקטים ללא הגבלה",
-              "לקוחות ואנשי קשר ללא הגבלה",
-              "כל פיצ'רי המערכת",
-              "חשבוניות והצעות מחיר",
-              "לוח תוכן + תסריטים",
-              "לוח השראה ומודבורד",
-            ].map((f) => (
-              <div key={f} className="flex items-center gap-2.5">
-                <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-100">
-                  <Check className="h-2.5 w-2.5 text-gray-600" />
-                </div>
-                <span className="text-sm text-gray-600">{f}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
       </div>
 
-      {/* ── Comparison Table ── */}
-      <div className="mb-10">
-        <h2 className="text-xl font-black text-gray-900 mb-6 text-center">השוואה מלאה</h2>
-
+      {/* Comparison table */}
+      <div className="mb-10 max-w-3xl mx-auto">
+        <h2 className="text-xl font-black text-[#0a0a0a] mb-5 text-center">השוואה מלאה</h2>
         <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-          <table className="w-full min-w-[500px]" dir="rtl">
+          <table className="w-full" dir="rtl">
             <thead>
               <tr className="border-b border-gray-100">
-                <th className="px-6 py-4 text-sm font-semibold text-gray-500 text-right w-2/5 bg-gray-50">פיצ&#39;ר</th>
-                <th className="px-4 py-4 text-sm font-bold text-gray-500 text-center bg-gray-50">חינמי</th>
-                <th className="px-4 py-4 text-sm font-black text-gray-900 text-center" style={{ background: "rgba(241,245,249,0.8)" }}>Pro שנתי</th>
-                <th className="px-4 py-4 text-sm font-bold text-gray-700 text-center bg-gray-50">Pro חודשי</th>
+                <th className="px-6 py-4 text-sm font-semibold text-gray-400 text-right bg-gray-50">פיצ&#39;ר</th>
+                <th className="px-4 py-4 text-sm font-bold text-gray-400 text-center bg-gray-50">חינמי</th>
+                <th className="px-4 py-4 text-sm font-black text-[#0a0a0a] text-center bg-[#38b6ff]/5">
+                  Pro {isAnnual ? "שנתי" : "חודשי"}
+                </th>
               </tr>
             </thead>
             <tbody>
               {FEATURES.map((row, i) => (
-                <tr key={row.label} className={`border-b border-gray-50 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/30"}`}>
+                <tr key={row.label} className={`border-b border-gray-50 last:border-0 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/40"}`}>
                   <td className="px-6 py-3.5 text-sm text-gray-700 font-medium">{row.label}</td>
                   <td className="px-4 py-3.5 text-center"><Cell value={row.free} /></td>
-                  <td className="px-4 py-3.5 text-center" style={{ background: "rgba(241,245,249,0.5)" }}><Cell value={row.annual} /></td>
-                  <td className="px-4 py-3.5 text-center"><Cell value={row.monthly} /></td>
+                  <td className="px-4 py-3.5 text-center bg-[#38b6ff]/5"><Cell value={row.pro} /></td>
                 </tr>
               ))}
             </tbody>
@@ -244,23 +212,23 @@ export default function BillingPricingPage() {
         </div>
       </div>
 
-      {/* ── Trust strip ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 text-center">
+      {/* Trust strip */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 max-w-3xl mx-auto text-center">
         {[
           { title: "ביטול בכל עת", desc: "אין חוזים, אין קנסות." },
           { title: "שדרוג מיידי", desc: "עוברים לתוכנית גבוהה יותר בלחיצה." },
           { title: "נתונים שלך", desc: "כל הנתונים נשמרים גם לאחר הביטול." },
         ].map((item) => (
-          <div key={item.title} className="rounded-2xl border border-gray-100 bg-gray-50 px-5 py-5">
-            <p className="text-sm font-bold text-gray-900 mb-1">{item.title}</p>
+          <div key={item.title} className="rounded-2xl border border-[#38b6ff]/15 bg-[#38b6ff]/5 px-5 py-5">
+            <p className="text-sm font-bold text-[#0a0a0a] mb-1">{item.title}</p>
             <p className="text-xs text-gray-500">{item.desc}</p>
           </div>
         ))}
       </div>
 
-      <p className="text-center text-xs text-gray-400">
+      <p className="text-center text-xs text-gray-400 pb-6">
         לניהול המנוי הנוכחי{" "}
-        <a href="/settings/billing" className="font-medium text-gray-700 hover:underline">
+        <a href="/settings/billing" className="font-medium text-[#38b6ff] hover:underline">
           לחץ כאן ←
         </a>
       </p>

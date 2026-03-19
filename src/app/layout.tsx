@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Noto_Sans_Hebrew } from "next/font/google";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "@/app/components/layout/session-provider";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 
 const notoSansHebrew = Noto_Sans_Hebrew({
@@ -37,6 +38,7 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body className={`${notoSansHebrew.variable} font-sans antialiased`}>
+        <NextTopLoader color="#38b6ff" height={3} showSpinner={false} shadow="0 0 10px #38b6ff,0 0 5px #38b6ff" />
         <SessionProvider>
           <TooltipProvider>{children}</TooltipProvider>
         </SessionProvider>
