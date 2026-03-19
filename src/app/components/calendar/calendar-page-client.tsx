@@ -25,7 +25,6 @@ import {
   Trash2,
   Globe,
   User,
-  X,
   Download,
   CalendarPlus,
   ChevronDown,
@@ -37,6 +36,8 @@ import { DeleteContentDialog } from "./delete-content-dialog";
 import { CalendarExportStudio } from "./calendar-export-studio";
 import { he } from "@/lib/he";
 
+// ─── Types ─────────────────────────────────────────────────────────────────────
+
 type ContentItem = {
   id: string;
   title: string;
@@ -46,31 +47,41 @@ type ContentItem = {
   clientId: string | null;
   projectId: string | null;
   notes: string | null;
+  color?: string | null;
   client: { id: string; name: string } | null;
   project: { id: string; title: string } | null;
 };
 
-// Single neutral chip style — content type is no longer shown
-const chipStyle = { bg: "bg-gray-900/8", text: "text-gray-800", dot: "bg-gray-500" };
+// ─── Color map ─────────────────────────────────────────────────────────────────
+
+const COLOR_MAP: Record<string, { bg: string; text: string; dot: string; border: string }> = {
+  gray:   { bg: "bg-gray-100",    text: "text-gray-800",    dot: "bg-gray-500",    border: "border-gray-300"   },
+  blue:   { bg: "bg-blue-100",    text: "text-blue-800",    dot: "bg-blue-500",    border: "border-blue-300"   },
+  violet: { bg: "bg-violet-100",  text: "text-violet-800",  dot: "bg-violet-500",  border: "border-violet-300" },
+  green:  { bg: "bg-emerald-100", text: "text-emerald-800", dot: "bg-emerald-500", border: "border-emerald-300"},
+  red:    { bg: "bg-red-100",     text: "text-red-800",     dot: "bg-red-500",     border: "border-red-300"    },
+  orange: { bg: "bg-orange-100",  text: "text-orange-800",  dot: "bg-orange-500",  border: "border-orange-300" },
+  yellow: { bg: "bg-yellow-100",  text: "text-yellow-800",  dot: "bg-yellow-500",  border: "border-yellow-300" },
+  pink:   { bg: "bg-pink-100",    text: "text-pink-800",    dot: "bg-pink-500",    border: "border-pink-300"   },
+};
+
+function getColor(color?: string | null) {
+  return COLOR_MAP[color ?? "gray"] ?? COLOR_MAP.gray;
+}
+
+const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+const dayNamesShort = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
 
 const stagger = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.03, delayChildren: 0.02 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.02 } },
 };
-
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.35, ease: "easeOut" as const },
-  },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
 };
 
-const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+// ─── Component ─────────────────────────────────────────────────────────────────
 
 export function CalendarPageClient({
   content,
@@ -88,16 +99,9 @@ export function CalendarPageClient({
 }) {
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date(initialMonth));
-
-  // Local state for client filtering — instant reactivity
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(
-    activeClientId,
-  );
-
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(activeClientId);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingContent, setEditingContent] = useState<ContentItem | null>(
-    null,
-  );
+  const [editingContent, setEditingContent] = useState<ContentItem | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [exportStudioOpen, setExportStudioOpen] = useState(false);
@@ -105,24 +109,13 @@ export function CalendarPageClient({
   const [clientMenuOpen, setClientMenuOpen] = useState(false);
 
   const isIsolated = !!selectedClientId;
-
-  // Derive active client name from local state
   const selectedClientName = selectedClientId
     ? clients.find((c) => c.id === selectedClientId)?.name ?? null
     : null;
 
-  // Build URL with current params preserved
-  function buildUrl(overrides: {
-    month?: string;
-    clientId?: string | null;
-  }) {
-    const monthStr =
-      overrides.month ?? format(currentMonth, "yyyy-MM");
-    const clientStr =
-      overrides.clientId !== undefined
-        ? overrides.clientId
-        : selectedClientId;
-
+  function buildUrl(overrides: { month?: string; clientId?: string | null }) {
+    const monthStr = overrides.month ?? format(currentMonth, "yyyy-MM");
+    const clientStr = overrides.clientId !== undefined ? overrides.clientId : selectedClientId;
     const params = new URLSearchParams();
     params.set("month", monthStr);
     if (clientStr) params.set("clientId", clientStr);
@@ -130,20 +123,14 @@ export function CalendarPageClient({
   }
 
   function navigateMonth(direction: "prev" | "next") {
-    const newMonth =
-      direction === "prev"
-        ? subMonths(currentMonth, 1)
-        : addMonths(currentMonth, 1);
+    const newMonth = direction === "prev" ? subMonths(currentMonth, 1) : addMonths(currentMonth, 1);
     setCurrentMonth(newMonth);
     router.push(buildUrl({ month: format(newMonth, "yyyy-MM") }));
-    // Force fresh data fetch to pick up events created on overflow days
     router.refresh();
   }
 
   function handleClientSwitch(clientId: string | null) {
-    // Update local state instantly for immediate UI re-render
     setSelectedClientId(clientId);
-    // Sync URL for bookmarkability (replace, not push — avoids history spam)
     router.replace(buildUrl({ clientId }));
   }
 
@@ -166,74 +153,61 @@ export function CalendarPageClient({
   }
 
   function buildGCalUrl(item: ContentItem) {
-    const fmt = (dt: Date) =>
-      dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+    const fmt = (dt: Date) => dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
     const d = new Date(item.date);
     d.setHours(12, 0, 0, 0);
     const end = new Date(d.getTime() + 3600000);
-    const details = [
-      item.client?.name ? `לקוח: ${item.client.name}` : "",
-      item.contentType,
-      item.notes ?? "",
-    ].filter(Boolean).join(" | ");
+    const details = [item.client?.name ? `לקוח: ${item.client.name}` : "", item.contentType, item.notes ?? ""]
+      .filter(Boolean).join(" | ");
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${fmt(d)}/${fmt(end)}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
   }
 
-  const visibleItems = content.filter(
-    (item) => !selectedClientId || item.clientId === selectedClientId,
-  );
+  const visibleItems = content.filter((item) => !selectedClientId || item.clientId === selectedClientId);
 
-  // Build calendar grid
+  // Calendar grid
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
   const calStart = startOfWeek(monthStart);
   const calEnd = endOfWeek(monthEnd);
-
   const weeks: Date[][] = [];
   let day = calStart;
   while (day <= calEnd) {
     const week: Date[] = [];
-    for (let i = 0; i < 7; i++) {
-      week.push(day);
-      day = addDays(day, 1);
-    }
+    for (let i = 0; i < 7; i++) { week.push(day); day = addDays(day, 1); }
     weeks.push(week);
   }
 
   function getContentForDay(day: Date) {
     return content.filter((item) => {
       if (!isSameDay(new Date(item.date), day)) return false;
-      // Client-side filtering: show only selected client's content
       if (selectedClientId && item.clientId !== selectedClientId) return false;
       return true;
     });
   }
 
-  return (
-    <motion.div
-      variants={stagger}
-      initial="hidden"
-      animate="show"
-      className="space-y-6"
-    >
-      {/* Header row */}
-      <motion.div
-        variants={fadeUp}
-        className="flex items-center justify-between"
-      >
-        <h1 className="text-2xl font-bold text-gray-900">
-          {he.calendar.title}
-        </h1>
+  // Events for current month (for mobile list)
+  const monthEvents = visibleItems
+    .filter((item) => isSameMonth(new Date(item.date), currentMonth))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        <div className="flex items-center gap-2">
-          {/* Client selector dropdown */}
+  return (
+    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5">
+
+      {/* ── Header ── */}
+      <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2 justify-between">
+        <h1 className="text-2xl font-bold text-gray-900">{he.calendar.title}</h1>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Client selector */}
           <div className="relative">
             {clientMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setClientMenuOpen(false)} />}
-            <button onClick={() => setClientMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm">
+            <button
+              onClick={() => setClientMenuOpen((v) => !v)}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
+            >
               {isIsolated
-                ? <><User className="h-3.5 w-3.5 text-gray-500" /><span>{selectedClientName}</span></>
-                : <><Globe className="h-3.5 w-3.5 text-gray-400" /><span>בחר לקוח</span></>
+                ? <><User className="h-3.5 w-3.5 text-gray-500" /><span className="hidden sm:inline">{selectedClientName}</span></>
+                : <><Globe className="h-3.5 w-3.5 text-gray-400" /><span className="hidden sm:inline">בחר לקוח</span></>
               }
               <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
             </button>
@@ -259,14 +233,14 @@ export function CalendarPageClient({
             )}
           </div>
 
-          {/* Add to Google Calendar — popover with individual links */}
+          {/* Google Calendar popover */}
           <div className="relative">
             <button
               onClick={() => setCalendarPopoverOpen((v) => !v)}
               className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
             >
               <CalendarPlus className="h-4 w-4 text-blue-500" />
-              הוסף לגוגל קלנדר
+              <span className="hidden sm:inline">הוסף לגוגל קלנדר</span>
               <ChevronDown className="h-3 w-3 text-gray-400" />
             </button>
             {calendarPopoverOpen && (
@@ -291,9 +265,7 @@ export function CalendarPageClient({
                         >
                           <CalendarPlus className="h-3.5 w-3.5 text-blue-400 shrink-0" />
                           <span className="flex-1 truncate">{item.title}</span>
-                          <span className="text-xs text-gray-400 shrink-0">
-                            {format(new Date(item.date), "d/M")}
-                          </span>
+                          <span className="text-xs text-gray-400 shrink-0">{format(new Date(item.date), "d/M")}</span>
                         </a>
                       ))}
                     </div>
@@ -303,13 +275,13 @@ export function CalendarPageClient({
             )}
           </div>
 
-          {/* Export as image/PDF */}
+          {/* Export */}
           <button
             onClick={() => setExportStudioOpen(true)}
             className="flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-3 py-2 text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm"
           >
             <Download className="h-4 w-4" />
-            ייצוא כקובץ
+            <span className="hidden sm:inline">ייצוא</span>
           </button>
 
           <Button
@@ -317,155 +289,146 @@ export function CalendarPageClient({
             onClick={handleCreateNew}
             className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
           >
-            <Plus className="h-4 w-4 me-2" />
-            {he.calendar.newContent}
+            <Plus className="h-4 w-4 me-1 sm:me-2" />
+            <span className="hidden sm:inline">{he.calendar.newContent}</span>
+            <span className="sm:hidden">חדש</span>
           </Button>
         </div>
       </motion.div>
 
-      {/* Month navigation */}
-      <motion.div
-        variants={fadeUp}
-        className="flex items-center justify-center gap-4"
-      >
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigateMonth("next")}
-          className="hover:bg-gray-50 h-8 w-8"
-        >
+      {/* ── Month navigation ── */}
+      <motion.div variants={fadeUp} className="flex items-center justify-center gap-4">
+        <Button variant="ghost" size="icon" onClick={() => navigateMonth("next")} className="hover:bg-gray-50 h-8 w-8">
           <ChevronRight className="h-4 w-4" />
         </Button>
-        <h2 className="text-lg font-semibold min-w-[180px] text-center">
+        <h2 className="text-lg font-semibold min-w-[160px] text-center">
           {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
         </h2>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigateMonth("prev")}
-          className="hover:bg-gray-50 h-8 w-8"
-        >
+        <Button variant="ghost" size="icon" onClick={() => navigateMonth("prev")} className="hover:bg-gray-50 h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
       </motion.div>
 
-      {/* Calendar grid */}
+      {/* ── Calendar grid — horizontal scroll on mobile ── */}
       <motion.div variants={fadeUp}>
         <Card className="glass-card overflow-hidden">
           <CardContent className="p-0">
-            {/* Day headers */}
-            <div className="grid grid-cols-7 border-b border-gray-100">
-              {dayNames.map((name) => (
-                <div
-                  key={name}
-                  className="py-2 text-center text-xs font-medium text-muted-foreground"
-                >
-                  {name}
-                </div>
-              ))}
-            </div>
-
-            {/* Weeks */}
-            {weeks.map((week, wi) => (
-              <div
-                key={wi}
-                className="grid grid-cols-7 border-b border-gray-100 last:border-0"
-              >
-                {week.map((day, di) => {
-                  const dayContent = getContentForDay(day);
-                  const inMonth = isSameMonth(day, currentMonth);
-                  const today = isToday(day);
-
-                  return (
-                    <div
-                      key={di}
-                      onClick={() => handleDayClick(day)}
-                      className={`min-h-[100px] p-1.5 border-l border-gray-100 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${
-                        !inMonth ? "opacity-30" : ""
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-1">
-                        <span
-                          className={`text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full ${
-                            today
-                              ? "bg-gray-900 text-white"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {format(day, "d")}
-                        </span>
-                      </div>
-                      <div className="space-y-0.5">
-                        {dayContent.map((item) => {
-                          const colors = chipStyle;
-                          return (
-                            <div
-                              key={item.id}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleEditContent(item);
-                              }}
-                              className={`${colors.bg} ${colors.text} text-[10px] leading-tight px-1.5 py-0.5 rounded truncate cursor-pointer hover:brightness-110 transition-all duration-150 group/item relative`}
-                            >
-                              {/* Full-title tooltip on hover */}
-                              <div className="absolute bottom-full right-0 mb-1.5 z-50 pointer-events-none opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
-                                <div className="bg-gray-900 text-white text-[11px] font-medium rounded-lg px-2.5 py-1.5 shadow-xl whitespace-nowrap max-w-[220px] truncate">
-                                  {item.title}
-                                  {item.client && (
-                                    <span className="text-gray-400 mr-1.5">· {item.client.name}</span>
-                                  )}
-                                </div>
-                                {/* Arrow */}
-                                <div className="w-2 h-2 bg-gray-900 rotate-45 absolute -bottom-1 right-3" />
-                              </div>
-
-                              <span className="flex items-center gap-1">
-                                <span
-                                  className={`w-1.5 h-1.5 rounded-full ${colors.dot} flex-shrink-0`}
-                                />
-                                <span className="truncate">{item.title}</span>
-                              </span>
-                              {/* Hover actions: delete + add to Google Calendar */}
-                              <div className="absolute left-0.5 top-0.5 flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setDeleteTarget(item.id);
-                                  }}
-                                >
-                                  <Trash2 className="h-2.5 w-2.5 text-red-500" />
-                                </button>
-                                <button
-                                  title="הוסף ל-Google Calendar"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    const d = new Date(item.date);
-                                    const fmt = (dt: Date) =>
-                                      dt.toISOString().replace(/[-:]/g, "").split(".")[0];
-                                    const start = fmt(d);
-                                    const end = fmt(new Date(d.getTime() + 3600000));
-                                    const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${start}/${end}&details=${encodeURIComponent(item.client?.name ? `לקוח: ${item.client.name}` : "")}&sf=true&output=xml`;
-                                    window.open(url, "_blank", "noopener");
-                                  }}
-                                >
-                                  <CalendarPlus className="h-2.5 w-2.5 text-blue-500" />
-                                </button>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
+            <div className="overflow-x-auto">
+              <div className="min-w-[560px]">
+                {/* Day headers */}
+                <div className="grid grid-cols-7 border-b border-gray-100">
+                  {dayNames.map((name, i) => (
+                    <div key={name} className="py-2 text-center text-xs font-medium text-muted-foreground">
+                      <span className="hidden sm:inline">{name}</span>
+                      <span className="sm:hidden">{dayNamesShort[i]}</span>
                     </div>
-                  );
-                })}
+                  ))}
+                </div>
+
+                {/* Weeks */}
+                {weeks.map((week, wi) => (
+                  <div key={wi} className="grid grid-cols-7 border-b border-gray-100 last:border-0">
+                    {week.map((day, di) => {
+                      const dayContent = getContentForDay(day);
+                      const inMonth = isSameMonth(day, currentMonth);
+                      const today = isToday(day);
+
+                      return (
+                        <div
+                          key={di}
+                          onClick={() => handleDayClick(day)}
+                          className={`min-h-[80px] sm:min-h-[100px] p-1 sm:p-1.5 border-l border-gray-100 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${!inMonth ? "opacity-30" : ""}`}
+                        >
+                          {/* Day number */}
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-xs font-medium w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full ${today ? "bg-gray-900 text-white" : "text-muted-foreground"}`}>
+                              {format(day, "d")}
+                            </span>
+                          </div>
+
+                          {/* Events */}
+                          <div className="flex flex-col gap-0.5">
+                            {dayContent.map((item) => {
+                              const c = getColor(item.color);
+                              return (
+                                <div
+                                  key={item.id}
+                                  onClick={(e) => { e.stopPropagation(); handleEditContent(item); }}
+                                  className={`${c.bg} ${c.text} text-[10px] sm:text-[11px] leading-tight px-1 sm:px-1.5 py-0.5 sm:py-1 rounded border ${c.border} cursor-pointer hover:brightness-95 transition-all duration-150 group/item relative`}
+                                >
+                                  {/* Tooltip */}
+                                  <div className="absolute bottom-full right-0 mb-1.5 z-50 pointer-events-none opacity-0 group-hover/item:opacity-100 transition-opacity duration-150">
+                                    <div className="bg-gray-900 text-white text-[11px] font-medium rounded-lg px-2.5 py-1.5 shadow-xl whitespace-nowrap max-w-[220px]">
+                                      {item.title}
+                                      {item.client && <span className="text-gray-400 mr-1.5">· {item.client.name}</span>}
+                                    </div>
+                                    <div className="w-2 h-2 bg-gray-900 rotate-45 absolute -bottom-1 right-3" />
+                                  </div>
+
+                                  <span className="flex items-center gap-0.5 sm:gap-1">
+                                    <span className={`w-1.5 h-1.5 rounded-full ${c.dot} flex-shrink-0`} />
+                                    <span className="truncate">{item.title}</span>
+                                  </span>
+
+                                  {/* Hover delete */}
+                                  <div className="absolute left-0.5 top-0.5 flex items-center gap-0.5 opacity-0 group-hover/item:opacity-100 transition-opacity">
+                                    <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(item.id); }}>
+                                      <Trash2 className="h-2.5 w-2.5 text-red-500" />
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </CardContent>
         </Card>
       </motion.div>
 
+      {/* ── Mobile events list ── */}
+      {monthEvents.length > 0 && (
+        <motion.div variants={fadeUp} className="sm:hidden">
+          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+            אירועים — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
+          </h3>
+          <div className="flex flex-col gap-2">
+            {monthEvents.map((item) => {
+              const c = getColor(item.color);
+              return (
+                <div
+                  key={item.id}
+                  onClick={() => handleEditContent(item)}
+                  className={`flex items-start gap-3 rounded-xl border ${c.border} ${c.bg} px-4 py-3 cursor-pointer hover:brightness-95 transition-all`}
+                >
+                  <span className={`mt-1 h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold text-sm ${c.text}`}>{item.title}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {format(new Date(item.date), "EEEE, d MMMM", { locale: heLocale })}
+                      {item.client && ` · ${item.client.name}`}
+                    </p>
+                    {item.notes && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.notes}</p>}
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(item.id); }}
+                    className="shrink-0 mt-0.5"
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </motion.div>
+      )}
 
-      {/* Dialogs — auto-set clientId when in isolated mode */}
+      {/* ── Dialogs ── */}
       <ContentDialog
         content={editingContent}
         defaultDate={selectedDate}
@@ -488,9 +451,7 @@ export function CalendarPageClient({
         <DeleteContentDialog
           contentId={deleteTarget}
           open={!!deleteTarget}
-          onOpenChange={(open) => {
-            if (!open) setDeleteTarget(null);
-          }}
+          onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
         />
       )}
     </motion.div>

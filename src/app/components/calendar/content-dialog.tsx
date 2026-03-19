@@ -26,7 +26,22 @@ import {
   updateScheduledContent,
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Check } from "lucide-react";
+
+// ─── Color options ────────────────────────────────────────────────────────────
+
+export const EVENT_COLORS = [
+  { key: "gray",   label: "אפור",    bg: "bg-gray-400"    },
+  { key: "blue",   label: "כחול",    bg: "bg-blue-500"    },
+  { key: "violet", label: "סגול",    bg: "bg-violet-500"  },
+  { key: "green",  label: "ירוק",    bg: "bg-emerald-500" },
+  { key: "red",    label: "אדום",    bg: "bg-red-500"     },
+  { key: "orange", label: "כתום",    bg: "bg-orange-400"  },
+  { key: "yellow", label: "צהוב",    bg: "bg-yellow-400"  },
+  { key: "pink",   label: "ורוד",    bg: "bg-pink-500"    },
+];
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ContentDialogProps {
   content?: {
@@ -38,6 +53,7 @@ interface ContentDialogProps {
     clientId: string | null;
     projectId: string | null;
     notes: string | null;
+    color?: string | null;
   } | null;
   defaultDate?: string;
   defaultClientId?: string | null;
@@ -55,6 +71,8 @@ function formatDateForInput(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+// ─── Dialog ───────────────────────────────────────────────────────────────────
+
 export function ContentDialog({
   content,
   defaultDate,
@@ -70,6 +88,7 @@ export function ContentDialog({
 
   const [clientId, setClientId]           = useState(content?.clientId ?? defaultClientId ?? "");
   const [projectId, setProjectId]         = useState(content?.projectId ?? "");
+  const [selectedColor, setSelectedColor] = useState(content?.color ?? "gray");
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients]   = useState(clients);
@@ -78,6 +97,7 @@ export function ContentDialog({
     if (open) {
       setClientId(content?.clientId ?? defaultClientId ?? "");
       setProjectId(content?.projectId ?? "");
+      setSelectedColor(content?.color ?? "gray");
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
@@ -92,7 +112,6 @@ export function ContentDialog({
     startTransition(async () => {
       let resolvedClientId = clientId;
 
-      // Create new client inline if needed
       if (newClientMode && newClientName.trim()) {
         const res = await createClientQuick(newClientName.trim());
         if (!res.success) return;
@@ -105,6 +124,7 @@ export function ContentDialog({
 
       formData.set("clientId",  resolvedClientId);
       formData.set("projectId", projectId);
+      formData.set("color",     selectedColor);
 
       const result = isEditing
         ? await updateScheduledContent(content.id, formData)
@@ -155,6 +175,28 @@ export function ContentDialog({
                     : defaultDate ?? ""
                 }
               />
+            </div>
+
+            {/* צבע */}
+            <div className="col-span-2 space-y-2">
+              <Label>צבע</Label>
+              <div className="flex flex-wrap gap-2">
+                {EVENT_COLORS.map((c) => (
+                  <button
+                    key={c.key}
+                    type="button"
+                    title={c.label}
+                    onClick={() => setSelectedColor(c.key)}
+                    className={`relative h-7 w-7 rounded-full transition-transform hover:scale-110 ${c.bg} ${
+                      selectedColor === c.key ? "ring-2 ring-offset-2 ring-gray-700 scale-110" : ""
+                    }`}
+                  >
+                    {selectedColor === c.key && (
+                      <Check className="h-3.5 w-3.5 text-white absolute inset-0 m-auto" />
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* לקוח */}

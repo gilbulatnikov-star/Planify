@@ -17,6 +17,7 @@ export async function createScheduledContent(formData: FormData) {
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
+    const color = (formData.get("color") as string) || "gray";
 
     const session = await auth();
     const userId = session?.user?.id;
@@ -30,6 +31,7 @@ export async function createScheduledContent(formData: FormData) {
         clientId: clientId || undefined,
         projectId: projectId || undefined,
         notes,
+        color,
         userId: userId ?? undefined,
       },
     });
@@ -58,6 +60,7 @@ export async function updateScheduledContent(id: string, formData: FormData) {
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
+    const color = (formData.get("color") as string) || "gray";
 
     await prisma.scheduledContent.update({
       where: { id },
@@ -69,6 +72,7 @@ export async function updateScheduledContent(id: string, formData: FormData) {
         clientId: clientId || null,
         projectId: projectId || null,
         notes,
+        color,
       },
     });
 
