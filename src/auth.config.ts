@@ -4,6 +4,7 @@ import type { NextAuthConfig } from "next-auth";
 export const authConfig = {
   pages: { signIn: "/sign-in" },
   session: { strategy: "jwt" as const },
+  trustHost: true,
   providers: [],
   callbacks: {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
