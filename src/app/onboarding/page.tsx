@@ -152,9 +152,16 @@ export default function OnboardingPage() {
           router.push("/");
           router.refresh();
         }, 1500);
+      } else {
+        // API failed — skip onboarding and go home anyway
+        await update({ onboardingCompleted: true });
+        router.push("/");
+        router.refresh();
       }
     } catch {
-      setSaving(false);
+      // Network error — go home anyway
+      router.push("/");
+      router.refresh();
     }
   }
 
