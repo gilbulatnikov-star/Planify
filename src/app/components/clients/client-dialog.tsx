@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -42,11 +42,17 @@ interface ClientDialogProps {
 export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: ClientDialogProps) {
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
+  const [isActive, setIsActive] = useState(client?.isActive ?? true);
+
+  useEffect(() => {
+    if (open) setIsActive(client?.isActive ?? true);
+  }, [open, client]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
+    formData.set("isActive", String(isActive));
 
     startTransition(async () => {
       const result = isEditing
@@ -97,6 +103,26 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
               <Input id="company" name="company" defaultValue={client?.company ?? ""} />
             </div>
           </div>
+
+          {/* Active toggle */}
+          <label className="flex items-center gap-3 cursor-pointer select-none">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={isActive}
+              onClick={() => setIsActive(!isActive)}
+              className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+                isActive ? "bg-[#38b6ff]" : "bg-gray-300"
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+                  isActive ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </button>
+            <span className="text-sm font-medium text-gray-700">לקוח פעיל</span>
+          </label>
 
           {/* Social and web links */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
