@@ -148,8 +148,8 @@ export function AppSidebar() {
                             isActive={isSubActive}
                             className={`!text-right transition-all duration-200 ${
                               isSubActive
-                                ? "bg-gray-100 text-gray-900 font-medium"
-                                : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
+                                ? "bg-[#38b6ff]/10 text-[#0a0a0a] font-medium"
+                                : "text-gray-500 hover:bg-[#38b6ff]/5 hover:text-[#0a0a0a]"
                             }`}
                           >
                             <sub.icon className="h-3.5 w-3.5 shrink-0" />
@@ -186,7 +186,7 @@ export function AppSidebar() {
           tooltip={user?.name ?? "פרופיל"}
           className={`${pathname.startsWith("/settings") ? btnActive : btnIdle} gap-2`}
         >
-          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-700 text-white text-[10px] font-bold">
+          <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#0a0a0a] text-white text-[10px] font-bold">
             {initials}
           </div>
           <span className="truncate text-sm group-data-[collapsible=icon]:hidden">

@@ -89,8 +89,8 @@ export default async function DashboardPage() {
           <Card className="glass-card transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <div className="rounded-lg bg-gray-100 p-1.5">
-                  <Camera className="h-4 w-4 text-gray-500" />
+                <div className="rounded-lg bg-[#38b6ff]/10 p-1.5">
+                  <Camera className="h-4 w-4 text-[#38b6ff]" />
                 </div>
                 {he.dashboard.upcomingShoots}
               </CardTitle>
@@ -128,8 +128,8 @@ export default async function DashboardPage() {
           <Card className="glass-card transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
-                <div className="rounded-lg bg-gray-100 p-1.5">
-                  <Clock className="h-4 w-4 text-gray-500" />
+                <div className="rounded-lg bg-[#38b6ff]/10 p-1.5">
+                  <Clock className="h-4 w-4 text-[#38b6ff]" />
                 </div>
                 {he.dashboard.pendingDeadlines}
               </CardTitle>
@@ -168,8 +168,8 @@ export default async function DashboardPage() {
         <Card className="glass-card transition-all duration-300">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <div className="rounded-lg bg-gray-100 p-1.5">
-                <CalendarDays className="h-4 w-4 text-gray-500" />
+              <div className="rounded-lg bg-[#38b6ff]/10 p-1.5">
+                <CalendarDays className="h-4 w-4 text-[#38b6ff]" />
               </div>
               {he.calendar.upcomingContent}
             </CardTitle>

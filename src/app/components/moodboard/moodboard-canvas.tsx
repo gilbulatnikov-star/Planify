@@ -969,13 +969,14 @@ function CommittedDrawCard({ node, onChange, selected }: { node: BoardNode; onCh
 
 function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDelete }: {
   node: BoardNode; zoom: number; selected: boolean;
-  onSelect: () => void; onMove: (x: number, y: number) => void;
+  onSelect: (addToSelection: boolean) => void; onMove: (x: number, y: number) => void;
   onChange: (d: Record<string, string>) => void; onDelete: () => void;
 }) {
   const dragStart = useRef<{ mx: number; my: number; nx: number; ny: number } | null>(null);
 
   function onMouseDown(e: React.MouseEvent) {
-    onSelect();
+    const addToSelection = e.ctrlKey || e.metaKey;
+    onSelect(addToSelection);
     const t = e.target as HTMLElement;
     // Don't start drag when clicking on form elements, buttons, or links
     if (
@@ -1049,12 +1050,8 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
   const planLimitRef = useRef(planLimit);
   planLimitRef.current = planLimit;
 
-  // Returns true if adding more nodes is blocked by the plan limit
-  function isAtNodeLimit() {
-    if (planLimitRef.current === -1) return false;
-    const realNodes = nodesRef.current.filter(n => n.data._drawLayer !== "true");
-    return realNodes.length >= planLimitRef.current;
-  }
+  // No element limit on moodboard
+  function isAtNodeLimit() { return false; }
   const [title, setTitle]       = useState(initialTitle);
   const [editingTitle, setET]   = useState(false);
   const [selectedId, setSelId]  = useState<string | null>(null);
@@ -1528,7 +1525,29 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
               <div key={node.id} style={{ position: "absolute", left: node.x, top: node.y, pointerEvents: drawMode ? "none" : "auto" }}>
                 <DraggableNode node={node} zoom={zoom}
                   selected={selectedId === node.id || multiSel.has(node.id)}
-                  onSelect={() => { setSelId(node.id); setMultiSel(new Set()); }}
+                  onSelect={(addToSelection) => {
+                    if (addToSelection) {
+                      // Ctrl/Cmd: toggle this node in multi-selection
+                      setMultiSel(prev => {
+                        const next = new Set(prev);
+                        if (next.has(node.id)) next.delete(node.id);
+                        else next.add(node.id);
+                        return next;
+                      });
+                      setSelId(null);
+                    } else {
+                      // Regular click: select only this node and bring to front
+                      setSelId(node.id);
+                      setMultiSel(new Set());
+                      setNodes(prev => {
+                        const idx = prev.findIndex(n => n.id === node.id);
+                        if (idx === -1 || idx === prev.length - 1) return prev;
+                        const next = [...prev];
+                        next.push(next.splice(idx, 1)[0]);
+                        return next;
+                      });
+                    }
+                  }}
                   onMove={(x, y) => setNodes(prev => prev.map(n => n.id === node.id ? { ...n, x, y } : n))}
                   onChange={data => setNodes(prev => prev.map(n => n.id === node.id ? { ...n, data } : n))}
                   onDelete={() => { setHistory(h => [...h, nodes]); setNodes(prev => prev.filter(n => n.id !== node.id)); setSelId(null); }}

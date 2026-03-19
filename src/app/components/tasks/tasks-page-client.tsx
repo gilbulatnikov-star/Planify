@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CheckSquare, Trash2, Plus, ListTodo } from "lucide-react";
+import { CheckSquare, Trash2, Plus, ListTodo, Lock, Crown, Sparkles } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
@@ -28,9 +28,10 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
   const [isPending, startTransition] = useTransition();
   const [newTask, setNewTask] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "done">("all");
-
-  const atLimit = todosLimit !== -1 && initialTodos.length >= todosLimit;
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  const isFree = todosLimit !== -1;
+  const atLimit = isFree && initialTodos.length >= todosLimit;
 
   const sortedTodos = [...initialTodos].sort((a, b) => {
     if (a.completed === b.completed) return 0;
@@ -83,10 +84,11 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
         feature="משימות יומיות"
         limit={todosLimit}
       />
+
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gray-900 text-white shadow-sm">
-          <ListTodo className="h-5 w-5" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#38b6ff]/10">
+          <ListTodo className="h-5 w-5 text-[#38b6ff]" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">משימות</h1>
@@ -102,18 +104,21 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={atLimit ? `הגעת למגבלת ${todosLimit} משימות` : "הוסף משימה חדשה..."}
-          disabled={isPending || atLimit}
-          className="flex-1"
+          onClick={() => { if (atLimit) setUpgradeOpen(true); }}
+          placeholder={atLimit ? `הגעת למגבלת ${todosLimit} משימות — לחץ לשדרוג` : "הוסף משימה חדשה..."}
+          disabled={isPending}
+          readOnly={atLimit}
+          className={`flex-1 ${atLimit ? "cursor-pointer text-gray-400 bg-gray-50" : ""}`}
         />
         <Button
-          onClick={handleAdd}
+          onClick={atLimit ? () => setUpgradeOpen(true) : handleAdd}
           disabled={isPending || (!atLimit && !newTask.trim())}
           size="icon"
-          variant={atLimit ? "outline" : "default"}
-          className={atLimit ? "border-amber-300 text-amber-600 hover:bg-amber-50" : ""}
+          className={atLimit
+            ? "bg-[#38b6ff] text-white hover:bg-[#38b6ff]/90"
+            : "bg-[#0a0a0a] text-white hover:bg-[#0a0a0a]/80"}
         >
-          {atLimit ? "🔒" : <Plus className="h-4 w-4" />}
+          {atLimit ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
         </Button>
       </div>
 
@@ -147,7 +152,7 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
           filtered.map((todo) => (
             <div
               key={todo.id}
-              className="group flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+              className="group flex items-center gap-3 px-4 py-3 hover:bg-[#38b6ff]/5 transition-colors"
             >
               {/* Checkbox */}
               <button
@@ -155,8 +160,8 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
                 disabled={isPending}
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                   todo.completed
-                    ? "border-emerald-500 bg-emerald-500"
-                    : "border-gray-300 hover:border-gray-400"
+                    ? "border-[#38b6ff] bg-[#38b6ff]"
+                    : "border-gray-300 hover:border-[#38b6ff]/60"
                 }`}
               >
                 {todo.completed && (
@@ -194,11 +199,32 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
         )}
       </div>
 
-      {/* Pro limit indicator */}
-      {todosLimit !== -1 && (
-        <p className="text-center text-xs text-gray-400">
-          {initialTodos.length} / {todosLimit} משימות בתוכנית החינמית
-        </p>
+      {/* Pro upgrade banner for free users */}
+      {isFree && (
+        <div
+          className="rounded-2xl border border-[#38b6ff]/20 bg-gradient-to-l from-[#38b6ff]/5 to-white p-5 flex items-start gap-4 cursor-pointer group"
+          onClick={() => setUpgradeOpen(true)}
+        >
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#38b6ff] shadow-sm">
+            <Crown className="h-5 w-5 text-white" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-gray-900 group-hover:text-[#38b6ff] transition-colors">
+              שדרג לפרו — משימות ללא הגבלה
+            </p>
+            <p className="text-xs text-gray-500 mt-0.5">
+              בתוכנית החינמית: {initialTodos.length} / {todosLimit} משימות
+            </p>
+            <div className="flex flex-wrap gap-3 mt-3">
+              {["פרויקטים ולקוחות ללא הגבלה", "חשבוניות והצעות מחיר", "לוח השראה ותסריטים"].map((f) => (
+                <div key={f} className="flex items-center gap-1.5">
+                  <Sparkles className="h-3 w-3 text-[#38b6ff]" />
+                  <span className="text-xs text-gray-500">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
