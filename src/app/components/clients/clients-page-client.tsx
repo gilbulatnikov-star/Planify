@@ -137,12 +137,11 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground">{he.client.name}</TableHead>
                   <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.email}</TableHead>
                   <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.phone}</TableHead>
                   <TableHead className="text-muted-foreground">סטטוס</TableHead>
-                  <TableHead className="hidden sm:table-cell text-muted-foreground">פרויקטים</TableHead>
                   <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
@@ -150,7 +149,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
                 {filtered.map((client) => (
                   <TableRow
                     key={client.id}
-                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50"
+                    className="border-border transition-all duration-200 hover:bg-muted/50"
                   >
                     {/* Name */}
                     <TableCell>
@@ -186,17 +185,12 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
                     {/* Status */}
                     <TableCell>
                       {client.type === "client" ? (
-                        <Badge className={`border-0 text-xs ${client.isActive ? "bg-cyan-50 text-cyan-700" : "bg-gray-100 text-gray-500"}`}>
+                        <Badge className={`border-0 text-xs ${client.isActive ? "bg-cyan-50 text-cyan-700" : "bg-muted text-muted-foreground"}`}>
                           {client.isActive ? "לקוח פעיל" : "לא פעיל"}
                         </Badge>
                       ) : (
                         <LeadStatusPipeline status={client.leadStatus} />
                       )}
-                    </TableCell>
-
-                    {/* Projects count */}
-                    <TableCell className="hidden sm:table-cell">
-                      <span className="text-sm text-muted-foreground">{client.projects.length}</span>
                     </TableCell>
 
                     {/* Actions - always visible */}
@@ -205,7 +199,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                          className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
                           onClick={() => handleEdit(client)}
                         >
                           <Pencil className="h-3.5 w-3.5" />
@@ -224,7 +218,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
                 ))}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
                       {he.common.noResults}
                     </TableCell>
                   </TableRow>
@@ -245,13 +239,13 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.client.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.client.newClient}
@@ -276,14 +270,14 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
 
       <motion.div variants={fadeUp}>
         <Tabs defaultValue="all" dir="rtl">
-          <TabsList className="bg-gray-50 border border-gray-100">
-            <TabsTrigger value="all" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200">
+          <TabsList className="bg-muted border border-border">
+            <TabsTrigger value="all" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
               הכל ({clients.length})
             </TabsTrigger>
-            <TabsTrigger value="clients" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200">
+            <TabsTrigger value="clients" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
               לקוחות ({allClients.length})
             </TabsTrigger>
-            <TabsTrigger value="leads" className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200">
+            <TabsTrigger value="leads" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
               לידים ({allLeads.length})
             </TabsTrigger>
           </TabsList>

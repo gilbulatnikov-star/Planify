@@ -88,7 +88,7 @@ export function ScriptsPageClient({
     />
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">תסריטים</h1>
+        <h1 className="text-2xl font-bold text-foreground">תסריטים</h1>
         <Button onClick={handleCreate} disabled={creating} className="gap-2">
           <Plus className="h-4 w-4" />
           תסריט חדש
@@ -97,10 +97,10 @@ export function ScriptsPageClient({
 
       {scripts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="mb-4 rounded-full bg-gray-100 p-6">
-            <FileText className="h-10 w-10 text-gray-400" />
+          <div className="mb-4 rounded-full bg-muted p-6">
+            <FileText className="h-10 w-10 text-muted-foreground" />
           </div>
-          <h2 className="text-lg font-semibold text-gray-700">
+          <h2 className="text-lg font-semibold text-foreground">
             אין תסריטים עדיין
           </h2>
           <p className="mt-1 text-sm text-gray-400">
@@ -121,14 +121,14 @@ export function ScriptsPageClient({
             <div
               key={script.id}
               onClick={() => router.push(`/scripts/${script.id}`)}
-              className="glass-card cursor-pointer rounded-xl border border-gray-200 bg-white p-5 transition-all hover:shadow-md hover:border-gray-300"
+              className="glass-card cursor-pointer rounded-xl border border-border bg-card p-5 transition-all hover:shadow-md"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   {platformIcons[script.platform] ?? (
                     <FileText className="h-4 w-4 text-gray-400" />
                   )}
-                  <span className="truncate font-semibold text-gray-900">
+                  <span className="truncate font-semibold text-foreground">
                     {script.title}
                   </span>
                 </div>
@@ -141,7 +141,7 @@ export function ScriptsPageClient({
               </div>
 
               <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs text-gray-500">
+                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
                   {platformLabels[script.platform] ?? script.platform}
                 </span>
                 {script.client && (

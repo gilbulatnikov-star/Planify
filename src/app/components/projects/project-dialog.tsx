@@ -58,7 +58,6 @@ const BASE_PROJECT_TYPES = [
 
 const STATUS_OPTIONS = [
   { value: "pre_production",  label: "לפני הצילומים" },
-  { value: "production",      label: "ימי צילום" },
   { value: "post_production", label: "עריכה" },
   { value: "revisions",       label: "תיקונים" },
   { value: "delivered",       label: "הושלם" },

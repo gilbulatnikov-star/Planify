@@ -100,13 +100,13 @@ export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactD
     >
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.contacts.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.contacts.newContact}
@@ -121,13 +121,13 @@ export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactD
             placeholder="חיפוש..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pr-10 bg-white border-gray-200"
+            className="pr-10 bg-background border-border"
           />
         </div>
         <select
           value={activeCategory ?? ""}
           onChange={(e) => setActiveCategory(e.target.value || null)}
-          className="h-9 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-900 w-full sm:w-auto sm:min-w-[160px]"
+          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring w-full sm:w-auto sm:min-w-[160px]"
         >
           <option value="">כל הקטגוריות</option>
           {PRESET_CATEGORIES_LIST.map((cat) => (
@@ -150,7 +150,7 @@ export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactD
                 <div className="flex items-start justify-between mb-3">
                   <div>
                     <h3 className="font-semibold text-lg">{contact.name}</h3>
-                    <Badge className={`${categoryColors[contact.category] ?? "bg-gray-100 text-gray-600"} border-0 mt-1`}>
+                    <Badge className={`${categoryColors[contact.category] ?? "bg-muted text-muted-foreground"} border-0 mt-1`}>
                       {he.contacts.categories[contact.category as keyof typeof he.contacts.categories] ?? contact.category}
                     </Badge>
                   </div>
@@ -158,7 +158,7 @@ export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactD
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                      className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
                       onClick={() => handleEdit(contact)}
                     >
                       <Pencil className="h-3.5 w-3.5" />

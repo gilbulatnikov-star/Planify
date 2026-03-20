@@ -108,11 +108,12 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
           <label className="flex items-center gap-3 cursor-pointer select-none">
             <button
               type="button"
+              dir="ltr"
               role="switch"
               aria-checked={isActive}
               onClick={() => setIsActive(!isActive)}
               className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
-                isActive ? "bg-[#38b6ff]" : "bg-gray-300"
+                isActive ? "bg-[#38b6ff]" : "bg-muted-foreground/30"
               }`}
             >
               <span
@@ -121,7 +122,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
                 }`}
               />
             </button>
-            <span className="text-sm font-medium text-gray-700">לקוח פעיל</span>
+            <span className="text-sm font-medium text-foreground">לקוח פעיל</span>
           </label>
 
           {/* Social and web links */}

@@ -93,13 +93,13 @@ export function ProjectsPageClient({
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.project.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.project.newProject}
@@ -116,7 +116,7 @@ export function ProjectsPageClient({
                   {phase.label}
                 </h2>
               </div>
-              <Badge variant="secondary" className="text-xs bg-gray-100 border-0">
+              <Badge variant="secondary" className="text-xs bg-muted border-0">
                 {phase.projects.length}
               </Badge>
             </div>
@@ -184,7 +184,7 @@ export function ProjectsPageClient({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 hover:bg-gray-100 hover:text-gray-900"
+                            className="h-6 w-6 hover:bg-muted hover:text-foreground"
                             onClick={() => handleEdit(project)}
                           >
                             <Pencil className="h-3 w-3" />
@@ -207,7 +207,7 @@ export function ProjectsPageClient({
 
                       {project.projectType && (
                         <div className="flex items-center gap-2 flex-wrap">
-                          <Badge variant="outline" className="text-xs border-gray-200 text-muted-foreground">
+                          <Badge variant="outline" className="text-xs border-border text-muted-foreground">
                             {he.project.types[
                               project.projectType as keyof typeof he.project.types
                             ] ?? project.projectType}
@@ -236,9 +236,9 @@ export function ProjectsPageClient({
                               {completedTasks}/{totalTasks}
                             </span>
                           </div>
-                          <div className="h-1.5 rounded-full bg-gray-100">
+                          <div className="h-1.5 rounded-full bg-muted">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-gray-700 to-gray-800 transition-all duration-500"
+                              className="h-full rounded-full bg-foreground transition-all duration-500"
                               style={{
                                 width: `${(completedTasks / totalTasks) * 100}%`,
                               }}
@@ -251,7 +251,7 @@ export function ProjectsPageClient({
                 );
               })}
               {phase.projects.length === 0 && (
-                <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center bg-gray-50/30">
+                <div className="rounded-xl border border-dashed border-border p-6 text-center">
                   <p className="text-xs text-muted-foreground">אין פרויקטים</p>
                 </div>
               )}

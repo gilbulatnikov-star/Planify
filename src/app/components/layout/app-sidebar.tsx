@@ -91,10 +91,9 @@ export function AppSidebar() {
           </Link>
           {/* Collapsed Q icon */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">
-            <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-auto">
+            <svg viewBox="0 0 214 185" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-auto">
               <rect x="18" y="18" width="170" height="122" rx="61"
-                fill="none" stroke="currentColor" strokeWidth="28" strokeLinecap="round"
-                strokeDasharray="420 58" strokeDashoffset="243"/>
+                fill="none" stroke="currentColor" strokeWidth="28"/>
               <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
             </svg>
           </Link>
@@ -154,8 +153,8 @@ export function AppSidebar() {
                             isActive={isSubActive}
                             className={`!text-right transition-all duration-200 ${
                               isSubActive
-                                ? "bg-[#38b6ff]/10 text-[#0a0a0a] font-medium"
-                                : "text-gray-500 hover:bg-[#38b6ff]/5 hover:text-[#0a0a0a]"
+                                ? "bg-[#38b6ff]/10 text-foreground font-medium"
+                                : "text-muted-foreground hover:bg-[#38b6ff]/5 hover:text-foreground"
                             }`}
                           >
                             <sub.icon className="h-3.5 w-3.5 shrink-0" />
