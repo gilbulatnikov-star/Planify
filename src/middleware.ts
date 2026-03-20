@@ -1,5 +1,5 @@
 import NextAuth from "next-auth";
-import { authConfig } from "@/auth.config";
+import { authConfig } from "./auth.config";
 import { NextResponse } from "next/server";
 
 // Use the lightweight, Edge-compatible auth config — no Prisma imported here
