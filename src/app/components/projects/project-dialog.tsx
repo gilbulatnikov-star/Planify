@@ -104,19 +104,10 @@ export function ProjectDialog({
   const [customTypes, setCustomTypes] = useState<{ value: string; label: string }[]>(loadCustomTypes);
   const allProjectTypes = [...BASE_PROJECT_TYPES, ...customTypes];
 
-  const resolveInitType = (val: string | null) => {
-    if (!val) return "";
-    if (allProjectTypes.some((t) => t.value === val)) return val;
-    return "other";
-  };
-  const resolveInitCustom = (val: string | null) => {
-    if (!val) return "";
-    if (allProjectTypes.some((t) => t.value === val)) return "";
-    return val;
-  };
-
-  const [projectType, setProjectType] = useState(() => resolveInitType(project?.projectType ?? null));
-  const [customProjectType, setCustomProjectType] = useState(() => resolveInitCustom(project?.projectType ?? null));
+  const [projectType, setProjectType] = useState(() => {
+    const val = project?.projectType ?? null;
+    return val && allProjectTypes.some((t) => t.value === val) ? val : "";
+  });
   const [addingNewType, setAddingNewType] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
 
@@ -133,8 +124,7 @@ export function ProjectDialog({
       setCustomTypes(fresh);
       const all = [...BASE_PROJECT_TYPES, ...fresh];
       const pt = project?.projectType ?? "";
-      setProjectType(!pt || all.some((t) => t.value === pt) ? pt : "other");
-      setCustomProjectType(!pt || all.some((t) => t.value === pt) ? "" : pt);
+      setProjectType(!pt || all.some((t) => t.value === pt) ? pt : "");
       setAddingNewType(false);
       setNewTypeName("");
     }
@@ -171,10 +161,7 @@ export function ProjectDialog({
         setNewClientName("");
       }
 
-      const finalType =
-        projectType === "other"
-          ? customProjectType.trim()
-          : projectType;
+      const finalType = projectType;
 
       formData.set("phase", phase);
       formData.set("status", phase); // keep status in sync with phase
@@ -195,10 +182,7 @@ export function ProjectDialog({
     });
   }
 
-  const typeLabel =
-    projectType === "other"
-      ? customProjectType || "אחר"
-      : allProjectTypes.find((t) => t.value === projectType)?.label ?? "";
+  const typeLabel = allProjectTypes.find((t) => t.value === projectType)?.label ?? "";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -266,7 +250,7 @@ export function ProjectDialog({
             {/* Project Type */}
             <div className="space-y-2">
               <Label>סוג פרויקט</Label>
-              <Select value={projectType} onValueChange={(v) => { setProjectType(v ?? ""); if (v !== "other") setCustomProjectType(""); }}>
+              <Select value={projectType} onValueChange={(v) => setProjectType(v ?? "")}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">{typeLabel || "בחר סוג"}</span>
                 </SelectTrigger>
@@ -274,32 +258,40 @@ export function ProjectDialog({
                   {allProjectTypes.map((type) => (
                     <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
                   ))}
-                  <SelectItem value="other">אחר</SelectItem>
-                  <div className="mx-1 my-1 border-t border-gray-100" />
+                  <div className="mx-1 my-1 border-t border-border" />
                   {addingNewType ? (
-                    <div className="flex gap-1.5 px-1 py-1">
+                    <div
+                      className="flex gap-1.5 px-1 py-1"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Input
                         autoFocus
                         value={newTypeName}
                         onChange={(e) => setNewTypeName(e.target.value)}
                         placeholder="שם הקטגוריה..."
                         className="flex-1 h-7 text-xs"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => {
+                          e.stopPropagation();
                           if (e.key === "Enter") { e.preventDefault(); handleAddCustomType(); }
                           if (e.key === "Escape") setAddingNewType(false);
                         }}
                       />
                       <button
                         type="button"
-                        onClick={handleAddCustomType}
-                        className="flex h-7 w-7 items-center justify-center rounded bg-gray-900 text-white hover:bg-gray-700 transition-colors shrink-0"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); handleAddCustomType(); }}
+                        className="flex h-7 w-7 items-center justify-center rounded bg-foreground text-background hover:bg-foreground/80 transition-colors shrink-0"
                       >
                         <Check className="h-3.5 w-3.5" />
                       </button>
                       <button
                         type="button"
-                        onClick={() => setAddingNewType(false)}
-                        className="flex h-7 w-7 items-center justify-center rounded border border-gray-200 text-gray-400 hover:text-red-500 transition-colors shrink-0"
+                        onPointerDown={(e) => e.stopPropagation()}
+                        onClick={(e) => { e.stopPropagation(); setAddingNewType(false); }}
+                        className="flex h-7 w-7 items-center justify-center rounded border border-border text-muted-foreground hover:text-red-500 transition-colors shrink-0"
                       >
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -307,24 +299,15 @@ export function ProjectDialog({
                   ) : (
                     <button
                       type="button"
-                      onClick={() => setAddingNewType(true)}
-                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      onPointerDown={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); setAddingNewType(true); }}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded transition-colors"
                     >
                       <Plus className="h-3.5 w-3.5" />הוסף קטגוריה
                     </button>
                   )}
                 </SelectContent>
               </Select>
-              {/* Custom "אחר" text input */}
-              {projectType === "other" && (
-                <Input
-                  autoFocus
-                  value={customProjectType}
-                  onChange={(e) => setCustomProjectType(e.target.value)}
-                  placeholder="ציין סוג פרויקט..."
-                  className="h-9 text-sm mt-1"
-                />
-              )}
             </div>
 
             {/* Status (was Phase) */}
