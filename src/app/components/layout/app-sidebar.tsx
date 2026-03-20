@@ -18,7 +18,10 @@ import {
   Crown,
   ListTodo,
   LogOut,
+  Moon,
+  Sun,
 } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -65,6 +68,7 @@ export function AppSidebar() {
   const { data: session } = useSession();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const { theme, setTheme } = useTheme();
 
   const isFinancialsActive =
     pathname.startsWith("/financials") || pathname.startsWith("/subscriptions");
@@ -79,24 +83,37 @@ export function AppSidebar() {
   return (
     <Sidebar side="right" collapsible="icon" dir="rtl">
       {/* ── Logo header ── */}
-      <SidebarHeader className="border-b border-border px-4 py-3">
-        <Link href="/" className="flex w-full items-center justify-center group">
-          {/* Collapsed: Q icon only */}
-          <div className="relative hidden group-data-[collapsible=icon]:flex items-center justify-center transition-all duration-300 group-hover:scale-105">
+      <SidebarHeader className="border-b border-border px-3 py-3">
+        <div className="flex w-full items-center justify-between gap-2">
+          {/* Logo */}
+          <Link href="/" className="flex items-center group group-data-[collapsible=icon]:hidden">
+            <img
+              src="/qlipy-logo.png"
+              alt="Qlipy"
+              className="h-6 w-auto"
+            />
+          </Link>
+          {/* Collapsed Q icon */}
+          <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">
             <svg viewBox="0 0 214 172" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-auto">
               <rect x="18" y="18" width="170" height="122" rx="61"
-                fill="none" stroke="#0a0a0a" strokeWidth="28" strokeLinecap="round"
+                fill="none" stroke="currentColor" strokeWidth="28" strokeLinecap="round"
                 strokeDasharray="420 58" strokeDashoffset="243"/>
               <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
             </svg>
-          </div>
-          {/* Expanded: full logo centered */}
-          <img
-            src="/qlipy-logo.png"
-            alt="Qlipy"
-            className="h-6 w-auto group-data-[collapsible=icon]:hidden transition-all duration-300 group-hover:scale-105"
-          />
-        </Link>
+          </Link>
+          {/* Theme toggle */}
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/10 hover:text-foreground transition-colors"
+            title={theme === "dark" ? "מצב יום" : "מצב לילה"}
+          >
+            {theme === "dark"
+              ? <Sun className="h-4 w-4" />
+              : <Moon className="h-4 w-4" />
+            }
+          </button>
+        </div>
       </SidebarHeader>
 
       {/* ── Main nav ── */}
@@ -133,12 +150,12 @@ export function AppSidebar() {
                   className={isFinancialsActive ? btnActive : btnIdle}
                 >
                   <FileBarChart2 className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{he.nav.financials}</span>
                   <ChevronDown
-                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
+                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${
                       financialsOpen ? "rotate-180" : ""
                     }`}
                   />
-                  <span className="truncate">{he.nav.financials}</span>
                 </SidebarMenuButton>
 
                 {financialsOpen && (

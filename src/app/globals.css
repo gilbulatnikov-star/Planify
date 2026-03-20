@@ -86,6 +86,41 @@
   --sidebar-ring: oklch(0.73 0.15 220);
 }
 
+.dark {
+  /* Qlipy dark theme — #0a0a0a base + #38b6ff blue */
+  --background: #0d0d0d;
+  --foreground: #f0f0f0;
+  --card: #141414;
+  --card-foreground: #f0f0f0;
+  --popover: #1a1a1a;
+  --popover-foreground: #f0f0f0;
+  --primary: #38b6ff;
+  --primary-foreground: #0a0a0a;
+  --secondary: #1c1c1c;
+  --secondary-foreground: #d0d0d0;
+  --muted: #1a1a1a;
+  --muted-foreground: #7a7a7a;
+  --accent: #38b6ff;
+  --accent-foreground: #0a0a0a;
+  --destructive: oklch(0.60 0.22 25);
+  --border: #2a2a2a;
+  --input: #1e1e1e;
+  --ring: #38b6ff;
+  --chart-1: #38b6ff;
+  --chart-2: oklch(0.5 0.15 170);
+  --chart-3: oklch(0.6 0.2 25);
+  --chart-4: oklch(0.55 0.18 300);
+  --chart-5: oklch(0.5 0.12 145);
+  --sidebar: #0a0a0a;
+  --sidebar-foreground: #d0d0d0;
+  --sidebar-primary: #38b6ff;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #f0f0f0;
+  --sidebar-border: #222222;
+  --sidebar-ring: #38b6ff;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -127,4 +162,15 @@
 .glass-card:hover {
   box-shadow: 0 4px 16px oklch(0 0 0 / 7%), 0 1px 3px oklch(0 0 0 / 4%);
   border-color: oklch(0 0 0 / 8%);
+}
+
+.dark .glass-card {
+  background: #141414;
+  border-color: #2a2a2a;
+  box-shadow: 0 1px 3px oklch(0 0 0 / 20%);
+}
+
+.dark .glass-card:hover {
+  box-shadow: 0 4px 16px oklch(0 0 0 / 30%);
+  border-color: oklch(0.28 0.005 220);
 }

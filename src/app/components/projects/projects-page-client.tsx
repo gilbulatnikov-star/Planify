@@ -31,7 +31,6 @@ type ClientOption = { id: string; name: string };
 
 const phases = [
   { key: "pre_production",  label: he.project.phases.pre_production,  color: "from-violet-500 to-purple-600" },
-  { key: "production",      label: he.project.phases.production,      color: "from-gray-800 to-gray-900" },
   { key: "post_production", label: he.project.phases.post_production, color: "from-amber-500 to-orange-500" },
   { key: "revisions",       label: "תיקונים",                         color: "from-blue-500 to-cyan-500" },
   { key: "delivered",       label: he.project.phases.delivered,       color: "from-emerald-500 to-green-500" },
