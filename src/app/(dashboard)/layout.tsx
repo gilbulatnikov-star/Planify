@@ -14,7 +14,7 @@ export default function DashboardLayout({
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="flex h-14 items-center justify-between gap-2 border-b border-border px-6 bg-white/80 backdrop-blur-sm">
+        <header className="flex h-14 items-center justify-between gap-2 border-b border-border px-6 bg-background/80 backdrop-blur-sm">
           <SidebarTrigger className="-me-2 text-muted-foreground hover:text-foreground transition-colors duration-200" />
           <UserMenu />
         </header>

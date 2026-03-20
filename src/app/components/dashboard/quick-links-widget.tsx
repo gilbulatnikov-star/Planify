@@ -104,12 +104,12 @@ export function QuickLinksWidget({ initialLinks }: QuickLinksWidgetProps) {
         <div className="flex items-center gap-2">
           <button
             onClick={() => setShowForm(!showForm)}
-            className="rounded-md p-1 text-muted-foreground transition-colors hover:text-gray-900 hover:bg-gray-100"
+            className="rounded-md p-1 text-muted-foreground transition-colors hover:text-foreground hover:bg-gray-100"
           >
             <Plus className="h-4 w-4" />
           </button>
           <div className="rounded-lg bg-gray-100 p-1.5">
-            <Link2 className="h-4 w-4 text-gray-900" />
+            <Link2 className="h-4 w-4 text-foreground" />
           </div>
         </div>
       </CardHeader>
@@ -170,7 +170,7 @@ export function QuickLinksWidget({ initialLinks }: QuickLinksWidgetProps) {
                 rel="noopener noreferrer"
                 className="group/link relative flex items-center gap-2 rounded-lg border border-gray-100 bg-gray-50/50 px-3 py-2.5 text-sm transition-all hover:border-gray-300 hover:bg-gray-50"
               >
-                <Icon className="h-4 w-4 shrink-0 text-gray-900" />
+                <Icon className="h-4 w-4 shrink-0 text-foreground" />
                 <span className="truncate text-foreground">{link.name}</span>
                 <button
                   onClick={(e) => {

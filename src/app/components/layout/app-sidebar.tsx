@@ -90,7 +90,7 @@ export function AppSidebar() {
             <img
               src="/qlipy-logo.png"
               alt="Qlipy"
-              className="h-6 w-auto"
+              className="h-6 w-auto dark:invert"
             />
           </Link>
           {/* Collapsed Q icon */}

@@ -45,7 +45,7 @@ export default async function DashboardPage() {
   return (
     <DashboardAnimations>
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.dashboard.title}
         </h1>
 
