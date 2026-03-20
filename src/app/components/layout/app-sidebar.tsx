@@ -18,10 +18,7 @@ import {
   Crown,
   ListTodo,
   LogOut,
-  Moon,
-  Sun,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -60,15 +57,14 @@ const financialsSubItems = [
 
 // Shared className for all menu buttons – overrides the hardcoded text-left
 const btnBase = "!text-right transition-all duration-200";
-const btnActive = `${btnBase} bg-[#0a0a0a] text-white font-medium shadow-sm`;
-const btnIdle   = `${btnBase} text-gray-500 hover:bg-gray-100 hover:text-[#0a0a0a]`;
+const btnActive = `${btnBase} bg-foreground text-background font-medium shadow-sm`;
+const btnIdle   = `${btnBase} text-muted-foreground hover:bg-muted hover:text-foreground`;
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const { theme, setTheme } = useTheme();
 
   const isFinancialsActive =
     pathname.startsWith("/financials") || pathname.startsWith("/subscriptions");
@@ -84,13 +80,13 @@ export function AppSidebar() {
     <Sidebar side="right" collapsible="icon" dir="rtl">
       {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-border px-3 py-3">
-        <div className="flex w-full items-center justify-between gap-2">
+        <div className="flex w-full items-center gap-2">
           {/* Logo */}
-          <Link href="/" className="flex items-center group group-data-[collapsible=icon]:hidden">
+          <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden">
             <img
               src="/qlipy-logo.png"
               alt="Qlipy"
-              className="h-6 w-auto dark:invert"
+              className="h-6 w-auto dark:[filter:invert(1)_hue-rotate(180deg)]"
             />
           </Link>
           {/* Collapsed Q icon */}
@@ -102,17 +98,6 @@ export function AppSidebar() {
               <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
             </svg>
           </Link>
-          {/* Theme toggle */}
-          <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent/10 hover:text-foreground transition-colors"
-            title={theme === "dark" ? "מצב יום" : "מצב לילה"}
-          >
-            {theme === "dark"
-              ? <Sun className="h-4 w-4" />
-              : <Moon className="h-4 w-4" />
-            }
-          </button>
         </div>
       </SidebarHeader>
 

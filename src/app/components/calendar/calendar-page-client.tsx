@@ -194,7 +194,7 @@ export function CalendarPageClient({
 
       {/* ── Header ── */}
       <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2 justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">{he.calendar.title}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{he.calendar.title}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Client selector */}
@@ -202,30 +202,30 @@ export function CalendarPageClient({
             {clientMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setClientMenuOpen(false)} />}
             <button
               onClick={() => setClientMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
             >
               {isIsolated
-                ? <><User className="h-3.5 w-3.5 text-gray-500" /><span className="hidden sm:inline">{selectedClientName}</span></>
-                : <><Globe className="h-3.5 w-3.5 text-gray-400" /><span className="hidden sm:inline">בחר לקוח</span></>
+                ? <><User className="h-3.5 w-3.5 text-muted-foreground" /><span className="hidden sm:inline">{selectedClientName}</span></>
+                : <><Globe className="h-3.5 w-3.5 text-muted-foreground" /><span className="hidden sm:inline">בחר לקוח</span></>
               }
-              <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
+              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {clientMenuOpen && (
-              <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-gray-200 bg-white py-1.5 shadow-xl">
+              <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-border bg-popover py-1.5 shadow-xl">
                 <button
                   onClick={() => { handleClientSwitch(null); setClientMenuOpen(false); }}
-                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${!isIsolated ? "font-semibold text-gray-900" : "text-gray-600"}`}
+                  className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${!isIsolated ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                 >
-                  <Globe className="h-3.5 w-3.5 text-gray-400" />כל הלקוחות
+                  <Globe className="h-3.5 w-3.5 text-muted-foreground" />כל הלקוחות
                 </button>
-                {clients.length > 0 && <div className="mx-3 my-1 border-t border-gray-100" />}
+                {clients.length > 0 && <div className="mx-3 my-1 border-t border-border" />}
                 {clients.map((client) => (
                   <button
                     key={client.id}
                     onClick={() => { handleClientSwitch(client.id); setClientMenuOpen(false); }}
-                    className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 ${selectedClientId === client.id ? "font-semibold text-gray-900" : "text-gray-600"}`}
+                    className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${selectedClientId === client.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                   >
-                    <User className="h-3.5 w-3.5 text-gray-400" />{client.name}
+                    <User className="h-3.5 w-3.5 text-muted-foreground" />{client.name}
                   </button>
                 ))}
               </div>
@@ -236,21 +236,21 @@ export function CalendarPageClient({
           <div className="relative">
             <button
               onClick={() => setCalendarPopoverOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
             >
               <CalendarPlus className="h-4 w-4 text-blue-500" />
               <span className="hidden sm:inline">הוסף לגוגל קלנדר</span>
-              <ChevronDown className="h-3 w-3 text-gray-400" />
+              <ChevronDown className="h-3 w-3 text-muted-foreground" />
             </button>
             {calendarPopoverOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setCalendarPopoverOpen(false)} />
-                <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-gray-200 bg-white shadow-lg overflow-hidden">
-                  <div className="px-3 py-2 border-b border-gray-100">
-                    <p className="text-xs font-semibold text-gray-500">בחר אירוע להוספה לגוגל קלנדר</p>
+                <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-border bg-popover shadow-lg overflow-hidden">
+                  <div className="px-3 py-2 border-b border-border">
+                    <p className="text-xs font-semibold text-muted-foreground">בחר אירוע להוספה לגוגל קלנדר</p>
                   </div>
                   {visibleItems.length === 0 ? (
-                    <p className="px-3 py-3 text-xs text-gray-400">אין אירועים בתצוגה הנוכחית</p>
+                    <p className="px-3 py-3 text-xs text-muted-foreground">אין אירועים בתצוגה הנוכחית</p>
                   ) : (
                     <div className="max-h-64 overflow-y-auto py-1">
                       {visibleItems.map((item) => (
@@ -260,7 +260,7 @@ export function CalendarPageClient({
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => setCalendarPopoverOpen(false)}
-                          className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                          className="flex items-center gap-2 px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors"
                         >
                           <CalendarPlus className="h-3.5 w-3.5 text-blue-400 shrink-0" />
                           <span className="flex-1 truncate">{item.title}</span>
@@ -297,13 +297,13 @@ export function CalendarPageClient({
 
       {/* ── Month navigation ── */}
       <motion.div variants={fadeUp} className="flex items-center justify-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigateMonth("next")} className="hover:bg-gray-50 h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigateMonth("next")} className="hover:bg-muted h-8 w-8">
           <ChevronRight className="h-4 w-4" />
         </Button>
         <h2 className="text-lg font-semibold min-w-[160px] text-center">
           {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
         </h2>
-        <Button variant="ghost" size="icon" onClick={() => navigateMonth("prev")} className="hover:bg-gray-50 h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigateMonth("prev")} className="hover:bg-muted h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
       </motion.div>
@@ -315,7 +315,7 @@ export function CalendarPageClient({
             <div className="overflow-x-auto">
               <div className="min-w-[700px]">
                 {/* Day headers */}
-                <div className="grid grid-cols-7 border-b border-gray-100">
+                <div className="grid grid-cols-7 border-b border-border">
                   {dayNames.map((name) => (
                     <div key={name} className="py-2.5 text-center text-xs font-semibold text-gray-500">
                       {name}
@@ -325,7 +325,7 @@ export function CalendarPageClient({
 
                 {/* Weeks */}
                 {weeks.map((week, wi) => (
-                  <div key={wi} className="grid grid-cols-7 border-b border-gray-100 last:border-0">
+                  <div key={wi} className="grid grid-cols-7 border-b border-border last:border-0">
                     {week.map((day, di) => {
                       const dayContent = getContentForDay(day);
                       const inMonth = isSameMonth(day, currentMonth);
@@ -335,11 +335,11 @@ export function CalendarPageClient({
                         <div
                           key={di}
                           onClick={() => handleDayClick(day)}
-                          className={`min-h-[90px] p-1.5 border-l border-gray-100 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-gray-50 ${!inMonth ? "opacity-30" : ""}`}
+                          className={`min-h-[90px] p-1.5 border-l border-border first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${!inMonth ? "opacity-30" : ""}`}
                         >
                           {/* Day number */}
                           <div className="flex items-center justify-between mb-1">
-                            <span className={`text-xs font-medium w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full ${today ? "bg-gray-900 text-white" : "text-muted-foreground"}`}>
+                            <span className={`text-xs font-medium w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center rounded-full ${today ? "bg-foreground text-background" : "text-muted-foreground"}`}>
                               {format(day, "d")}
                             </span>
                           </div>

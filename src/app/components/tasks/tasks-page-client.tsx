@@ -91,7 +91,7 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
           <ListTodo className="h-5 w-5 text-[#38b6ff]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">משימות</h1>
+          <h1 className="text-2xl font-bold text-foreground">משימות</h1>
           <p className="text-sm text-gray-500">
             {activeCount} פעילות · {doneCount} הושלמו
           </p>
@@ -123,15 +123,15 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 rounded-xl bg-gray-100 p-1 w-fit">
+      <div className="flex gap-1 rounded-xl bg-muted p-1 w-fit">
         {(["all", "active", "done"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`rounded-lg px-4 py-1.5 text-sm font-medium transition-all ${
               filter === f
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             {f === "all" ? "הכל" : f === "active" ? "פעילות" : "הושלמו"}
@@ -140,7 +140,7 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
       </div>
 
       {/* Task list */}
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm divide-y divide-gray-50">
+      <div className="rounded-2xl border border-border bg-card shadow-sm divide-y divide-border">
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <CheckSquare className="h-10 w-10 text-gray-200 mb-3" />
@@ -209,7 +209,7 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
             <Crown className="h-5 w-5 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold text-gray-900 group-hover:text-[#38b6ff] transition-colors">
+            <p className="text-sm font-bold text-foreground group-hover:text-[#38b6ff] transition-colors">
               שדרג לפרו — משימות ללא הגבלה
             </p>
             <p className="text-xs text-gray-500 mt-0.5">

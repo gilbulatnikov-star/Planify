@@ -57,15 +57,15 @@ import { he } from "@/lib/he";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 
 const invoiceStatusStyles: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-500 border-0",
+  draft: "bg-muted text-muted-foreground border-0",
   sent: "bg-cyan-50 text-cyan-700 border-0",
   paid: "bg-emerald-50 text-emerald-700 border-0",
   overdue: "bg-red-50 text-red-700 border-0",
-  cancelled: "bg-gray-100 text-gray-500 border-0",
+  cancelled: "bg-muted text-muted-foreground border-0",
 };
 
 const quoteStatusStyles: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-500 border-0",
+  draft: "bg-muted text-muted-foreground border-0",
   sent: "bg-cyan-50 text-cyan-700 border-0",
   accepted: "bg-emerald-50 text-emerald-700 border-0",
   declined: "bg-red-50 text-red-700 border-0",
@@ -332,7 +332,7 @@ export function FinancialsPageClient({
       value: formatCurrency(totalRevenue - totalExpenses),
       icon: Wallet,
       color: "from-gray-700 to-gray-900",
-      textColor: "text-gray-900",
+      textColor: "text-foreground",
     },
   ];
 
@@ -347,7 +347,7 @@ export function FinancialsPageClient({
         variants={fadeUp}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.financial.title}
         </h1>
         <Button
@@ -365,17 +365,17 @@ export function FinancialsPageClient({
         <div className="flex items-center gap-2 justify-center flex-wrap">
 
           {/* Month nav bar */}
-          <div className="relative flex items-center gap-1 bg-white border border-gray-100 rounded-2xl px-3 py-2 shadow-sm" dir="rtl">
+          <div className="relative flex items-center gap-1 bg-background border border-border rounded-2xl px-3 py-2 shadow-sm" dir="rtl">
             {/* RTL: right = older, left = newer */}
             <button
               onClick={goPrev}
-              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
               title="חודש קודם"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
 
-            <div className="text-sm font-bold text-gray-900 min-w-[130px] text-center select-none">
+            <div className="text-sm font-bold text-foreground min-w-[130px] text-center select-none">
               {hasDateFilter ? (
                 <span className="text-violet-700">סינון תאריכים</span>
               ) : (
@@ -385,7 +385,7 @@ export function FinancialsPageClient({
 
             <button
               onClick={goNext}
-              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
               title="חודש הבא"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -395,7 +395,7 @@ export function FinancialsPageClient({
             <div className="w-px h-5 bg-gray-200 mx-1" />
             <button
               onClick={() => { setPickerOpen(v => !v); setPickerYear(selectedYear); }}
-              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-gray-100 transition-colors text-gray-500 hover:text-gray-900"
+              className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
               title="בחר חודש"
             >
               <CalendarDays className="h-4 w-4" />
@@ -405,16 +405,16 @@ export function FinancialsPageClient({
             {pickerOpen && (
               <div
                 ref={pickerRef}
-                className="absolute top-full mt-2 right-0 z-50 bg-white border border-gray-200 rounded-2xl shadow-xl p-4 w-64"
+                className="absolute top-full mt-2 right-0 z-50 bg-popover border border-border rounded-2xl shadow-xl p-4 w-64"
                 dir="rtl"
               >
                 {/* Year nav inside picker */}
                 <div className="flex items-center justify-between mb-3">
-                  <button onClick={() => setPickerYear(y => y - 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-gray-100">
+                  <button onClick={() => setPickerYear(y => y - 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted">
                     <ChevronRight className="h-4 w-4 text-gray-500" />
                   </button>
-                  <span className="text-sm font-bold text-gray-900">{pickerYear}</span>
-                  <button onClick={() => setPickerYear(y => y + 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-gray-100">
+                  <span className="text-sm font-bold text-foreground">{pickerYear}</span>
+                  <button onClick={() => setPickerYear(y => y + 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted">
                     <ChevronLeft className="h-4 w-4 text-gray-500" />
                   </button>
                 </div>
@@ -427,8 +427,8 @@ export function FinancialsPageClient({
                         onClick={() => pickMonth(idx)}
                         className={`rounded-xl py-1.5 text-xs font-medium transition-colors ${
                           isSel
-                            ? "bg-gray-900 text-white"
-                            : "hover:bg-gray-100 text-gray-700"
+                            ? "bg-foreground text-background"
+                            : "hover:bg-muted text-foreground"
                         }`}
                       >
                         {label}
@@ -446,7 +446,7 @@ export function FinancialsPageClient({
             className={`flex items-center gap-2 h-[44px] px-4 rounded-2xl border text-sm font-medium transition-all shadow-sm ${
               hasDateFilter
                 ? "bg-violet-600 text-white border-violet-600"
-                : "bg-white border-gray-100 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
             <SlidersHorizontal className="h-4 w-4" />
@@ -470,31 +470,31 @@ export function FinancialsPageClient({
             className="flex items-center gap-3 justify-center flex-wrap"
             dir="rtl"
           >
-            <div className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
               <label className="text-xs text-gray-500 font-medium whitespace-nowrap">מתאריך</label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={e => setDateFrom(e.target.value)}
-                className="text-sm text-gray-900 bg-transparent border-0 outline-none cursor-pointer"
+                className="text-sm text-foreground bg-transparent border-0 outline-none cursor-pointer"
                 dir="ltr"
               />
             </div>
-            <div className="flex items-center gap-2 bg-white border border-gray-100 rounded-2xl px-4 py-3 shadow-sm">
+            <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
               <label className="text-xs text-gray-500 font-medium whitespace-nowrap">עד תאריך</label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={e => setDateTo(e.target.value)}
                 min={dateFrom}
-                className="text-sm text-gray-900 bg-transparent border-0 outline-none cursor-pointer"
+                className="text-sm text-foreground bg-transparent border-0 outline-none cursor-pointer"
                 dir="ltr"
               />
             </div>
             {hasDateFilter && (
               <button
                 onClick={() => { setDateFrom(""); setDateTo(""); }}
-                className="text-xs text-gray-500 hover:text-gray-900 underline underline-offset-2"
+                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
               >
                 נקה סינון
               </button>
@@ -533,28 +533,28 @@ export function FinancialsPageClient({
 
       <motion.div variants={fadeUp}>
         <Tabs defaultValue="invoices" dir="rtl">
-          <TabsList className="bg-gray-50 border border-gray-100">
+          <TabsList className="bg-muted border border-border">
             <TabsTrigger
               value="invoices"
-              className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
             >
               {he.financial.invoices} ({filteredInvoices.length})
             </TabsTrigger>
             <TabsTrigger
               value="quotes"
-              className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
             >
               {he.financial.quotes} ({filteredQuotes.length})
             </TabsTrigger>
             <TabsTrigger
               value="expenses"
-              className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
             >
               {he.financial.expenses} ({filteredExpenses.length})
             </TabsTrigger>
             <TabsTrigger
               value="subscriptions"
-              className="data-[state=active]:bg-gray-900 data-[state=active]:text-white transition-all duration-200"
+              className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
             >
               הוצאות קבועות ({subscriptions.length})
             </TabsTrigger>
@@ -577,7 +577,7 @@ export function FinancialsPageClient({
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-gray-100 hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">
                         מספר
                       </TableHead>
@@ -605,7 +605,7 @@ export function FinancialsPageClient({
                     {filteredInvoices.map((inv) => (
                       <TableRow
                         key={inv.id}
-                        className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                        className="border-border transition-all duration-200 hover:bg-muted/50 group"
                       >
                         <TableCell className="font-medium font-mono text-sm">
                           {inv.invoiceNumber}
@@ -618,7 +618,7 @@ export function FinancialsPageClient({
                           <Badge
                             className={
                               invoiceStatusStyles[inv.status] ??
-                              "bg-gray-100 text-gray-500 border-0"
+                              "bg-muted text-muted-foreground border-0"
                             }
                           >
                             {he.financial.invoiceStatuses[
@@ -735,7 +735,7 @@ export function FinancialsPageClient({
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-gray-100 hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">
                         מספר
                       </TableHead>
@@ -763,7 +763,7 @@ export function FinancialsPageClient({
                     {filteredQuotes.map((q) => (
                       <TableRow
                         key={q.id}
-                        className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                        className="border-border transition-all duration-200 hover:bg-muted/50 group"
                       >
                         <TableCell className="font-medium font-mono text-sm">
                           {q.quoteNumber}
@@ -776,7 +776,7 @@ export function FinancialsPageClient({
                           <Badge
                             className={
                               quoteStatusStyles[q.status] ??
-                              "bg-gray-100 text-gray-500 border-0"
+                              "bg-muted text-muted-foreground border-0"
                             }
                           >
                             {he.financial.quoteStatuses[
@@ -873,7 +873,7 @@ export function FinancialsPageClient({
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-gray-100 hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">
                         תיאור
                       </TableHead>
@@ -898,7 +898,7 @@ export function FinancialsPageClient({
                     {filteredExpenses.map((exp) => (
                       <TableRow
                         key={exp.id}
-                        className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                        className="border-border transition-all duration-200 hover:bg-muted/50 group"
                       >
                         <TableCell className="font-medium">
                           {exp.description}
@@ -927,7 +927,7 @@ export function FinancialsPageClient({
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                              className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
                               onClick={() => handleEditExpense(exp)}
                             >
                               <Pencil className="h-3.5 w-3.5" />
@@ -970,7 +970,7 @@ export function FinancialsPageClient({
                 <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow className="border-gray-100 hover:bg-transparent">
+                    <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">שם השירות</TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">מחזור</TableHead>
                       <TableHead className="text-muted-foreground">עלות חודשית</TableHead>
@@ -982,7 +982,7 @@ export function FinancialsPageClient({
                     {subscriptions.map((sub) => {
                       const monthlyCost = sub.billingCycle === "yearly" ? sub.amount / 12 : sub.amount;
                       return (
-                        <TableRow key={sub.id} className="border-gray-100 hover:bg-gray-50">
+                        <TableRow key={sub.id} className="border-border hover:bg-muted/50">
                           <TableCell className="font-medium flex items-center gap-2">
                             <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
                             {sub.serviceName}
@@ -1002,7 +1002,7 @@ export function FinancialsPageClient({
                             {formatDate(sub.nextBillingDate)}
                           </TableCell>
                           <TableCell>
-                            <Badge className={sub.status === "active" ? "bg-emerald-50 text-emerald-700 border-0" : "bg-gray-100 text-gray-500 border-0"}>
+                            <Badge className={sub.status === "active" ? "bg-emerald-50 text-emerald-700 border-0" : "bg-muted text-muted-foreground border-0"}>
                               {sub.status === "active" ? "פעיל" : "בוטל"}
                             </Badge>
                           </TableCell>
