@@ -139,7 +139,6 @@ export function ProjectDialog({
     setCustomTypes(updated);
     localStorage.setItem(CUSTOM_TYPES_KEY, JSON.stringify(updated));
     setProjectType(value);
-    setCustomProjectType("");
     setAddingNewType(false);
     setNewTypeName("");
   }

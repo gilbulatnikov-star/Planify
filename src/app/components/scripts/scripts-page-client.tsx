@@ -63,7 +63,7 @@ export function ScriptsPageClient({
     }
     setCreating(true);
     const result = await createScript({});
-    if ("quotaExceeded" in result) {
+    if (!("id" in result)) {
       setUpgradeOpen(true);
       setCreating(false);
       return;
