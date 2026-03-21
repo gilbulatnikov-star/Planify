@@ -81,21 +81,21 @@ export function AppSidebar() {
       {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-border px-3 py-3">
         <div className="flex w-full items-center gap-2">
-          {/* Logo */}
+          {/* Logo — expanded */}
           <Link href="/" className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden select-none">
-            <svg viewBox="0 0 214 185" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-auto shrink-0">
-              <rect x="18" y="18" width="170" height="122" rx="61"
-                fill="none" stroke="currentColor" strokeWidth="28"/>
-              <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0">
+              <rect width="32" height="32" rx="8" fill="#38b6ff"/>
+              <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
+              <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
             </svg>
             <span className="text-base font-bold tracking-tight text-foreground">Planify</span>
           </Link>
-          {/* Collapsed Q icon */}
+          {/* Logo — collapsed */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">
-            <svg viewBox="0 0 214 185" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-auto">
-              <rect x="18" y="18" width="170" height="122" rx="61"
-                fill="none" stroke="currentColor" strokeWidth="28"/>
-              <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7">
+              <rect width="32" height="32" rx="8" fill="#38b6ff"/>
+              <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
+              <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
             </svg>
           </Link>
         </div>

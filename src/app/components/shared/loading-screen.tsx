@@ -2,50 +2,23 @@
 
 export function LoadingScreen() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-background">
       <svg
-        viewBox="0 0 200 175"
-        width="100"
-        height="88"
+        viewBox="0 0 32 32"
+        width="48"
+        height="48"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        style={{ animation: "planify-pulse 1.2s ease-in-out infinite" }}
       >
-        {/* Q ring — chasing arc spinner */}
-        <rect
-          x="10"
-          y="15"
-          width="165"
-          height="110"
-          rx="55"
-          fill="none"
-          stroke="#0a0a0a"
-          strokeWidth="22"
-          strokeLinecap="round"
-          strokeDasharray="400 56"
-          style={{
-            animation: "planify-ring 1.4s linear infinite",
-            transformOrigin: "92.5px 70px",
-          }}
-        />
-        {/* Blue teardrop — bounces */}
-        <ellipse
-          cx="158"
-          cy="153"
-          rx="13"
-          ry="16"
-          fill="#38b6ff"
-          style={{
-            animation: "planify-drop 1.4s ease-in-out infinite",
-          }}
-        />
+        <rect width="32" height="32" rx="8" fill="#38b6ff"/>
+        <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
+        <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
       </svg>
       <style>{`
-        @keyframes planify-ring {
-          to { stroke-dashoffset: -456; }
-        }
-        @keyframes planify-drop {
-          0%, 100% { transform: translateY(0px);  }
-          50%       { transform: translateY(-10px); }
+        @keyframes planify-pulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50%      { transform: scale(1.08); opacity: 0.85; }
         }
       `}</style>
     </div>
