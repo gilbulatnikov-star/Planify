@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar, MessageSquare, Star } from "lucide-react";
 import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionExpiry } from "@/lib/actions/admin-actions";
+import { deleteFeedback } from "@/lib/actions/feedback-actions";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
 
@@ -282,10 +283,20 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                       </div>
                     )}
                   </div>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
-                    <span>{fb.userName ?? fb.userEmail ?? "אנונימי"}</span>
-                    <span>·</span>
-                    <span>{format(new Date(fb.createdAt), "d MMM yyyy, HH:mm", { locale: heLocale })}</span>
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-3 text-xs text-gray-400">
+                      <span>{fb.userName ?? fb.userEmail ?? "אנונימי"}</span>
+                      <span>·</span>
+                      <span>{format(new Date(fb.createdAt), "d MMM yyyy, HH:mm", { locale: heLocale })}</span>
+                    </div>
+                    <button
+                      onClick={() => startTransition(async () => { await deleteFeedback(fb.id); window.location.reload(); })}
+                      disabled={isPending}
+                      className="flex h-6 w-6 items-center justify-center rounded-lg text-gray-300 hover:bg-red-50 hover:text-red-500 transition-colors"
+                      title="מחק פידבק"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               ))}

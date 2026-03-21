@@ -25,3 +25,8 @@ export async function getAdminFeedbacks() {
     take: 200,
   });
 }
+
+export async function deleteFeedback(id: string) {
+  await prisma.feedback.delete({ where: { id } });
+  return { success: true };
+}
