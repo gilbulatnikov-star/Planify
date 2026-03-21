@@ -18,13 +18,38 @@ async function requireAdmin() {
 
 export async function getAdminStats() {
   await requireAdmin();
-  const [totalUsers, freeUsers, monthlyUsers, annualUsers] = await Promise.all([
+
+  const now = new Date();
+  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  const [
+    totalUsers, freeUsers, monthlyUsers, annualUsers,
+    newThisWeek, newThisMonth, incompleteOnboarding,
+    totalProjects, totalScripts, totalContacts,
+  ] = await Promise.all([
     prisma.user.count(),
     prisma.user.count({ where: { subscriptionPlan: "FREE" } }),
     prisma.user.count({ where: { subscriptionPlan: "MONTHLY" } }),
     prisma.user.count({ where: { subscriptionPlan: "ANNUAL" } }),
+    prisma.user.count({ where: { createdAt: { gte: sevenDaysAgo } } }),
+    prisma.user.count({ where: { createdAt: { gte: thirtyDaysAgo } } }),
+    prisma.user.count({ where: { onboardingCompleted: false } }),
+    prisma.project.count(),
+    prisma.script.count(),
+    prisma.contact.count(),
   ]);
-  return { totalUsers, freeUsers, monthlyUsers, annualUsers };
+
+  // MRR estimate (customize prices as needed)
+  const MONTHLY_PRICE = 39;
+  const ANNUAL_MONTHLY = 29;
+  const mrr = monthlyUsers * MONTHLY_PRICE + annualUsers * ANNUAL_MONTHLY;
+
+  return {
+    totalUsers, freeUsers, monthlyUsers, annualUsers,
+    newThisWeek, newThisMonth, incompleteOnboarding,
+    totalProjects, totalScripts, totalContacts, mrr,
+  };
 }
 
 export async function getAdminUsers() {

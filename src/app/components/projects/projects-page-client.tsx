@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Plus, Pencil, Trash2, CalendarPlus, FolderPlus } from "lucide-react";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
@@ -163,10 +164,10 @@ export function ProjectsPageClient({
                   <Card key={project.id} className="glass-card group transition-all duration-300 hover:scale-[1.02]">
                     <CardContent className="p-4 space-y-3">
                       <div className="flex items-start justify-between">
-                        <div>
+                        <Link href={`/projects/${project.id}`} className="flex-1 min-w-0 hover:opacity-70 transition-opacity">
                           <p className="text-sm font-medium leading-tight">{project.title}</p>
                           <p className="text-xs text-muted-foreground mt-1">{project.client?.name ?? "—"}</p>
-                        </div>
+                        </Link>
                         <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                           {project.shootDate && (
                             <Button

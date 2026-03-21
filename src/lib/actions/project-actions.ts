@@ -16,6 +16,23 @@ export async function getProjects() {
   });
 }
 
+export async function getProjectDetail(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return null;
+  return prisma.project.findFirst({
+    where: { id, userId },
+    include: {
+      client: { select: { id: true, name: true } },
+      tasks: { orderBy: { createdAt: "asc" } },
+      scripts: { select: { id: true, title: true, platform: true, updatedAt: true } },
+      moodboards: { select: { id: true, title: true, updatedAt: true } },
+      contacts: { select: { id: true, name: true, category: true, phone: true, email: true } },
+      scheduledContent: { select: { id: true, title: true, date: true, status: true, color: true } },
+    },
+  });
+}
+
 export async function createProject(formData: FormData) {
   try {
     const title = formData.get("title") as string;
@@ -105,6 +122,15 @@ export async function updateProject(id: string, formData: FormData) {
       error: error instanceof Error ? error.message : "Failed to update project",
     };
   }
+}
+
+export async function toggleProjectTask(taskId: string, completed: boolean) {
+  await prisma.task.update({
+    where: { id: taskId },
+    data: { completed },
+  });
+  revalidatePath("/projects");
+  return { success: true };
 }
 
 export async function deleteProject(id: string) {

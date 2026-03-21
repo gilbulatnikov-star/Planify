@@ -23,6 +23,13 @@ type Stats = {
   freeUsers: number;
   monthlyUsers: number;
   annualUsers: number;
+  newThisWeek: number;
+  newThisMonth: number;
+  incompleteOnboarding: number;
+  totalProjects: number;
+  totalScripts: number;
+  totalContacts: number;
+  mrr: number;
 };
 
 type FeedbackRow = {
@@ -117,7 +124,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
           </div>
         )}
 
-        {/* Stats */}
+        {/* Stats — plans */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: "סה״כ משתמשים", value: stats.totalUsers, icon: Users, color: "text-gray-700" },
@@ -131,6 +138,45 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
               <p className="text-xs text-gray-500 mt-0.5">{s.label}</p>
             </div>
           ))}
+        </div>
+
+        {/* Stats — growth & revenue */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">MRR</p>
+            <p className="text-2xl font-bold text-emerald-600">₪{stats.mrr.toLocaleString()}</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">נרשמו השבוע</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.newThisWeek}</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">נרשמו החודש</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.newThisMonth}</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">לא השלימו אונבורדינג</p>
+            <p className="text-2xl font-bold text-orange-500">{stats.incompleteOnboarding}</p>
+          </div>
+        </div>
+
+        {/* Stats — usage */}
+        <div className="grid grid-cols-3 gap-4">
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">סה״כ פרויקטים</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.totalProjects}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">ממוצע {stats.totalUsers ? (stats.totalProjects / stats.totalUsers).toFixed(1) : 0} למשתמש</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">סה״כ תסריטים</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.totalScripts}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">ממוצע {stats.totalUsers ? (stats.totalScripts / stats.totalUsers).toFixed(1) : 0} למשתמש</p>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
+            <p className="text-xs text-gray-500">סה״כ אנשי קשר</p>
+            <p className="text-2xl font-bold text-gray-900">{stats.totalContacts}</p>
+            <p className="text-[10px] text-gray-400 mt-0.5">ממוצע {stats.totalUsers ? (stats.totalContacts / stats.totalUsers).toFixed(1) : 0} למשתמש</p>
+          </div>
         </div>
 
         {/* Search */}
