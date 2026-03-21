@@ -32,8 +32,6 @@ import {
 
 const CUSTOM_TYPES_KEY = "gp_custom_project_types";
 
-// All known labels for datalist
-const ALL_TYPE_LABELS = Object.values(PROJECT_TYPE_CONFIG).map(cfg => cfg.label);
 
 interface ProjectDialogProps {
   project?: {
@@ -252,24 +250,15 @@ export function ProjectDialog({
               )}
             </div>
 
-            {/* Project Type — simple combobox */}
+            {/* Project Type — free text */}
             <div className="space-y-2">
               <Label htmlFor="projectTypeInput">סוג פרויקט</Label>
-              <datalist id="projectTypeList">
-                {ALL_TYPE_LABELS.map((label) => (
-                  <option key={label} value={label} />
-                ))}
-                {customTypes.map((t) => (
-                  <option key={t.value} value={t.label} />
-                ))}
-              </datalist>
               <Input
                 id="projectTypeInput"
-                list="projectTypeList"
                 value={typeInputValue}
                 onChange={(e) => handleTypeInputChange(e.target.value)}
                 onBlur={handleTypeBlur}
-                placeholder="לדוגמה: חתונה, ריל, עריכת וידאו..."
+                placeholder="חתונה, ריל, עריכת וידאו..."
                 autoComplete="off"
               />
             </div>
