@@ -42,6 +42,7 @@ interface InspirationDialogProps {
 export function InspirationDialog({ inspiration, categories, open, onOpenChange }: InspirationDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [saveError, setSaveError] = useState<string | null>(null);
   const isEditing = !!inspiration;
 
   const defaultCategoryId = inspiration?.categoryId ?? categories[0]?.id ?? "";
@@ -50,12 +51,20 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
   function handleOpenChange(open: boolean) {
     if (open) {
       setCategoryId(inspiration?.categoryId ?? categories[0]?.id ?? "");
+      setSaveError(null);
     }
     onOpenChange(open);
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setSaveError(null);
+
+    if (!categoryId) {
+      setSaveError("יש ליצור קטגוריה לפחות אחת לפני שמירה");
+      return;
+    }
+
     const formData = new FormData(e.currentTarget);
     formData.set("categoryId", categoryId);
 
@@ -67,6 +76,8 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
       if (result.success) {
         onOpenChange(false);
         router.refresh();
+      } else {
+        setSaveError(result.error ?? "שגיאה בשמירה");
       }
     });
   }
@@ -112,18 +123,24 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
             {/* Category */}
             <div className="col-span-2 space-y-2">
               <Label>קטגוריה *</Label>
-              <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{categoryId ? (categories.find(cat => cat.id === categoryId)?.label ?? categoryId) : "בחר קטגוריה"}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {categories.length === 0 ? (
+                <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 rounded-lg px-3 py-2">
+                  אין קטגוריות עדיין — סגור ולחץ על &quot;קטגוריות&quot; כדי ליצור אחת
+                </p>
+              ) : (
+                <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
+                  <SelectTrigger className="w-full">
+                    <span className="flex flex-1">{categoryId ? (categories.find(cat => cat.id === categoryId)?.label ?? categoryId) : "בחר קטגוריה"}</span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
             </div>
 
             {/* Notes */}
@@ -137,11 +154,14 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
             </div>
           </div>
 
+          {saveError && (
+            <p className="text-sm text-red-500 px-1 -mt-2">{saveError}</p>
+          )}
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
               {he.common.cancel}
             </DialogClose>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || categories.length === 0}>
               {isPending ? "שומר..." : he.common.save}
             </Button>
           </DialogFooter>

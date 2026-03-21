@@ -12,28 +12,28 @@ import {
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectSeparator,
   SelectTrigger,
 } from "@/components/ui/select";
+// Note: Select is still used for client and phase dropdowns
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { createProject, updateProject } from "@/lib/actions/project-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
-import { Plus, X, Check } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import {
-  CATEGORY_LABELS,
   getPhasesForType,
-  getTypesByCategory,
+  getTypeKeyByLabel,
   PROJECT_TYPE_CONFIG,
 } from "@/lib/project-config";
-import type { ProjectCategory } from "@/lib/project-config";
 
 const CUSTOM_TYPES_KEY = "gp_custom_project_types";
+
+// All known labels for datalist
+const ALL_TYPE_LABELS = Object.values(PROJECT_TYPE_CONFIG).map(cfg => cfg.label);
 
 interface ProjectDialogProps {
   project?: {
@@ -53,8 +53,6 @@ interface ProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   onQuotaExceeded?: () => void;
 }
-
-const CATEGORIES: ProjectCategory[] = ["photography", "video", "content", "editing"];
 
 function formatDateForInput(date: Date | null | undefined): string {
   if (!date) return "";
@@ -87,12 +85,12 @@ export function ProjectDialog({
   const [localClients, setLocalClients] = useState(clients);
 
   const [customTypes, setCustomTypes] = useState<{ value: string; label: string }[]>(loadCustomTypes);
-  const [projectType, setProjectType] = useState(() => {
+  const [projectType, setProjectType] = useState(() => project?.projectType ?? "");
+  // typeInputValue is the displayed label in the text input
+  const [typeInputValue, setTypeInputValue] = useState(() => {
     const val = project?.projectType ?? "";
-    return val;
+    return PROJECT_TYPE_CONFIG[val]?.label ?? val;
   });
-  const [addingNewType, setAddingNewType] = useState(false);
-  const [newTypeName, setNewTypeName] = useState("");
 
   // Derive available phases from selected type
   const availablePhases = getPhasesForType(projectType);
@@ -107,31 +105,47 @@ export function ProjectDialog({
       setLocalClients(clients);
       const fresh = loadCustomTypes();
       setCustomTypes(fresh);
-      setProjectType(project?.projectType ?? "");
-      setAddingNewType(false);
-      setNewTypeName("");
+      const pt = project?.projectType ?? "";
+      setProjectType(pt);
+      setTypeInputValue(PROJECT_TYPE_CONFIG[pt]?.label ?? pt);
     }
   }, [open, project, clients]);
 
-  function handleTypeChange(newType: string) {
-    setProjectType(newType);
-    // For new projects: auto-select first phase of the chosen type
-    if (!isEditing) {
-      const phases = getPhasesForType(newType);
-      setPhase(phases[0]?.value ?? "pre_production");
+  function handleTypeInputChange(inputLabel: string) {
+    setTypeInputValue(inputLabel);
+    // Try to match a known type by label
+    const knownKey = getTypeKeyByLabel(inputLabel);
+    if (knownKey) {
+      setProjectType(knownKey);
+      if (!isEditing) {
+        const phases = getPhasesForType(knownKey);
+        setPhase(phases[0]?.value ?? "pre_production");
+      }
+    } else {
+      // Check custom types
+      const custom = customTypes.find(t => t.label.toLowerCase() === inputLabel.trim().toLowerCase());
+      if (custom) {
+        setProjectType(custom.value);
+      } else {
+        // Free-form — store the label as the type key temporarily
+        setProjectType(inputLabel.trim());
+      }
     }
   }
 
-  function handleAddCustomType() {
-    const label = newTypeName.trim();
+  function handleTypeBlur() {
+    const label = typeInputValue.trim();
     if (!label) return;
-    const value = `custom_${label.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
-    const updated = [...customTypes, { value, label }];
-    setCustomTypes(updated);
-    localStorage.setItem(CUSTOM_TYPES_KEY, JSON.stringify(updated));
-    setProjectType(value);
-    setAddingNewType(false);
-    setNewTypeName("");
+    const knownKey = getTypeKeyByLabel(label);
+    if (knownKey || customTypes.find(t => t.label.toLowerCase() === label.toLowerCase())) return;
+    // Save as custom type if not already saved
+    if (!customTypes.find(t => t.value === projectType)) {
+      const value = `custom_${label.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
+      const updated = [...customTypes, { value, label }];
+      setCustomTypes(updated);
+      localStorage.setItem(CUSTOM_TYPES_KEY, JSON.stringify(updated));
+      setProjectType(value);
+    }
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -170,11 +184,6 @@ export function ProjectDialog({
     });
   }
 
-  // Label for the trigger display
-  const typeLabel =
-    PROJECT_TYPE_CONFIG[projectType]?.label ??
-    customTypes.find((t) => t.value === projectType)?.label ??
-    "";
 
   // Current phase label for the trigger display
   const phaseLabel =
@@ -243,82 +252,26 @@ export function ProjectDialog({
               )}
             </div>
 
-            {/* Project Type — categorized */}
+            {/* Project Type — simple combobox */}
             <div className="space-y-2">
-              <Label>סוג פרויקט</Label>
-              <Select value={projectType} onValueChange={(v) => v != null && handleTypeChange(v)}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{typeLabel || "בחר סוג"}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat, idx) => (
-                    <SelectGroup key={cat}>
-                      {idx > 0 && <SelectSeparator />}
-                      <SelectLabel>{CATEGORY_LABELS[cat]}</SelectLabel>
-                      {getTypesByCategory(cat).map((type) => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ))}
-                  {customTypes.length > 0 && (
-                    <SelectGroup>
-                      <SelectSeparator />
-                      <SelectLabel>קטגוריות מותאמות</SelectLabel>
-                      {customTypes.map((type) => (
-                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
-                      ))}
-                    </SelectGroup>
-                  )}
-                  <SelectSeparator />
-                  {addingNewType ? (
-                    <div
-                      className="flex gap-1.5 px-1 py-1"
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Input
-                        autoFocus
-                        value={newTypeName}
-                        onChange={(e) => setNewTypeName(e.target.value)}
-                        placeholder="שם הקטגוריה..."
-                        className="flex-1 h-7 text-xs"
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => e.stopPropagation()}
-                        onKeyDown={(e) => {
-                          e.stopPropagation();
-                          if (e.key === "Enter") { e.preventDefault(); handleAddCustomType(); }
-                          if (e.key === "Escape") setAddingNewType(false);
-                        }}
-                      />
-                      <button
-                        type="button"
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); handleAddCustomType(); }}
-                        className="flex h-7 w-7 items-center justify-center rounded bg-foreground text-background hover:bg-foreground/80 transition-colors shrink-0"
-                      >
-                        <Check className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onClick={(e) => { e.stopPropagation(); setAddingNewType(false); }}
-                        className="flex h-7 w-7 items-center justify-center rounded border border-border text-muted-foreground hover:text-red-500 transition-colors shrink-0"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onPointerDown={(e) => e.stopPropagation()}
-                      onClick={(e) => { e.stopPropagation(); setAddingNewType(true); }}
-                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-[#38b6ff] hover:bg-[#38b6ff]/10 dark:hover:bg-[#38b6ff]/10 rounded transition-colors"
-                    >
-                      <Plus className="h-3.5 w-3.5" />הוסף קטגוריה
-                    </button>
-                  )}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="projectTypeInput">סוג פרויקט</Label>
+              <datalist id="projectTypeList">
+                {ALL_TYPE_LABELS.map((label) => (
+                  <option key={label} value={label} />
+                ))}
+                {customTypes.map((t) => (
+                  <option key={t.value} value={t.label} />
+                ))}
+              </datalist>
+              <Input
+                id="projectTypeInput"
+                list="projectTypeList"
+                value={typeInputValue}
+                onChange={(e) => handleTypeInputChange(e.target.value)}
+                onBlur={handleTypeBlur}
+                placeholder="לדוגמה: חתונה, ריל, עריכת וידאו..."
+                autoComplete="off"
+              />
             </div>
 
             {/* Phase — dynamic based on selected type */}

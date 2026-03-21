@@ -63,7 +63,7 @@ const colorMap: Record<string, string> = {
 };
 
 function getCategoryStyle(color: string): string {
-  return colorMap[color] ?? "bg-gray-100 text-gray-600";
+  return colorMap[color] ?? "bg-muted text-muted-foreground";
 }
 
 function isYouTubeUrl(url: string): boolean {
@@ -119,7 +119,7 @@ export function InspirationPageClient({
     >
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.inspiration.title}
         </h1>
         <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ export function InspirationPageClient({
             size="sm"
             variant="outline"
             onClick={() => setCategoryManagerOpen(true)}
-            className="border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+            className="border-border text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <Settings2 className="h-4 w-4 me-2" />
             קטגוריות
@@ -135,7 +135,7 @@ export function InspirationPageClient({
           <Button
             size="sm"
             onClick={handleCreate}
-            className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+            className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
           >
             <Plus className="h-4 w-4 me-2" />
             {he.inspiration.newItem}
@@ -151,7 +151,7 @@ export function InspirationPageClient({
             placeholder="חיפוש..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pr-10 bg-white border-gray-200"
+            className="pr-10 bg-background border-border"
           />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -161,8 +161,8 @@ export function InspirationPageClient({
             onClick={() => setActiveCategory(null)}
             className={
               activeCategory === null
-                ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-800"
-                : "border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                ? "bg-foreground text-background border-foreground hover:bg-foreground/90"
+                : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }
           >
             הכל
@@ -175,8 +175,8 @@ export function InspirationPageClient({
               onClick={() => setActiveCategory(activeCategory === cat.name ? null : cat.name)}
               className={
                 activeCategory === cat.name
-                  ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-800"
-                  : "border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                  ? "bg-foreground text-background border-foreground hover:bg-foreground/90"
+                  : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               }
             >
               {cat.label}
@@ -211,7 +211,7 @@ export function InspirationPageClient({
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg truncate">{item.title}</h3>
-                      <Badge className={`${cat ? getCategoryStyle(cat.color) : "bg-gray-100 text-gray-600"} border-0 mt-1`}>
+                      <Badge className={`${cat ? getCategoryStyle(cat.color) : "bg-muted text-muted-foreground"} border-0 mt-1`}>
                         {cat?.label ?? item.category}
                       </Badge>
                     </div>
@@ -219,7 +219,7 @@ export function InspirationPageClient({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                        className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
                         onClick={() => handleEdit(item)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -241,7 +241,7 @@ export function InspirationPageClient({
                       href={item.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-gray-900 hover:text-gray-700 transition-colors duration-200 text-sm mb-2"
+                      className="inline-flex items-center gap-1.5 text-foreground hover:text-foreground/70 transition-colors duration-200 text-sm mb-2"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
                       <span className="truncate max-w-[200px]">פתח קישור</span>

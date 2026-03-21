@@ -349,6 +349,14 @@ export function toUniversalColumn(phase: string): UniversalColumn {
   return UNIVERSAL_PHASE_MAP[phase] ?? "in_progress";
 }
 
+export function getTypeKeyByLabel(label: string): string | null {
+  const lower = label.trim().toLowerCase();
+  for (const [key, cfg] of Object.entries(PROJECT_TYPE_CONFIG)) {
+    if (cfg.label.toLowerCase() === lower) return key;
+  }
+  return null;
+}
+
 export function getPhaseLabel(phase: string): string {
   for (const cfg of Object.values(PROJECT_TYPE_CONFIG)) {
     const found = cfg.phases.find((p) => p.value === phase);

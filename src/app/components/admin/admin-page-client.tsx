@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar } from "lucide-react";
+import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar, MessageSquare, Star } from "lucide-react";
 import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionExpiry } from "@/lib/actions/admin-actions";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
@@ -24,6 +24,15 @@ type Stats = {
   annualUsers: number;
 };
 
+type FeedbackRow = {
+  id: string;
+  message: string;
+  rating: number | null;
+  userEmail: string | null;
+  userName: string | null;
+  createdAt: Date;
+};
+
 const PLAN_LABELS: Record<string, string> = {
   FREE: "חינמי",
   MONTHLY: "Pro חודשי",
@@ -36,7 +45,7 @@ const PLAN_COLORS: Record<string, string> = {
   ANNUAL: "bg-amber-100 text-amber-700",
 };
 
-export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow[] }) {
+export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; users: UserRow[]; feedbacks: FeedbackRow[] }) {
   const [search, setSearch] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [passwordModal, setPasswordModal] = useState<{ userId: string; name: string } | null>(null);
@@ -245,6 +254,43 @@ export function AdminPageClient({ stats, users }: { stats: Stats; users: UserRow
               </tbody>
             </table>
           </div>
+        </div>
+        {/* Feedbacks Section */}
+        <div>
+          <div className="flex items-center gap-2 mb-4">
+            <MessageSquare className="h-5 w-5 text-gray-500" />
+            <h2 className="text-base font-semibold text-gray-900">פידבק מהמשתמשים</h2>
+            <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">{feedbacks.length}</span>
+          </div>
+          {feedbacks.length === 0 ? (
+            <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-400 text-sm">
+              אין פידבק עדיין
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {feedbacks.map(fb => (
+                <div key={fb.id} className="rounded-2xl border border-gray-200 bg-white p-4 shadow-sm">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-gray-800 whitespace-pre-wrap">{fb.message}</p>
+                    </div>
+                    {fb.rating && (
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        {Array.from({ length: fb.rating }).map((_, i) => (
+                          <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-gray-400">
+                    <span>{fb.userName ?? fb.userEmail ?? "אנונימי"}</span>
+                    <span>·</span>
+                    <span>{format(new Date(fb.createdAt), "d MMM yyyy, HH:mm", { locale: heLocale })}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 

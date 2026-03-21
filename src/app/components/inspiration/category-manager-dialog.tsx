@@ -113,11 +113,11 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {categories.map((cat) =>
               editingId === cat.id ? (
-                <div key={cat.id} className="flex items-center gap-2 p-2 rounded-lg bg-gray-50 border border-gray-200">
+                <div key={cat.id} className="flex items-center gap-2 p-2 rounded-lg bg-muted border border-border">
                   <Input
                     value={editLabel}
                     onChange={(e) => setEditLabel(e.target.value)}
-                    className="flex-1 h-8 text-sm bg-gray-50"
+                    className="flex-1 h-8 text-sm bg-muted"
                     onKeyDown={(e) => {
                       if (e.key === "Enter") handleUpdate(cat.id);
                       if (e.key === "Escape") cancelEdit();
@@ -136,7 +136,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 hover:bg-gray-100"
+                    className="h-7 w-7 hover:bg-muted"
                     onClick={cancelEdit}
                   >
                     <X className="h-3.5 w-3.5" />
@@ -145,14 +145,14 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
               ) : (
                 <div
                   key={cat.id}
-                  className="flex items-center gap-3 p-2 rounded-lg bg-gray-50/50 border border-gray-100 group hover:bg-gray-50 transition-colors"
+                  className="flex items-center gap-3 p-2 rounded-lg bg-muted/30 border border-border group hover:bg-muted transition-colors"
                 >
                   <span className="flex-1 text-sm">{cat.label}</span>
                   <div className="flex items-center gap-1 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity delay-75">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900"
+                      className="h-7 w-7 hover:bg-muted hover:text-foreground"
                       onClick={() => startEdit(cat)}
                     >
                       <Pencil className="h-3 w-3" />
@@ -183,14 +183,14 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
           )}
 
           {/* Add new category */}
-          <div className="border-t border-gray-200 pt-4 space-y-3">
+          <div className="border-t border-border pt-4 space-y-3">
             <p className="text-sm font-medium text-muted-foreground">קטגוריה חדשה</p>
             <div className="flex items-center gap-2">
               <Input
                 placeholder="שם הקטגוריה..."
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
-                className="flex-1 h-9 bg-white border-gray-200"
+                className="flex-1 h-9 bg-background border-border"
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleAdd();
                 }}
@@ -199,7 +199,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
                 size="sm"
                 onClick={handleAdd}
                 disabled={isPending || !newLabel.trim()}
-                className="bg-gradient-to-r from-gray-800 to-gray-900 text-white hover:bg-gray-800 border-0 h-9"
+                className="bg-foreground text-background hover:bg-foreground/90 border-0 h-9"
               >
                 <Plus className="h-4 w-4" />
               </Button>

@@ -5,6 +5,7 @@ import { AppSidebar } from "@/app/components/layout/app-sidebar";
 import { UserMenu } from "@/app/components/layout/user-menu";
 import { ThemeToggle } from "@/app/components/layout/theme-toggle";
 import { WelcomeTour } from "@/app/components/layout/welcome-tour";
+import { FeedbackButton } from "@/app/components/shared/feedback-button";
 
 export default function DashboardLayout({
   children,
@@ -25,6 +26,7 @@ export default function DashboardLayout({
         <main className="flex-1 overflow-auto p-6 md:p-8">{children}</main>
       </SidebarInset>
       <WelcomeTour />
+      <FeedbackButton />
     </SidebarProvider>
   );
 }

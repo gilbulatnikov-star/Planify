@@ -52,6 +52,7 @@ model User {
   todos                Todo[]
   quickLinks           QuickLink[]
   gearStatuses         GearStatus[]
+  feedbacks            Feedback[]
 }
 
 // ---------- CLIENTS & LEADS ----------
@@ -457,6 +458,18 @@ model Script {
   user         User?   @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+// ---------- FEEDBACK ----------
+model Feedback {
+  id        String   @id @default(cuid())
+  message   String
+  rating    Int?     // 1-5
+  userId    String?
+  user      User?   @relation(fields: [userId], references: [id])
+  userEmail String?
+  userName  String?
+  createdAt DateTime @default(now())
 }
 
 // ---------- MOODBOARDS ----------
