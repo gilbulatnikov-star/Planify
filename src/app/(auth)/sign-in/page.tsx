@@ -46,7 +46,7 @@ export default function SignInPage() {
             <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">ברוך שובך ל-Qlipy</h1>
+        <h1 className="text-2xl font-bold text-gray-900">ברוך שובך ל-Planify</h1>
         <p className="text-sm text-gray-500 mt-1">היכנס לחשבון שלך להמשיך</p>
       </div>
 

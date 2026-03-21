@@ -11,6 +11,14 @@ import { ProjectDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
 import { he } from "@/lib/he";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import {
+  CATEGORY_LABELS,
+  UNIVERSAL_COLUMNS,
+  getPhaseLabel,
+  getTypeCategory,
+  toUniversalColumn,
+} from "@/lib/project-config";
+import type { ProjectCategory } from "@/lib/project-config";
 
 type ProjectData = {
   id: string;
@@ -29,25 +37,23 @@ type ProjectData = {
 
 type ClientOption = { id: string; name: string };
 
-const phases = [
-  { key: "pre_production",  label: he.project.phases.pre_production,  color: "from-violet-500 to-purple-600" },
-  { key: "post_production", label: he.project.phases.post_production, color: "from-amber-500 to-orange-500" },
-  { key: "revisions",       label: "תיקונים",                         color: "from-blue-500 to-cyan-500" },
-  { key: "delivered",       label: he.project.phases.delivered,       color: "from-emerald-500 to-green-500" },
-];
-
 const stagger = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.02 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.02 } },
 };
 
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
 };
+
+const CATEGORY_FILTER_OPTIONS: { key: ProjectCategory | null; label: string }[] = [
+  { key: null,          label: "הכל" },
+  { key: "photography", label: CATEGORY_LABELS.photography },
+  { key: "video",       label: CATEGORY_LABELS.video },
+  { key: "content",     label: CATEGORY_LABELS.content },
+  { key: "editing",     label: CATEGORY_LABELS.editing },
+];
 
 export function ProjectsPageClient({
   projects,
@@ -60,11 +66,9 @@ export function ProjectsPageClient({
 }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{
-    id: string;
-    title: string;
-  } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<ProjectCategory | null>(null);
 
   function handleCreate() {
     if (planLimit !== -1 && projects.length >= planLimit) {
@@ -80,22 +84,23 @@ export function ProjectsPageClient({
     setDialogOpen(true);
   }
 
-  const projectsByPhase = phases.map((phase) => ({
-    ...phase,
-    projects: projects.filter((p) => p.phase === phase.key),
+  // Filter projects by category (or show all)
+  const filteredProjects = activeCategory
+    ? projects.filter((p) => p.projectType && getTypeCategory(p.projectType) === activeCategory)
+    : projects;
+
+  // Group filtered projects into 4 universal columns
+  const projectsByColumn = UNIVERSAL_COLUMNS.map((col) => ({
+    ...col,
+    projects: filteredProjects.filter((p) => toUniversalColumn(p.phase) === col.key),
   }));
 
   return (
-    <motion.div
-      variants={stagger}
-      initial="hidden"
-      animate="show"
-      className="space-y-6"
-    >
+    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
+
+      {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">
-          {he.project.title}
-        </h1>
+        <h1 className="text-2xl font-bold text-foreground">{he.project.title}</h1>
         <Button
           size="sm"
           onClick={handleCreate}
@@ -106,40 +111,61 @@ export function ProjectsPageClient({
         </Button>
       </motion.div>
 
+      {/* Category filter tabs */}
+      <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
+        {CATEGORY_FILTER_OPTIONS.map((opt) => (
+          <button
+            key={String(opt.key)}
+            onClick={() => setActiveCategory(opt.key)}
+            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
+              activeCategory === opt.key
+                ? "bg-foreground text-background shadow-sm"
+                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+            }`}
+          >
+            {opt.label}
+            <span className="ms-1.5 text-xs opacity-60">
+              ({activeCategory === opt.key
+                ? filteredProjects.length
+                : opt.key === null
+                  ? projects.length
+                  : projects.filter((p) => p.projectType && getTypeCategory(p.projectType) === opt.key).length
+              })
+            </span>
+          </button>
+        ))}
+      </motion.div>
+
+      {/* Kanban columns */}
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {projectsByPhase.map((phase) => (
-          <div key={phase.key} className="space-y-3">
+        {projectsByColumn.map((col) => (
+          <div key={col.key} className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full bg-gradient-to-r ${phase.color}`} />
-                <h2 className="text-sm font-semibold text-muted-foreground">
-                  {phase.label}
-                </h2>
+                <div className={`h-2 w-2 rounded-full bg-gradient-to-r ${col.color}`} />
+                <h2 className="text-sm font-semibold text-muted-foreground">{col.label}</h2>
               </div>
               <Badge variant="secondary" className="text-xs bg-muted border-0">
-                {phase.projects.length}
+                {col.projects.length}
               </Badge>
             </div>
+
             <div className="space-y-3">
-              {phase.projects.map((project) => {
-                const completedTasks = project.tasks.filter(
-                  (t) => t.completed
-                ).length;
+              {col.projects.map((project) => {
+                const completedTasks = project.tasks.filter((t) => t.completed).length;
                 const totalTasks = project.tasks.length;
+                const typeLabel = project.projectType
+                  ? (he.project.types[project.projectType as keyof typeof he.project.types] ?? project.projectType)
+                  : null;
+                const currentPhaseLabel = getPhaseLabel(project.phase);
+
                 return (
-                  <Card
-                    key={project.id}
-                    className="glass-card group transition-all duration-300 hover:scale-[1.02]"
-                  >
+                  <Card key={project.id} className="glass-card group transition-all duration-300 hover:scale-[1.02]">
                     <CardContent className="p-4 space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <p className="text-sm font-medium leading-tight">
-                            {project.title}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {project.client?.name ?? "—"}
-                          </p>
+                          <p className="text-sm font-medium leading-tight">{project.title}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{project.client?.name ?? "—"}</p>
                         </div>
                         <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                           {project.shootDate && (
@@ -150,8 +176,7 @@ export function ProjectsPageClient({
                               className="h-6 w-6 hover:bg-blue-50 hover:text-blue-700"
                               onClick={() => {
                                 const d = new Date(project.shootDate!);
-                                const fmt = (dt: Date) =>
-                                  dt.toISOString().replace(/[-:]/g, "").split(".")[0];
+                                const fmt = (dt: Date) => dt.toISOString().replace(/[-:]/g, "").split(".")[0];
                                 const start = fmt(d);
                                 const end = fmt(new Date(d.getTime() + 8 * 3600000));
                                 const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(project.title)}&dates=${start}/${end}&details=${encodeURIComponent(`פרויקט: ${project.title}${project.client?.name ? ` | לקוח: ${project.client.name}` : ""}`)}&sf=true&output=xml`;
@@ -175,7 +200,7 @@ export function ProjectsPageClient({
                               });
                               const data = await res.json();
                               if (data.folderUrl) window.open(data.folderUrl, "_blank", "noopener");
-                              else if (data.setupRequired) alert("חיבור Google Drive דורש הגדרה. ראה /api/google/drive/route.ts להוראות.");
+                              else if (data.setupRequired) alert("חיבור Google Drive דורש הגדרה.");
                               else alert(data.error ?? "שגיאה ביצירת תיקייה");
                             }}
                           >
@@ -193,27 +218,24 @@ export function ProjectsPageClient({
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 hover:bg-red-50 text-destructive"
-                            onClick={() =>
-                              setDeleteTarget({
-                                id: project.id,
-                                title: project.title,
-                              })
-                            }
+                            onClick={() => setDeleteTarget({ id: project.id, title: project.title })}
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
                       </div>
 
-                      {project.projectType && (
-                        <div className="flex items-center gap-2 flex-wrap">
+                      {/* Type + current phase badges */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {typeLabel && (
                           <Badge variant="outline" className="text-xs border-border text-muted-foreground">
-                            {he.project.types[
-                              project.projectType as keyof typeof he.project.types
-                            ] ?? project.projectType}
+                            {typeLabel}
                           </Badge>
-                        </div>
-                      )}
+                        )}
+                        <Badge className="text-xs bg-muted border-0 text-muted-foreground">
+                          {currentPhaseLabel}
+                        </Badge>
+                      </div>
 
                       {project.budget && (
                         <p className="text-xs text-muted-foreground">
@@ -223,8 +245,7 @@ export function ProjectsPageClient({
 
                       {project.shootDate && (
                         <p className="text-xs text-muted-foreground">
-                          {he.project.shootDate}:{" "}
-                          {formatDate(project.shootDate)}
+                          {he.project.shootDate}: {formatDate(project.shootDate)}
                         </p>
                       )}
 
@@ -232,16 +253,12 @@ export function ProjectsPageClient({
                         <div className="space-y-1">
                           <div className="flex justify-between text-xs text-muted-foreground">
                             <span>משימות</span>
-                            <span>
-                              {completedTasks}/{totalTasks}
-                            </span>
+                            <span>{completedTasks}/{totalTasks}</span>
                           </div>
                           <div className="h-1.5 rounded-full bg-muted">
                             <div
                               className="h-full rounded-full bg-foreground transition-all duration-500"
-                              style={{
-                                width: `${(completedTasks / totalTasks) * 100}%`,
-                              }}
+                              style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
                             />
                           </div>
                         </div>
@@ -250,7 +267,7 @@ export function ProjectsPageClient({
                   </Card>
                 );
               })}
-              {phase.projects.length === 0 && (
+              {col.projects.length === 0 && (
                 <div className="rounded-xl border border-dashed border-border p-6 text-center">
                   <p className="text-xs text-muted-foreground">אין פרויקטים</p>
                 </div>
@@ -266,7 +283,6 @@ export function ProjectsPageClient({
         feature="פרויקטים"
         limit={planLimit}
       />
-
       <ProjectDialog
         project={editingProject}
         clients={clients}
@@ -274,15 +290,12 @@ export function ProjectsPageClient({
         onOpenChange={setDialogOpen}
         onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
       />
-
       {deleteTarget && (
         <DeleteProjectDialog
           projectId={deleteTarget.id}
           projectTitle={deleteTarget.title}
           open={!!deleteTarget}
-          onOpenChange={(open) => {
-            if (!open) setDeleteTarget(null);
-          }}
+          onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}
         />
       )}
     </motion.div>

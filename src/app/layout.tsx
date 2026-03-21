@@ -13,20 +13,20 @@ const notoSansHebrew = Noto_Sans_Hebrew({
 });
 
 export const metadata: Metadata = {
-  title: "Qlipy",
+  title: "Planify",
   description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
   icons: {
     icon: "/icon.svg",
     shortcut: "/icon.svg",
   },
   openGraph: {
-    title: "Qlipy",
+    title: "Planify",
     description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
-    siteName: "Qlipy",
+    siteName: "Planify",
   },
   twitter: {
     card: "summary",
-    title: "Qlipy",
+    title: "Planify",
     description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
   },
 };

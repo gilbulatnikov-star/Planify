@@ -85,7 +85,7 @@ export function AppSidebar() {
           <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden">
             <img
               src="/qlipy-logo.png"
-              alt="Qlipy"
+              alt="Planify"
               className="h-6 w-auto dark:[filter:invert(1)_hue-rotate(180deg)]"
             />
           </Link>

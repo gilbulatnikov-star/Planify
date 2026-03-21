@@ -157,7 +157,7 @@ function GridPreview({
           ))}
         </tbody>
       </table>
-      <div style={{ marginTop: "10px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Qlipy</div>
+      <div style={{ marginTop: "10px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Planify</div>
     </div>
   );
 }
@@ -219,7 +219,7 @@ function TimelinePreview({
           </tbody>
         </table>
       )}
-      <div style={{ marginTop: "14px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Qlipy</div>
+      <div style={{ marginTop: "14px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Planify</div>
     </div>
   );
 }

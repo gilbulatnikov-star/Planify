@@ -105,7 +105,7 @@ export default async function DashboardPage() {
                     return (
                       <div
                         key={project.id}
-                        className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
+                        className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3 transition-all duration-200 hover:bg-muted/50 hover:border-border"
                       >
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
@@ -144,7 +144,7 @@ export default async function DashboardPage() {
                     return (
                       <div
                         key={project.id}
-                        className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
+                        className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3 transition-all duration-200 hover:bg-muted/50 hover:border-border"
                       >
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
@@ -185,7 +185,7 @@ export default async function DashboardPage() {
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
+                      className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3 transition-all duration-200 hover:bg-muted/50 hover:border-border"
                     >
                       <div className="flex items-center gap-2">
                         <span className={`w-2.5 h-2.5 rounded-full ${dot} flex-shrink-0`} />
@@ -202,7 +202,7 @@ export default async function DashboardPage() {
                       <Badge
                         className={
                           he.calendar.statuses[item.status as keyof typeof he.calendar.statuses]
-                            ? "bg-gray-100 text-gray-700 border-0"
+                            ? "bg-muted text-foreground border-0"
                             : ""
                         }
                       >
@@ -232,7 +232,7 @@ export default async function DashboardPage() {
               {recentProjects.map((project) => (
                 <div
                   key={project.id}
-                  className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50/50 p-3 transition-all duration-200 hover:bg-gray-50 hover:border-gray-200"
+                  className="flex items-center justify-between rounded-lg border border-border bg-muted/30 p-3 transition-all duration-200 hover:bg-muted/50 hover:border-border"
                 >
                   <div className="flex items-center gap-3">
                     <div>
@@ -243,10 +243,10 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-gray-200 text-gray-600">
+                    <Badge variant="outline" className="border-border text-muted-foreground">
                       {he.project.phases[project.phase as keyof typeof he.project.phases] ?? project.phase}
                     </Badge>
-                    <Badge className="bg-gray-900 text-white hover:bg-gray-800">
+                    <Badge className="bg-foreground text-background hover:bg-foreground/90">
                       {he.project.statuses[project.status as keyof typeof he.project.statuses] ?? project.status}
                     </Badge>
                   </div>

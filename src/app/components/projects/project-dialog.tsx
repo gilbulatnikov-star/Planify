@@ -12,7 +12,10 @@ import {
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
@@ -22,6 +25,13 @@ import { Button } from "@/components/ui/button";
 import { createProject, updateProject } from "@/lib/actions/project-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { Plus, X, Check } from "lucide-react";
+import {
+  CATEGORY_LABELS,
+  getPhasesForType,
+  getTypesByCategory,
+  PROJECT_TYPE_CONFIG,
+} from "@/lib/project-config";
+import type { ProjectCategory } from "@/lib/project-config";
 
 const CUSTOM_TYPES_KEY = "gp_custom_project_types";
 
@@ -44,26 +54,7 @@ interface ProjectDialogProps {
   onQuotaExceeded?: () => void;
 }
 
-// ─── Project type options ─────────────────────────────────────────────────────
-
-const BASE_PROJECT_TYPES = [
-  { value: "youtube",     label: "YouTube" },
-  { value: "music_video", label: "קליפ" },
-  { value: "commercial",  label: "פרסומת" },
-  { value: "corporate",   label: "תדמית" },
-  { value: "social",      label: "סושיאל" },
-];
-
-// ─── Status (formerly "Phase") options ───────────────────────────────────────
-
-const STATUS_OPTIONS = [
-  { value: "pre_production",  label: "לפני הצילומים" },
-  { value: "post_production", label: "עריכה" },
-  { value: "revisions",       label: "תיקונים" },
-  { value: "delivered",       label: "הושלם" },
-];
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+const CATEGORIES: ProjectCategory[] = ["photography", "video", "content", "editing"];
 
 function formatDateForInput(date: Date | null | undefined): string {
   if (!date) return "";
@@ -79,8 +70,6 @@ function loadCustomTypes(): { value: string; label: string }[] {
   try { return JSON.parse(localStorage.getItem(CUSTOM_TYPES_KEY) ?? "[]"); } catch { return []; }
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
-
 export function ProjectDialog({
   project,
   clients,
@@ -91,25 +80,22 @@ export function ProjectDialog({
   const isEditing = !!project;
   const [isPending, startTransition] = useTransition();
 
-  // Phase / status (single dropdown, renamed to "סטטוס")
   const [phase, setPhase] = useState(project?.phase ?? "pre_production");
-
-  // Client
   const [clientId, setClientId] = useState(project?.clientId ?? "");
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients] = useState(clients);
 
-  // Project type with custom categories
   const [customTypes, setCustomTypes] = useState<{ value: string; label: string }[]>(loadCustomTypes);
-  const allProjectTypes = [...BASE_PROJECT_TYPES, ...customTypes];
-
   const [projectType, setProjectType] = useState(() => {
-    const val = project?.projectType ?? null;
-    return val && allProjectTypes.some((t) => t.value === val) ? val : "";
+    const val = project?.projectType ?? "";
+    return val;
   });
   const [addingNewType, setAddingNewType] = useState(false);
   const [newTypeName, setNewTypeName] = useState("");
+
+  // Derive available phases from selected type
+  const availablePhases = getPhasesForType(projectType);
 
   // Reset on open
   useEffect(() => {
@@ -119,18 +105,23 @@ export function ProjectDialog({
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
-
       const fresh = loadCustomTypes();
       setCustomTypes(fresh);
-      const all = [...BASE_PROJECT_TYPES, ...fresh];
-      const pt = project?.projectType ?? "";
-      setProjectType(!pt || all.some((t) => t.value === pt) ? pt : "");
+      setProjectType(project?.projectType ?? "");
       setAddingNewType(false);
       setNewTypeName("");
     }
   }, [open, project, clients]);
 
-  // Add a new custom type to localStorage + local state
+  function handleTypeChange(newType: string) {
+    setProjectType(newType);
+    // For new projects: auto-select first phase of the chosen type
+    if (!isEditing) {
+      const phases = getPhasesForType(newType);
+      setPhase(phases[0]?.value ?? "pre_production");
+    }
+  }
+
   function handleAddCustomType() {
     const label = newTypeName.trim();
     if (!label) return;
@@ -160,12 +151,10 @@ export function ProjectDialog({
         setNewClientName("");
       }
 
-      const finalType = projectType;
-
       formData.set("phase", phase);
-      formData.set("status", phase); // keep status in sync with phase
+      formData.set("status", phase);
       formData.set("clientId", resolvedClientId);
-      formData.set("projectType", finalType);
+      formData.set("projectType", projectType);
 
       const result = isEditing
         ? await updateProject(project!.id, formData)
@@ -181,7 +170,15 @@ export function ProjectDialog({
     });
   }
 
-  const typeLabel = allProjectTypes.find((t) => t.value === projectType)?.label ?? "";
+  // Label for the trigger display
+  const typeLabel =
+    PROJECT_TYPE_CONFIG[projectType]?.label ??
+    customTypes.find((t) => t.value === projectType)?.label ??
+    "";
+
+  // Current phase label for the trigger display
+  const phaseLabel =
+    availablePhases.find((p) => p.value === phase)?.label ?? phase;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -217,7 +214,7 @@ export function ProjectDialog({
                   <button
                     type="button"
                     onClick={() => { setNewClientMode(false); setNewClientName(""); }}
-                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors"
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-red-500 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -233,11 +230,11 @@ export function ProjectDialog({
                     {localClients.map((client) => (
                       <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
                     ))}
-                    <div className="mx-1 my-1 border-t border-gray-100" />
+                    <SelectSeparator />
                     <button
                       type="button"
                       onClick={() => { setNewClientMode(true); setClientId(""); }}
-                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-[#38b6ff] hover:bg-[#38b6ff]/10 rounded transition-colors"
                     >
                       <Plus className="h-3.5 w-3.5" />הוסף לקוח חדש
                     </button>
@@ -246,18 +243,33 @@ export function ProjectDialog({
               )}
             </div>
 
-            {/* Project Type */}
+            {/* Project Type — categorized */}
             <div className="space-y-2">
               <Label>סוג פרויקט</Label>
-              <Select value={projectType} onValueChange={(v) => setProjectType(v ?? "")}>
+              <Select value={projectType} onValueChange={(v) => v != null && handleTypeChange(v)}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">{typeLabel || "בחר סוג"}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {allProjectTypes.map((type) => (
-                    <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                  {CATEGORIES.map((cat, idx) => (
+                    <SelectGroup key={cat}>
+                      {idx > 0 && <SelectSeparator />}
+                      <SelectLabel>{CATEGORY_LABELS[cat]}</SelectLabel>
+                      {getTypesByCategory(cat).map((type) => (
+                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      ))}
+                    </SelectGroup>
                   ))}
-                  <div className="mx-1 my-1 border-t border-border" />
+                  {customTypes.length > 0 && (
+                    <SelectGroup>
+                      <SelectSeparator />
+                      <SelectLabel>קטגוריות מותאמות</SelectLabel>
+                      {customTypes.map((type) => (
+                        <SelectItem key={type.value} value={type.value}>{type.label}</SelectItem>
+                      ))}
+                    </SelectGroup>
+                  )}
+                  <SelectSeparator />
                   {addingNewType ? (
                     <div
                       className="flex gap-1.5 px-1 py-1"
@@ -300,7 +312,7 @@ export function ProjectDialog({
                       type="button"
                       onPointerDown={(e) => e.stopPropagation()}
                       onClick={(e) => { e.stopPropagation(); setAddingNewType(true); }}
-                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded transition-colors"
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-[#38b6ff] hover:bg-[#38b6ff]/10 dark:hover:bg-[#38b6ff]/10 rounded transition-colors"
                     >
                       <Plus className="h-3.5 w-3.5" />הוסף קטגוריה
                     </button>
@@ -309,17 +321,15 @@ export function ProjectDialog({
               </Select>
             </div>
 
-            {/* Status (was Phase) */}
+            {/* Phase — dynamic based on selected type */}
             <div className="space-y-2">
               <Label>סטטוס</Label>
               <Select value={phase} onValueChange={(v) => v != null && setPhase(v)}>
                 <SelectTrigger className="w-full">
-                  <span className="flex flex-1">
-                    {STATUS_OPTIONS.find((p) => p.value === phase)?.label ?? phase}
-                  </span>
+                  <span className="flex flex-1">{phaseLabel}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {STATUS_OPTIONS.map((p) => (
+                  {availablePhases.map((p) => (
                     <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
                   ))}
                 </SelectContent>
@@ -339,9 +349,9 @@ export function ProjectDialog({
               />
             </div>
 
-            {/* Shoot Date */}
+            {/* Date (generic — shoot date, recording date, event date, etc.) */}
             <div className="space-y-2">
-              <Label htmlFor="shootDate">תאריך צילום</Label>
+              <Label htmlFor="shootDate">תאריך</Label>
               <Input
                 id="shootDate"
                 name="shootDate"

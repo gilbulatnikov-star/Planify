@@ -23,7 +23,7 @@ export function LoadingScreen() {
           strokeLinecap="round"
           strokeDasharray="400 56"
           style={{
-            animation: "qlipy-ring 1.4s linear infinite",
+            animation: "planify-ring 1.4s linear infinite",
             transformOrigin: "92.5px 70px",
           }}
         />
@@ -35,15 +35,15 @@ export function LoadingScreen() {
           ry="16"
           fill="#38b6ff"
           style={{
-            animation: "qlipy-drop 1.4s ease-in-out infinite",
+            animation: "planify-drop 1.4s ease-in-out infinite",
           }}
         />
       </svg>
       <style>{`
-        @keyframes qlipy-ring {
+        @keyframes planify-ring {
           to { stroke-dashoffset: -456; }
         }
-        @keyframes qlipy-drop {
+        @keyframes planify-drop {
           0%, 100% { transform: translateY(0px);  }
           50%       { transform: translateY(-10px); }
         }
