@@ -34,7 +34,9 @@ interface ContactDialogProps {
     email: string | null;
     dailyRate: number | null;
     notes: string | null;
+    projectId: string | null;
   } | null;
+  projects?: { id: string; title: string }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
   /** Extra custom categories found in the contacts list */
@@ -66,12 +68,13 @@ function getCategoryLabel(value: string): string {
   return PRESET_CATEGORIES.find(c => c.value === value)?.label ?? value;
 }
 
-export function ContactDialog({ contact, open, onOpenChange, extraCategories = [], onQuotaExceeded }: ContactDialogProps) {
+export function ContactDialog({ contact, open, onOpenChange, extraCategories = [], onQuotaExceeded, projects = [] }: ContactDialogProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!contact;
 
   const [category, setCategory]         = useState(contact?.category ?? "editor");
+  const [projectId, setProjectId]       = useState(contact?.projectId ?? "");
   const [customMode, setCustomMode]     = useState(false);
   const [customValue, setCustomValue]   = useState("");
   const [customList, setCustomList]     = useState<string[]>(extraCategories);
@@ -79,6 +82,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
   function handleOpenChange(open: boolean) {
     if (open) {
       setCategory(contact?.category ?? "editor");
+      setProjectId(contact?.projectId ?? "");
       setCustomMode(false);
       setCustomValue("");
     }
@@ -98,6 +102,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     formData.set("category", category);
+    formData.set("projectId", projectId);
 
     startTransition(async () => {
       const result = isEditing
@@ -220,6 +225,26 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
                 defaultValue={contact?.dailyRate ?? ""}
               />
             </div>
+
+            {/* Project link */}
+            {projects.length > 0 && (
+              <div className="col-span-2 space-y-2">
+                <Label>שיוך לפרויקט</Label>
+                <Select value={projectId} onValueChange={(v) => setProjectId(v === "__none__" ? "" : (v ?? ""))}>
+                  <SelectTrigger className="w-full">
+                    <span className="flex flex-1">
+                      {projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : "ללא פרויקט"}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none__">ללא פרויקט</SelectItem>
+                    {projects.map(p => (
+                      <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Notes */}
             <div className="col-span-2 space-y-2">

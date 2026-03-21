@@ -82,12 +82,13 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-border px-3 py-3">
         <div className="flex w-full items-center gap-2">
           {/* Logo */}
-          <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden">
-            <img
-              src="/qlipy-logo.png"
-              alt="Planify"
-              className="h-6 w-auto dark:[filter:invert(1)_hue-rotate(180deg)]"
-            />
+          <Link href="/" className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden select-none">
+            <svg viewBox="0 0 214 185" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-5 w-auto shrink-0">
+              <rect x="18" y="18" width="170" height="122" rx="61"
+                fill="none" stroke="currentColor" strokeWidth="28"/>
+              <ellipse cx="165" cy="162" rx="13" ry="17" fill="#38b6ff" transform="rotate(-8 165 162)"/>
+            </svg>
+            <span className="text-base font-bold tracking-tight text-foreground">Planify</span>
           </Link>
           {/* Collapsed Q icon */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">

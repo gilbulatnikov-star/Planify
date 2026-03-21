@@ -8,16 +8,24 @@ export default async function ContactsPage() {
   const userId = session?.user?.id;
 
   if (!userId) {
-    return <ContactsPageClient contacts={[]} planLimit={0} />;
+    return <ContactsPageClient contacts={[]} planLimit={0} projects={[]} />;
   }
 
-  const contacts = await prisma.contact.findMany({
-    where: { userId },
-    orderBy: { name: "asc" },
-  });
+  const [contacts, projects] = await Promise.all([
+    prisma.contact.findMany({
+      where: { userId },
+      orderBy: { name: "asc" },
+      include: { project: { select: { id: true, title: true } } },
+    }),
+    prisma.project.findMany({
+      where: { userId },
+      orderBy: { title: "asc" },
+      select: { id: true, title: true },
+    }),
+  ]);
 
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const limits = getLimitsForPlan(plan);
 
-  return <ContactsPageClient contacts={contacts} planLimit={limits.contacts} />;
+  return <ContactsPageClient contacts={contacts} planLimit={limits.contacts} projects={projects} />;
 }

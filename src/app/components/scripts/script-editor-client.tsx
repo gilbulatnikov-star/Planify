@@ -471,12 +471,13 @@ export function ScriptEditorClient({
   projects: { id: string; title: string }[];
   isPro: boolean;
 }) {
-  void clients; void projects;
   const router = useRouter();
 
   const [title, setTitle] = useState(script.title);
   const [content, setContent] = useState(script.content);
   const [platform, setPlatform] = useState(script.platform);
+  const [linkedProjectId, setLinkedProjectId] = useState(script.project?.id ?? "");
+  const [showProjectMenu, setShowProjectMenu] = useState(false);
   const [duration] = useState(script.duration); // kept for save compatibility, no UI
   const isPredefinedPlatform = PLATFORMS.some((p) => p.value === platform);
   const [customPlatformMode, setCustomPlatformMode] = useState(!isPredefinedPlatform && !!platform);
@@ -543,13 +544,14 @@ export function ScriptEditorClient({
       await updateScript(script.id, {
         title, content, platform, duration,
         shotListData: JSON.stringify(shotList),
+        projectId: linkedProjectId || undefined,
       });
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     }, 1500);
     return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
-  }, [title, content, platform, duration, shotList, script.id]);
+  }, [title, content, platform, duration, shotList, linkedProjectId, script.id]);
 
   // Scroll chat
   useEffect(() => {
@@ -734,6 +736,40 @@ export function ScriptEditorClient({
               )}
             </div>
           )}
+          {/* Project link */}
+          {projects.length > 0 && (
+            <div className="relative">
+              {showProjectMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProjectMenu(false)} />}
+              <button
+                onClick={() => setShowProjectMenu((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-gray-50 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors max-w-[140px]"
+              >
+                <span className="truncate">{linkedProjectId ? (projects.find(p => p.id === linkedProjectId)?.title ?? "פרויקט") : "📁 שייך לפרויקט"}</span>
+                <ChevronDown className="h-3 w-3 text-gray-400 shrink-0" />
+              </button>
+              {showProjectMenu && (
+                <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                  <button
+                    onClick={() => { setLinkedProjectId(""); setShowProjectMenu(false); }}
+                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-gray-50 ${!linkedProjectId ? "font-semibold text-gray-900" : "text-gray-500"}`}
+                  >
+                    ללא פרויקט
+                  </button>
+                  <div className="mx-2 my-1 border-t border-gray-100" />
+                  {projects.map(p => (
+                    <button
+                      key={p.id}
+                      onClick={() => { setLinkedProjectId(p.id); setShowProjectMenu(false); }}
+                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-gray-50 ${linkedProjectId === p.id ? "font-semibold text-gray-900" : "text-gray-600"}`}
+                    >
+                      {p.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           <div className="flex items-center gap-1 text-xs text-gray-400">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Save className="h-3.5 w-3.5" />}
             <span>{saving ? "שומר..." : saved ? "נשמר" : "שמור אוטומטי"}</span>

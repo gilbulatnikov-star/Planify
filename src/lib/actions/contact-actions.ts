@@ -33,6 +33,8 @@ export async function createContact(formData: FormData) {
     const dailyRateStr = formData.get("dailyRate") as string;
     const dailyRate = dailyRateStr ? parseFloat(dailyRateStr) : null;
 
+    const projectId = (formData.get("projectId") as string) || null;
+
     await prisma.contact.create({
       data: {
         name,
@@ -41,6 +43,7 @@ export async function createContact(formData: FormData) {
         email: (formData.get("email") as string) || null,
         dailyRate: dailyRate !== null && !isNaN(dailyRate) ? dailyRate : null,
         notes: (formData.get("notes") as string) || null,
+        projectId,
         userId: userId ?? undefined,
       },
     });
@@ -71,6 +74,8 @@ export async function updateContact(id: string, formData: FormData) {
     const dailyRateStr = formData.get("dailyRate") as string;
     const dailyRate = dailyRateStr ? parseFloat(dailyRateStr) : null;
 
+    const projectId = (formData.get("projectId") as string) || null;
+
     await prisma.contact.update({
       where: { id },
       data: {
@@ -80,6 +85,7 @@ export async function updateContact(id: string, formData: FormData) {
         email: (formData.get("email") as string) || null,
         dailyRate: dailyRate !== null && !isNaN(dailyRate) ? dailyRate : null,
         notes: (formData.get("notes") as string) || null,
+        projectId,
       },
     });
 

@@ -20,6 +20,8 @@ type ContactData = {
   email: string | null;
   dailyRate: number | null;
   notes: string | null;
+  projectId: string | null;
+  project: { id: string; title: string } | null;
 };
 
 const stagger = {
@@ -60,7 +62,7 @@ const categoryColors: Record<string, string> = {
 const PRESET_CATEGORIES_LIST = ["editor", "stills_photographer", "video_photographer", "lighting", "director", "art", "production_assistant", "producer", "three_d", "sound_designer", "makeup", "actor", "rental_house", "studio", "social_manager"] as const;
 const PRESET_SET = new Set<string>(PRESET_CATEGORIES_LIST);
 
-export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactData[]; planLimit: number }) {
+export function ContactsPageClient({ contacts, planLimit, projects }: { contacts: ContactData[]; planLimit: number; projects: { id: string; title: string }[] }) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<ContactData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
@@ -193,6 +195,11 @@ export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactD
                       <span>{he.common.currency}{contact.dailyRate.toLocaleString()} / יום</span>
                     </div>
                   )}
+                  {contact.project && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs bg-muted rounded-full px-2 py-0.5 text-muted-foreground">📁 {contact.project.title}</span>
+                    </div>
+                  )}
                   {contact.notes && (
                     <p className="text-xs text-muted-foreground/70 mt-2 line-clamp-2">
                       {contact.notes}
@@ -222,6 +229,7 @@ export function ContactsPageClient({ contacts, planLimit }: { contacts: ContactD
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         extraCategories={extraCategories}
+        projects={projects}
         onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
       />
 
