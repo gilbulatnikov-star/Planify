@@ -10,20 +10,24 @@ import {
   createTodo,
   toggleTodo,
   deleteTodo,
+  updateTodoProject,
 } from "@/lib/actions/widget-actions";
+import { ProjectLinker } from "@/app/components/shared/project-linker";
 
 interface TodoItem {
   id: string;
   text: string;
   completed: boolean;
+  project?: { id: string; title: string } | null;
 }
 
 interface TasksPageClientProps {
   initialTodos: TodoItem[];
   todosLimit: number;
+  projects: { id: string; title: string }[];
 }
 
-export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientProps) {
+export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPageClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [newTask, setNewTask] = useState("");
@@ -177,14 +181,26 @@ export function TasksPageClient({ initialTodos, todosLimit }: TasksPageClientPro
                 )}
               </button>
 
-              {/* Text */}
-              <span
-                className={`flex-1 text-sm transition-all ${
-                  todo.completed ? "text-gray-400 line-through" : "text-gray-800"
-                }`}
-              >
-                {todo.text}
-              </span>
+              {/* Text + project */}
+              <div className="flex-1 min-w-0">
+                <span
+                  className={`text-sm transition-all ${
+                    todo.completed ? "text-muted-foreground line-through" : "text-foreground"
+                  }`}
+                >
+                  {todo.text}
+                </span>
+                <div className="mt-1">
+                  <ProjectLinker
+                    currentProjectId={todo.project?.id ?? null}
+                    currentProjectTitle={todo.project?.title ?? null}
+                    projects={projects}
+                    onLink={async (projectId) => {
+                      await updateTodoProject(todo.id, projectId);
+                    }}
+                  />
+                </div>
+              </div>
 
               {/* Delete */}
               <button

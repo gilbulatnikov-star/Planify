@@ -37,11 +37,12 @@ export async function createMoodboard(title?: string) {
 
 export async function updateMoodboard(
   id: string,
-  data: { title?: string; nodesData?: string; edgesData?: string }
+  data: { title?: string; nodesData?: string; edgesData?: string; projectId?: string | null }
 ) {
   await prisma.moodboard.update({ where: { id }, data });
   revalidatePath("/moodboard");
   revalidatePath(`/moodboard/${id}`);
+  revalidatePath("/projects");
 }
 
 export async function deleteMoodboard(id: string) {

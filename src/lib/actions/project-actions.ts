@@ -25,6 +25,7 @@ export async function getProjectDetail(id: string) {
     include: {
       client: { select: { id: true, name: true } },
       tasks: { orderBy: { createdAt: "asc" } },
+      todos: { orderBy: { createdAt: "desc" }, select: { id: true, text: true, completed: true } },
       scripts: { select: { id: true, title: true, platform: true, updatedAt: true } },
       moodboards: { select: { id: true, title: true, updatedAt: true } },
       contacts: { select: { id: true, name: true, category: true, phone: true, email: true } },

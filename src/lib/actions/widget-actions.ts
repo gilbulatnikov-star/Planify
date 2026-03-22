@@ -63,6 +63,7 @@ export async function getTodos() {
     const todos = await prisma.todo.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
+      include: { project: { select: { id: true, title: true } } },
     });
     return todos;
   } catch (error) {
@@ -101,6 +102,13 @@ export async function createTodo(text: string) {
       error: error instanceof Error ? error.message : "Failed to create todo",
     };
   }
+}
+
+export async function updateTodoProject(id: string, projectId: string | null) {
+  await prisma.todo.update({ where: { id }, data: { projectId } });
+  revalidatePath("/tasks");
+  revalidatePath("/projects");
+  return { success: true };
 }
 
 export async function toggleTodo(id: string) {

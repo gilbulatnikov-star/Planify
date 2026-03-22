@@ -127,6 +127,7 @@ model Project {
   deliveredAt DateTime?
 
   tasks            Task[]
+  todos            Todo[]
   scripts          Script[]
   moodboards       Moodboard[]
   contacts         Contact[]
@@ -309,6 +310,8 @@ model Todo {
   completedAt DateTime?
   userId      String?
   user        User?     @relation(fields: [userId], references: [id])
+  projectId   String?
+  project     Project?  @relation(fields: [projectId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
