@@ -12,8 +12,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProjectDialog } from "./project-dialog";
-import { getPhaseLabel } from "@/lib/project-config";
-import { PROJECT_TYPE_CONFIG } from "@/lib/project-config";
+import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/project-config";
+import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { he } from "@/lib/he";
 import { toggleProjectTask } from "@/lib/actions/project-actions";
@@ -60,7 +60,9 @@ export function ProjectDetailClient({
   const [editOpen, setEditOpen] = useState(false);
 
   const typeLabel = project.projectType
-    ? (PROJECT_TYPE_CONFIG[project.projectType]?.label ?? project.projectType)
+    ? (CATEGORY_LABELS[project.projectType as ProjectCategory]
+      ?? PROJECT_TYPE_CONFIG[project.projectType]?.label
+      ?? project.projectType)
     : null;
   const phaseLabel = getPhaseLabel(project.phase);
 

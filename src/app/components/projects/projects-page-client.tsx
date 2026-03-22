@@ -14,10 +14,12 @@ import { he } from "@/lib/he";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import {
   CATEGORY_LABELS,
+  CATEGORY_PHASES,
   UNIVERSAL_COLUMNS,
   getPhaseLabel,
   getTypeCategory,
   toUniversalColumn,
+  PROJECT_TYPE_CONFIG,
 } from "@/lib/project-config";
 import type { ProjectCategory } from "@/lib/project-config";
 
@@ -156,7 +158,11 @@ export function ProjectsPageClient({
                 const completedTasks = project.tasks.filter((t) => t.completed).length;
                 const totalTasks = project.tasks.length;
                 const typeLabel = project.projectType
-                  ? (he.project.types[project.projectType as keyof typeof he.project.types] ?? project.projectType)
+                  ? (CATEGORY_LABELS[project.projectType as ProjectCategory]
+                    ?? PROJECT_TYPE_CONFIG[project.projectType]?.label
+                    ?? (project.projectType.startsWith("custom_")
+                      ? project.projectType.replace(/^custom_/, "").replace(/_\d+$/, "").replace(/_/g, " ")
+                      : project.projectType))
                   : null;
                 const currentPhaseLabel = getPhaseLabel(project.phase);
 

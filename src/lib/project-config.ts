@@ -324,9 +324,12 @@ export const UNIVERSAL_PHASE_MAP: Record<string, UniversalColumn> = {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 export function getPhasesForType(typeKey: string): PhaseOption[] {
+  // Check category key first (new simple flow)
+  if (typeKey in CATEGORY_PHASES) return CATEGORY_PHASES[typeKey as ProjectCategory];
+  // Then check specific type config (legacy/backward compat)
   const cfg = PROJECT_TYPE_CONFIG[typeKey];
   if (cfg) return cfg.phases;
-  // Legacy fallback for old projects or custom types
+  // Legacy fallback
   return [
     { value: "pre_production",  label: "לפני הצילומים" },
     { value: "post_production", label: "עריכה" },
@@ -336,6 +339,8 @@ export function getPhasesForType(typeKey: string): PhaseOption[] {
 }
 
 export function getTypeCategory(typeKey: string): ProjectCategory | null {
+  // Direct category key
+  if (typeKey in CATEGORY_PHASES) return typeKey as ProjectCategory;
   return PROJECT_TYPE_CONFIG[typeKey]?.category ?? null;
 }
 
@@ -356,6 +361,37 @@ export function getTypeKeyByLabel(label: string): string | null {
   }
   return null;
 }
+
+/** Default phases for each top-level category (used when type = category key). */
+export const CATEGORY_PHASES: Record<ProjectCategory, PhaseOption[]> = {
+  photography: [
+    { value: "coordination",     label: "תיאום" },
+    { value: "shoot_day",        label: "יום הצילום" },
+    { value: "editing",          label: "עריכה" },
+    { value: "gallery_delivery", label: "מסירה" },
+  ],
+  video: [
+    { value: "brief",           label: "בריף" },
+    { value: "pre_production",  label: "פרה-פרודקשן" },
+    { value: "shoot_days",      label: "צילום" },
+    { value: "post_production", label: "עריכה" },
+    { value: "revisions",       label: "תיקונים" },
+    { value: "delivered",       label: "הושלם" },
+  ],
+  content: [
+    { value: "planning",         label: "תכנון" },
+    { value: "writing",          label: "כתיבה" },
+    { value: "graphics",         label: "גרפיקה" },
+    { value: "waiting_approval", label: "ממתין לאישור" },
+    { value: "published",        label: "פורסם" },
+  ],
+  editing: [
+    { value: "materials_received", label: "חומרים התקבלו" },
+    { value: "first_cut",          label: "גרסה ראשונה" },
+    { value: "revisions",          label: "תיקונים" },
+    { value: "delivered",          label: "מסירה" },
+  ],
+};
 
 export function getPhaseLabel(phase: string): string {
   for (const cfg of Object.values(PROJECT_TYPE_CONFIG)) {

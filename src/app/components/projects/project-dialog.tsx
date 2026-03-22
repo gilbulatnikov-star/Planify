@@ -16,7 +16,6 @@ import {
   SelectSeparator,
   SelectTrigger,
 } from "@/components/ui/select";
-// Note: Select is still used for client and phase dropdowns
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,12 +25,18 @@ import { createClientQuick } from "@/lib/actions/client-actions";
 import { Plus, X } from "lucide-react";
 import {
   getPhasesForType,
-  getTypeKeyByLabel,
+  CATEGORY_LABELS,
+  CATEGORY_PHASES,
   PROJECT_TYPE_CONFIG,
 } from "@/lib/project-config";
+import type { ProjectCategory } from "@/lib/project-config";
 
-const CUSTOM_TYPES_KEY = "gp_custom_project_types";
-
+const CATEGORY_OPTIONS: { value: ProjectCategory; label: string }[] = [
+  { value: "photography", label: "📸 צילום" },
+  { value: "video",       label: "🎬 וידאו" },
+  { value: "content",     label: "📱 סושיאל" },
+  { value: "editing",     label: "✂️ עריכה" },
+];
 
 interface ProjectDialogProps {
   project?: {
@@ -55,15 +60,20 @@ interface ProjectDialogProps {
 function formatDateForInput(date: Date | null | undefined): string {
   if (!date) return "";
   const d = new Date(date);
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function loadCustomTypes(): { value: string; label: string }[] {
-  if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(CUSTOM_TYPES_KEY) ?? "[]"); } catch { return []; }
+/** Resolve a legacy specific type key (e.g. "wedding") to its parent category. */
+function resolveToCategory(typeKey: string | null): string {
+  if (!typeKey) return "";
+  // Already a category key
+  if (typeKey in CATEGORY_PHASES) return typeKey;
+  // Legacy specific type → get its category
+  const cfg = PROJECT_TYPE_CONFIG[typeKey];
+  if (cfg) return cfg.category;
+  // Legacy custom_ types — try to guess category from the stored label
+  // For old data, default to empty (user can re-select)
+  return "";
 }
 
 export function ProjectDialog({
@@ -81,14 +91,7 @@ export function ProjectDialog({
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients] = useState(clients);
-
-  const [customTypes, setCustomTypes] = useState<{ value: string; label: string }[]>(loadCustomTypes);
-  const [projectType, setProjectType] = useState(() => project?.projectType ?? "");
-  // typeInputValue is the displayed label in the text input
-  const [typeInputValue, setTypeInputValue] = useState(() => {
-    const val = project?.projectType ?? "";
-    return PROJECT_TYPE_CONFIG[val]?.label ?? val;
-  });
+  const [projectType, setProjectType] = useState(() => resolveToCategory(project?.projectType ?? null));
 
   // Derive available phases from selected type
   const availablePhases = getPhasesForType(projectType);
@@ -101,48 +104,16 @@ export function ProjectDialog({
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
-      const fresh = loadCustomTypes();
-      setCustomTypes(fresh);
-      const pt = project?.projectType ?? "";
-      setProjectType(pt);
-      setTypeInputValue(PROJECT_TYPE_CONFIG[pt]?.label ?? pt);
+      setProjectType(resolveToCategory(project?.projectType ?? null));
     }
   }, [open, project, clients]);
 
-  function handleTypeInputChange(inputLabel: string) {
-    setTypeInputValue(inputLabel);
-    // Try to match a known type by label
-    const knownKey = getTypeKeyByLabel(inputLabel);
-    if (knownKey) {
-      setProjectType(knownKey);
-      if (!isEditing) {
-        const phases = getPhasesForType(knownKey);
-        setPhase(phases[0]?.value ?? "pre_production");
-      }
-    } else {
-      // Check custom types
-      const custom = customTypes.find(t => t.label.toLowerCase() === inputLabel.trim().toLowerCase());
-      if (custom) {
-        setProjectType(custom.value);
-      } else {
-        // Free-form — store the label as the type key temporarily
-        setProjectType(inputLabel.trim());
-      }
-    }
-  }
-
-  function handleTypeBlur() {
-    const label = typeInputValue.trim();
-    if (!label) return;
-    const knownKey = getTypeKeyByLabel(label);
-    if (knownKey || customTypes.find(t => t.label.toLowerCase() === label.toLowerCase())) return;
-    // Save as custom type if not already saved
-    if (!customTypes.find(t => t.value === projectType)) {
-      const value = `custom_${label.toLowerCase().replace(/\s+/g, "_")}_${Date.now()}`;
-      const updated = [...customTypes, { value, label }];
-      setCustomTypes(updated);
-      localStorage.setItem(CUSTOM_TYPES_KEY, JSON.stringify(updated));
-      setProjectType(value);
+  function handleTypeChange(value: string) {
+    setProjectType(value);
+    // Auto-select first phase when type changes (new projects only)
+    if (!isEditing) {
+      const phases = getPhasesForType(value);
+      setPhase(phases[0]?.value ?? "pre_production");
     }
   }
 
@@ -182,10 +153,8 @@ export function ProjectDialog({
     });
   }
 
-
-  // Current phase label for the trigger display
-  const phaseLabel =
-    availablePhases.find((p) => p.value === phase)?.label ?? phase;
+  const phaseLabel = availablePhases.find((p) => p.value === phase)?.label ?? phase;
+  const typeLabel = CATEGORY_OPTIONS.find(o => o.value === projectType)?.label ?? "בחר קטגוריה";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -250,20 +219,22 @@ export function ProjectDialog({
               )}
             </div>
 
-            {/* Project Type — free text */}
+            {/* Project Type — simple 4 categories */}
             <div className="space-y-2">
-              <Label htmlFor="projectTypeInput">סוג פרויקט</Label>
-              <Input
-                id="projectTypeInput"
-                value={typeInputValue}
-                onChange={(e) => handleTypeInputChange(e.target.value)}
-                onBlur={handleTypeBlur}
-                placeholder="חתונה, ריל, עריכת וידאו..."
-                autoComplete="off"
-              />
+              <Label>קטגוריה</Label>
+              <Select value={projectType} onValueChange={(v) => v != null && handleTypeChange(v)}>
+                <SelectTrigger className="w-full">
+                  <span className="flex flex-1">{typeLabel}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
-            {/* Phase — dynamic based on selected type */}
+            {/* Phase — dynamic based on selected category */}
             <div className="space-y-2">
               <Label>סטטוס</Label>
               <Select value={phase} onValueChange={(v) => v != null && setPhase(v)}>
@@ -291,7 +262,7 @@ export function ProjectDialog({
               />
             </div>
 
-            {/* Date (generic — shoot date, recording date, event date, etc.) */}
+            {/* Date */}
             <div className="space-y-2">
               <Label htmlFor="shootDate">תאריך</Label>
               <Input
