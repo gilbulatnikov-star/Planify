@@ -214,7 +214,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <FileText className="h-4 w-4" /> תסריטים
           </h2>
-          {project.scripts.length > 0 && <LinkItemDropdown items={unlinked.scripts} label="שייך תסריט" onSelect={handleLinkScript} />}
+          {<LinkItemDropdown items={unlinked.scripts} label="הוסף תסריט" onSelect={handleLinkScript} />}
         </div>
         {project.scripts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -234,8 +234,8 @@ export function ProjectDetailClient({
           </div>
         ) : (
           <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין תסריטים משויכים</p>
-            <LinkItemDropdown items={unlinked.scripts} label="שייך תסריט" onSelect={handleLinkScript} />
+            <p className="text-xs text-muted-foreground">אין תסריטים</p>
+            <LinkItemDropdown items={unlinked.scripts} label="הוסף תסריט" onSelect={handleLinkScript} />
           </div>
         )}
       </motion.div>
@@ -246,7 +246,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <LayoutTemplate className="h-4 w-4" /> Moodboards
           </h2>
-          {project.moodboards.length > 0 && <LinkItemDropdown items={unlinked.moodboards} label="שייך Moodboard" onSelect={handleLinkMoodboard} />}
+          {<LinkItemDropdown items={unlinked.moodboards} label="הוסף Moodboard" onSelect={handleLinkMoodboard} />}
         </div>
         {project.moodboards.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -263,8 +263,8 @@ export function ProjectDetailClient({
           </div>
         ) : (
           <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין Moodboards משויכים</p>
-            <LinkItemDropdown items={unlinked.moodboards} label="שייך Moodboard" onSelect={handleLinkMoodboard} />
+            <p className="text-xs text-muted-foreground">אין Moodboards</p>
+            <LinkItemDropdown items={unlinked.moodboards} label="הוסף Moodboard" onSelect={handleLinkMoodboard} />
           </div>
         )}
       </motion.div>
@@ -275,7 +275,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <Contact className="h-4 w-4" /> אנשי קשר
           </h2>
-          {project.contacts.length > 0 && <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="שייך איש קשר" onSelect={handleLinkContact} />}
+          {<LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="הוסף איש קשר" onSelect={handleLinkContact} />}
         </div>
         {project.contacts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -296,8 +296,8 @@ export function ProjectDetailClient({
           </div>
         ) : (
           <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין אנשי קשר משויכים</p>
-            <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="שייך איש קשר" onSelect={handleLinkContact} />
+            <p className="text-xs text-muted-foreground">אין אנשי קשר</p>
+            <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="הוסף איש קשר" onSelect={handleLinkContact} />
           </div>
         )}
       </motion.div>

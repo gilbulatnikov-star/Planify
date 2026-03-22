@@ -44,7 +44,7 @@ export function ProjectLinker({
         {currentProjectTitle ? (
           <span className="font-medium">{currentProjectTitle}</span>
         ) : (
-          <span>בחר פרויקט</span>
+          <span>הוסף לפרויקט</span>
         )}
         <ChevronDown className="h-3 w-3 opacity-50" />
       </button>
@@ -57,7 +57,7 @@ export function ProjectLinker({
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
     >
       <div className="flex items-center justify-between px-2 pb-1.5 border-b border-border">
-        <span className="text-xs font-medium text-foreground">בחר פרויקט</span>
+        <span className="text-xs font-medium text-foreground">הוסף לפרויקט</span>
         <button type="button" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
           <X className="h-3.5 w-3.5" />
         </button>
