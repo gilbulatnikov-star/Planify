@@ -17,7 +17,7 @@ export function LinkCardNode({ data, selected }: NodeProps) {
 
   return (
     <div
-      className={`relative w-56 rounded-2xl shadow-md bg-white overflow-hidden ${
+      className={`relative w-56 rounded-2xl shadow-md bg-card overflow-hidden ${
         selected ? "ring-2 ring-blue-500" : ""
       }`}
     >
@@ -30,7 +30,7 @@ export function LinkCardNode({ data, selected }: NodeProps) {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50">
               <LinkIcon className="h-4 w-4 text-blue-500" />
             </div>
-            <p className="text-sm font-semibold text-gray-900 truncate flex-1">
+            <p className="text-sm font-semibold text-foreground truncate flex-1">
               {displayLabel}
             </p>
           </div>
@@ -58,7 +58,7 @@ export function LinkCardNode({ data, selected }: NodeProps) {
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="https://..."
-            className="nodrag w-full rounded-lg border border-gray-200 px-3 py-2 text-xs outline-none focus:border-blue-400"
+            className="nodrag w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
           />
           <input
             type="text"
@@ -66,11 +66,11 @@ export function LinkCardNode({ data, selected }: NodeProps) {
             onChange={(e) => setLabel(e.target.value)}
             placeholder="כותרת (אופציונלי)"
             dir="rtl"
-            className="nodrag w-full rounded-lg border border-gray-200 px-3 py-2 text-xs outline-none focus:border-blue-400"
+            className="nodrag w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
           />
           <button
             onClick={() => setEditing(false)}
-            className="rounded-lg bg-gray-900 py-1.5 text-xs font-medium text-white hover:bg-gray-800 transition-colors nodrag"
+            className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-white hover:bg-foreground/90 transition-colors nodrag"
           >
             שמור
           </button>

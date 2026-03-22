@@ -334,7 +334,7 @@ function TourCard({
   centered?: boolean;
 }) {
   return (
-    <div className="rounded-2xl bg-white shadow-2xl overflow-hidden" dir="rtl">
+    <div className="rounded-2xl bg-card shadow-2xl overflow-hidden" dir="rtl">
       {/* Gradient color strip */}
       <div className={`h-1.5 w-full bg-gradient-to-r ${current.color}`} />
 
@@ -348,7 +348,7 @@ function TourCard({
                 onClick={() => onDot(i)}
                 className={`h-1.5 rounded-full transition-all duration-300 ${
                   i === step
-                    ? "w-5 bg-gray-900"
+                    ? "w-5 bg-foreground"
                     : "w-1.5 bg-gray-200 hover:bg-gray-300"
                 }`}
               />
@@ -356,7 +356,7 @@ function TourCard({
           </div>
           <button
             onClick={onDismiss}
-            className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-600 transition-colors"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
           >
             <X className="h-3.5 w-3.5" />
             דלג
@@ -382,14 +382,14 @@ function TourCard({
             </div>
             <div className="flex-1 min-w-0">
               <h3
-                className={`font-bold text-gray-900 leading-snug mb-1 ${
+                className={`font-bold text-foreground leading-snug mb-1 ${
                   centered ? "text-lg" : "text-sm"
                 }`}
               >
                 {current.title}
               </h3>
               <p
-                className={`text-gray-500 leading-relaxed ${
+                className={`text-muted-foreground leading-relaxed ${
                   centered ? "text-sm max-w-xs mx-auto" : "text-xs"
                 }`}
               >
@@ -404,7 +404,7 @@ function TourCard({
           <button
             onClick={onPrev}
             disabled={isFirst}
-            className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-700 transition-colors disabled:opacity-0 disabled:pointer-events-none shrink-0"
+            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-0 disabled:pointer-events-none shrink-0"
           >
             <ArrowRight className="h-3.5 w-3.5" />
             הקודם
@@ -419,7 +419,7 @@ function TourCard({
         </div>
 
         {/* Counter */}
-        <p className="text-center text-[10px] text-gray-300 mt-3">
+        <p className="text-center text-[10px] text-muted-foreground mt-3">
           {step + 1} מתוך {total}
         </p>
       </div>

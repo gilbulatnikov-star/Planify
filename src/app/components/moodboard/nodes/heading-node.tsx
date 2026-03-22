@@ -22,7 +22,7 @@ export function HeadingNode({ data, selected }: NodeProps) {
         value={text}
         onChange={(e) => setText(e.target.value)}
         dir="rtl"
-        className="nodrag bg-transparent outline-none text-2xl font-black text-gray-900 placeholder-gray-300 min-w-[120px]"
+        className="nodrag bg-transparent outline-none text-2xl font-black text-foreground placeholder-muted-foreground min-w-[120px]"
         onMouseDown={(e) => e.stopPropagation()}
         placeholder="כותרת..."
       />

@@ -63,12 +63,12 @@ export default function SignUpPage() {
             <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-gray-900">צור חשבון ב-Planify</h1>
-        <p className="text-sm text-gray-500 mt-1">מערכת הניהול לצלמים ומפיקים</p>
+        <h1 className="text-2xl font-bold text-foreground">צור חשבון ב-Planify</h1>
+        <p className="text-sm text-muted-foreground mt-1">מערכת הניהול לצלמים ומפיקים</p>
       </div>
 
       {/* Card */}
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
           {/* Error */}
           {error && (
@@ -80,20 +80,20 @@ export default function SignUpPage() {
 
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">שם מלא</label>
+            <label className="text-sm font-medium text-foreground">שם מלא</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="גיל כהן"
               dir="rtl"
-              className="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition-all focus:border-gray-900 focus:bg-white focus:ring-2 focus:ring-gray-900/10 placeholder:text-gray-400"
+              className="w-full h-11 rounded-xl border border-border bg-muted px-4 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
             />
           </div>
 
           {/* Email */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">אימייל</label>
+            <label className="text-sm font-medium text-foreground">אימייל</label>
             <input
               type="email"
               value={email}
@@ -101,13 +101,13 @@ export default function SignUpPage() {
               placeholder="you@example.com"
               required
               dir="ltr"
-              className="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm outline-none transition-all focus:border-gray-900 focus:bg-white focus:ring-2 focus:ring-gray-900/10 placeholder:text-gray-400"
+              className="w-full h-11 rounded-xl border border-border bg-muted px-4 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
             />
           </div>
 
           {/* Password */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-gray-700">סיסמה</label>
+            <label className="text-sm font-medium text-foreground">סיסמה</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -116,12 +116,12 @@ export default function SignUpPage() {
                 placeholder="לפחות 6 תווים"
                 required
                 dir="ltr"
-                className="w-full h-11 rounded-xl border border-gray-200 bg-gray-50 px-4 pl-11 text-sm outline-none transition-all focus:border-gray-900 focus:bg-white focus:ring-2 focus:ring-gray-900/10 placeholder:text-gray-400"
+                className="w-full h-11 rounded-xl border border-border bg-muted px-4 pl-11 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-muted-foreground transition-colors"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -132,7 +132,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-11 rounded-xl bg-gray-900 text-white text-sm font-semibold transition-all hover:bg-gray-800 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full h-11 rounded-xl bg-foreground text-white text-sm font-semibold transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -147,10 +147,10 @@ export default function SignUpPage() {
           {/* Divider */}
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100" />
+              <div className="w-full border-t border-border" />
             </div>
-            <div className="relative flex justify-center text-xs text-gray-400">
-              <span className="bg-white px-3">או המשך עם</span>
+            <div className="relative flex justify-center text-xs text-muted-foreground">
+              <span className="bg-card px-3">או המשך עם</span>
             </div>
           </div>
 
@@ -158,7 +158,7 @@ export default function SignUpPage() {
           <button
             type="button"
             onClick={() => signIn("google", { callbackUrl: "/" })}
-            className="w-full h-11 rounded-xl border border-gray-200 bg-white text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
+            className="w-full h-11 rounded-xl border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-muted transition-colors flex items-center justify-center gap-2"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -170,16 +170,16 @@ export default function SignUpPage() {
           </button>
 
           {/* Terms */}
-          <p className="text-center text-xs text-gray-400">
+          <p className="text-center text-xs text-muted-foreground">
             בהרשמה אתה מסכים לתנאי השימוש ומדיניות הפרטיות
           </p>
         </form>
       </div>
 
       {/* Sign in link */}
-      <p className="text-center text-sm text-gray-500 mt-6" dir="rtl">
+      <p className="text-center text-sm text-muted-foreground mt-6" dir="rtl">
         כבר יש לך חשבון?{" "}
-        <Link href="/sign-in" className="font-semibold text-gray-900 hover:underline">
+        <Link href="/sign-in" className="font-semibold text-foreground hover:underline">
           כניסה
         </Link>
       </p>

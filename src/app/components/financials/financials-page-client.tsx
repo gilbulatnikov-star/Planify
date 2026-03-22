@@ -353,7 +353,7 @@ export function FinancialsPageClient({
         <Button
           size="sm"
           onClick={() => setUploadDialogOpen(true)}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Upload className="h-4 w-4 me-2" />
           העלאת מסמך
@@ -411,11 +411,11 @@ export function FinancialsPageClient({
                 {/* Year nav inside picker */}
                 <div className="flex items-center justify-between mb-3">
                   <button onClick={() => setPickerYear(y => y - 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted">
-                    <ChevronRight className="h-4 w-4 text-gray-500" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </button>
                   <span className="text-sm font-bold text-foreground">{pickerYear}</span>
                   <button onClick={() => setPickerYear(y => y + 1)} className="h-7 w-7 flex items-center justify-center rounded-lg hover:bg-muted">
-                    <ChevronLeft className="h-4 w-4 text-gray-500" />
+                    <ChevronLeft className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
@@ -454,7 +454,7 @@ export function FinancialsPageClient({
             {hasDateFilter && (
               <span
                 onClick={(e) => { e.stopPropagation(); setDateFrom(""); setDateTo(""); }}
-                className="flex items-center justify-center h-4 w-4 rounded-full bg-white/20 hover:bg-white/40"
+                className="flex items-center justify-center h-4 w-4 rounded-full bg-card/20 hover:bg-card/40"
               >
                 <X className="h-2.5 w-2.5" />
               </span>
@@ -471,7 +471,7 @@ export function FinancialsPageClient({
             dir="rtl"
           >
             <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
-              <label className="text-xs text-gray-500 font-medium whitespace-nowrap">מתאריך</label>
+              <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">מתאריך</label>
               <input
                 type="date"
                 value={dateFrom}
@@ -481,7 +481,7 @@ export function FinancialsPageClient({
               />
             </div>
             <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
-              <label className="text-xs text-gray-500 font-medium whitespace-nowrap">עד תאריך</label>
+              <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">עד תאריך</label>
               <input
                 type="date"
                 value={dateTo}
@@ -566,7 +566,7 @@ export function FinancialsPageClient({
               <Button
                 size="sm"
                 onClick={handleCreateInvoice}
-                className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+                className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
               >
                 <Plus className="h-4 w-4 me-2" />
                 {he.financial.newInvoice}
@@ -635,7 +635,7 @@ export function FinancialsPageClient({
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger
-                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-200 outline-none"
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors duration-200 outline-none"
                             >
                               <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                             </DropdownMenuTrigger>
@@ -793,7 +793,7 @@ export function FinancialsPageClient({
                         <TableCell>
                           <DropdownMenu>
                             <DropdownMenuTrigger
-                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-gray-50 transition-colors duration-200 outline-none"
+                              className="flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted transition-colors duration-200 outline-none"
                             >
                               <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
                             </DropdownMenuTrigger>
@@ -862,7 +862,7 @@ export function FinancialsPageClient({
               <Button
                 size="sm"
                 onClick={handleCreateExpense}
-                className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+                className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
               >
                 <Plus className="h-4 w-4 me-2" />
                 {he.financial.newExpense}
@@ -906,7 +906,7 @@ export function FinancialsPageClient({
                         <TableCell className="hidden sm:table-cell">
                           <Badge
                             variant="outline"
-                            className="border-gray-200 text-muted-foreground"
+                            className="border-border text-muted-foreground"
                           >
                             {he.financial.expenseCategories[
                               exp.category as keyof typeof he.financial.expenseCategories
@@ -960,7 +960,7 @@ export function FinancialsPageClient({
               <a
                 href="/financials"
                 onClick={(e) => { e.preventDefault(); window.location.href = "/subscriptions"; }}
-                className="text-xs text-gray-500 hover:text-gray-900 underline underline-offset-2 transition-colors"
+                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
               >
                 ניהול הוצאות קבועות ←
               </a>

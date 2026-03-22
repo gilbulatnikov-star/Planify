@@ -96,13 +96,13 @@ export function TravelLogPageClient({
         variants={fadeUp}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.travelLog.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.travelLog.newEntry}
@@ -117,7 +117,7 @@ export function TravelLogPageClient({
               <p className="text-sm text-muted-foreground">
                 {he.travelLog.totalKm}
               </p>
-              <p className="text-3xl font-bold tracking-tight text-gray-900">
+              <p className="text-3xl font-bold tracking-tight text-foreground">
                 {totalKmThisMonth.toLocaleString("he-IL")} {he.travelLog.kilometers}
               </p>
             </div>
@@ -134,7 +134,7 @@ export function TravelLogPageClient({
           <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground">
                     תאריך
                   </TableHead>
@@ -162,7 +162,7 @@ export function TravelLogPageClient({
                 {travelLogs.map((entry) => (
                   <TableRow
                     key={entry.id}
-                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                    className="border-border transition-all duration-200 hover:bg-muted group"
                   >
                     <TableCell className="text-muted-foreground">
                       {formatDate(entry.date)}

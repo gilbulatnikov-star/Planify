@@ -340,38 +340,38 @@ export function CalendarExportStudio({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:p-4">
-      <div className="bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col w-full sm:max-w-5xl h-[95vh] sm:max-h-[92vh] overflow-hidden">
+      <div className="bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col w-full sm:max-w-5xl h-[95vh] sm:max-h-[92vh] overflow-hidden">
 
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-gray-900">ייצוא ללקוח</h2>
-            <p className="text-xs sm:text-sm text-gray-500">
+            <h2 className="text-base sm:text-lg font-bold text-foreground">ייצוא ללקוח</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">
               {clientName || "כל הלקוחות"} — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors">
+          <button onClick={onClose} className="p-2 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted transition-colors">
             <X className="h-5 w-5" />
           </button>
         </div>
 
         {/* Mobile controls strip */}
-        <div className="sm:hidden flex items-center gap-2 px-4 py-2.5 border-b border-gray-100 bg-gray-50 shrink-0 overflow-x-auto">
+        <div className="sm:hidden flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted shrink-0 overflow-x-auto">
           {/* Layout */}
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white shrink-0">
-            <button onClick={() => setLayout("grid")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "grid" ? "bg-gray-900 text-white" : "text-gray-500"}`}>
+          <div className="flex rounded-lg border border-border overflow-hidden bg-card shrink-0">
+            <button onClick={() => setLayout("grid")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "grid" ? "bg-foreground text-white" : "text-muted-foreground"}`}>
               <Grid3X3 className="h-3 w-3" /> לוח
             </button>
-            <button onClick={() => setLayout("timeline")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "timeline" ? "bg-gray-900 text-white" : "text-gray-500"}`}>
+            <button onClick={() => setLayout("timeline")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-white" : "text-muted-foreground"}`}>
               <List className="h-3 w-3" /> רשימה
             </button>
           </div>
           {/* Theme */}
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white shrink-0">
-            <button onClick={() => setDarkMode(false)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-gray-100 text-gray-900" : "text-gray-400"}`}>
+          <div className="flex rounded-lg border border-border overflow-hidden bg-card shrink-0">
+            <button onClick={() => setDarkMode(false)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
               <Sun className="h-3 w-3" />
             </button>
-            <button onClick={() => setDarkMode(true)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-gray-900 text-white" : "text-gray-400"}`}>
+            <button onClick={() => setDarkMode(true)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-white" : "text-muted-foreground"}`}>
               <Moon className="h-3 w-3" />
             </button>
           </div>
@@ -385,12 +385,12 @@ export function CalendarExportStudio({
             ))}
           </div>
           {/* Zoom */}
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden bg-white shrink-0 ms-auto">
-            <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50">
+          <div className="flex rounded-lg border border-border overflow-hidden bg-card shrink-0 ms-auto">
+            <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="px-2.5 py-1.5 text-muted-foreground hover:bg-muted">
               <ZoomOut className="h-3.5 w-3.5" />
             </button>
-            <span className="px-2 py-1.5 text-xs text-gray-500 border-x border-gray-200 min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
-            <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50">
+            <span className="px-2 py-1.5 text-xs text-muted-foreground border-x border-border min-w-[36px] text-center">{Math.round(zoom * 100)}%</span>
+            <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="px-2.5 py-1.5 text-muted-foreground hover:bg-muted">
               <ZoomIn className="h-3.5 w-3.5" />
             </button>
           </div>
@@ -399,16 +399,16 @@ export function CalendarExportStudio({
         <div className="flex flex-1 overflow-hidden min-h-0">
 
           {/* Controls Panel — desktop only */}
-          <div className="hidden sm:flex w-64 flex-shrink-0 border-l border-gray-100 bg-gray-50 p-5 flex-col gap-6 overflow-y-auto">
+          <div className="hidden sm:flex w-64 flex-shrink-0 border-l border-border bg-muted p-5 flex-col gap-6 overflow-y-auto">
 
             {/* Layout */}
             <div>
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">תצוגה</p>
-              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
-                <button onClick={() => setLayout("grid")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "grid" ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-50"}`}>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">תצוגה</p>
+              <div className="flex rounded-xl border border-border overflow-hidden bg-card">
+                <button onClick={() => setLayout("grid")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "grid" ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
                   <Grid3X3 className="h-3.5 w-3.5" /> לוח
                 </button>
-                <button onClick={() => setLayout("timeline")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "timeline" ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-50"}`}>
+                <button onClick={() => setLayout("timeline")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
                   <List className="h-3.5 w-3.5" /> רשימה
                 </button>
               </div>
@@ -416,21 +416,21 @@ export function CalendarExportStudio({
 
             {/* Theme */}
             <div>
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">ערכת נושא</p>
-              <div className="flex rounded-xl border border-gray-200 overflow-hidden bg-white">
-                <button onClick={() => setDarkMode(false)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${!darkMode ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-50"}`}>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">ערכת נושא</p>
+              <div className="flex rounded-xl border border-border overflow-hidden bg-card">
+                <button onClick={() => setDarkMode(false)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}>
                   <Sun className="h-3.5 w-3.5" /> בהיר
                 </button>
-                <button onClick={() => setDarkMode(true)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${darkMode ? "bg-gray-900 text-white" : "text-gray-400 hover:bg-gray-50"}`}>
+                <button onClick={() => setDarkMode(true)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${darkMode ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
                   <Moon className="h-3.5 w-3.5" /> כהה
                 </button>
               </div>
-              <p className="text-[10px] text-gray-400 mt-1.5 text-center">מצב כהה מתאים ללוגו לבן</p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 text-center">מצב כהה מתאים ללוגו לבן</p>
             </div>
 
             {/* Color */}
             <div>
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">צבע מותג</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">צבע מותג</p>
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {PRESET_COLORS.map((c) => (
                   <button key={c.hex} title={c.name} onClick={() => setThemeColor(c.hex)}
@@ -441,7 +441,7 @@ export function CalendarExportStudio({
               </div>
               <button
                 onClick={() => colorInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-gray-300 bg-white py-2.5 text-sm text-gray-500 hover:border-gray-400 hover:text-gray-700 transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card py-2.5 text-sm text-muted-foreground hover:border-gray-400 hover:text-foreground transition-colors"
               >
                 <Paintbrush className="h-4 w-4" style={{ color: themeColor }} />
                 <span>צבע מותאם אישית</span>
@@ -452,14 +452,14 @@ export function CalendarExportStudio({
 
             {/* Logo */}
             <div>
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">לוגו</p>
-              <label className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 cursor-pointer transition-colors ${darkMode ? "border-slate-600 bg-slate-800 hover:border-slate-400" : "border-gray-200 bg-white hover:border-gray-400"}`}>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">לוגו</p>
+              <label className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 cursor-pointer transition-colors ${darkMode ? "border-slate-600 bg-slate-800 hover:border-slate-400" : "border-border bg-card hover:border-gray-400"}`}>
                 {logoUrl ? (
                   <img src={logoUrl} alt="logo" className="h-14 object-contain" />
                 ) : (
                   <>
-                    <ImageIcon className={`h-6 w-6 ${darkMode ? "text-slate-500" : "text-gray-300"}`} />
-                    <span className={`text-xs text-center ${darkMode ? "text-slate-400" : "text-gray-400"}`}>לחץ להעלאת לוגו</span>
+                    <ImageIcon className={`h-6 w-6 ${darkMode ? "text-slate-500" : "text-muted-foreground"}`} />
+                    <span className={`text-xs text-center ${darkMode ? "text-slate-400" : "text-muted-foreground"}`}>לחץ להעלאת לוגו</span>
                   </>
                 )}
                 <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
@@ -473,13 +473,13 @@ export function CalendarExportStudio({
 
             {/* Zoom — desktop */}
             <div>
-              <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2">זום תצוגה</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">זום תצוגה</p>
               <div className="flex items-center gap-2">
-                <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50">
+                <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted">
                   <ZoomOut className="h-4 w-4" />
                 </button>
-                <span className="flex-1 text-center text-sm font-medium text-gray-700">{Math.round(zoom * 100)}%</span>
-                <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50">
+                <span className="flex-1 text-center text-sm font-medium text-foreground">{Math.round(zoom * 100)}%</span>
+                <button onClick={() => setZoom(z => Math.min(1.5, +(z + 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted">
                   <ZoomIn className="h-4 w-4" />
                 </button>
               </div>
@@ -487,7 +487,7 @@ export function CalendarExportStudio({
           </div>
 
           {/* Preview */}
-          <div className={`flex-1 overflow-auto p-3 sm:p-6 flex items-start justify-center transition-colors ${darkMode ? "bg-slate-900" : "bg-gray-100"}`}>
+          <div className={`flex-1 overflow-auto p-3 sm:p-6 flex items-start justify-center transition-colors ${darkMode ? "bg-slate-900" : "bg-muted"}`}>
             <div className="shadow-2xl rounded-xl overflow-hidden origin-top" style={{ transform: `scale(${zoom})`, transformOrigin: "top center", width: `${100 / zoom}%` }}>
               <div ref={exportRef}>
                 {layout === "grid"
@@ -499,16 +499,16 @@ export function CalendarExportStudio({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50 shrink-0">
-          <p className="hidden sm:block text-xs text-gray-400">הלוגו, הצבעים והתוכן הם לצורך תצוגת לקוח בלבד</p>
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-border bg-muted shrink-0">
+          <p className="hidden sm:block text-xs text-muted-foreground">הלוגו, הצבעים והתוכן הם לצורך תצוגת לקוח בלבד</p>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button onClick={downloadPNG} disabled={exporting}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-40">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-40">
               <Download className="h-4 w-4 text-indigo-500" />
               {exporting ? "מייצא..." : "PNG"}
             </button>
             <button onClick={downloadPDF} disabled={exporting}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-40">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white hover:bg-foreground/90 transition-colors disabled:opacity-40">
               <Download className="h-4 w-4" />
               {exporting ? "מייצא..." : "PDF"}
             </button>

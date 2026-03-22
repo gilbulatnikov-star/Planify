@@ -55,7 +55,7 @@ type ContentItem = {
 // ─── Color map ─────────────────────────────────────────────────────────────────
 
 const COLOR_MAP: Record<string, { bg: string; text: string; dot: string; border: string }> = {
-  gray:   { bg: "bg-gray-100",    text: "text-gray-800",    dot: "bg-gray-500",    border: "border-gray-300"   },
+  gray:   { bg: "bg-muted",    text: "text-foreground",    dot: "bg-muted0",    border: "border-border"   },
   blue:   { bg: "bg-blue-100",    text: "text-blue-800",    dot: "bg-blue-500",    border: "border-blue-300"   },
   violet: { bg: "bg-violet-100",  text: "text-violet-800",  dot: "bg-violet-500",  border: "border-violet-300" },
   green:  { bg: "bg-emerald-100", text: "text-emerald-800", dot: "bg-emerald-500", border: "border-emerald-300"},
@@ -264,7 +264,7 @@ export function CalendarPageClient({
                         >
                           <CalendarPlus className="h-3.5 w-3.5 text-blue-400 shrink-0" />
                           <span className="flex-1 truncate">{item.title}</span>
-                          <span className="text-xs text-gray-400 shrink-0">{format(new Date(item.date), "d/M")}</span>
+                          <span className="text-xs text-muted-foreground shrink-0">{format(new Date(item.date), "d/M")}</span>
                         </a>
                       ))}
                     </div>
@@ -277,7 +277,7 @@ export function CalendarPageClient({
           {/* Export */}
           <button
             onClick={() => setExportStudioOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-3 py-2 text-sm font-medium hover:bg-gray-800 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-3 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors shadow-sm"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">ייצוא</span>
@@ -286,7 +286,7 @@ export function CalendarPageClient({
           <Button
             size="sm"
             onClick={handleCreateNew}
-            className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+            className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
           >
             <Plus className="h-4 w-4 me-1 sm:me-2" />
             <span className="hidden sm:inline">{he.calendar.newContent}</span>
@@ -317,7 +317,7 @@ export function CalendarPageClient({
                 {/* Day headers */}
                 <div className="grid grid-cols-7 border-b border-border">
                   {dayNames.map((name) => (
-                    <div key={name} className="py-2.5 text-center text-xs font-semibold text-gray-500">
+                    <div key={name} className="py-2.5 text-center text-xs font-semibold text-muted-foreground">
                       {name}
                     </div>
                   ))}
@@ -361,7 +361,7 @@ export function CalendarPageClient({
                               );
                             })}
                             {dayContent.length > 3 && (
-                              <span className="text-[9px] text-gray-400 leading-none px-1">+{dayContent.length - 3}</span>
+                              <span className="text-[9px] text-muted-foreground leading-none px-1">+{dayContent.length - 3}</span>
                             )}
                           </div>
                         </div>
@@ -378,7 +378,7 @@ export function CalendarPageClient({
       {/* ── Events list (all screens) ── */}
       {monthEvents.length > 0 && (
         <motion.div variants={fadeUp} className="">
-          <h3 className="text-sm font-semibold text-gray-700 mb-3">
+          <h3 className="text-sm font-semibold text-foreground mb-3">
             אירועים — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
           </h3>
           <div className="flex flex-col gap-2">
@@ -393,11 +393,11 @@ export function CalendarPageClient({
                   <span className={`mt-1 h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
                   <div className="flex-1 min-w-0">
                     <p className={`font-semibold text-sm ${c.text}`}>{item.title}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {format(new Date(item.date), "EEEE, d MMMM", { locale: heLocale })}
                       {item.client && ` · ${item.client.name}`}
                     </p>
-                    {item.notes && <p className="text-xs text-gray-400 mt-1 line-clamp-2">{item.notes}</p>}
+                    {item.notes && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.notes}</p>}
                   </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); setDeleteTarget(item.id); }}

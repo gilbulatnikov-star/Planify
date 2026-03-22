@@ -18,7 +18,7 @@ export function DeleteMoodboardButton({ id }: { id: string }) {
     <button
       onClick={handleDelete}
       disabled={isPending}
-      className="flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow border border-gray-200 hover:bg-red-50 hover:border-red-200 transition-colors"
+      className="flex h-8 w-8 items-center justify-center rounded-lg bg-card shadow border border-border hover:bg-red-50 hover:border-red-200 transition-colors"
     >
       <Trash2 className="h-3.5 w-3.5 text-red-400" />
     </button>

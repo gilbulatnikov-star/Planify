@@ -96,7 +96,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">משימות</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-muted-foreground">
             {activeCount} פעילות · {doneCount} הושלמו
           </p>
         </div>
@@ -112,7 +112,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           placeholder={atLimit ? `הגעת למגבלת ${todosLimit} משימות — לחץ לשדרוג` : "הוסף משימה חדשה..."}
           disabled={isPending}
           readOnly={atLimit}
-          className={`flex-1 ${atLimit ? "cursor-pointer text-gray-400 bg-gray-50" : ""}`}
+          className={`flex-1 ${atLimit ? "cursor-pointer text-muted-foreground bg-muted" : ""}`}
         />
         <Button
           onClick={atLimit ? () => setUpgradeOpen(true) : handleAdd}
@@ -148,7 +148,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <CheckSquare className="h-10 w-10 text-gray-200 mb-3" />
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               {filter === "done" ? "עוד לא סיימת משימות" : "אין משימות כאן"}
             </p>
           </div>
@@ -165,7 +165,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                   todo.completed
                     ? "border-[#38b6ff] bg-[#38b6ff]"
-                    : "border-gray-300 hover:border-[#38b6ff]/60"
+                    : "border-border hover:border-[#38b6ff]/60"
                 }`}
               >
                 {todo.completed && (
@@ -206,7 +206,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
               <button
                 onClick={() => handleDelete(todo.id)}
                 disabled={isPending}
-                className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500 p-1 rounded"
+                className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-red-500 p-1 rounded"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
@@ -228,14 +228,14 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
             <p className="text-sm font-bold text-foreground group-hover:text-[#38b6ff] transition-colors">
               שדרג לפרו — משימות ללא הגבלה
             </p>
-            <p className="text-xs text-gray-500 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               בתוכנית החינמית: {initialTodos.length} / {todosLimit} משימות
             </p>
             <div className="flex flex-wrap gap-3 mt-3">
               {["פרויקטים ולקוחות ללא הגבלה", "חשבוניות והצעות מחיר", "לוח השראה ותסריטים"].map((f) => (
                 <div key={f} className="flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 text-[#38b6ff]" />
-                  <span className="text-xs text-gray-500">{f}</span>
+                  <span className="text-xs text-muted-foreground">{f}</span>
                 </div>
               ))}
             </div>

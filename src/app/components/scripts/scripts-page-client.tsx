@@ -19,7 +19,7 @@ import { formatDate } from "@/lib/utils/format";
 
 const platformIcons: Record<string, React.ReactNode> = {
   youtube: <Youtube className="h-4 w-4 text-red-500" />,
-  tiktok: <Tv className="h-4 w-4 text-gray-800" />,
+  tiktok: <Tv className="h-4 w-4 text-foreground" />,
   instagram: <Instagram className="h-4 w-4 text-pink-500" />,
   podcast: <Podcast className="h-4 w-4 text-purple-500" />,
   commercial: <Megaphone className="h-4 w-4 text-blue-500" />,
@@ -103,7 +103,7 @@ export function ScriptsPageClient({
           <h2 className="text-lg font-semibold text-foreground">
             אין תסריטים עדיין
           </h2>
-          <p className="mt-1 text-sm text-gray-400">
+          <p className="mt-1 text-sm text-muted-foreground">
             צור תסריט חדש כדי להתחיל
           </p>
           <Button
@@ -126,7 +126,7 @@ export function ScriptsPageClient({
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   {platformIcons[script.platform] ?? (
-                    <FileText className="h-4 w-4 text-gray-400" />
+                    <FileText className="h-4 w-4 text-muted-foreground" />
                   )}
                   <span className="truncate font-semibold text-foreground">
                     {script.title}
@@ -134,7 +134,7 @@ export function ScriptsPageClient({
                 </div>
                 <button
                   onClick={(e) => handleDelete(script.id, e)}
-                  className="shrink-0 rounded p-1 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -157,12 +157,12 @@ export function ScriptsPageClient({
               </div>
 
               {script.content && (
-                <p className="mt-3 line-clamp-2 text-xs text-gray-400 leading-relaxed">
+                <p className="mt-3 line-clamp-2 text-xs text-muted-foreground leading-relaxed">
                   {script.content.replace(/<[^>]+>/g, "").slice(0, 120)}
                 </p>
               )}
 
-              <div className="mt-4 flex items-center gap-1 text-xs text-gray-400">
+              <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />
                 <span>{formatDate(script.updatedAt)}</span>
               </div>

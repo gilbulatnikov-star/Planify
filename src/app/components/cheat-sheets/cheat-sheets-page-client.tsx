@@ -87,13 +87,13 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
     >
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.cheatSheets.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.cheatSheets.newSheet}
@@ -117,7 +117,7 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                    className="h-8 w-8 hover:bg-muted hover:text-foreground transition-colors duration-200"
                     onClick={() => handleEdit(selectedSheet)}
                   >
                     <Pencil className="h-4 w-4" />
@@ -133,7 +133,7 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="whitespace-pre-wrap font-mono text-sm text-muted-foreground leading-relaxed bg-gray-50/50 rounded-lg p-4 border border-gray-100 min-h-[300px]">
+                <div className="whitespace-pre-wrap font-mono text-sm text-muted-foreground leading-relaxed bg-muted/50 rounded-lg p-4 border border-border min-h-[300px]">
                   {selectedSheet.content || "אין תוכן עדיין..."}
                 </div>
               </CardContent>
@@ -173,7 +173,7 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
                             className={`w-full text-right px-3 py-2 rounded-lg text-sm transition-all duration-200 flex items-center gap-2 ${
                               selectedId === sheet.id
                                 ? "bg-cyan-50 text-cyan-700"
-                                : "text-muted-foreground hover:bg-gray-50 hover:text-foreground"
+                                : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             }`}
                           >
                             <ChevronLeft className={`h-3 w-3 flex-shrink-0 transition-opacity duration-200 ${

@@ -26,13 +26,13 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
 
       {/* Modal */}
       <div
-        className="relative bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6"
+        className="relative bg-card rounded-2xl shadow-2xl max-w-sm w-full p-6"
         dir="rtl"
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 p-1.5 rounded-full hover:bg-[#38b6ff]/10 text-gray-400 hover:text-[#38b6ff] transition-colors"
+          className="absolute top-4 left-4 p-1.5 rounded-full hover:bg-[#38b6ff]/10 text-muted-foreground hover:text-[#38b6ff] transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
@@ -45,16 +45,16 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
         </div>
 
         {/* Title */}
-        <h2 className="text-xl font-black text-gray-900 text-center mb-1">
+        <h2 className="text-xl font-black text-foreground text-center mb-1">
           הגעת למגבלה!
         </h2>
-        <p className="text-sm text-gray-500 text-center mb-5 leading-relaxed">
-          בתוכנית החינמית ניתן להוסיף עד <span className="font-bold text-gray-800">{limit} {feature}</span>.{" "}
+        <p className="text-sm text-muted-foreground text-center mb-5 leading-relaxed">
+          בתוכנית החינמית ניתן להוסיף עד <span className="font-bold text-foreground">{limit} {feature}</span>.{" "}
           שדרג לפרו וקבל גישה ללא הגבלה.
         </p>
 
         {/* Features list */}
-        <div className="rounded-xl bg-gray-50 border border-gray-100 p-4 mb-5 space-y-2.5">
+        <div className="rounded-xl bg-muted border border-border p-4 mb-5 space-y-2.5">
           {[
             "פרויקטים, אנשי קשר ותסריטים ללא הגבלה",
             "חשבוניות, הצעות מחיר ולוח השראה",
@@ -62,7 +62,7 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
           ].map((f) => (
             <div key={f} className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-emerald-500 shrink-0" />
-              <span className="text-sm text-gray-600">{f}</span>
+              <span className="text-sm text-muted-foreground">{f}</span>
             </div>
           ))}
         </div>
@@ -82,7 +82,7 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
         {/* Secondary dismiss */}
         <button
           onClick={onClose}
-          className="w-full mt-2 text-xs text-gray-400 hover:text-gray-600 transition-colors py-2"
+          className="w-full mt-2 text-xs text-muted-foreground hover:text-muted-foreground transition-colors py-2"
         >
           אולי מאוחר יותר
         </button>

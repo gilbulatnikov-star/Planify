@@ -50,7 +50,7 @@ export function StickyNoteNode({ data, selected }: NodeProps) {
         ) : (
           <button
             onClick={() => setShowColors(true)}
-            className="w-4 h-4 rounded-full border border-gray-300 shadow-sm"
+            className="w-4 h-4 rounded-full border border-border shadow-sm"
             style={{ background: color }}
           />
         )}
@@ -62,7 +62,7 @@ export function StickyNoteNode({ data, selected }: NodeProps) {
         onChange={(e) => setText(e.target.value)}
         placeholder="כתוב כאן..."
         dir="rtl"
-        className="flex-1 bg-transparent resize-none outline-none text-sm text-gray-800 placeholder-gray-400 min-h-20 nodrag"
+        className="flex-1 bg-transparent resize-none outline-none text-sm text-foreground placeholder-muted-foreground min-h-20 nodrag"
         onMouseDown={(e) => e.stopPropagation()}
       />
     </div>

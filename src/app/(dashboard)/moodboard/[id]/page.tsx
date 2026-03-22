@@ -13,7 +13,7 @@ export default async function MoodboardPage({ params }: { params: Promise<{ id: 
   const limits = getLimitsForPlan(plan);
 
   return (
-    <div className="fixed inset-0 top-14 z-10 bg-gray-50">
+    <div className="fixed inset-0 top-14 z-10 bg-muted">
       <MoodboardCanvas
         id={board.id}
         title={board.title}

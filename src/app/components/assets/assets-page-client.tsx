@@ -86,13 +86,13 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
     >
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.assets.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.assets.newAsset}
@@ -107,7 +107,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
             placeholder="חיפוש..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pr-10 bg-white border-gray-200"
+            className="pr-10 bg-card border-border"
           />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -117,8 +117,8 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
             onClick={() => setActiveType(null)}
             className={
               activeType === null
-                ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-800"
-                : "border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                ? "bg-foreground text-white border-gray-900 hover:bg-foreground/90"
+                : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }
           >
             הכל
@@ -131,8 +131,8 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
               onClick={() => setActiveType(activeType === t ? null : t)}
               className={
                 activeType === t
-                  ? "bg-gray-900 text-white border-gray-900 hover:bg-gray-800"
-                  : "border-gray-200 text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                  ? "bg-foreground text-white border-gray-900 hover:bg-foreground/90"
+                  : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               }
             >
               {he.assets.types[t as keyof typeof he.assets.types]}
@@ -147,7 +147,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
           <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground">שם</TableHead>
                   <TableHead className="text-muted-foreground">סוג</TableHead>
                   <TableHead className="text-muted-foreground">מקור</TableHead>
@@ -160,11 +160,11 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
                 {filtered.map((asset) => (
                   <TableRow
                     key={asset.id}
-                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                    className="border-border transition-all duration-200 hover:bg-muted group"
                   >
                     <TableCell className="font-medium">{asset.name}</TableCell>
                     <TableCell>
-                      <Badge className={`${typeColors[asset.type] ?? "bg-gray-100 text-gray-600"} border-0`}>
+                      <Badge className={`${typeColors[asset.type] ?? "bg-muted text-muted-foreground"} border-0`}>
                         {he.assets.types[asset.type as keyof typeof he.assets.types] ?? asset.type}
                       </Badge>
                     </TableCell>
@@ -177,7 +177,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
                           href={asset.originalUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-gray-900 hover:text-gray-700 transition-colors duration-200 text-sm"
+                          className="inline-flex items-center gap-1 text-foreground hover:text-foreground transition-colors duration-200 text-sm"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
                           <span className="truncate max-w-[150px]">פתח</span>
@@ -194,7 +194,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                          className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
                           onClick={() => handleEdit(asset)}
                         >
                           <Pencil className="h-3.5 w-3.5" />

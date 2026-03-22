@@ -96,26 +96,26 @@ export function ScriptCallSheet({
   const lensUsed = [...new Set(shotList.map((s) => s.lens).filter(Boolean))];
 
   return (
-    <div className="flex-1 overflow-auto bg-gray-100 flex flex-col">
+    <div className="flex-1 overflow-auto bg-muted flex flex-col">
       {/* Controls */}
-      <div className="flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shrink-0">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <FileText className="h-4 w-4 text-gray-400" />
+      <div className="flex items-center justify-between px-6 py-3 bg-card border-b border-border shrink-0">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <FileText className="h-4 w-4 text-muted-foreground" />
           <span className="font-medium">קול שיט — {title}</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-gray-200 overflow-hidden">
+          <div className="flex rounded-lg border border-border overflow-hidden">
             <button onClick={() => setDarkMode(false)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-gray-100 text-gray-900" : "text-gray-400 hover:bg-gray-50"}`}>
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}>
               <Sun className="h-3 w-3" />בהיר
             </button>
             <button onClick={() => setDarkMode(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-gray-900 text-white" : "text-gray-400 hover:bg-gray-50"}`}>
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
               <Moon className="h-3 w-3" />כהה
             </button>
           </div>
           <button onClick={exportPDF} disabled={exporting}
-            className="flex items-center gap-1.5 rounded-lg bg-gray-900 text-white px-4 py-2 text-sm font-medium hover:bg-gray-800 transition-colors disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-40">
             <Download className="h-4 w-4" />
             {exporting ? "מייצא..." : "ייצוא PDF"}
           </button>

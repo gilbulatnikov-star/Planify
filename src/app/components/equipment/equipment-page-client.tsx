@@ -23,7 +23,7 @@ const statusStyles: Record<string, string> = {
   available: "bg-emerald-50 text-emerald-700 border-0",
   rented: "bg-cyan-50 text-cyan-700 border-0",
   in_repair: "bg-red-50 text-red-700 border-0",
-  retired: "bg-gray-100 text-gray-500 border-0",
+  retired: "bg-muted text-muted-foreground border-0",
 };
 
 type EquipmentData = {
@@ -90,13 +90,13 @@ export function EquipmentPageClient({
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.equipment.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.equipment.newItem}
@@ -120,7 +120,7 @@ export function EquipmentPageClient({
             <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground">{he.equipment.name}</TableHead>
                   <TableHead className="hidden sm:table-cell text-muted-foreground">{he.equipment.category}</TableHead>
                   <TableHead className="hidden md:table-cell text-muted-foreground">{he.equipment.brand}</TableHead>
@@ -135,11 +135,11 @@ export function EquipmentPageClient({
                 {equipment.map((item) => (
                   <TableRow
                     key={item.id}
-                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                    className="border-border transition-all duration-200 hover:bg-muted group"
                   >
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline" className="border-gray-200 text-muted-foreground">
+                      <Badge variant="outline" className="border-border text-muted-foreground">
                         {he.equipment.categories[
                           item.category as keyof typeof he.equipment.categories
                         ] ?? item.category}
@@ -148,7 +148,7 @@ export function EquipmentPageClient({
                     <TableCell className="hidden md:table-cell text-muted-foreground">{item.brand ?? "—"}</TableCell>
                     <TableCell className="hidden md:table-cell text-muted-foreground">{item.model ?? "—"}</TableCell>
                     <TableCell>
-                      <Badge className={statusStyles[item.status] ?? "bg-gray-100 text-gray-500 border-0"}>
+                      <Badge className={statusStyles[item.status] ?? "bg-muted text-muted-foreground border-0"}>
                         {he.equipment.statuses[
                           item.status as keyof typeof he.equipment.statuses
                         ] ?? item.status}
@@ -171,7 +171,7 @@ export function EquipmentPageClient({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 hover:bg-gray-100 hover:text-gray-900 transition-colors duration-200"
+                          className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
                           onClick={() => handleEdit(item)}
                         >
                           <Pencil className="h-3.5 w-3.5" />

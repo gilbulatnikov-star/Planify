@@ -44,7 +44,7 @@ const fadeUp = {
 
 const statusStyles: Record<string, string> = {
   active: "bg-emerald-50 text-emerald-700 border-0",
-  cancelled: "bg-gray-100 text-gray-500 border-0",
+  cancelled: "bg-muted text-muted-foreground border-0",
 };
 
 const cycleStyles: Record<string, string> = {
@@ -97,13 +97,13 @@ export function SubscriptionsPageClient({
         variants={fadeUp}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           {he.subscriptions.title}
         </h1>
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-gray-900 text-white hover:bg-gray-800 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.subscriptions.newSubscription}
@@ -118,7 +118,7 @@ export function SubscriptionsPageClient({
               <p className="text-sm text-muted-foreground">
                 {he.subscriptions.totalMonthly}
               </p>
-              <p className="text-3xl font-bold tracking-tight text-gray-900">
+              <p className="text-3xl font-bold tracking-tight text-foreground">
                 {formatCurrency(Math.round(totalMonthlyCost))}
               </p>
             </div>
@@ -136,7 +136,7 @@ export function SubscriptionsPageClient({
             <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-gray-100 hover:bg-transparent">
+                <TableRow className="border-border hover:bg-transparent">
                   <TableHead className="text-muted-foreground">
                     שם השירות
                   </TableHead>
@@ -161,7 +161,7 @@ export function SubscriptionsPageClient({
                 {subscriptions.map((sub) => (
                   <TableRow
                     key={sub.id}
-                    className="border-gray-100 transition-all duration-200 hover:bg-gray-50 group"
+                    className="border-border transition-all duration-200 hover:bg-muted group"
                   >
                     <TableCell className="font-medium">
                       {sub.serviceName}
@@ -170,7 +170,7 @@ export function SubscriptionsPageClient({
                       <Badge
                         className={
                           cycleStyles[sub.billingCycle] ??
-                          "bg-gray-100 text-gray-500 border-0"
+                          "bg-muted text-muted-foreground border-0"
                         }
                       >
                         {he.subscriptions.cycles[
@@ -188,7 +188,7 @@ export function SubscriptionsPageClient({
                       <Badge
                         className={
                           statusStyles[sub.status] ??
-                          "bg-gray-100 text-gray-500 border-0"
+                          "bg-muted text-muted-foreground border-0"
                         }
                       >
                         {he.subscriptions.statuses[

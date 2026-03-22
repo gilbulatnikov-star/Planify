@@ -87,7 +87,7 @@ function LeadStatusPipeline({ status }: { status: string }) {
 
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-gray-700">{currentLabel}</span>
+      <span className="text-xs font-medium text-foreground">{currentLabel}</span>
       <div className="flex gap-0.5">
         {steps.map((s, i) => (
           <div
@@ -160,7 +160,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
                         {client.type === "client" && (
                           <div className="flex gap-1">
                             {!client.isActive && (
-                              <span className="text-[10px] text-gray-400">לא פעיל</span>
+                              <span className="text-[10px] text-muted-foreground">לא פעיל</span>
                             )}
                             {client.isRetainer && (
                               <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] text-emerald-700 font-medium">

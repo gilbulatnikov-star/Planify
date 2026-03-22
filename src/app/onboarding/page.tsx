@@ -176,7 +176,7 @@ export default function OnboardingPage() {
               </div>
               <div className="text-center">
                 <p className="text-xl font-semibold">הסביבה מוכנה!</p>
-                <p className="text-gray-400 text-sm mt-1">מעביר אותך...</p>
+                <p className="text-muted-foreground text-sm mt-1">מעביר אותך...</p>
               </div>
             </>
           ) : (
@@ -184,13 +184,13 @@ export default function OnboardingPage() {
               <div className="relative flex h-20 w-20 items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-2 border-gray-700" />
                 <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-900 text-white font-bold text-lg">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground text-white font-bold text-lg">
                   P
                 </div>
               </div>
               <div className="text-center">
                 <p className="text-xl font-semibold">מכין לך את הסביבה...</p>
-                <p className="text-gray-400 text-sm mt-1">שנייה אחת</p>
+                <p className="text-muted-foreground text-sm mt-1">שנייה אחת</p>
               </div>
             </>
           )}
@@ -204,12 +204,12 @@ export default function OnboardingPage() {
       {/* Header */}
       <div className="flex items-center justify-between px-8 py-6">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-gray-900 font-bold text-sm">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-card text-foreground font-bold text-sm">
             P
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/sign-in" })}
-            className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
+            className="text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
           >
             יציאה
           </button>
@@ -219,12 +219,12 @@ export default function OnboardingPage() {
             <div
               key={i}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                i <= step ? "w-8 bg-white" : "w-4 bg-gray-700"
+                i <= step ? "w-8 bg-card" : "w-4 bg-gray-700"
               }`}
             />
           ))}
         </div>
-        <div className="text-xs text-gray-500" dir="ltr">
+        <div className="text-xs text-muted-foreground" dir="ltr">
           {step + 1} / {steps.length}
         </div>
       </div>
@@ -246,7 +246,7 @@ export default function OnboardingPage() {
                 <h1 className="text-3xl font-bold text-white mb-2">
                   {currentStep.title}
                 </h1>
-                <p className="text-gray-400 text-sm">{currentStep.subtitle}</p>
+                <p className="text-muted-foreground text-sm">{currentStep.subtitle}</p>
               </div>
 
               {/* Options grid */}
@@ -271,28 +271,28 @@ export default function OnboardingPage() {
                       whileTap={{ scale: 0.97 }}
                       className={`group relative flex flex-col items-center text-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
                         isSelected
-                          ? "bg-white border-white text-gray-900"
-                          : "bg-gray-900 border-gray-800 text-white hover:border-gray-600 hover:bg-gray-800"
+                          ? "bg-card border-white text-foreground"
+                          : "bg-foreground border-gray-800 text-white hover:border-gray-600 hover:bg-foreground/90"
                       }`}
                     >
                       <div
                         className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${
                           isSelected
-                            ? "bg-gray-900 text-white"
-                            : "bg-gray-800 text-gray-300 group-hover:bg-gray-700"
+                            ? "bg-foreground text-white"
+                            : "bg-gray-800 text-muted-foreground group-hover:bg-gray-700"
                         }`}
                       >
                         <Icon className="h-6 w-6" />
                       </div>
                       <div>
                         <p className="font-semibold text-sm">{option.label}</p>
-                        <p className="text-xs mt-0.5 leading-relaxed text-gray-500">
+                        <p className="text-xs mt-0.5 leading-relaxed text-muted-foreground">
                           {option.desc}
                         </p>
                       </div>
                       {isSelected && (
                         <div className="absolute top-3 left-3">
-                          <CheckCircle2 className="h-4 w-4 text-gray-900" />
+                          <CheckCircle2 className="h-4 w-4 text-foreground" />
                         </div>
                       )}
                     </motion.button>
@@ -311,12 +311,12 @@ export default function OnboardingPage() {
                   <button
                     onClick={() => canContinue && advanceStep()}
                     disabled={!canContinue}
-                    className="flex items-center gap-2 rounded-2xl bg-white text-gray-900 px-8 py-3.5 text-sm font-bold hover:bg-gray-100 transition-colors disabled:pointer-events-none"
+                    className="flex items-center gap-2 rounded-2xl bg-card text-foreground px-8 py-3.5 text-sm font-bold hover:bg-muted transition-colors disabled:pointer-events-none"
                   >
                     {step === steps.length - 1 ? "סיים" : "המשך"}
                     <ArrowLeft className="h-4 w-4" />
                     {Array.isArray(currentValue) && currentValue.length > 1 && (
-                      <span className="mr-1 rounded-full bg-gray-200 px-1.5 py-0.5 text-[11px] font-semibold text-gray-700">
+                      <span className="mr-1 rounded-full bg-gray-200 px-1.5 py-0.5 text-[11px] font-semibold text-foreground">
                         {currentValue.length}
                       </span>
                     )}
@@ -338,7 +338,7 @@ export default function OnboardingPage() {
                   setDirection(-1);
                   setStep((s) => s - 1);
                 }}
-                className="text-sm text-gray-500 hover:text-gray-300 transition-colors"
+                className="text-sm text-muted-foreground hover:text-muted-foreground transition-colors"
               >
                 → חזור
               </button>

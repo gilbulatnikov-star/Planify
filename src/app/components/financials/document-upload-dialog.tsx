@@ -197,7 +197,7 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Scan className="h-5 w-5 text-gray-700" />
+            <Scan className="h-5 w-5 text-foreground" />
             סריקת מסמך עם AI
           </DialogTitle>
           <DialogDescription>
@@ -212,15 +212,15 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             className={`flex flex-col items-center gap-4 p-8 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-200 ${
-              dragOver ? "border-gray-900 bg-gray-50" : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+              dragOver ? "border-gray-900 bg-muted" : "border-border hover:border-border hover:bg-muted"
             }`}
           >
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-100">
-              <Upload className="h-7 w-7 text-gray-500" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-muted">
+              <Upload className="h-7 w-7 text-muted-foreground" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-gray-800">גרור קובץ לכאן, או לחץ להעלאה</p>
-              <p className="text-xs text-gray-400 mt-1.5">PDF · JPG · JPEG · PNG בלבד</p>
+              <p className="text-sm font-semibold text-foreground">גרור קובץ לכאן, או לחץ להעלאה</p>
+              <p className="text-xs text-muted-foreground mt-1.5">PDF · JPG · JPEG · PNG בלבד</p>
               <div className="mt-3 flex items-center justify-center gap-1.5 text-xs text-indigo-600">
                 <Sparkles className="h-3.5 w-3.5" />
                 <span>AI Vision סורק חשבוניות בעברית</span>
@@ -246,12 +246,12 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
               </div>
             </div>
             <div className="text-center">
-              <p className="text-sm font-semibold text-gray-800">סורק עם AI Vision...</p>
-              <p className="text-xs text-gray-400 mt-1">מזהה סוג, סכום, ספק ותאריך</p>
+              <p className="text-sm font-semibold text-foreground">סורק עם AI Vision...</p>
+              <p className="text-xs text-muted-foreground mt-1">מזהה סוג, סכום, ספק ותאריך</p>
             </div>
             <div className="flex items-center gap-1">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" />
-              <span className="text-xs text-gray-400">אנא המתן</span>
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">אנא המתן</span>
             </div>
           </div>
         )}
@@ -264,7 +264,7 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
             </div>
             <div className="text-center">
               <p className="text-sm font-semibold text-red-700">נא להעלות מסמך חשבונאי בלבד</p>
-              <p className="text-xs text-gray-400 mt-1.5">המסמך שהועלה אינו חשבונית, קבלה, או מסמך פיננסי</p>
+              <p className="text-xs text-muted-foreground mt-1.5">המסמך שהועלה אינו חשבונית, קבלה, או מסמך פיננסי</p>
             </div>
             <Button variant="outline" size="sm" onClick={resetState}>
               נסה שוב

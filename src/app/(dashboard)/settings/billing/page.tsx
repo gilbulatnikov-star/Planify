@@ -68,13 +68,13 @@ function CancelModal({
       />
 
       {/* Dialog */}
-      <div className="relative w-full max-w-md rounded-2xl bg-white shadow-2xl p-6">
+      <div className="relative w-full max-w-md rounded-2xl bg-card shadow-2xl p-6">
         <div className="flex flex-col items-center text-center gap-3 mb-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
-          <h2 className="text-lg font-bold text-gray-900">ביטול המנוי</h2>
-          <p className="text-sm text-gray-500 leading-relaxed">
+          <h2 className="text-lg font-bold text-foreground">ביטול המנוי</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
             האם אתה בטוח שברצונך לבטל את המנוי?<br />
             תאבד גישה לפיצ&#39;רים הפרמיום בסוף מחזור החיוב הנוכחי.
           </p>
@@ -84,7 +84,7 @@ function CancelModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="w-full rounded-xl bg-gray-900 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
+            className="w-full rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors disabled:opacity-50"
           >
             שמור על המנוי שלי
           </button>
@@ -159,7 +159,7 @@ export default function BillingPage() {
   if (fetching) {
     return (
       <div className="flex items-center justify-center h-48">
-        <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
@@ -168,10 +168,10 @@ export default function BillingPage() {
     return (
       <div className="flex flex-col items-center justify-center h-48 gap-3" dir="rtl">
         <AlertTriangle className="h-8 w-8 text-red-400" />
-        <p className="text-sm text-gray-500">לא ניתן לטעון את פרטי המנוי. נסה לרענן את הדף.</p>
+        <p className="text-sm text-muted-foreground">לא ניתן לטעון את פרטי המנוי. נסה לרענן את הדף.</p>
         <button
           onClick={() => window.location.reload()}
-          className="rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors"
+          className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-white hover:bg-foreground/90 transition-colors"
         >
           רענן
         </button>
@@ -191,8 +191,8 @@ export default function BillingPage() {
     <div className="max-w-2xl mx-auto space-y-6" dir="rtl">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">מנוי ותשלומים</h1>
-        <p className="mt-1 text-sm text-gray-500">ניהול המנוי, שיטת התשלום ואפשרויות החיוב</p>
+        <h1 className="text-2xl font-bold text-foreground">מנוי ותשלומים</h1>
+        <p className="mt-1 text-sm text-muted-foreground">ניהול המנוי, שיטת התשלום ואפשרויות החיוב</p>
       </div>
 
       {/* Success banner after upgrade */}
@@ -209,21 +209,21 @@ export default function BillingPage() {
       )}
 
       {/* ── Active Plan Card ─────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
-        <div className="px-6 py-5 flex items-center gap-4 border-b border-gray-100">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gray-900 text-white">
+      <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
+        <div className="px-6 py-5 flex items-center gap-4 border-b border-border">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-foreground text-white">
             <Crown className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">תוכנית פעילה</p>
-            <p className="text-xl font-bold text-gray-900">{getPlanLabel(plan)}</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">תוכנית פעילה</p>
+            <p className="text-xl font-bold text-foreground">{getPlanLabel(plan)}</p>
           </div>
         </div>
 
         <div className="px-6 py-5 grid grid-cols-2 gap-5">
           {/* Status */}
           <div className="flex flex-col gap-1">
-            <p className="text-xs text-gray-500 font-medium">סטטוס</p>
+            <p className="text-xs text-muted-foreground font-medium">סטטוס</p>
             {isCanceled ? (
               <span className="inline-flex items-center gap-1.5 w-fit rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -235,7 +235,7 @@ export default function BillingPage() {
                 פעיל
               </span>
             ) : plan === "FREE" ? (
-              <span className="inline-flex items-center gap-1.5 w-fit rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-600">
+              <span className="inline-flex items-center gap-1.5 w-fit rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">
                 חינמי
               </span>
             ) : (
@@ -247,11 +247,11 @@ export default function BillingPage() {
 
           {/* Next renewal */}
           <div className="flex flex-col gap-1">
-            <p className="text-xs text-gray-500 font-medium flex items-center gap-1.5">
+            <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
               {isCanceled ? "גישה עד" : "חידוש הבא"}
             </p>
-            <p className="text-sm font-semibold text-gray-800">
+            <p className="text-sm font-semibold text-foreground">
               {formatDate(endsAt)}
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function BillingPage() {
           const isUnlimited = (n: number) => n === -1;
           return (
             <div className="px-6 pb-5">
-              <p className="text-xs text-gray-500 font-medium mb-3">מכסות התוכנית</p>
+              <p className="text-xs text-muted-foreground font-medium mb-3">מכסות התוכנית</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { icon: FolderOpen,   label: "פרויקטים",  value: lim.projects },
@@ -271,11 +271,11 @@ export default function BillingPage() {
                   { icon: FileText,     label: "מסמכים",    value: lim.documents },
                   { icon: Clapperboard, label: "תסריטים",   value: lim.scripts },
                 ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-center gap-2 rounded-xl bg-gray-50 border border-gray-100 px-3 py-2.5">
-                    <Icon className="h-4 w-4 text-gray-400 shrink-0" />
+                  <div key={label} className="flex items-center gap-2 rounded-xl bg-muted border border-border px-3 py-2.5">
+                    <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-gray-400">{label}</p>
-                      <p className={`text-sm font-bold ${isUnlimited(value) ? "text-emerald-600" : "text-gray-900"}`}>
+                      <p className="text-[11px] text-muted-foreground">{label}</p>
+                      <p className={`text-sm font-bold ${isUnlimited(value) ? "text-emerald-600" : "text-foreground"}`}>
                         {isUnlimited(value) ? "ללא הגבלה" : formatLimit(value)}
                       </p>
                     </div>
@@ -288,15 +288,15 @@ export default function BillingPage() {
 
         {/* Features checklist */}
         {isPaid && (
-          <div className="px-6 pb-5 flex flex-col gap-2 border-t border-gray-100 pt-4">
-            <p className="text-xs text-gray-500 font-medium mb-1">מה כלול בתוכנית שלך</p>
+          <div className="px-6 pb-5 flex flex-col gap-2 border-t border-border pt-4">
+            <p className="text-xs text-muted-foreground font-medium mb-1">מה כלול בתוכנית שלך</p>
             {[
               "כל פיצ'רי המערכת",
               "חשבוניות והצעות מחיר",
               "לוח תוכן + תסריטים + השראה",
               "גישה לכל העדכונים העתידיים",
             ].map((f) => (
-              <div key={f} className="flex items-center gap-2 text-sm text-gray-700">
+              <div key={f} className="flex items-center gap-2 text-sm text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
                 {f}
               </div>
@@ -306,11 +306,11 @@ export default function BillingPage() {
 
         {/* Upgrade CTA for free users */}
         {!isPaid && (
-          <div className="px-6 pb-5 border-t border-gray-100 pt-4">
-            <p className="text-xs text-gray-500 mb-3">שדרג לקבלת מכסות גדולות יותר וגישה לכל הפיצ&#39;רים</p>
+          <div className="px-6 pb-5 border-t border-border pt-4">
+            <p className="text-xs text-muted-foreground mb-3">שדרג לקבלת מכסות גדולות יותר וגישה לכל הפיצ&#39;רים</p>
             <a
               href="/billing"
-              className="inline-flex items-center gap-2 rounded-xl bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-gray-800 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors"
             >
               <Crown className="h-4 w-4" />
               שדרג לפרו
@@ -320,23 +320,23 @@ export default function BillingPage() {
       </div>
 
       {/* ── Payment Method ───────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-gray-200 bg-white shadow-sm px-6 py-5">
+      <div className="rounded-2xl border border-border bg-card shadow-sm px-6 py-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold text-gray-900">שיטת תשלום</p>
+          <p className="text-sm font-semibold text-foreground">שיטת תשלום</p>
           {/* TODO: replace href with Stripe Customer Portal URL once Stripe is connected */}
-          <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-[11px] font-medium text-gray-400">
+          <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
             בקרוב
           </span>
         </div>
-        <div className="flex items-center gap-3 rounded-xl border border-dashed border-gray-200 bg-gray-50/60 px-4 py-3">
-          <div className="flex h-9 w-14 items-center justify-center rounded-lg border border-gray-200 bg-white shrink-0">
-            <CreditCard className="h-4 w-4 text-gray-400" />
+        <div className="flex items-center gap-3 rounded-xl border border-dashed border-border bg-muted/60 px-4 py-3">
+          <div className="flex h-9 w-14 items-center justify-center rounded-lg border border-border bg-card shrink-0">
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-muted-foreground">
               ניהול שיטת התשלום יהיה זמין לאחר חיבור מערכת הסליקה (Stripe).
             </p>
-            <p className="text-xs text-gray-300 mt-0.5">
+            <p className="text-xs text-muted-foreground mt-0.5">
               לאחר החיבור — הכפתור יפתח את פורטל הלקוח של Stripe לניהול הכרטיס.
             </p>
           </div>
@@ -346,8 +346,8 @@ export default function BillingPage() {
       {/* ── Danger zone: Cancel ──────────────────────────────────────── */}
       {isPaid && !isCanceled && (
         <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5">
-          <p className="text-sm font-semibold text-gray-900 mb-1">ביטול מנוי</p>
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-sm font-semibold text-foreground mb-1">ביטול מנוי</p>
+          <p className="text-xs text-muted-foreground mb-4">
             לאחר הביטול תמשיך ליהנות מהגישה עד סוף תקופת החיוב הנוכחית.
           </p>
           <button

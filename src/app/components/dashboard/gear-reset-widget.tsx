@@ -42,7 +42,7 @@ export function GearResetWidget({ initialStatuses }: GearResetWidgetProps) {
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {he.widgets.gearReset}
         </CardTitle>
-        <div className="rounded-lg bg-gray-100 p-1.5">
+        <div className="rounded-lg bg-muted p-1.5">
           <Wrench className="h-4 w-4 text-foreground" />
         </div>
       </CardHeader>

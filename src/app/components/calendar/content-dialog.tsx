@@ -216,7 +216,7 @@ export function ContentDialog({
                   <button
                     type="button"
                     onClick={() => { setNewClientMode(false); setNewClientName(""); }}
-                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors"
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-red-500 transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
@@ -235,7 +235,7 @@ export function ContentDialog({
                     {localClients.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                     ))}
-                    <div className="mx-1 my-1 border-t border-gray-100" />
+                    <div className="mx-1 my-1 border-t border-border" />
                     <button
                       type="button"
                       onClick={() => { setNewClientMode(true); setClientId(""); }}

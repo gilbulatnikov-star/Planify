@@ -217,12 +217,12 @@ export function ExpenseDialog({
                     {receiptName || receiptUrl.split("/").pop()}
                   </a>
                   <button type="button" onClick={() => { setReceiptUrl(""); setReceiptName(""); }}
-                    className="text-gray-400 hover:text-red-500 transition-colors">
+                    className="text-muted-foreground hover:text-red-500 transition-colors">
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ) : (
-                <label className={`flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm transition-colors ${uploading ? "border-gray-200 text-gray-400" : "border-gray-300 text-gray-500 hover:border-gray-400 hover:bg-gray-50"}`}>
+                <label className={`flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm transition-colors ${uploading ? "border-border text-muted-foreground" : "border-border text-muted-foreground hover:border-gray-400 hover:bg-muted"}`}>
                   {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
                   {uploading ? "מעלה..." : "לחץ לצירוף קובץ (PDF, JPG, PNG)"}
                   <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png"

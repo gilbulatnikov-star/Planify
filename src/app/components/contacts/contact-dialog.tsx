@@ -164,7 +164,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
                   />
                   <Button type="button" size="sm" onClick={confirmCustom} disabled={!customValue.trim()}>אישור</Button>
                   <button type="button" onClick={() => { setCustomMode(false); setCustomValue(""); }}
-                    className="flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 text-gray-400 hover:text-red-500 transition-colors">
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-red-500 transition-colors">
                     <X className="h-4 w-4" />
                   </button>
                 </div>
@@ -182,7 +182,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
                     {customList.map(v => (
                       <SelectItem key={v} value={v}>{v}</SelectItem>
                     ))}
-                    <div className="mx-1 my-1 border-t border-gray-100" />
+                    <div className="mx-1 my-1 border-t border-border" />
                     <button type="button" onClick={() => setCustomMode(true)}
                       className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors">
                       <Plus className="h-3.5 w-3.5" />הוסף קטגוריה חדשה

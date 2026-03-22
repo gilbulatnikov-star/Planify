@@ -35,26 +35,26 @@ function PlanSummary({ planKey }: { planKey: "MONTHLY" | "ANNUAL" }) {
   const isAnnual = planKey === "ANNUAL";
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white shadow-sm overflow-hidden">
+    <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
       {/* Header */}
-      <div className={`px-6 py-5 ${isAnnual ? "bg-gray-900" : "bg-gray-100"}`}>
+      <div className={`px-6 py-5 ${isAnnual ? "bg-foreground" : "bg-muted"}`}>
         <div className="flex items-center gap-3">
-          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${isAnnual ? "bg-white/10" : "bg-gray-200"}`}>
-            <Icon className={`h-5 w-5 ${isAnnual ? "text-white" : "text-gray-700"}`} />
+          <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${isAnnual ? "bg-card/10" : "bg-gray-200"}`}>
+            <Icon className={`h-5 w-5 ${isAnnual ? "text-white" : "text-foreground"}`} />
           </div>
           <div>
-            <p className={`text-sm font-bold ${isAnnual ? "text-white" : "text-gray-900"}`}>{plan.label}</p>
-            <p className={`text-xs ${isAnnual ? "text-gray-300" : "text-gray-500"}`}>{plan.description}</p>
+            <p className={`text-sm font-bold ${isAnnual ? "text-white" : "text-foreground"}`}>{plan.label}</p>
+            <p className={`text-xs ${isAnnual ? "text-muted-foreground" : "text-muted-foreground"}`}>{plan.description}</p>
           </div>
         </div>
       </div>
 
       {/* Price */}
-      <div className="px-6 py-4 border-b border-gray-100">
+      <div className="px-6 py-4 border-b border-border">
         <div className="flex items-end justify-between" dir="rtl">
           <div>
-            <span className="text-3xl font-black text-gray-900">{plan.price}</span>
-            <span className="text-sm text-gray-400 mr-1.5">{plan.priceSuffix}</span>
+            <span className="text-3xl font-black text-foreground">{plan.price}</span>
+            <span className="text-sm text-muted-foreground mr-1.5">{plan.priceSuffix}</span>
           </div>
           {isAnnual && (
             <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-1">
@@ -72,15 +72,15 @@ function PlanSummary({ planKey }: { planKey: "MONTHLY" | "ANNUAL" }) {
         {plan.features.map((f) => (
           <div key={f} className="flex items-start gap-2">
             <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-            <span className="text-sm text-gray-600">{f}</span>
+            <span className="text-sm text-muted-foreground">{f}</span>
           </div>
         ))}
       </div>
 
       {/* Guarantee */}
-      <div className="px-6 py-3 bg-gray-50 border-t border-gray-100 flex items-center gap-2" dir="rtl">
-        <ShieldCheck className="h-4 w-4 text-gray-400 shrink-0" />
-        <p className="text-xs text-gray-500">ביטול בכל עת, ללא חיוב נוסף</p>
+      <div className="px-6 py-3 bg-muted border-t border-border flex items-center gap-2" dir="rtl">
+        <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0" />
+        <p className="text-xs text-muted-foreground">ביטול בכל עת, ללא חיוב נוסף</p>
       </div>
     </div>
   );
@@ -112,13 +112,13 @@ function CardVisual({
       {/* Footer */}
       <div className="absolute bottom-4 right-6 left-6 flex items-end justify-between" dir="ltr">
         <div>
-          <p className="text-gray-400 text-[9px] uppercase tracking-widest">Card Holder</p>
+          <p className="text-muted-foreground text-[9px] uppercase tracking-widest">Card Holder</p>
           <p className="text-white text-xs font-semibold truncate max-w-[140px]">
             {name || "YOUR NAME"}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-gray-400 text-[9px] uppercase tracking-widest">Expires</p>
+          <p className="text-muted-foreground text-[9px] uppercase tracking-widest">Expires</p>
           <p className="text-white text-xs font-semibold">{expiry || "MM/YY"}</p>
         </div>
       </div>
@@ -188,13 +188,13 @@ function CheckoutContent() {
       <div className="flex items-center gap-3">
         <button
           onClick={() => router.back()}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowRight className="h-4 w-4" />
           חזור
         </button>
         <div className="h-4 w-px bg-gray-200" />
-        <h1 className="text-xl font-bold text-gray-900">סיום רכישה</h1>
+        <h1 className="text-xl font-bold text-foreground">סיום רכישה</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -205,23 +205,23 @@ function CheckoutContent() {
           {/* Security badges */}
           <div className="flex items-center justify-center gap-6 py-2">
             <div className="flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5 text-gray-400" />
-              <span className="text-xs text-gray-400">תשלום מאובטח SSL</span>
+              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">תשלום מאובטח SSL</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-gray-400" />
-              <span className="text-xs text-gray-400">הצפנה PCI DSS</span>
+              <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">הצפנה PCI DSS</span>
             </div>
           </div>
         </div>
 
         {/* Right: Payment form */}
-        <div className="rounded-2xl border border-gray-200 bg-white shadow-sm p-6 space-y-5">
+        <div className="rounded-2xl border border-border bg-card shadow-sm p-6 space-y-5">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground">
               <CreditCard className="h-4 w-4 text-white" />
             </div>
-            <h2 className="text-base font-bold text-gray-900">פרטי כרטיס אשראי</h2>
+            <h2 className="text-base font-bold text-foreground">פרטי כרטיס אשראי</h2>
           </div>
 
           {/* Card visual */}
@@ -230,7 +230,7 @@ function CheckoutContent() {
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Card number */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 מספר כרטיס
               </label>
               <input
@@ -241,13 +241,13 @@ function CheckoutContent() {
                 onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
                 maxLength={19}
                 dir="ltr"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-mono text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
               />
             </div>
 
             {/* Cardholder name */}
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                 שם בעל הכרטיס
               </label>
               <input
@@ -256,14 +256,14 @@ function CheckoutContent() {
                 value={cardName}
                 onChange={(e) => setCardName(e.target.value)}
                 dir="rtl"
-                className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
               />
             </div>
 
             {/* Expiry + CVV */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   תאריך תפוגה
                 </label>
                 <input
@@ -274,11 +274,11 @@ function CheckoutContent() {
                   onChange={(e) => setExpiry(formatExpiry(e.target.value))}
                   maxLength={5}
                   dir="ltr"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-mono text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                   CVV
                 </label>
                 <input
@@ -289,7 +289,7 @@ function CheckoutContent() {
                   onChange={(e) => setCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
                   maxLength={4}
                   dir="ltr"
-                  className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-mono text-gray-900 placeholder:text-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-border bg-muted px-4 py-3 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -305,7 +305,7 @@ function CheckoutContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-gray-900 text-white py-3.5 text-sm font-bold hover:bg-gray-800 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm"
+              className="w-full rounded-xl bg-foreground text-white py-3.5 text-sm font-bold hover:bg-foreground/90 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin" />מעבד תשלום...</>
@@ -314,11 +314,11 @@ function CheckoutContent() {
               )}
             </button>
 
-            <p className="text-center text-xs text-gray-400">
+            <p className="text-center text-xs text-muted-foreground">
               על ידי לחיצה על &quot;שלם&quot; אתה מסכים ל
-              <a href="#" className="underline hover:text-gray-700">תנאי השירות</a>
+              <a href="#" className="underline hover:text-foreground">תנאי השירות</a>
               {" "}ול
-              <a href="#" className="underline hover:text-gray-700">מדיניות הפרטיות</a>
+              <a href="#" className="underline hover:text-foreground">מדיניות הפרטיות</a>
             </p>
           </form>
         </div>
@@ -329,7 +329,7 @@ function CheckoutContent() {
 
 export default function CheckoutPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center h-96"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center h-96"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>}>
       <CheckoutContent />
     </Suspense>
   );

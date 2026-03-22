@@ -77,14 +77,14 @@ function StickyCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<
                 <button key={c} onClick={() => { setColor(c); onChange({ ...node.data, color: c }); setShowPicker(false); }}
                   className="w-5 h-5 rounded-full border-2 border-white shadow" style={{ background: c }} />
               ))
-            : <button onClick={() => setShowPicker(true)} className="w-4 h-4 rounded-full border border-gray-300" style={{ background: color }} />
+            : <button onClick={() => setShowPicker(true)} className="w-4 h-4 rounded-full border border-border" style={{ background: color }} />
           }
         </div>
       </div>
       <textarea value={text}
         onChange={e => { setText(e.target.value); onChange({ ...node.data, text: e.target.value, color }); }}
         placeholder="כתוב כאן..." dir="rtl"
-        className="flex-1 bg-transparent resize-none outline-none text-sm text-gray-800 placeholder-gray-400 min-h-20 px-3 pb-3"
+        className="flex-1 bg-transparent resize-none outline-none text-sm text-foreground placeholder-muted-foreground min-h-20 px-3 pb-3"
       />
     </div>
   );
@@ -115,7 +115,7 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
   }
 
   return (
-    <div className="w-64 rounded-2xl shadow-md bg-white flex flex-col overflow-hidden">
+    <div className="w-64 rounded-2xl shadow-md bg-card flex flex-col overflow-hidden">
       <DragHandle />
       {url && !editing ? (
         <>
@@ -127,17 +127,17 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
             <input value={caption}
               onChange={e => { setCaption(e.target.value); onChange({ ...node.data, url, caption: e.target.value }); }}
               placeholder="הוסף תיאור..." dir="rtl"
-              className="w-full bg-transparent text-xs text-gray-500 outline-none placeholder-gray-300 border-b border-transparent focus:border-gray-200"
+              className="w-full bg-transparent text-xs text-muted-foreground outline-none placeholder-muted-foreground border-b border-transparent focus:border-border"
             />
           </div>
         </>
       ) : (
         <div className="p-3 flex flex-col gap-2">
           {/* Tabs */}
-          <div className="flex rounded-lg border border-gray-200 p-0.5 gap-0.5 bg-gray-50 text-[11px]">
+          <div className="flex rounded-lg border border-border p-0.5 gap-0.5 bg-muted text-[11px]">
             {(["url", "upload", "camera"] as const).map(t => (
               <button key={t} onClick={() => setTab(t)}
-                className={`flex-1 rounded-md py-1 font-medium transition-colors ${tab === t ? "bg-white shadow text-gray-900" : "text-gray-400 hover:text-gray-600"}`}>
+                className={`flex-1 rounded-md py-1 font-medium transition-colors ${tab === t ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-muted-foreground"}`}>
                 {t === "url" ? "קישור" : t === "upload" ? "העלאה" : "מצלמה"}
               </button>
             ))}
@@ -148,32 +148,32 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
               <input autoFocus type="url" value={url}
                 onChange={e => { setUrl(e.target.value); onChange({ ...node.data, url: e.target.value, caption }); }}
                 placeholder="https://..." dir="ltr"
-                className="w-full rounded-lg border border-gray-200 px-3 py-2 text-xs outline-none focus:border-blue-400"
+                className="w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
               />
               {url && <button onClick={() => setEditing(false)}
-                className="rounded-lg bg-gray-900 py-1.5 text-xs font-medium text-white hover:bg-gray-800 transition-colors">הצג תמונה</button>}
+                className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-white hover:bg-foreground/90 transition-colors">הצג תמונה</button>}
             </>
           )}
 
           {tab === "upload" && (
             <>
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                className="flex flex-col items-center justify-center gap-2 h-20 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                {uploading ? <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
-                  : <><ImageIcon className="h-5 w-5 text-gray-300" /><span className="text-[11px] text-gray-400">לחץ לבחירת תמונה</span></>}
+                className="flex flex-col items-center justify-center gap-2 h-20 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                {uploading ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+                  : <><ImageIcon className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">לחץ לבחירת תמונה</span></>}
               </button>
               <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden"
                 onChange={e => handleFile(e.target.files?.[0] ?? null)} />
-              <p className="text-[10px] text-gray-400 text-center">PNG, JPG, GIF, WEBP — עד 8MB</p>
+              <p className="text-[10px] text-muted-foreground text-center">PNG, JPG, GIF, WEBP — עד 8MB</p>
             </>
           )}
 
           {tab === "camera" && (
             <>
               <button onClick={() => camRef.current?.click()} disabled={uploading}
-                className="flex flex-col items-center justify-center gap-2 h-20 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors">
-                {uploading ? <Loader2 className="h-5 w-5 text-gray-400 animate-spin" />
-                  : <><Camera className="h-5 w-5 text-gray-300" /><span className="text-[11px] text-gray-400">פתח מצלמה</span></>}
+                className="flex flex-col items-center justify-center gap-2 h-20 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                {uploading ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
+                  : <><Camera className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">פתח מצלמה</span></>}
               </button>
               <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden"
                 onChange={e => handleFile(e.target.files?.[0] ?? null)} />
@@ -198,13 +198,13 @@ function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<st
   }
 
   return (
-    <div className="w-56 rounded-2xl shadow-md bg-white flex flex-col">
+    <div className="w-56 rounded-2xl shadow-md bg-card flex flex-col">
       <DragHandle />
       <div className="px-4 pb-4 flex flex-col gap-2">
         <input value={label}
           onChange={e => { setLabel(e.target.value); onChange({ ...node.data, label: e.target.value, url }); }}
           placeholder="תיאור הקישור" dir="rtl"
-          className="text-sm font-medium outline-none border-b border-gray-200 pb-1 focus:border-gray-900"
+          className="text-sm font-medium outline-none border-b border-border pb-1 focus:border-foreground"
         />
         {editing ? (
           <div className="flex gap-1">
@@ -213,7 +213,7 @@ function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<st
               onBlur={commitUrl}
               onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); commitUrl(); } }}
               placeholder="https://..." dir="ltr"
-              className="flex-1 text-xs text-blue-500 outline-none border-b border-dashed border-gray-200 pb-0.5 focus:border-blue-400 min-w-0"
+              className="flex-1 text-xs text-blue-500 outline-none border-b border-dashed border-border pb-0.5 focus:border-blue-400 min-w-0"
             />
           </div>
         ) : (
@@ -223,7 +223,7 @@ function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<st
               {url}
             </a>
             <button onClick={() => setEdit(true)}
-              className="opacity-0 group-hover/link:opacity-100 flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-all flex-shrink-0"
+              className="opacity-0 group-hover/link:opacity-100 flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-all flex-shrink-0"
               title="ערוך קישור">
               <Pencil className="h-3 w-3" />
             </button>
@@ -245,7 +245,7 @@ function HeadingCard({ node, onChange, selected }: { node: BoardNode; onChange: 
         <input value={text}
           onChange={e => { setText(e.target.value); onChange({ ...node.data, text: e.target.value }); }}
           dir="rtl"
-          className={`bg-transparent outline-none text-2xl font-bold text-gray-900 w-full min-w-40 pb-1 border-b-2 ${selected ? "border-blue-400" : "border-transparent"} focus:border-gray-900`}
+          className={`bg-transparent outline-none text-2xl font-bold text-foreground w-full min-w-40 pb-1 border-b-2 ${selected ? "border-blue-400" : "border-transparent"} focus:border-foreground`}
         />
       </div>
     </div>
@@ -272,7 +272,7 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
   }
 
   const btnCls = (active: boolean) =>
-    `flex items-center justify-center w-6 h-6 rounded-md text-xs transition-colors ${active ? "bg-gray-200 text-gray-900" : "text-gray-500 hover:bg-gray-100"}`;
+    `flex items-center justify-center w-6 h-6 rounded-md text-xs transition-colors ${active ? "bg-gray-200 text-foreground" : "text-muted-foreground hover:bg-muted"}`;
 
   return (
     <div className="flex flex-col min-w-40" style={{ position: "relative" }}>
@@ -300,14 +300,14 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
         <div
           onMouseDown={e => e.stopPropagation()}
           style={{ position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)", marginTop: 8, zIndex: 30, whiteSpace: "nowrap" }}
-          className="flex items-center gap-0.5 px-2 py-1.5 bg-white border border-gray-200 rounded-xl shadow-lg"
+          className="flex items-center gap-0.5 px-2 py-1.5 bg-card border border-border rounded-xl shadow-lg"
         >
           <select value={fontFamily} onChange={e => { setFamily(e.target.value); emit({ fontFamily: e.target.value }); }}
-            className="text-[10px] border border-gray-200 rounded px-1 py-0.5 outline-none bg-white max-w-[72px]">
+            className="text-[10px] border border-border rounded px-1 py-0.5 outline-none bg-card max-w-[72px]">
             {FONT_FAMILIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
           </select>
           <select value={fontSize} onChange={e => { setFontSize(e.target.value); emit({ fontSize: e.target.value }); }}
-            className="text-[10px] border border-gray-200 rounded px-1 py-0.5 outline-none bg-white w-10">
+            className="text-[10px] border border-border rounded px-1 py-0.5 outline-none bg-card w-10">
             {FONT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <div className="h-4 w-px bg-gray-200 mx-0.5" />
@@ -320,16 +320,16 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
           <button onClick={() => { setAlign("left"); emit({ align: "left" }); }} className={btnCls(align === "left")}><AlignLeft className="h-3 w-3" /></button>
           <div className="h-4 w-px bg-gray-200 mx-0.5" />
           <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע טקסט">
-            <input type="color" value={color} onChange={e => { setColor(e.target.value); emit({ color: e.target.value }); }} className="w-5 h-5 rounded border border-gray-200 cursor-pointer p-0" />
-            <span className="text-[8px] text-gray-400 leading-none">טקסט</span>
+            <input type="color" value={color} onChange={e => { setColor(e.target.value); emit({ color: e.target.value }); }} className="w-5 h-5 rounded border border-border cursor-pointer p-0" />
+            <span className="text-[8px] text-muted-foreground leading-none">טקסט</span>
           </label>
           <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע רקע">
             <input type="color" value={bgColor === "transparent" ? "#ffffff" : bgColor}
-              onChange={e => { setBg(e.target.value); emit({ bgColor: e.target.value }); }} className="w-5 h-5 rounded border border-gray-200 cursor-pointer p-0" />
-            <span className="text-[8px] text-gray-400 leading-none">רקע</span>
+              onChange={e => { setBg(e.target.value); emit({ bgColor: e.target.value }); }} className="w-5 h-5 rounded border border-border cursor-pointer p-0" />
+            <span className="text-[8px] text-muted-foreground leading-none">רקע</span>
           </label>
           <button onClick={() => { setBg("transparent"); emit({ bgColor: "transparent" }); }}
-            className="flex h-5 w-5 items-center justify-center rounded text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             title="ללא רקע" style={{ fontSize: "10px" }}>
             ✕
           </button>
@@ -513,16 +513,16 @@ function TableCard({
 
       {/* Row/col controls — only when selected */}
       {selected && (
-        <div className="flex items-center gap-1 px-2 py-1 mb-2 bg-white border border-gray-200 rounded-xl shadow-md text-[10px]" onMouseDown={e => e.stopPropagation()}>
-          <span className="text-gray-400">שורות:</span>
-          <button onClick={removeRow} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-gray-600"><Minus className="h-3 w-3" /></button>
-          <span className="font-medium text-gray-700 w-4 text-center">{cells.length}</span>
-          <button onClick={addRow} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-gray-600"><Plus className="h-3 w-3" /></button>
+        <div className="flex items-center gap-1 px-2 py-1 mb-2 bg-card border border-border rounded-xl shadow-md text-[10px]" onMouseDown={e => e.stopPropagation()}>
+          <span className="text-muted-foreground">שורות:</span>
+          <button onClick={removeRow} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Minus className="h-3 w-3" /></button>
+          <span className="font-medium text-foreground w-4 text-center">{cells.length}</span>
+          <button onClick={addRow} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Plus className="h-3 w-3" /></button>
           <div className="w-px h-3 bg-gray-200 mx-1" />
-          <span className="text-gray-400">עמודות:</span>
-          <button onClick={removeCol} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-gray-600"><Minus className="h-3 w-3" /></button>
-          <span className="font-medium text-gray-700 w-4 text-center">{cells[0]?.length ?? 1}</span>
-          <button onClick={addCol} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-gray-600"><Plus className="h-3 w-3" /></button>
+          <span className="text-muted-foreground">עמודות:</span>
+          <button onClick={removeCol} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Minus className="h-3 w-3" /></button>
+          <span className="font-medium text-foreground w-4 text-center">{cells[0]?.length ?? 1}</span>
+          <button onClick={addCol} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Plus className="h-3 w-3" /></button>
         </div>
       )}
 
@@ -581,7 +581,7 @@ function TableCard({
               <tr key={ri}>
                 {row.map((cell, ci) => (
                   <td key={ci}
-                    className="border border-gray-300 bg-white/90 overflow-hidden"
+                    className="border border-border bg-card/90 overflow-hidden"
                     style={{ width: colWidths[ci] ?? DEFAULT_COL_W, height: rowHeights[ri] ?? DEFAULT_ROW_H, padding: 0 }}
                   >
                     <input
@@ -718,7 +718,7 @@ function ShapeCard({ node, onChange, onMove, selected, zoom }: { node: BoardNode
             <div
               onMouseDown={startRotate}
               style={{ position: "absolute", left: W / 2 - 11, top: -32, zIndex: 30, cursor: "grab" }}
-              className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-white border border-blue-300 shadow-md text-blue-500 hover:bg-blue-50 transition-colors"
+              className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-card border border-blue-300 shadow-md text-blue-500 hover:bg-blue-50 transition-colors"
               title="סובב"
             >
               <RotateCcw className="h-3 w-3" />
@@ -731,30 +731,30 @@ function ShapeCard({ node, onChange, onMove, selected, zoom }: { node: BoardNode
           <div
             onMouseDown={e => e.stopPropagation()}
             style={{ position: "absolute", top: H + 10, left: "50%", transform: "translateX(-50%)", zIndex: 30, whiteSpace: "nowrap" }}
-            className="flex items-center gap-1 px-2 py-1.5 bg-white border border-gray-200 rounded-xl shadow-lg"
+            className="flex items-center gap-1 px-2 py-1.5 bg-card border border-border rounded-xl shadow-lg"
           >
             {/* Shape type buttons */}
             {SHAPE_TYPES.map(s => (
               <button key={s.id} onClick={() => { setShape(s.id); emit({ shape: s.id }); }}
                 title={s.label}
-                className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${shape === s.id ? "bg-blue-100 text-blue-600" : "text-gray-400 hover:bg-gray-100"}`}>
+                className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${shape === s.id ? "bg-blue-100 text-blue-600" : "text-muted-foreground hover:bg-muted"}`}>
                 <s.Icon className="h-4 w-4" />
               </button>
             ))}
             <div className="h-5 w-px bg-gray-200 mx-0.5" />
             {/* Fill color */}
             <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע מילוי">
-              <input type="color" value={fill} onChange={e => { setFill(e.target.value); emit({ fill: e.target.value }); }} className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0" />
-              <span className="text-[8px] text-gray-400 leading-none">מילוי</span>
+              <input type="color" value={fill} onChange={e => { setFill(e.target.value); emit({ fill: e.target.value }); }} className="w-6 h-6 rounded cursor-pointer border border-border p-0" />
+              <span className="text-[8px] text-muted-foreground leading-none">מילוי</span>
             </label>
             {/* Stroke color */}
             <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע קו">
-              <input type="color" value={stroke} onChange={e => { setStroke(e.target.value); emit({ stroke: e.target.value }); }} className="w-6 h-6 rounded cursor-pointer border border-gray-200 p-0" />
-              <span className="text-[8px] text-gray-400 leading-none">קו</span>
+              <input type="color" value={stroke} onChange={e => { setStroke(e.target.value); emit({ stroke: e.target.value }); }} className="w-6 h-6 rounded cursor-pointer border border-border p-0" />
+              <span className="text-[8px] text-muted-foreground leading-none">קו</span>
             </label>
             <div className="h-5 w-px bg-gray-200 mx-0.5" />
             {/* Stroke width */}
-            <label className="flex flex-col items-center gap-0.5 cursor-pointer text-[8px] text-gray-400">
+            <label className="flex flex-col items-center gap-0.5 cursor-pointer text-[8px] text-muted-foreground">
               <input type="range" min="0" max="16" value={sw} onChange={e => { const v = Number(e.target.value); setSw(v); emit({ strokeWidth: String(v) }); }}
                 className="w-16 h-2 accent-blue-500" />
               <span className="leading-none">עובי {sw}</span>
@@ -869,13 +869,13 @@ function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
   }
 
   const btnCls = (active: boolean) =>
-    `flex h-6 w-6 items-center justify-center rounded-md transition-colors ${active ? "bg-white shadow text-gray-900" : "text-gray-500 hover:bg-white/60"}`;
+    `flex h-6 w-6 items-center justify-center rounded-md transition-colors ${active ? "bg-card shadow text-foreground" : "text-muted-foreground hover:bg-card/60"}`;
 
   return (
     <div className="flex flex-col" style={{ width: 480, height: 360 }}>
       {/* Floating toolbar — only when selected */}
       {selected && (
-        <div className="flex items-center gap-1.5 px-2 py-1 mb-1 bg-white border border-gray-200 rounded-xl shadow-md" onMouseDown={e => e.stopPropagation()}>
+        <div className="flex items-center gap-1.5 px-2 py-1 mb-1 bg-card border border-border rounded-xl shadow-md" onMouseDown={e => e.stopPropagation()}>
           <button onClick={() => setTool("pen")}    className={btnCls(tool === "pen")}><Pencil  className="h-3.5 w-3.5" /></button>
           <button onClick={() => setTool("eraser")} className={btnCls(tool === "eraser")}><Eraser className="h-3.5 w-3.5" /></button>
           <div className="h-4 w-px bg-gray-200" />
@@ -883,12 +883,12 @@ function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
           <div className="h-4 w-px bg-gray-200" />
           {[2, 4, 8, 14].map(w => (
             <button key={w} onClick={() => setWidth(w)}
-              className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors ${lineWidth === w ? "bg-gray-100" : "hover:bg-gray-50"}`}>
+              className={`flex h-6 w-6 items-center justify-center rounded-md transition-colors ${lineWidth === w ? "bg-muted" : "hover:bg-muted"}`}>
               <div className="rounded-full bg-gray-700" style={{ width: Math.min(w, 12), height: Math.min(w, 12) }} />
             </button>
           ))}
           <div className="flex-1" />
-          <button onClick={clearCanvas} className="flex h-6 w-6 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100" title="נקה">
+          <button onClick={clearCanvas} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted" title="נקה">
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -946,7 +946,7 @@ function CommittedDrawCard({ node, onChange, selected }: { node: BoardNode; onCh
           <div
             onMouseDown={startRotate}
             style={{ position: "absolute", left: w / 2 - 11, top: -32, zIndex: 30, cursor: "grab" }}
-            className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-white border border-blue-300 shadow-md text-blue-500 hover:bg-blue-50 transition-colors"
+            className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-card border border-blue-300 shadow-md text-blue-500 hover:bg-blue-50 transition-colors"
             title="סובב"
           >
             <RotateCcw className="h-3 w-3" />
@@ -1390,20 +1390,20 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
     <div className="w-full h-full flex flex-col bg-[#f4f4f5]" dir="ltr">
 
       {/* Top bar */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200 shadow-sm z-10 flex-shrink-0" dir="rtl">
-        <Link href="/moodboard" className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors shrink-0">
+      <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border shadow-sm z-10 flex-shrink-0" dir="rtl">
+        <Link href="/moodboard" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
           <ArrowRight className="h-4 w-4" />חזרה
         </Link>
         <div className="h-4 w-px bg-gray-200" />
         {editingTitle
           ? <input autoFocus value={title} onChange={e => setTitle(e.target.value)}
               onBlur={() => setET(false)} onKeyDown={e => { if (e.key === "Enter" || e.key === "Escape") setET(false); }}
-              className="flex-1 text-base font-semibold text-gray-900 bg-transparent border-b border-gray-300 outline-none focus:border-gray-900 min-w-0" />
-          : <button onClick={() => setET(true)} className="flex-1 text-right text-base font-semibold text-gray-900 hover:text-gray-600 truncate min-w-0">{title}</button>
+              className="flex-1 text-base font-semibold text-foreground bg-transparent border-b border-border outline-none focus:border-foreground min-w-0" />
+          : <button onClick={() => setET(true)} className="flex-1 text-right text-base font-semibold text-foreground hover:text-muted-foreground truncate min-w-0">{title}</button>
         }
         <div className="flex items-center gap-1.5 text-xs shrink-0">
-          {saveState === "saving"  && <><Loader2 className="h-3.5 w-3.5 animate-spin text-gray-400" /><span className="text-gray-400">שומר...</span></>}
-          {saveState === "saved"   && <><Check   className="h-3.5 w-3.5 text-emerald-500" /><span className="text-gray-400">נשמר</span></>}
+          {saveState === "saving"  && <><Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" /><span className="text-muted-foreground">שומר...</span></>}
+          {saveState === "saved"   && <><Check   className="h-3.5 w-3.5 text-emerald-500" /><span className="text-muted-foreground">נשמר</span></>}
           {saveState === "unsaved" && <span className="text-orange-500">לא נשמר</span>}
         </div>
       </div>
@@ -1412,66 +1412,66 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
       <div className="flex-1 flex overflow-hidden relative">
 
         {/* Left toolbar */}
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 bg-white border border-gray-200 rounded-2xl shadow-lg p-2">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 bg-card border border-border rounded-2xl shadow-lg p-2">
           {!drawMode && <>
-            <p className="text-[8px] font-semibold uppercase tracking-widest text-gray-400 text-center mb-0.5">הוסף</p>
+            <p className="text-[8px] font-semibold uppercase tracking-widest text-muted-foreground text-center mb-0.5">הוסף</p>
             {tools.map(({ type, Icon, label }) => (
               <button key={type} onClick={() => addNode(type)}
-                className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900">
+                className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
                 <Icon className="h-4 w-4" />
                 <span className="text-[9px] font-medium">{label}</span>
               </button>
             ))}
-            <div className="h-px bg-gray-100 my-0.5" />
+            <div className="h-px bg-muted my-0.5" />
             <button onClick={() => { setDrawMode(true); setSelId(null); setMultiSel(new Set()); }}
-              className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-gray-100 transition-colors text-gray-600 hover:text-gray-900">
+              className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
               <Pencil className="h-4 w-4" />
               <span className="text-[9px] font-medium">ציור</span>
             </button>
-            <div className="h-px bg-gray-100 my-0.5" />
+            <div className="h-px bg-muted my-0.5" />
           </>}
 
           {drawMode && <>
             <p className="text-[8px] font-semibold uppercase tracking-widest text-blue-500 text-center mb-0.5">ציור</p>
             <button onClick={() => setPenTool("pen")}
-              className={`flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 transition-colors ${penTool === "pen" ? "bg-blue-50 text-blue-600" : "hover:bg-gray-100 text-gray-600"}`}>
+              className={`flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 transition-colors ${penTool === "pen" ? "bg-blue-50 text-blue-600" : "hover:bg-muted text-muted-foreground"}`}>
               <Pencil className="h-4 w-4" />
               <span className="text-[9px] font-medium">עט</span>
             </button>
             <button onClick={() => setPenTool("eraser")}
-              className={`flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 transition-colors ${penTool === "eraser" ? "bg-blue-50 text-blue-600" : "hover:bg-gray-100 text-gray-600"}`}>
+              className={`flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 transition-colors ${penTool === "eraser" ? "bg-blue-50 text-blue-600" : "hover:bg-muted text-muted-foreground"}`}>
               <Eraser className="h-4 w-4" />
               <span className="text-[9px] font-medium">מחק</span>
             </button>
             <label className="flex flex-col items-center gap-0.5 w-12 cursor-pointer">
               <input type="color" value={penColor} onChange={e => setPenColor(e.target.value)}
-                className="w-7 h-7 rounded cursor-pointer border border-gray-200" />
-              <span className="text-[9px] text-gray-400">צבע</span>
+                className="w-7 h-7 rounded cursor-pointer border border-border" />
+              <span className="text-[9px] text-muted-foreground">צבע</span>
             </label>
             {[2, 4, 8, 14].map(w => (
               <button key={w} onClick={() => setPenWidth(w)}
-                className={`flex items-center justify-center w-12 h-7 rounded-xl transition-colors ${penWidth === w ? "bg-blue-50" : "hover:bg-gray-100"}`}>
+                className={`flex items-center justify-center w-12 h-7 rounded-xl transition-colors ${penWidth === w ? "bg-blue-50" : "hover:bg-muted"}`}>
                 <div className="rounded-full bg-gray-700" style={{ width: Math.min(w, 12), height: Math.min(w, 12) }} />
               </button>
             ))}
             <button onClick={() => {
               const ctx = drawCanvasRef.current?.getContext("2d");
               if (ctx && drawCanvasRef.current) { ctx.clearRect(0, 0, drawCanvasRef.current.width, drawCanvasRef.current.height); }
-            }} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-gray-100 text-gray-500" title="נקה">
+            }} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-muted text-muted-foreground" title="נקה">
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
-            <div className="h-px bg-gray-100 my-0.5" />
+            <div className="h-px bg-muted my-0.5" />
             <button onClick={exitDrawMode}
-              className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-gray-100 text-gray-600">
+              className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-muted text-muted-foreground">
               <MousePointer2 className="h-4 w-4" />
               <span className="text-[9px] font-medium">סיים</span>
             </button>
           </>}
 
-          <div className="h-px bg-gray-100 my-0.5" />
-          <button onClick={() => setZoom(z => Math.min(3, z + 0.15))} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-gray-100 transition-colors text-gray-600"><ZoomIn className="h-3.5 w-3.5" /></button>
-          <button onClick={() => setZoom(z => Math.max(0.2, z - 0.15))} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-gray-100 transition-colors text-gray-600"><ZoomOut className="h-3.5 w-3.5" /></button>
-          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-gray-100 transition-colors text-gray-600"><Maximize className="h-3.5 w-3.5" /></button>
+          <div className="h-px bg-muted my-0.5" />
+          <button onClick={() => setZoom(z => Math.min(3, z + 0.15))} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-muted transition-colors text-muted-foreground"><ZoomIn className="h-3.5 w-3.5" /></button>
+          <button onClick={() => setZoom(z => Math.max(0.2, z - 0.15))} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-muted transition-colors text-muted-foreground"><ZoomOut className="h-3.5 w-3.5" /></button>
+          <button onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }); }} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-muted transition-colors text-muted-foreground"><Maximize className="h-3.5 w-3.5" /></button>
         </div>
 
         {/* Delete button */}
@@ -1487,7 +1487,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
         )}
 
         {/* Zoom indicator */}
-        <div className="absolute bottom-3 left-3 z-20 text-xs text-gray-400 bg-white/80 rounded-lg px-2 py-1 border border-gray-200 select-none">
+        <div className="absolute bottom-3 left-3 z-20 text-xs text-muted-foreground bg-card/80 rounded-lg px-2 py-1 border border-border select-none">
           {Math.round(zoom * 100)}%
         </div>
 
