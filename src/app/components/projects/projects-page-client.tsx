@@ -12,7 +12,14 @@ import { ProjectDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
 import { he } from "@/lib/he";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
-import { getPhaseLabel } from "@/lib/project-config";
+import { getPhaseLabel, toUniversalColumn } from "@/lib/project-config";
+
+const STATUS_COLORS: Record<string, string> = {
+  planning:    "bg-violet-500",
+  in_progress: "bg-amber-500",
+  review:      "bg-blue-500",
+  done:        "bg-emerald-500",
+};
 
 type ProjectData = {
   id: string;
@@ -160,7 +167,8 @@ export function ProjectsPageClient({
                   </div>
 
                   {/* Status badge */}
-                  <Badge className="text-xs bg-muted border-0 text-muted-foreground">
+                  <Badge className="text-xs bg-muted border-0 text-muted-foreground gap-1.5">
+                    <span className={`h-2 w-2 rounded-full ${STATUS_COLORS[toUniversalColumn(project.phase)] ?? "bg-gray-400"}`} />
                     {currentPhaseLabel}
                   </Badge>
 
