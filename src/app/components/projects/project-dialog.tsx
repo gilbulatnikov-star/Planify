@@ -24,10 +24,10 @@ import { createProject, updateProject } from "@/lib/actions/project-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { Plus, X } from "lucide-react";
 const STATUS_OPTIONS = [
-  { value: "planning",    label: "תכנון" },
-  { value: "in_progress", label: "בביצוע" },
-  { value: "review",      label: "ממתין לאישור" },
-  { value: "done",        label: "הושלם" },
+  { value: "planning",    label: "תכנון",          color: "bg-violet-500" },
+  { value: "in_progress", label: "בביצוע",          color: "bg-amber-500" },
+  { value: "review",      label: "ממתין לאישור",   color: "bg-blue-500" },
+  { value: "done",        label: "הושלם",           color: "bg-emerald-500" },
 ];
 
 interface ProjectDialogProps {
@@ -117,7 +117,9 @@ export function ProjectDialog({
     });
   }
 
-  const phaseLabel = STATUS_OPTIONS.find((p) => p.value === phase)?.label ?? phase;
+  const currentStatus = STATUS_OPTIONS.find((p) => p.value === phase);
+  const phaseLabel = currentStatus?.label ?? phase;
+  const phaseColor = currentStatus?.color ?? "bg-gray-400";
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -187,11 +189,19 @@ export function ProjectDialog({
               <Label>סטטוס</Label>
               <Select value={phase} onValueChange={(v) => v != null && setPhase(v)}>
                 <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{phaseLabel}</span>
+                  <span className="flex flex-1 items-center gap-2">
+                    <span className={`h-2 w-2 rounded-full ${phaseColor}`} />
+                    {phaseLabel}
+                  </span>
                 </SelectTrigger>
                 <SelectContent>
                   {STATUS_OPTIONS.map((p) => (
-                    <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                    <SelectItem key={p.value} value={p.value}>
+                      <span className="flex items-center gap-2">
+                        <span className={`h-2 w-2 rounded-full ${p.color}`} />
+                        {p.label}
+                      </span>
+                    </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
