@@ -12,16 +12,7 @@ import { ProjectDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
 import { he } from "@/lib/he";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
-import {
-  CATEGORY_LABELS,
-  CATEGORY_PHASES,
-  UNIVERSAL_COLUMNS,
-  getPhaseLabel,
-  getTypeCategory,
-  toUniversalColumn,
-  PROJECT_TYPE_CONFIG,
-} from "@/lib/project-config";
-import type { ProjectCategory } from "@/lib/project-config";
+import { getPhaseLabel } from "@/lib/project-config";
 
 type ProjectData = {
   id: string;
@@ -50,14 +41,6 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
 };
 
-const CATEGORY_FILTER_OPTIONS: { key: ProjectCategory | null; label: string }[] = [
-  { key: null,          label: "הכל" },
-  { key: "photography", label: CATEGORY_LABELS.photography },
-  { key: "video",       label: CATEGORY_LABELS.video },
-  { key: "content",     label: CATEGORY_LABELS.content },
-  { key: "editing",     label: CATEGORY_LABELS.editing },
-];
-
 export function ProjectsPageClient({
   projects,
   clients,
@@ -71,7 +54,6 @@ export function ProjectsPageClient({
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<ProjectCategory | null>(null);
 
   function handleCreate() {
     if (planLimit !== -1 && projects.length >= planLimit) {
@@ -86,17 +68,6 @@ export function ProjectsPageClient({
     setEditingProject(project);
     setDialogOpen(true);
   }
-
-  // Filter projects by category (or show all)
-  const filteredProjects = activeCategory
-    ? projects.filter((p) => p.projectType && getTypeCategory(p.projectType) === activeCategory)
-    : projects;
-
-  // Group filtered projects into 4 universal columns
-  const projectsByColumn = UNIVERSAL_COLUMNS.map((col) => ({
-    ...col,
-    projects: filteredProjects.filter((p) => toUniversalColumn(p.phase) === col.key),
-  }));
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-6">
@@ -114,175 +85,122 @@ export function ProjectsPageClient({
         </Button>
       </motion.div>
 
-      {/* Category filter tabs */}
-      <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
-        {CATEGORY_FILTER_OPTIONS.map((opt) => (
-          <button
-            key={String(opt.key)}
-            onClick={() => setActiveCategory(opt.key)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-all duration-200 ${
-              activeCategory === opt.key
-                ? "bg-foreground text-background shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
-            }`}
-          >
-            {opt.label}
-            <span className="ms-1.5 text-xs opacity-60">
-              ({activeCategory === opt.key
-                ? filteredProjects.length
-                : opt.key === null
-                  ? projects.length
-                  : projects.filter((p) => p.projectType && getTypeCategory(p.projectType) === opt.key).length
-              })
-            </span>
-          </button>
-        ))}
-      </motion.div>
+      {/* Project cards grid */}
+      {projects.length > 0 ? (
+        <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => {
+            const completedTasks = project.tasks.filter((t) => t.completed).length;
+            const totalTasks = project.tasks.length;
+            const currentPhaseLabel = getPhaseLabel(project.phase);
 
-      {/* Kanban columns */}
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {projectsByColumn.map((col) => (
-          <div key={col.key} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className={`h-2 w-2 rounded-full bg-gradient-to-r ${col.color}`} />
-                <h2 className="text-sm font-semibold text-muted-foreground">{col.label}</h2>
-              </div>
-              <Badge variant="secondary" className="text-xs bg-muted border-0">
-                {col.projects.length}
-              </Badge>
-            </div>
-
-            <div className="space-y-3">
-              {col.projects.map((project) => {
-                const completedTasks = project.tasks.filter((t) => t.completed).length;
-                const totalTasks = project.tasks.length;
-                const typeLabel = project.projectType
-                  ? (CATEGORY_LABELS[project.projectType as ProjectCategory]
-                    ?? PROJECT_TYPE_CONFIG[project.projectType]?.label
-                    ?? (project.projectType.startsWith("custom_")
-                      ? project.projectType.replace(/^custom_/, "").replace(/_\d+$/, "").replace(/_/g, " ")
-                      : project.projectType))
-                  : null;
-                const currentPhaseLabel = getPhaseLabel(project.phase);
-
-                return (
-                  <Card key={project.id} className="glass-card group transition-all duration-300 hover:scale-[1.02]">
-                    <CardContent className="p-4 space-y-3">
-                      <div className="flex items-start justify-between">
-                        <Link href={`/projects/${project.id}`} className="flex-1 min-w-0 hover:opacity-70 transition-opacity">
-                          <p className="text-sm font-medium leading-tight">{project.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{project.client?.name ?? "—"}</p>
-                        </Link>
-                        <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
-                          {project.shootDate && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              title="הוסף ל-Google Calendar"
-                              className="h-6 w-6 hover:bg-blue-50 hover:text-blue-700"
-                              onClick={() => {
-                                const d = new Date(project.shootDate!);
-                                const fmt = (dt: Date) => dt.toISOString().replace(/[-:]/g, "").split(".")[0];
-                                const start = fmt(d);
-                                const end = fmt(new Date(d.getTime() + 8 * 3600000));
-                                const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(project.title)}&dates=${start}/${end}&details=${encodeURIComponent(`פרויקט: ${project.title}${project.client?.name ? ` | לקוח: ${project.client.name}` : ""}`)}&sf=true&output=xml`;
-                                window.open(url, "_blank", "noopener");
-                              }}
-                            >
-                              <CalendarPlus className="h-3 w-3" />
-                            </Button>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            title="צור תיקיית Drive"
-                            className="h-6 w-6 hover:bg-green-50 hover:text-green-700"
-                            onClick={async () => {
-                              const folderName = `${project.shootDate ? new Date(project.shootDate).getFullYear() + " - " : ""}${project.client?.name ?? "ללא לקוח"} - ${project.title}`;
-                              const res = await fetch("/api/google/drive", {
-                                method: "POST",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ action: "create_folder", folderName }),
-                              });
-                              const data = await res.json();
-                              if (data.folderUrl) window.open(data.folderUrl, "_blank", "noopener");
-                              else if (data.setupRequired) alert("חיבור Google Drive דורש הגדרה.");
-                              else alert(data.error ?? "שגיאה ביצירת תיקייה");
-                            }}
-                          >
-                            <FolderPlus className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 hover:bg-muted hover:text-foreground"
-                            onClick={() => handleEdit(project)}
-                          >
-                            <Pencil className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 hover:bg-red-50 text-destructive"
-                            onClick={() => setDeleteTarget({ id: project.id, title: project.title })}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-
-                      {/* Type + current phase badges */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {typeLabel && (
-                          <Badge variant="outline" className="text-xs border-border text-muted-foreground">
-                            {typeLabel}
-                          </Badge>
-                        )}
-                        <Badge className="text-xs bg-muted border-0 text-muted-foreground">
-                          {currentPhaseLabel}
-                        </Badge>
-                      </div>
-
-                      {project.budget && (
-                        <p className="text-xs text-muted-foreground">
-                          {he.project.budget}: {formatCurrency(project.budget)}
-                        </p>
-                      )}
-
+            return (
+              <Card key={project.id} className="glass-card group transition-all duration-300 hover:scale-[1.02]">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex items-start justify-between">
+                    <Link href={`/projects/${project.id}`} className="flex-1 min-w-0 hover:opacity-70 transition-opacity">
+                      <p className="text-sm font-medium leading-tight">{project.title}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{project.client?.name ?? "—"}</p>
+                    </Link>
+                    <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
                       {project.shootDate && (
-                        <p className="text-xs text-muted-foreground">
-                          {he.project.shootDate}: {formatDate(project.shootDate)}
-                        </p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          title="הוסף ל-Google Calendar"
+                          className="h-6 w-6 hover:bg-blue-50 hover:text-blue-700"
+                          onClick={() => {
+                            const d = new Date(project.shootDate!);
+                            const fmt = (dt: Date) => dt.toISOString().replace(/[-:]/g, "").split(".")[0];
+                            const start = fmt(d);
+                            const end = fmt(new Date(d.getTime() + 8 * 3600000));
+                            const url = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(project.title)}&dates=${start}/${end}&details=${encodeURIComponent(`פרויקט: ${project.title}${project.client?.name ? ` | לקוח: ${project.client.name}` : ""}`)}&sf=true&output=xml`;
+                            window.open(url, "_blank", "noopener");
+                          }}
+                        >
+                          <CalendarPlus className="h-3 w-3" />
+                        </Button>
                       )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="צור תיקיית Drive"
+                        className="h-6 w-6 hover:bg-green-50 hover:text-green-700"
+                        onClick={async () => {
+                          const folderName = `${project.shootDate ? new Date(project.shootDate).getFullYear() + " - " : ""}${project.client?.name ?? "ללא לקוח"} - ${project.title}`;
+                          const res = await fetch("/api/google/drive", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ action: "create_folder", folderName }),
+                          });
+                          const data = await res.json();
+                          if (data.folderUrl) window.open(data.folderUrl, "_blank", "noopener");
+                          else if (data.setupRequired) alert("חיבור Google Drive דורש הגדרה.");
+                          else alert(data.error ?? "שגיאה ביצירת תיקייה");
+                        }}
+                      >
+                        <FolderPlus className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-muted hover:text-foreground"
+                        onClick={() => handleEdit(project)}
+                      >
+                        <Pencil className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 hover:bg-red-50 text-destructive"
+                        onClick={() => setDeleteTarget({ id: project.id, title: project.title })}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
 
-                      {totalTasks > 0 && (
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>משימות</span>
-                            <span>{completedTasks}/{totalTasks}</span>
-                          </div>
-                          <div className="h-1.5 rounded-full bg-muted">
-                            <div
-                              className="h-full rounded-full bg-foreground transition-all duration-500"
-                              style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-              {col.projects.length === 0 && (
-                <div className="rounded-xl border border-dashed border-border p-6 text-center">
-                  <p className="text-xs text-muted-foreground">אין פרויקטים</p>
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
-      </motion.div>
+                  {/* Status badge */}
+                  <Badge className="text-xs bg-muted border-0 text-muted-foreground">
+                    {currentPhaseLabel}
+                  </Badge>
+
+                  {project.budget && (
+                    <p className="text-xs text-muted-foreground">
+                      {he.project.budget}: {formatCurrency(project.budget)}
+                    </p>
+                  )}
+
+                  {project.shootDate && (
+                    <p className="text-xs text-muted-foreground">
+                      {he.project.shootDate}: {formatDate(project.shootDate)}
+                    </p>
+                  )}
+
+                  {totalTasks > 0 && (
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>משימות</span>
+                        <span>{completedTasks}/{totalTasks}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-muted">
+                        <div
+                          className="h-full rounded-full bg-foreground transition-all duration-500"
+                          style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })}
+        </motion.div>
+      ) : (
+        <motion.div variants={fadeUp} className="rounded-xl border border-dashed border-border p-12 text-center">
+          <p className="text-sm text-muted-foreground">אין פרויקטים עדיין</p>
+          <p className="text-xs text-muted-foreground mt-1">לחץ על &quot;פרויקט חדש&quot; כדי להתחיל</p>
+        </motion.div>
+      )}
 
       <UpgradeDialog
         open={upgradeOpen}
