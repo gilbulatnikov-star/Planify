@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
-  CalendarDays, ListTodo, Phone, Mail, ExternalLink,
+  CalendarDays, ListTodo, Phone, Mail, Plus, Link2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/proje
 import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { he } from "@/lib/he";
-import { toggleProjectTask } from "@/lib/actions/project-actions";
+import { toggleProjectTask, linkScriptToProject, linkMoodboardToProject, linkContactToProject } from "@/lib/actions/project-actions";
 
 type ProjectDetail = {
   id: string;
@@ -49,15 +49,55 @@ const statusColors: Record<string, string> = {
   published: "bg-emerald-100 text-emerald-700",
 };
 
+type UnlinkedItems = {
+  scripts: { id: string; title: string }[];
+  moodboards: { id: string; title: string }[];
+  contacts: { id: string; name: string }[];
+};
+
+function LinkItemDropdown({ items, label, onSelect }: { items: { id: string; title?: string; name?: string }[]; label: string; onSelect: (id: string) => void }) {
+  const [open, setOpen] = useState(false);
+  if (items.length === 0) return null;
+  return (
+    <div className="relative inline-block">
+      <button onClick={() => setOpen(!open)} className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+        <Plus className="h-3 w-3" /> {label}
+      </button>
+      {open && (
+        <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
+          {items.map(item => (
+            <button key={item.id} onClick={() => { onSelect(item.id); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+              <Link2 className="h-3 w-3 opacity-40" /> {item.title ?? item.name}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ProjectDetailClient({
   project,
   clients,
+  unlinked,
 }: {
   project: ProjectDetail;
   clients: { id: string; name: string }[];
+  unlinked: UnlinkedItems;
 }) {
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
+  const [, startTransition] = useTransition();
+
+  function handleLinkScript(scriptId: string) {
+    startTransition(async () => { await linkScriptToProject(scriptId, project.id); router.refresh(); });
+  }
+  function handleLinkMoodboard(moodboardId: string) {
+    startTransition(async () => { await linkMoodboardToProject(moodboardId, project.id); router.refresh(); });
+  }
+  function handleLinkContact(contactId: string) {
+    startTransition(async () => { await linkContactToProject(contactId, project.id); router.refresh(); });
+  }
 
   const typeLabel = project.projectType
     ? (CATEGORY_LABELS[project.projectType as ProjectCategory]
@@ -170,9 +210,12 @@ export function ProjectDetailClient({
 
       {/* ── Scripts ── */}
       <motion.div variants={fadeUp} id="scripts" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <FileText className="h-4 w-4" /> תסריטים
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+            <FileText className="h-4 w-4" /> תסריטים
+          </h2>
+          {project.scripts.length > 0 && <LinkItemDropdown items={unlinked.scripts} label="שייך תסריט" onSelect={handleLinkScript} />}
+        </div>
         {project.scripts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {project.scripts.map(s => (
@@ -190,15 +233,21 @@ export function ProjectDetailClient({
             ))}
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין תסריטים משויכים</p>
+          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
+            <p className="text-xs text-muted-foreground">אין תסריטים משויכים</p>
+            <LinkItemDropdown items={unlinked.scripts} label="שייך תסריט" onSelect={handleLinkScript} />
+          </div>
         )}
       </motion.div>
 
       {/* ── Moodboards ── */}
       <motion.div variants={fadeUp} id="moodboards" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <LayoutTemplate className="h-4 w-4" /> Moodboards
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+            <LayoutTemplate className="h-4 w-4" /> Moodboards
+          </h2>
+          {project.moodboards.length > 0 && <LinkItemDropdown items={unlinked.moodboards} label="שייך Moodboard" onSelect={handleLinkMoodboard} />}
+        </div>
         {project.moodboards.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {project.moodboards.map(m => (
@@ -213,15 +262,21 @@ export function ProjectDetailClient({
             ))}
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין Moodboards משויכים</p>
+          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
+            <p className="text-xs text-muted-foreground">אין Moodboards משויכים</p>
+            <LinkItemDropdown items={unlinked.moodboards} label="שייך Moodboard" onSelect={handleLinkMoodboard} />
+          </div>
         )}
       </motion.div>
 
       {/* ── Contacts ── */}
       <motion.div variants={fadeUp} id="contacts" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <Contact className="h-4 w-4" /> אנשי קשר
-        </h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+            <Contact className="h-4 w-4" /> אנשי קשר
+          </h2>
+          {project.contacts.length > 0 && <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="שייך איש קשר" onSelect={handleLinkContact} />}
+        </div>
         {project.contacts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {project.contacts.map(c => (
@@ -240,7 +295,10 @@ export function ProjectDetailClient({
             ))}
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין אנשי קשר משויכים</p>
+          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
+            <p className="text-xs text-muted-foreground">אין אנשי קשר משויכים</p>
+            <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="שייך איש קשר" onSelect={handleLinkContact} />
+          </div>
         )}
       </motion.div>
 

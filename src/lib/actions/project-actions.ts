@@ -125,6 +125,39 @@ export async function updateProject(id: string, formData: FormData) {
   }
 }
 
+export async function linkScriptToProject(scriptId: string, projectId: string) {
+  await prisma.script.update({ where: { id: scriptId }, data: { projectId } });
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}
+
+export async function linkMoodboardToProject(moodboardId: string, projectId: string) {
+  await prisma.moodboard.update({ where: { id: moodboardId }, data: { projectId } });
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}
+
+export async function linkContactToProject(contactId: string, projectId: string) {
+  await prisma.contact.update({ where: { id: contactId }, data: { projectId } });
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}
+
+export async function getUnlinkedItems() {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { scripts: [], moodboards: [], contacts: [] };
+  const [scripts, moodboards, contacts] = await Promise.all([
+    prisma.script.findMany({ where: { userId, projectId: null }, select: { id: true, title: true }, orderBy: { updatedAt: "desc" } }),
+    prisma.moodboard.findMany({ where: { userId, projectId: null }, select: { id: true, title: true }, orderBy: { updatedAt: "desc" } }),
+    prisma.contact.findMany({ where: { userId, projectId: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+  ]);
+  return { scripts, moodboards, contacts };
+}
+
 export async function toggleProjectTask(taskId: string, completed: boolean) {
   await prisma.task.update({
     where: { id: taskId },
