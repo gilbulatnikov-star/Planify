@@ -20,6 +20,7 @@ import {
 } from "@/lib/actions/widget-actions";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
 import { he } from "@/lib/he";
+import { getPhaseLabel } from "@/lib/project-config";
 import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
 
@@ -149,7 +150,7 @@ export default async function DashboardPage() {
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {he.project.statuses[project.status as keyof typeof he.project.statuses] ?? project.status} · {formatDate(project.deadline)}
+                            {getPhaseLabel(project.phase)} · {formatDate(project.deadline)}
                           </p>
                         </div>
                         <Badge variant={days !== null && days <= 5 ? "destructive" : "secondary"}>
@@ -242,14 +243,9 @@ export default async function DashboardPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-border text-muted-foreground">
-                      {he.project.phases[project.phase as keyof typeof he.project.phases] ?? project.phase}
-                    </Badge>
-                    <Badge className="bg-foreground text-background hover:bg-foreground/90">
-                      {he.project.statuses[project.status as keyof typeof he.project.statuses] ?? project.status}
-                    </Badge>
-                  </div>
+                  <Badge className="bg-muted text-muted-foreground border-0">
+                    {getPhaseLabel(project.phase)}
+                  </Badge>
                 </div>
               ))}
             </div>

@@ -125,37 +125,27 @@ export async function updateProject(id: string, formData: FormData) {
   }
 }
 
-export async function linkScriptToProject(scriptId: string, projectId: string) {
-  await prisma.script.update({ where: { id: scriptId }, data: { projectId } });
+export async function linkItemToProject(type: "script" | "moodboard" | "contact" | "content", itemId: string, projectId: string | null) {
+  const model = { script: prisma.script, moodboard: prisma.moodboard, contact: prisma.contact, content: prisma.scheduledContent }[type];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (model as any).update({ where: { id: itemId }, data: { projectId } });
   revalidatePath("/projects");
-  revalidatePath(`/projects/${projectId}`);
-  return { success: true };
-}
-
-export async function linkMoodboardToProject(moodboardId: string, projectId: string) {
-  await prisma.moodboard.update({ where: { id: moodboardId }, data: { projectId } });
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${projectId}`);
-  return { success: true };
-}
-
-export async function linkContactToProject(contactId: string, projectId: string) {
-  await prisma.contact.update({ where: { id: contactId }, data: { projectId } });
-  revalidatePath("/projects");
-  revalidatePath(`/projects/${projectId}`);
+  if (projectId) revalidatePath(`/projects/${projectId}`);
+  revalidatePath("/calendar");
   return { success: true };
 }
 
 export async function getUnlinkedItems() {
   const session = await auth();
   const userId = session?.user?.id;
-  if (!userId) return { scripts: [], moodboards: [], contacts: [] };
-  const [scripts, moodboards, contacts] = await Promise.all([
+  if (!userId) return { scripts: [], moodboards: [], contacts: [], content: [] };
+  const [scripts, moodboards, contacts, content] = await Promise.all([
     prisma.script.findMany({ where: { userId, projectId: null }, select: { id: true, title: true }, orderBy: { updatedAt: "desc" } }),
     prisma.moodboard.findMany({ where: { userId, projectId: null }, select: { id: true, title: true }, orderBy: { updatedAt: "desc" } }),
     prisma.contact.findMany({ where: { userId, projectId: null }, select: { id: true, name: true }, orderBy: { name: "asc" } }),
+    prisma.scheduledContent.findMany({ where: { userId, projectId: null }, select: { id: true, title: true }, orderBy: { date: "desc" } }),
   ]);
-  return { scripts, moodboards, contacts };
+  return { scripts, moodboards, contacts, content };
 }
 
 export async function toggleProjectTask(taskId: string, completed: boolean) {
