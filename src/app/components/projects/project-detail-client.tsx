@@ -234,10 +234,7 @@ export function ProjectDetailClient({
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין תסריטים</p>
-            <LinkItemDropdown items={unlinked.scripts} label="הוסף תסריט" onSelect={(id) => handleLink("script", id)} />
-          </div>
+          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין תסריטים</p>
         )}
       </motion.div>
 
@@ -252,21 +249,21 @@ export function ProjectDetailClient({
         {project.moodboards.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {project.moodboards.map(m => (
-              <Link key={m.id} href={`/moodboard/${m.id}`}>
-                <Card className="glass-card hover:scale-[1.02] transition-all duration-200 cursor-pointer">
-                  <CardContent className="p-4">
+              <Card key={m.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
+                <CardContent className="p-4 flex items-start justify-between">
+                  <Link href={`/moodboard/${m.id}`} className="flex-1 min-w-0">
                     <p className="text-sm font-medium">{m.title}</p>
                     <span className="text-[10px] text-muted-foreground mt-1">{formatDate(m.updatedAt)}</span>
-                  </CardContent>
-                </Card>
-              </Link>
+                  </Link>
+                  <button onClick={() => handleUnlink("moodboard", m.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </CardContent>
+              </Card>
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין Moodboards</p>
-            <LinkItemDropdown items={unlinked.moodboards} label="הוסף Moodboard" onSelect={(id) => handleLink("moodboard", id)} />
-          </div>
+          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין Moodboards</p>
         )}
       </motion.div>
 
@@ -281,25 +278,27 @@ export function ProjectDetailClient({
         {project.contacts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {project.contacts.map(c => (
-              <Card key={c.id} className="glass-card">
-                <CardContent className="p-4">
-                  <p className="text-sm font-medium">{c.name}</p>
-                  <Badge className="text-[10px] bg-muted border-0 text-muted-foreground mt-1">
-                    {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
-                  </Badge>
-                  <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
-                    {c.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
-                    {c.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>}
+              <Card key={c.id} className="glass-card group/item">
+                <CardContent className="p-4 flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{c.name}</p>
+                    <Badge className="text-[10px] bg-muted border-0 text-muted-foreground mt-1">
+                      {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
+                    </Badge>
+                    <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
+                      {c.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
+                      {c.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>}
+                    </div>
                   </div>
+                  <button onClick={() => handleUnlink("contact", c.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </CardContent>
               </Card>
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין אנשי קשר</p>
-            <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="הוסף איש קשר" onSelect={(id) => handleLink("contact", id)} />
-          </div>
+          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין אנשי קשר</p>
         )}
       </motion.div>
 
@@ -314,19 +313,19 @@ export function ProjectDetailClient({
         {project.scheduledContent.length > 0 ? (
           <div className="space-y-2">
             {project.scheduledContent.map(sc => (
-              <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5">
+              <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 group/item">
                 <div className={`h-2.5 w-2.5 rounded-full bg-${sc.color ?? "gray"}-400 shrink-0`} />
                 <span className="text-sm flex-1">{sc.title}</span>
                 <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{sc.status}</Badge>
                 <span className="text-xs text-muted-foreground">{formatDate(sc.date)}</span>
+                <button onClick={() => handleUnlink("content", sc.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-3 bg-muted/30 rounded-lg px-4 py-3">
-            <p className="text-xs text-muted-foreground">אין תוכן מתוכנן</p>
-            <LinkItemDropdown items={unlinked.content} label="הוסף לוח תוכן" onSelect={(id) => handleLink("content", id)} />
-          </div>
+          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין תוכן מתוכנן</p>
         )}
       </motion.div>
 
