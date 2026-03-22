@@ -23,19 +23,11 @@ import { Button } from "@/components/ui/button";
 import { createProject, updateProject } from "@/lib/actions/project-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { Plus, X } from "lucide-react";
-import {
-  getPhasesForType,
-  CATEGORY_LABELS,
-  CATEGORY_PHASES,
-  PROJECT_TYPE_CONFIG,
-} from "@/lib/project-config";
-import type { ProjectCategory } from "@/lib/project-config";
-
-const CATEGORY_OPTIONS: { value: ProjectCategory; label: string }[] = [
-  { value: "photography", label: "📸 צילום" },
-  { value: "video",       label: "🎬 וידאו" },
-  { value: "content",     label: "📱 סושיאל" },
-  { value: "editing",     label: "✂️ עריכה" },
+const STATUS_OPTIONS = [
+  { value: "planning",    label: "תכנון" },
+  { value: "in_progress", label: "בביצוע" },
+  { value: "review",      label: "ממתין לאישור" },
+  { value: "done",        label: "הושלם" },
 ];
 
 interface ProjectDialogProps {
@@ -63,19 +55,6 @@ function formatDateForInput(date: Date | null | undefined): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-/** Resolve a legacy specific type key (e.g. "wedding") to its parent category. */
-function resolveToCategory(typeKey: string | null): string {
-  if (!typeKey) return "";
-  // Already a category key
-  if (typeKey in CATEGORY_PHASES) return typeKey;
-  // Legacy specific type → get its category
-  const cfg = PROJECT_TYPE_CONFIG[typeKey];
-  if (cfg) return cfg.category;
-  // Legacy custom_ types — try to guess category from the stored label
-  // For old data, default to empty (user can re-select)
-  return "";
-}
-
 export function ProjectDialog({
   project,
   clients,
@@ -91,31 +70,17 @@ export function ProjectDialog({
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients] = useState(clients);
-  const [projectType, setProjectType] = useState(() => resolveToCategory(project?.projectType ?? null));
-
-  // Derive available phases from selected type
-  const availablePhases = getPhasesForType(projectType);
 
   // Reset on open
   useEffect(() => {
     if (open) {
-      setPhase(project?.phase ?? "pre_production");
+      setPhase(project?.phase ?? "planning");
       setClientId(project?.clientId ?? "");
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
-      setProjectType(resolveToCategory(project?.projectType ?? null));
     }
   }, [open, project, clients]);
-
-  function handleTypeChange(value: string) {
-    setProjectType(value);
-    // Auto-select first phase when type changes (new projects only)
-    if (!isEditing) {
-      const phases = getPhasesForType(value);
-      setPhase(phases[0]?.value ?? "pre_production");
-    }
-  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -137,7 +102,6 @@ export function ProjectDialog({
       formData.set("phase", phase);
       formData.set("status", phase);
       formData.set("clientId", resolvedClientId);
-      formData.set("projectType", projectType);
 
       const result = isEditing
         ? await updateProject(project!.id, formData)
@@ -153,8 +117,7 @@ export function ProjectDialog({
     });
   }
 
-  const phaseLabel = availablePhases.find((p) => p.value === phase)?.label ?? phase;
-  const typeLabel = CATEGORY_OPTIONS.find(o => o.value === projectType)?.label ?? "בחר קטגוריה";
+  const phaseLabel = STATUS_OPTIONS.find((p) => p.value === phase)?.label ?? phase;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -219,22 +182,7 @@ export function ProjectDialog({
               )}
             </div>
 
-            {/* Project Type — simple 4 categories */}
-            <div className="space-y-2">
-              <Label>קטגוריה</Label>
-              <Select value={projectType} onValueChange={(v) => v != null && handleTypeChange(v)}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">{typeLabel}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORY_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Phase — dynamic based on selected category */}
+            {/* Status */}
             <div className="space-y-2">
               <Label>סטטוס</Label>
               <Select value={phase} onValueChange={(v) => v != null && setPhase(v)}>
@@ -242,7 +190,7 @@ export function ProjectDialog({
                   <span className="flex flex-1">{phaseLabel}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  {availablePhases.map((p) => (
+                  {STATUS_OPTIONS.map((p) => (
                     <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
                   ))}
                 </SelectContent>

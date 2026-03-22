@@ -394,14 +394,23 @@ export const CATEGORY_PHASES: Record<ProjectCategory, PhaseOption[]> = {
 };
 
 export function getPhaseLabel(phase: string): string {
+  // Universal statuses (primary)
+  const universal: Record<string, string> = {
+    planning:    "תכנון",
+    in_progress: "בביצוע",
+    review:      "ממתין לאישור",
+    done:        "הושלם",
+  };
+  if (universal[phase]) return universal[phase];
+  // Legacy / specific phases
   for (const cfg of Object.values(PROJECT_TYPE_CONFIG)) {
     const found = cfg.phases.find((p) => p.value === phase);
     if (found) return found.label;
   }
   const legacy: Record<string, string> = {
-    pre_production: "לפני הצילומים",
-    post_production: "עריכה",
-    revisions:       "תיקונים",
+    pre_production: "תכנון",
+    post_production: "בביצוע",
+    revisions:       "ממתין לאישור",
     delivered:       "הושלם",
   };
   return legacy[phase] ?? phase;
