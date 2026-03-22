@@ -58,7 +58,6 @@ type UnlinkedItems = {
 
 function LinkItemDropdown({ items, label, onSelect }: { items: { id: string; title?: string; name?: string }[]; label: string; onSelect: (id: string) => void }) {
   const [open, setOpen] = useState(false);
-  if (items.length === 0) return null;
   return (
     <div className="relative inline-block">
       <button onClick={() => setOpen(!open)} className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
@@ -66,11 +65,15 @@ function LinkItemDropdown({ items, label, onSelect }: { items: { id: string; tit
       </button>
       {open && (
         <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
-          {items.map(item => (
-            <button key={item.id} onClick={() => { onSelect(item.id); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-              <Link2 className="h-3 w-3 opacity-40" /> {item.title ?? item.name}
-            </button>
-          ))}
+          {items.length === 0 ? (
+            <p className="text-xs text-muted-foreground px-2.5 py-2 text-center">הכל כבר משויך</p>
+          ) : (
+            items.map(item => (
+              <button key={item.id} onClick={() => { onSelect(item.id); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                <Link2 className="h-3 w-3 opacity-40" /> {item.title ?? item.name}
+              </button>
+            ))
+          )}
         </div>
       )}
     </div>
