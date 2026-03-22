@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { FolderOpen, X, Check } from "lucide-react";
+import { FolderOpen, X, Check, ChevronDown, Link2 } from "lucide-react";
 
 interface ProjectLinkerProps {
   currentProjectId: string | null;
@@ -34,23 +34,32 @@ export function ProjectLinker({
       <button
         type="button"
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }}
-        className="flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+        className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-colors ${
+          currentProjectTitle
+            ? "border-[#38b6ff]/30 bg-[#38b6ff]/5 text-[#38b6ff] hover:bg-[#38b6ff]/10"
+            : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
+        }`}
       >
-        <FolderOpen className="h-3 w-3" />
-        {currentProjectTitle ?? "שייך לפרויקט"}
+        <Link2 className="h-3.5 w-3.5" />
+        {currentProjectTitle ? (
+          <span className="font-medium">{currentProjectTitle}</span>
+        ) : (
+          <span>בחר פרויקט</span>
+        )}
+        <ChevronDown className="h-3 w-3 opacity-50" />
       </button>
     );
   }
 
   return (
     <div
-      className="rounded-lg border border-border bg-card shadow-lg p-2 space-y-1 min-w-[180px] z-50"
+      className="rounded-xl border border-border bg-card shadow-lg p-2 space-y-1 min-w-[200px] z-50"
       onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
     >
-      <div className="flex items-center justify-between px-1 pb-1 border-b border-border">
-        <span className="text-[11px] font-medium text-muted-foreground">שייך לפרויקט</span>
+      <div className="flex items-center justify-between px-2 pb-1.5 border-b border-border">
+        <span className="text-xs font-medium text-foreground">בחר פרויקט</span>
         <button type="button" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
-          <X className="h-3 w-3" />
+          <X className="h-3.5 w-3.5" />
         </button>
       </div>
       {currentProjectId && (
@@ -58,14 +67,14 @@ export function ProjectLinker({
           type="button"
           onClick={() => handleSelect(null)}
           disabled={isPending}
-          className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
         >
-          <X className="h-3 w-3" />
+          <X className="h-3.5 w-3.5" />
           הסר שיוך
         </button>
       )}
       {projects.length === 0 ? (
-        <p className="text-[11px] text-muted-foreground px-2 py-1">אין פרויקטים</p>
+        <p className="text-xs text-muted-foreground px-2.5 py-2">אין פרויקטים — צור פרויקט קודם</p>
       ) : (
         projects.map((p) => (
           <button
@@ -73,13 +82,13 @@ export function ProjectLinker({
             type="button"
             onClick={() => handleSelect(p.id)}
             disabled={isPending}
-            className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-xs transition-colors ${
+            className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors ${
               p.id === currentProjectId
-                ? "bg-muted font-medium text-foreground"
+                ? "bg-[#38b6ff]/10 font-medium text-[#38b6ff]"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            {p.id === currentProjectId && <Check className="h-3 w-3" />}
+            {p.id === currentProjectId ? <Check className="h-3.5 w-3.5" /> : <FolderOpen className="h-3.5 w-3.5 opacity-40" />}
             {p.title}
           </button>
         ))

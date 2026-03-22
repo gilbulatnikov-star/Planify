@@ -101,14 +101,15 @@ export function ProjectsPageClient({
             const currentPhaseLabel = getPhaseLabel(project.phase);
 
             return (
-              <Card key={project.id} className="glass-card group transition-all duration-300 hover:scale-[1.02]">
+              <Link key={project.id} href={`/projects/${project.id}`} className="block">
+              <Card className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-pointer">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
-                    <Link href={`/projects/${project.id}`} className="flex-1 min-w-0 hover:opacity-70 transition-opacity">
+                    <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium leading-tight">{project.title}</p>
                       <p className="text-xs text-muted-foreground mt-1">{project.client?.name ?? "—"}</p>
-                    </Link>
-                    <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
+                    </div>
+                    <div className="flex items-center gap-0.5 shrink-0 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200" onClick={(e) => e.preventDefault()}>
                       {project.shootDate && (
                         <Button
                           variant="ghost"
@@ -200,6 +201,7 @@ export function ProjectsPageClient({
                   )}
                 </CardContent>
               </Card>
+              </Link>
             );
           })}
         </motion.div>
