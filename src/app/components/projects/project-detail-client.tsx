@@ -57,12 +57,12 @@ type UnlinkedItems = {
   content: { id: string; title: string }[];
 };
 
-function LinkItemDropdown({ items, label, onSelect }: { items: { id: string; title?: string; name?: string }[]; label: string; onSelect: (id: string) => void }) {
+function LinkItemDropdown({ items, onSelect }: { items: { id: string; title?: string; name?: string }[]; onSelect: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="relative inline-block">
-      <button onClick={() => setOpen(!open)} className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-        <Plus className="h-3 w-3" /> {label}
+      <button onClick={() => setOpen(!open)} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+        <Plus className="h-3.5 w-3.5" />
       </button>
       {open && (
         <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
@@ -238,7 +238,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <FileText className="h-4 w-4" /> תסריטים
           </h2>
-          {<LinkItemDropdown items={unlinked.scripts} label="הוסף תסריט" onSelect={(id) => handleLink("script", id)} />}
+          {<LinkItemDropdown items={unlinked.scripts} onSelect={(id) => handleLink("script", id)} />}
         </div>
         {project.scripts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -270,7 +270,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <LayoutTemplate className="h-4 w-4" /> Moodboards
           </h2>
-          {<LinkItemDropdown items={unlinked.moodboards} label="הוסף Moodboard" onSelect={(id) => handleLink("moodboard", id)} />}
+          {<LinkItemDropdown items={unlinked.moodboards} onSelect={(id) => handleLink("moodboard", id)} />}
         </div>
         {project.moodboards.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -299,7 +299,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <Contact className="h-4 w-4" /> אנשי קשר
           </h2>
-          {<LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} label="הוסף איש קשר" onSelect={(id) => handleLink("contact", id)} />}
+          {<LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} onSelect={(id) => handleLink("contact", id)} />}
         </div>
         {project.contacts.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -334,7 +334,7 @@ export function ProjectDetailClient({
           <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
             <CalendarDays className="h-4 w-4" /> לוח תוכן
           </h2>
-          {<LinkItemDropdown items={unlinked.content} label="הוסף לוח תוכן" onSelect={(id) => handleLink("content", id)} />}
+          {<LinkItemDropdown items={unlinked.content} onSelect={(id) => handleLink("content", id)} />}
         </div>
         {project.scheduledContent.length > 0 ? (
           <div className="space-y-2">
@@ -342,7 +342,7 @@ export function ProjectDetailClient({
               <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 group/item">
                 <div className={`h-2.5 w-2.5 rounded-full bg-${sc.color ?? "gray"}-400 shrink-0`} />
                 <span className="text-sm flex-1">{sc.title}</span>
-                <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{sc.status}</Badge>
+                <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>
                 <span className="text-xs text-muted-foreground">{formatDate(sc.date)}</span>
                 <button onClick={() => handleUnlink("content", sc.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                   <X className="h-3.5 w-3.5" />
