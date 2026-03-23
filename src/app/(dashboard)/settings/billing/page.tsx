@@ -85,7 +85,7 @@ function CancelModal({
           <button
             onClick={onClose}
             disabled={loading}
-            className="w-full rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors disabled:opacity-50"
+            className="w-full rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors disabled:opacity-50"
           >
             {he.billing.keepSubscription}
           </button>
@@ -173,7 +173,7 @@ export default function BillingPage() {
         <p className="text-sm text-muted-foreground">{he.billing.loadError}</p>
         <button
           onClick={() => window.location.reload()}
-          className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-white hover:bg-foreground/90 transition-colors"
+          className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground/90 transition-colors"
         >
           {he.billing.refresh}
         </button>
@@ -213,7 +213,7 @@ export default function BillingPage() {
       {/* ── Active Plan Card ─────────────────────────────────────────── */}
       <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
         <div className="px-6 py-5 flex items-center gap-4 border-b border-border">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-foreground text-white">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-foreground text-background">
             <Crown className="h-5 w-5" />
           </div>
           <div>
@@ -312,7 +312,7 @@ export default function BillingPage() {
             <p className="text-xs text-muted-foreground mb-3">{he.billing.upgradeForMore}</p>
             <a
               href="/billing"
-              className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors"
+              className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors"
             >
               <Crown className="h-4 w-4" />
               {he.billing.upgradeToPro}

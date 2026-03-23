@@ -359,10 +359,10 @@ export function CalendarExportStudio({
         <div className="sm:hidden flex items-center gap-2 px-4 py-2.5 border-b border-border bg-muted shrink-0 overflow-x-auto">
           {/* Layout */}
           <div className="flex rounded-lg border border-border overflow-hidden bg-card shrink-0">
-            <button onClick={() => setLayout("grid")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "grid" ? "bg-foreground text-white" : "text-muted-foreground"}`}>
+            <button onClick={() => setLayout("grid")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "grid" ? "bg-foreground text-background" : "text-muted-foreground"}`}>
               <Grid3X3 className="h-3 w-3" /> לוח
             </button>
-            <button onClick={() => setLayout("timeline")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-white" : "text-muted-foreground"}`}>
+            <button onClick={() => setLayout("timeline")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-background" : "text-muted-foreground"}`}>
               <List className="h-3 w-3" /> רשימה
             </button>
           </div>
@@ -371,7 +371,7 @@ export function CalendarExportStudio({
             <button onClick={() => setDarkMode(false)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground"}`}>
               <Sun className="h-3 w-3" />
             </button>
-            <button onClick={() => setDarkMode(true)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-white" : "text-muted-foreground"}`}>
+            <button onClick={() => setDarkMode(true)} className={`flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-background" : "text-muted-foreground"}`}>
               <Moon className="h-3 w-3" />
             </button>
           </div>
@@ -405,10 +405,10 @@ export function CalendarExportStudio({
             <div>
               <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">תצוגה</p>
               <div className="flex rounded-xl border border-border overflow-hidden bg-card">
-                <button onClick={() => setLayout("grid")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "grid" ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
+                <button onClick={() => setLayout("grid")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
                   <Grid3X3 className="h-3.5 w-3.5" /> לוח
                 </button>
-                <button onClick={() => setLayout("timeline")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
+                <button onClick={() => setLayout("timeline")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
                   <List className="h-3.5 w-3.5" /> רשימה
                 </button>
               </div>
@@ -421,7 +421,7 @@ export function CalendarExportStudio({
                 <button onClick={() => setDarkMode(false)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}>
                   <Sun className="h-3.5 w-3.5" /> בהיר
                 </button>
-                <button onClick={() => setDarkMode(true)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${darkMode ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
+                <button onClick={() => setDarkMode(true)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${darkMode ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
                   <Moon className="h-3.5 w-3.5" /> כהה
                 </button>
               </div>
@@ -508,7 +508,7 @@ export function CalendarExportStudio({
               {exporting ? "מייצא..." : "PNG"}
             </button>
             <button onClick={downloadPDF} disabled={exporting}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-white hover:bg-foreground/90 transition-colors disabled:opacity-40">
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:bg-foreground/90 transition-colors disabled:opacity-40">
               <Download className="h-4 w-4" />
               {exporting ? "מייצא..." : "PDF"}
             </button>

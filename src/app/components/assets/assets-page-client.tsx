@@ -93,7 +93,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.assets.newAsset}
@@ -118,7 +118,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
             onClick={() => setActiveType(null)}
             className={
               activeType === null
-                ? "bg-foreground text-white border-gray-900 hover:bg-foreground/90"
+                ? "bg-foreground text-background border-gray-900 hover:bg-foreground/90"
                 : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }
           >
@@ -132,7 +132,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
               onClick={() => setActiveType(activeType === t ? null : t)}
               className={
                 activeType === t
-                  ? "bg-foreground text-white border-gray-900 hover:bg-foreground/90"
+                  ? "bg-foreground text-background border-gray-900 hover:bg-foreground/90"
                   : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
               }
             >

@@ -103,7 +103,7 @@ export function TravelLogPageClient({
         <Button
           size="sm"
           onClick={handleCreate}
-          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Plus className="h-4 w-4 me-2" />
           {he.travelLog.newEntry}

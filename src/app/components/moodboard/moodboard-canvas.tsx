@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { updateMoodboard } from "@/lib/actions/moodboard-actions";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
+import { useT } from "@/lib/i18n";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -32,23 +33,23 @@ function uid() { return `n_${Date.now()}_${Math.random().toString(36).slice(2, 6
 const STICKY_COLORS = ["#fef08a", "#bbf7d0", "#bfdbfe", "#fecaca", "#e9d5ff", "#fed7aa", "#ffffff"];
 
 const FONT_FAMILIES = [
-  { label: "ברירת מחדל", value: "inherit" },
-  { label: "Arial", value: "Arial, sans-serif" },
-  { label: "Georgia", value: "Georgia, serif" },
-  { label: "Verdana", value: "Verdana, sans-serif" },
-  { label: "Courier", value: "'Courier New', monospace" },
-  { label: "Times", value: "'Times New Roman', serif" },
+  { labelKey: "default", label: "", value: "inherit" },
+  { labelKey: "", label: "Arial", value: "Arial, sans-serif" },
+  { labelKey: "", label: "Georgia", value: "Georgia, serif" },
+  { labelKey: "", label: "Verdana", value: "Verdana, sans-serif" },
+  { labelKey: "", label: "Courier", value: "'Courier New', monospace" },
+  { labelKey: "", label: "Times", value: "'Times New Roman', serif" },
 ];
 
 const FONT_SIZES = ["10", "12", "14", "16", "18", "24", "32", "48", "64"];
 
 const SHAPE_TYPES = [
-  { id: "rect",     label: "מלבן",  Icon: Square    },
-  { id: "circle",   label: "עיגול", Icon: Circle    },
-  { id: "triangle", label: "משולש", Icon: Triangle  },
-  { id: "diamond",  label: "מעוין", Icon: Hexagon   },
-  { id: "star",     label: "כוכב",  Icon: Star      },
-  { id: "arrow",    label: "חץ",    Icon: ArrowRight },
+  { id: "rect",     labelKey: "rect" as const,     Icon: Square    },
+  { id: "circle",   labelKey: "circle" as const,   Icon: Circle    },
+  { id: "triangle", labelKey: "triangle" as const, Icon: Triangle  },
+  { id: "diamond",  labelKey: "diamond" as const,  Icon: Hexagon   },
+  { id: "star",     labelKey: "star" as const,     Icon: Star      },
+  { id: "arrow",    labelKey: "arrow" as const,    Icon: ArrowRight },
 ];
 
 // ─── Shared drag handle ───────────────────────────────────────────────────────
@@ -64,6 +65,7 @@ function DragHandle() {
 // ─── Sticky Note ─────────────────────────────────────────────────────────────
 
 function StickyCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<string, string>) => void }) {
+  const he = useT();
   const [text, setText] = useState(node.data.text ?? "");
   const [color, setColor] = useState(node.data.color ?? "#fef08a");
   const [showPicker, setShowPicker] = useState(false);
@@ -83,7 +85,7 @@ function StickyCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<
       </div>
       <textarea value={text}
         onChange={e => { setText(e.target.value); onChange({ ...node.data, text: e.target.value, color }); }}
-        placeholder="כתוב כאן..." dir="rtl"
+        placeholder={he.moodboard.writeHere} dir="rtl"
         className="flex-1 bg-transparent resize-none outline-none text-sm text-foreground placeholder-muted-foreground min-h-20 px-3 pb-3"
       />
     </div>
@@ -93,6 +95,7 @@ function StickyCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<
 // ─── Image ───────────────────────────────────────────────────────────────────
 
 function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<string, string>) => void }) {
+  const he = useT();
   const [url, setUrl] = useState(node.data.url ?? "");
   const [caption, setCaption] = useState(node.data.caption ?? "");
   const [editing, setEditing] = useState(!node.data.url);
@@ -103,7 +106,7 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
 
   function handleFile(file: File | null) {
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) { alert("מקסימום 8MB"); return; }
+    if (file.size > 8 * 1024 * 1024) { alert(he.moodboard.maxSizeAlert); return; }
     setUploading(true);
     const reader = new FileReader();
     reader.onload = ev => {
@@ -120,13 +123,13 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
       {url && !editing ? (
         <>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={url} alt={caption || "תמונה"} className="w-full object-cover max-h-64"
+          <img src={url} alt={caption || he.moodboard.imageAlt} className="w-full object-cover max-h-64"
             onError={() => setEditing(true)}
             onDoubleClick={e => { e.stopPropagation(); setEditing(true); }} />
           <div className="px-3 py-2">
             <input value={caption}
               onChange={e => { setCaption(e.target.value); onChange({ ...node.data, url, caption: e.target.value }); }}
-              placeholder="הוסף תיאור..." dir="rtl"
+              placeholder={he.moodboard.addDescription} dir="rtl"
               className="w-full bg-transparent text-xs text-muted-foreground outline-none placeholder-muted-foreground border-b border-transparent focus:border-border"
             />
           </div>
@@ -138,7 +141,7 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
             {(["url", "upload", "camera"] as const).map(t => (
               <button key={t} onClick={() => setTab(t)}
                 className={`flex-1 rounded-md py-1 font-medium transition-colors ${tab === t ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-muted-foreground"}`}>
-                {t === "url" ? "קישור" : t === "upload" ? "העלאה" : "מצלמה"}
+                {t === "url" ? he.moodboard.linkTab : t === "upload" ? he.moodboard.uploadTab : he.moodboard.cameraTab}
               </button>
             ))}
           </div>
@@ -151,7 +154,7 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
                 className="w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
               />
               {url && <button onClick={() => setEditing(false)}
-                className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-white hover:bg-foreground/90 transition-colors">הצג תמונה</button>}
+                className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-background hover:bg-foreground/90 transition-colors">{he.moodboard.showImage}</button>}
             </>
           )}
 
@@ -160,11 +163,11 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
                 className="flex flex-col items-center justify-center gap-2 h-20 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 transition-colors">
                 {uploading ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-                  : <><ImageIcon className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">לחץ לבחירת תמונה</span></>}
+                  : <><ImageIcon className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">{he.moodboard.clickToSelectImage}</span></>}
               </button>
               <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden"
                 onChange={e => handleFile(e.target.files?.[0] ?? null)} />
-              <p className="text-[10px] text-muted-foreground text-center">PNG, JPG, GIF, WEBP — עד 8MB</p>
+              <p className="text-[10px] text-muted-foreground text-center">{he.moodboard.maxSizeNote}</p>
             </>
           )}
 
@@ -173,7 +176,7 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
               <button onClick={() => camRef.current?.click()} disabled={uploading}
                 className="flex flex-col items-center justify-center gap-2 h-20 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 transition-colors">
                 {uploading ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-                  : <><Camera className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">פתח מצלמה</span></>}
+                  : <><Camera className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">{he.moodboard.openCamera}</span></>}
               </button>
               <input ref={camRef} type="file" accept="image/*" capture="environment" className="hidden"
                 onChange={e => handleFile(e.target.files?.[0] ?? null)} />
@@ -188,6 +191,7 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
 // ─── Link ────────────────────────────────────────────────────────────────────
 
 function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<string, string>) => void }) {
+  const he = useT();
   const [url, setUrl]       = useState(node.data.url ?? "");
   const [label, setLabel]   = useState(node.data.label ?? "");
   const [editing, setEdit]  = useState(!node.data.url);
@@ -203,7 +207,7 @@ function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<st
       <div className="px-4 pb-4 flex flex-col gap-2">
         <input value={label}
           onChange={e => { setLabel(e.target.value); onChange({ ...node.data, label: e.target.value, url }); }}
-          placeholder="תיאור הקישור" dir="rtl"
+          placeholder={he.moodboard.linkDescription} dir="rtl"
           className="text-sm font-medium outline-none border-b border-border pb-1 focus:border-foreground"
         />
         {editing ? (
@@ -224,7 +228,7 @@ function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<st
             </a>
             <button onClick={() => setEdit(true)}
               className="opacity-0 group-hover/link:opacity-100 flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-all flex-shrink-0"
-              title="ערוך קישור">
+              title={he.moodboard.editLink}>
               <Pencil className="h-3 w-3" />
             </button>
           </div>
@@ -237,7 +241,8 @@ function LinkCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<st
 // ─── Heading ─────────────────────────────────────────────────────────────────
 
 function HeadingCard({ node, onChange, selected }: { node: BoardNode; onChange: (d: Record<string, string>) => void; selected: boolean }) {
-  const [text, setText] = useState(node.data.text ?? "כותרת");
+  const he = useT();
+  const [text, setText] = useState(node.data.text ?? he.moodboard.heading);
   return (
     <div className="min-w-40 flex flex-col">
       <DragHandle />
@@ -255,6 +260,7 @@ function HeadingCard({ node, onChange, selected }: { node: BoardNode; onChange: 
 // ─── Rich Text ────────────────────────────────────────────────────────────────
 
 function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d: Record<string, string>) => void; selected: boolean }) {
+  const he = useT();
   const [text, setText]           = useState(node.data.text ?? "");
   const [fontSize, setFontSize]   = useState(node.data.fontSize ?? "14");
   const [fontFamily, setFamily]   = useState(node.data.fontFamily ?? "inherit");
@@ -282,7 +288,7 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
       {/* Text area — transparent background */}
       <textarea value={text}
         onChange={e => { setText(e.target.value); emit({ text: e.target.value }); }}
-        placeholder="הקלד טקסט..."
+        placeholder={he.moodboard.typeText}
         dir={align === "left" ? "ltr" : "rtl"}
         className="resize-none outline-none p-1 min-h-16 min-w-40 w-full bg-transparent"
         style={{
@@ -304,7 +310,7 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
         >
           <select value={fontFamily} onChange={e => { setFamily(e.target.value); emit({ fontFamily: e.target.value }); }}
             className="text-[10px] border border-border rounded px-1 py-0.5 outline-none bg-card max-w-[72px]">
-            {FONT_FAMILIES.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+            {FONT_FAMILIES.map(f => <option key={f.value} value={f.value}>{f.labelKey === "default" ? he.moodboard.defaultFont : f.label}</option>)}
           </select>
           <select value={fontSize} onChange={e => { setFontSize(e.target.value); emit({ fontSize: e.target.value }); }}
             className="text-[10px] border border-border rounded px-1 py-0.5 outline-none bg-card w-10">
@@ -319,18 +325,18 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
           <button onClick={() => { setAlign("center"); emit({ align: "center" }); }} className={btnCls(align === "center")}><AlignCenter className="h-3 w-3" /></button>
           <button onClick={() => { setAlign("left"); emit({ align: "left" }); }} className={btnCls(align === "left")}><AlignLeft className="h-3 w-3" /></button>
           <div className="h-4 w-px bg-gray-200 mx-0.5" />
-          <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע טקסט">
+          <label className="flex flex-col items-center gap-0.5 cursor-pointer" title={he.moodboard.textColorTitle}>
             <input type="color" value={color} onChange={e => { setColor(e.target.value); emit({ color: e.target.value }); }} className="w-5 h-5 rounded border border-border cursor-pointer p-0" />
-            <span className="text-[8px] text-muted-foreground leading-none">טקסט</span>
+            <span className="text-[8px] text-muted-foreground leading-none">{he.moodboard.textColor}</span>
           </label>
-          <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע רקע">
+          <label className="flex flex-col items-center gap-0.5 cursor-pointer" title={he.moodboard.bgColorTitle}>
             <input type="color" value={bgColor === "transparent" ? "#ffffff" : bgColor}
               onChange={e => { setBg(e.target.value); emit({ bgColor: e.target.value }); }} className="w-5 h-5 rounded border border-border cursor-pointer p-0" />
-            <span className="text-[8px] text-muted-foreground leading-none">רקע</span>
+            <span className="text-[8px] text-muted-foreground leading-none">{he.moodboard.bgColor}</span>
           </label>
           <button onClick={() => { setBg("transparent"); emit({ bgColor: "transparent" }); }}
             className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title="ללא רקע" style={{ fontSize: "10px" }}>
+            title={he.moodboard.noBg} style={{ fontSize: "10px" }}>
             ✕
           </button>
         </div>
@@ -356,6 +362,7 @@ function TableCard({
   selected: boolean;
   zoom: number;
 }) {
+  const he = useT();
   const parseCells = (): string[][] => {
     try { return JSON.parse(node.data.cells || "[['']]"); } catch { return [[""]]; }
   };
@@ -514,12 +521,12 @@ function TableCard({
       {/* Row/col controls — only when selected */}
       {selected && (
         <div className="flex items-center gap-1 px-2 py-1 mb-2 bg-card border border-border rounded-xl shadow-md text-[10px]" onMouseDown={e => e.stopPropagation()}>
-          <span className="text-muted-foreground">שורות:</span>
+          <span className="text-muted-foreground">{he.moodboard.rows}:</span>
           <button onClick={removeRow} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Minus className="h-3 w-3" /></button>
           <span className="font-medium text-foreground w-4 text-center">{cells.length}</span>
           <button onClick={addRow} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Plus className="h-3 w-3" /></button>
           <div className="w-px h-3 bg-gray-200 mx-1" />
-          <span className="text-muted-foreground">עמודות:</span>
+          <span className="text-muted-foreground">{he.moodboard.columns}:</span>
           <button onClick={removeCol} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Minus className="h-3 w-3" /></button>
           <span className="font-medium text-foreground w-4 text-center">{cells[0]?.length ?? 1}</span>
           <button onClick={addCol} className="flex h-5 w-5 items-center justify-center rounded hover:bg-gray-200 text-muted-foreground"><Plus className="h-3 w-3" /></button>
@@ -605,6 +612,7 @@ function TableCard({
 // ─── Shape ────────────────────────────────────────────────────────────────────
 
 function ShapeCard({ node, onChange, onMove, selected, zoom }: { node: BoardNode; onChange: (d: Record<string, string>) => void; onMove: (x: number, y: number) => void; selected: boolean; zoom: number }) {
+  const he = useT();
   const [shape, setShape]       = useState(node.data.shape ?? "rect");
   const [fill, setFill]         = useState(node.data.fill ?? "#3b82f6");
   const [stroke, setStroke]     = useState(node.data.stroke ?? "#1d4ed8");
@@ -719,7 +727,7 @@ function ShapeCard({ node, onChange, onMove, selected, zoom }: { node: BoardNode
               onMouseDown={startRotate}
               style={{ position: "absolute", left: W / 2 - 11, top: -32, zIndex: 30, cursor: "grab" }}
               className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-card border border-blue-300 shadow-md text-blue-500 hover:bg-blue-50 transition-colors"
-              title="סובב"
+              title={he.moodboard.rotate}
             >
               <RotateCcw className="h-3 w-3" />
             </div>
@@ -736,28 +744,28 @@ function ShapeCard({ node, onChange, onMove, selected, zoom }: { node: BoardNode
             {/* Shape type buttons */}
             {SHAPE_TYPES.map(s => (
               <button key={s.id} onClick={() => { setShape(s.id); emit({ shape: s.id }); }}
-                title={s.label}
+                title={(he.moodboard as Record<string, string>)[s.labelKey]}
                 className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${shape === s.id ? "bg-blue-100 text-blue-600" : "text-muted-foreground hover:bg-muted"}`}>
                 <s.Icon className="h-4 w-4" />
               </button>
             ))}
             <div className="h-5 w-px bg-gray-200 mx-0.5" />
             {/* Fill color */}
-            <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע מילוי">
+            <label className="flex flex-col items-center gap-0.5 cursor-pointer" title={he.moodboard.fillColor}>
               <input type="color" value={fill} onChange={e => { setFill(e.target.value); emit({ fill: e.target.value }); }} className="w-6 h-6 rounded cursor-pointer border border-border p-0" />
-              <span className="text-[8px] text-muted-foreground leading-none">מילוי</span>
+              <span className="text-[8px] text-muted-foreground leading-none">{he.moodboard.fillLabel}</span>
             </label>
             {/* Stroke color */}
-            <label className="flex flex-col items-center gap-0.5 cursor-pointer" title="צבע קו">
+            <label className="flex flex-col items-center gap-0.5 cursor-pointer" title={he.moodboard.strokeColor}>
               <input type="color" value={stroke} onChange={e => { setStroke(e.target.value); emit({ stroke: e.target.value }); }} className="w-6 h-6 rounded cursor-pointer border border-border p-0" />
-              <span className="text-[8px] text-muted-foreground leading-none">קו</span>
+              <span className="text-[8px] text-muted-foreground leading-none">{he.moodboard.strokeLabel}</span>
             </label>
             <div className="h-5 w-px bg-gray-200 mx-0.5" />
             {/* Stroke width */}
             <label className="flex flex-col items-center gap-0.5 cursor-pointer text-[8px] text-muted-foreground">
               <input type="range" min="0" max="16" value={sw} onChange={e => { const v = Number(e.target.value); setSw(v); emit({ strokeWidth: String(v) }); }}
                 className="w-16 h-2 accent-blue-500" />
-              <span className="leading-none">עובי {sw}</span>
+              <span className="leading-none">{he.moodboard.strokeWidth} {sw}</span>
             </label>
           </div>
         )}
@@ -789,6 +797,7 @@ function ShapeCard({ node, onChange, onMove, selected, zoom }: { node: BoardNode
 // ─── Draw ─────────────────────────────────────────────────────────────────────
 
 function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d: Record<string, string>) => void; selected: boolean }) {
+  const he = useT();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const lastPos = useRef<{ x: number; y: number } | null>(null);
@@ -879,7 +888,7 @@ function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
           <button onClick={() => setTool("pen")}    className={btnCls(tool === "pen")}><Pencil  className="h-3.5 w-3.5" /></button>
           <button onClick={() => setTool("eraser")} className={btnCls(tool === "eraser")}><Eraser className="h-3.5 w-3.5" /></button>
           <div className="h-4 w-px bg-gray-200" />
-          <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-5 h-5 rounded border-none cursor-pointer" title="צבע" />
+          <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-5 h-5 rounded border-none cursor-pointer" title={he.moodboard.color} />
           <div className="h-4 w-px bg-gray-200" />
           {[2, 4, 8, 14].map(w => (
             <button key={w} onClick={() => setWidth(w)}
@@ -888,7 +897,7 @@ function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
             </button>
           ))}
           <div className="flex-1" />
-          <button onClick={clearCanvas} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted" title="נקה">
+          <button onClick={clearCanvas} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted" title={he.moodboard.clear}>
             <RotateCcw className="h-3.5 w-3.5" />
           </button>
         </div>
@@ -1015,7 +1024,7 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
       {selected && (
         <button onMouseDown={e => e.stopPropagation()} onClick={onDelete}
           style={{ position: "absolute", top: -10, right: -10, zIndex: 20 }}
-          className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition-colors">
+          className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-background shadow hover:bg-red-600 transition-colors">
           <X className="h-3.5 w-3.5" />
         </button>
       )}

@@ -215,9 +215,9 @@ export default function BillingPricingPage() {
       {/* Trust strip */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10 max-w-3xl mx-auto text-center">
         {[
-          { title: "{he.billing.trustCancel}", desc: "{he.billing.trustCancelDesc}" },
-          { title: "{he.billing.trustUpgrade}", desc: "{he.billing.trustUpgradeDesc}" },
-          { title: "{he.billing.trustData}", desc: "{he.billing.trustDataDesc}" },
+          { title: he.billing.trustCancel, desc: he.billing.trustCancelDesc },
+          { title: he.billing.trustUpgrade, desc: he.billing.trustUpgradeDesc },
+          { title: he.billing.trustData, desc: he.billing.trustDataDesc },
         ].map((item) => (
           <div key={item.title} className="rounded-2xl border border-[#38b6ff]/15 bg-[#38b6ff]/5 px-5 py-5">
             <p className="text-sm font-bold text-foreground mb-1">{item.title}</p>

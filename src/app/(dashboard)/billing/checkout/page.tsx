@@ -115,13 +115,13 @@ function CardVisual({
       <div className="absolute bottom-4 right-6 left-6 flex items-end justify-between" dir="ltr">
         <div>
           <p className="text-muted-foreground text-[9px] uppercase tracking-widest">Card Holder</p>
-          <p className="text-white text-xs font-semibold truncate max-w-[140px]">
+          <p className="text-background text-xs font-semibold truncate max-w-[140px]">
             {name || "YOUR NAME"}
           </p>
         </div>
         <div className="text-right">
           <p className="text-muted-foreground text-[9px] uppercase tracking-widest">Expires</p>
-          <p className="text-white text-xs font-semibold">{expiry || "MM/YY"}</p>
+          <p className="text-background text-xs font-semibold">{expiry || "MM/YY"}</p>
         </div>
       </div>
     </div>
@@ -308,7 +308,7 @@ function CheckoutContent() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-foreground text-white py-3.5 text-sm font-bold hover:bg-foreground/90 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm"
+              className="w-full rounded-xl bg-foreground text-background py-3.5 text-sm font-bold hover:bg-foreground/90 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
                 <><Loader2 className="h-4 w-4 animate-spin" />{he.billing.processingPayment}</>

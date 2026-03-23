@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProjectDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
-import { useT } from "@/lib/i18n";
+import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { getPhaseLabel, toUniversalColumn } from "@/lib/project-config";
 
@@ -58,6 +58,7 @@ export function ProjectsPageClient({
   planLimit: number;
 }) {
   const he = useT();
+  const locale = useLocale();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
@@ -99,7 +100,7 @@ export function ProjectsPageClient({
           {projects.map((project) => {
             const completedTasks = project.tasks.filter((t) => t.completed).length;
             const totalTasks = project.tasks.length;
-            const currentPhaseLabel = getPhaseLabel(project.phase);
+            const currentPhaseLabel = getPhaseLabel(project.phase, he);
 
             return (
               <Link key={project.id} href={`/projects/${project.id}`} className="block">
@@ -176,13 +177,13 @@ export function ProjectsPageClient({
 
                   {project.budget && (
                     <p className="text-xs text-muted-foreground">
-                      {he.project.budget}: {formatCurrency(project.budget)}
+                      {he.project.budget}: {formatCurrency(project.budget, locale)}
                     </p>
                   )}
 
                   {project.shootDate && (
                     <p className="text-xs text-muted-foreground">
-                      {he.project.shootDate}: {formatDate(project.shootDate)}
+                      {he.project.shootDate}: {formatDate(project.shootDate, locale)}
                     </p>
                   )}
 

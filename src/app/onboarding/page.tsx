@@ -167,7 +167,7 @@ export default function OnboardingPage() {
               <div className="relative flex h-20 w-20 items-center justify-center">
                 <div className="absolute inset-0 rounded-full border-2 border-gray-700" />
                 <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground text-white font-bold text-lg">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground text-background font-bold text-lg">
                   P
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function OnboardingPage() {
             >
               {/* Title */}
               <div className="text-center mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">
+                <h1 className="text-3xl font-bold text-background mb-2">
                   {currentStep.title}
                 </h1>
                 <p className="text-muted-foreground text-sm">{currentStep.subtitle}</p>
@@ -255,13 +255,13 @@ export default function OnboardingPage() {
                       className={`group relative flex flex-col items-center text-center gap-3 p-6 rounded-2xl border-2 transition-all duration-200 cursor-pointer ${
                         isSelected
                           ? "bg-card border-white text-foreground"
-                          : "bg-foreground border-gray-800 text-white hover:border-gray-600 hover:bg-foreground/90"
+                          : "bg-foreground border-gray-800 text-background hover:border-gray-600 hover:bg-foreground/90"
                       }`}
                     >
                       <div
                         className={`flex h-12 w-12 items-center justify-center rounded-xl transition-colors ${
                           isSelected
-                            ? "bg-foreground text-white"
+                            ? "bg-foreground text-background"
                             : "bg-gray-800 text-muted-foreground group-hover:bg-gray-700"
                         }`}
                       >

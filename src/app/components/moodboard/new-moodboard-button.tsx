@@ -36,7 +36,7 @@ export function NewMoodboardButton({ action, canCreate, planLimit, label }: NewM
         <button
           type="submit"
           onClick={handleClick}
-          className="flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors shadow-sm"
+          className="flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
           {displayLabel}

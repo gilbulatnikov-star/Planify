@@ -5,7 +5,7 @@ import { AppSidebar } from "@/app/components/layout/app-sidebar";
 import { UserMenu } from "@/app/components/layout/user-menu";
 import { ThemeToggle } from "@/app/components/layout/theme-toggle";
 import { WelcomeTour } from "@/app/components/layout/welcome-tour";
-import { FeedbackButton } from "@/app/components/shared/feedback-button";
+
 import { LocaleSync } from "@/app/components/layout/locale-sync";
 import { auth } from "@/auth";
 import { LocaleProvider } from "@/lib/i18n";
@@ -36,7 +36,6 @@ export default async function DashboardLayout({
           <main className="relative z-10 flex-1 overflow-auto p-6 md:p-8">{children}</main>
         </SidebarInset>
         <WelcomeTour />
-        <FeedbackButton />
       </SidebarProvider>
     </LocaleProvider>
   );

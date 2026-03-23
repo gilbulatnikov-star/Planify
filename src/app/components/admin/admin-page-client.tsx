@@ -280,7 +280,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                         {/* Delete */}
                         {confirmDelete === user.id ? (
                           <div className="flex items-center gap-1">
-                            <button onClick={() => handleDelete(user.id)} disabled={isPending} className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50">{he.admin.deleteConfirm}</button>
+                            <button onClick={() => handleDelete(user.id)} disabled={isPending} className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-background hover:bg-red-700 disabled:opacity-50">{he.admin.deleteConfirm}</button>
                             <button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
                           </div>
                         ) : (
@@ -367,7 +367,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
             <div className="flex gap-2">
-              <button onClick={handleResetPassword} disabled={isPending || !newPassword} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 disabled:opacity-50">{he.admin.updatePassword}</button>
+              <button onClick={handleResetPassword} disabled={isPending || !newPassword} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 disabled:opacity-50">{he.admin.updatePassword}</button>
               <button onClick={() => setPasswordModal(null)} className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
             </div>
           </div>
@@ -387,7 +387,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
             <div className="flex gap-2">
-              <button onClick={handleUpdateExpiry} disabled={isPending} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 disabled:opacity-50">{he.admin.updateBtn}</button>
+              <button onClick={handleUpdateExpiry} disabled={isPending} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 disabled:opacity-50">{he.admin.updateBtn}</button>
               <button onClick={() => { setExpiryModal(null); updateUserSubscriptionExpiry(expiryModal.userId, null); }} className="rounded-xl border border-border px-3 py-2.5 text-sm text-red-500 hover:bg-red-50">{he.admin.removeExpiry}</button>
               <button onClick={() => setExpiryModal(null)} className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
             </div>

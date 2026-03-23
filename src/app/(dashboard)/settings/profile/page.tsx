@@ -3,8 +3,9 @@
 import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe } from "lucide-react";
+import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe, MessageSquarePlus, Star, Send } from "lucide-react";
 import { updateLocale } from "@/lib/actions/user-actions";
+import { submitFeedback } from "@/lib/actions/feedback-actions";
 import { useLocale, useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,7 +86,7 @@ export default function ProfileSettingsPage() {
       <div className="rounded-2xl border border-border bg-card shadow-sm px-6 py-6 space-y-5">
         {/* Avatar */}
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-white text-xl font-bold">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background text-xl font-bold">
             {user?.name
               ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
               : user?.email?.[0]?.toUpperCase() ?? "U"}
@@ -234,11 +235,81 @@ export default function ProfileSettingsPage() {
             </div>
           )}
 
-          <Button type="submit" disabled={loading} className="bg-foreground hover:bg-foreground/90 text-white w-full sm:w-auto">
+          <Button type="submit" disabled={loading} className="bg-foreground hover:bg-foreground/90 text-background w-full sm:w-auto">
             {loading ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{he.common.saving}</> : he.profile.savePassword}
           </Button>
         </form>
       </div>
+
+      {/* ── Feedback ── */}
+      <FeedbackSection />
+    </div>
+  );
+}
+
+function FeedbackSection() {
+  const he = useT();
+  const [message, setMessage] = useState("");
+  const [rating, setRating] = useState<number | null>(null);
+  const [hoveredStar, setHoveredStar] = useState<number | null>(null);
+  const [done, setDone] = useState(false);
+  const [isPending, startTransition] = useTransition();
+
+  function handleSubmit() {
+    if (!message.trim()) return;
+    startTransition(async () => {
+      await submitFeedback(message, rating ?? undefined);
+      setDone(true);
+      setMessage("");
+      setRating(null);
+    });
+  }
+
+  return (
+    <div className="glass-card rounded-2xl p-6">
+      <div className="flex items-center gap-3 mb-5">
+        <MessageSquarePlus className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-lg font-bold text-foreground">{he.common.sendFeedback}</h2>
+      </div>
+
+      {done ? (
+        <div className="text-center py-6">
+          <p className="text-2xl mb-2">🙏</p>
+          <p className="font-medium text-foreground">{he.common.thankYouFeedback}</p>
+          <p className="text-sm text-muted-foreground mt-1">{he.common.helpsUsImprove}</p>
+          <button onClick={() => setDone(false)} className="text-sm text-muted-foreground hover:text-foreground mt-3 underline transition-colors">
+            {he.common.sendAnother ?? "Send another"}
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">{he.common.ratingOptional}</p>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button key={star} type="button"
+                  onMouseEnter={() => setHoveredStar(star)}
+                  onMouseLeave={() => setHoveredStar(null)}
+                  onClick={() => setRating(rating === star ? null : star)}
+                  className="transition-transform hover:scale-110">
+                  <Star className={`h-6 w-6 transition-colors ${star <= (hoveredStar ?? rating ?? 0) ? "fill-amber-400 text-amber-400" : "text-muted-foreground/40"}`} />
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm text-muted-foreground mb-2">{he.common.feedbackQuestion}</p>
+            <textarea value={message} onChange={(e) => setMessage(e.target.value)}
+              placeholder={he.common.writeHere} rows={4}
+              className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground" />
+          </div>
+          <Button onClick={handleSubmit} disabled={isPending || !message.trim()}
+            className="bg-foreground hover:bg-foreground/90 text-background w-full sm:w-auto gap-2">
+            <Send className="h-4 w-4" />
+            {isPending ? he.common.sending : he.common.sendFeedback}
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

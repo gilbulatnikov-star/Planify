@@ -278,7 +278,7 @@ export function CalendarPageClient({
           {/* Export */}
           <button
             onClick={() => setExportStudioOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-3 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors shadow-sm"
+            className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-3 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors shadow-sm"
           >
             <Download className="h-4 w-4" />
             <span className="hidden sm:inline">ייצוא</span>
@@ -287,7 +287,7 @@ export function CalendarPageClient({
           <Button
             size="sm"
             onClick={handleCreateNew}
-            className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+            className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
           >
             <Plus className="h-4 w-4 me-1 sm:me-2" />
             <span className="hidden sm:inline">{he.calendar.newContent}</span>

@@ -13,7 +13,7 @@ export function UserMenu() {
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const [pos, setPos] = useState({ top: 0, right: 0 });
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -31,7 +31,8 @@ export function UserMenu() {
   useEffect(() => {
     if (open && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
-      setPos({ top: rect.bottom + 8, left: rect.left });
+      const right = window.innerWidth - rect.right;
+      setPos({ top: rect.bottom + 8, right: Math.max(8, right) });
     }
   }, [open]);
 
@@ -57,7 +58,7 @@ export function UserMenu() {
           <div className="fixed inset-0 z-[9998] bg-black/5" onClick={() => setOpen(false)} />
           <div
             ref={menuRef}
-            style={{ top: pos.top, left: pos.left }}
+            style={{ top: pos.top, right: pos.right }}
             className="fixed z-[9999] w-60 rounded-xl border border-border bg-popover shadow-lg overflow-hidden"
           >
             {/* User info */}

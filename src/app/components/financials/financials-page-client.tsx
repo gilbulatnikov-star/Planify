@@ -139,25 +139,7 @@ const fadeUp = {
   },
 };
 
-const invoiceStatusFlow: { value: string; label: string }[] = [
-  { value: "draft", label: "טיוטה" },
-  { value: "sent", label: "נשלחה" },
-  { value: "paid", label: "שולמה" },
-  { value: "overdue", label: "באיחור" },
-  { value: "cancelled", label: "בוטלה" },
-];
-
-const quoteStatusFlow: { value: string; label: string }[] = [
-  { value: "draft", label: "טיוטה" },
-  { value: "sent", label: "נשלחה" },
-  { value: "accepted", label: "אושרה" },
-  { value: "declined", label: "נדחתה" },
-];
-
-const HEBREW_MONTHS = [
-  "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
-  "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
-];
+/* invoiceStatusFlow, quoteStatusFlow, and month names are built inside the component to access i18n */
 
 export function FinancialsPageClient({
   invoices,
@@ -177,6 +159,24 @@ export function FinancialsPageClient({
   totalMonthlyCost: number;
 }) {
   const he = useT();
+
+  const invoiceStatusFlow: { value: string; label: string }[] = [
+    { value: "draft", label: he.financial.invoiceStatuses.draft },
+    { value: "sent", label: he.financial.invoiceStatuses.sent },
+    { value: "paid", label: he.financial.invoiceStatuses.paid },
+    { value: "overdue", label: he.financial.invoiceStatuses.overdue },
+    { value: "cancelled", label: he.financial.invoiceStatuses.cancelled },
+  ];
+
+  const quoteStatusFlow: { value: string; label: string }[] = [
+    { value: "draft", label: he.financial.quoteStatuses.draft },
+    { value: "sent", label: he.financial.quoteStatuses.sent },
+    { value: "accepted", label: he.financial.quoteStatuses.accepted },
+    { value: "declined", label: he.financial.quoteStatuses.declined },
+  ];
+
+  const MONTH_NAMES = he.financialPage.monthNames as unknown as string[];
+
   const [isPending, startTransition] = useTransition();
 
   // Month navigation
@@ -308,28 +308,28 @@ export function FinancialsPageClient({
 
   const statCards = [
     {
-      label: "הכנסות (שולם)",
+      label: he.financialPage.revenuePaid,
       value: formatCurrency(totalRevenue),
       icon: TrendingUp,
       color: "from-emerald-500 to-green-600",
       textColor: "text-emerald-600",
     },
     {
-      label: "חשבוניות פתוחות",
+      label: he.financialPage.openInvoices,
       value: formatCurrency(totalOutstanding),
       icon: Clock,
       color: "from-amber-500 to-yellow-500",
       textColor: "text-amber-600",
     },
     {
-      label: "הוצאות",
+      label: he.financialPage.expenses,
       value: formatCurrency(totalExpenses),
       icon: MinusCircle,
       color: "from-red-500 to-rose-500",
       textColor: "text-red-500",
     },
     {
-      label: "סך הכל רווח והפסד",
+      label: he.financialPage.profitLoss,
       value: formatCurrency(totalRevenue - totalExpenses),
       icon: Wallet,
       color: "from-gray-700 to-gray-900",
@@ -354,10 +354,10 @@ export function FinancialsPageClient({
         <Button
           size="sm"
           onClick={() => setUploadDialogOpen(true)}
-          className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+          className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
         >
           <Upload className="h-4 w-4 me-2" />
-          העלאת מסמך
+          {he.financialPage.uploadDocument}
         </Button>
       </motion.div>
 
@@ -371,23 +371,23 @@ export function FinancialsPageClient({
             <button
               onClick={goPrev}
               className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              title="חודש קודם"
+              title={he.financialPage.prevMonth}
             >
               <ChevronRight className="h-4 w-4" />
             </button>
 
             <div className="text-sm font-bold text-foreground min-w-[130px] text-center select-none">
               {hasDateFilter ? (
-                <span className="text-violet-700">סינון תאריכים</span>
+                <span className="text-violet-700">{he.financialPage.dateFilter}</span>
               ) : (
-                `${HEBREW_MONTHS[selectedMonth]} ${selectedYear}`
+                `${MONTH_NAMES[selectedMonth]} ${selectedYear}`
               )}
             </div>
 
             <button
               onClick={goNext}
               className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              title="חודש הבא"
+              title={he.financialPage.nextMonth}
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -397,7 +397,7 @@ export function FinancialsPageClient({
             <button
               onClick={() => { setPickerOpen(v => !v); setPickerYear(selectedYear); }}
               className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
-              title="בחר חודש"
+              title={he.financialPage.selectMonth}
             >
               <CalendarDays className="h-4 w-4" />
             </button>
@@ -420,7 +420,7 @@ export function FinancialsPageClient({
                   </button>
                 </div>
                 <div className="grid grid-cols-3 gap-1.5">
-                  {HEBREW_MONTHS.map((label, idx) => {
+                  {MONTH_NAMES.map((label, idx) => {
                     const isSel = idx === selectedMonth && pickerYear === selectedYear;
                     return (
                       <button
@@ -451,7 +451,7 @@ export function FinancialsPageClient({
             }`}
           >
             <SlidersHorizontal className="h-4 w-4" />
-            סינון תאריכים
+            {he.financialPage.dateFilter}
             {hasDateFilter && (
               <span
                 onClick={(e) => { e.stopPropagation(); setDateFrom(""); setDateTo(""); }}
@@ -472,7 +472,7 @@ export function FinancialsPageClient({
             dir="rtl"
           >
             <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
-              <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">מתאריך</label>
+              <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">{he.financialPage.fromDate}</label>
               <input
                 type="date"
                 value={dateFrom}
@@ -482,7 +482,7 @@ export function FinancialsPageClient({
               />
             </div>
             <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
-              <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">עד תאריך</label>
+              <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">{he.financialPage.toDate}</label>
               <input
                 type="date"
                 value={dateTo}
@@ -497,7 +497,7 @@ export function FinancialsPageClient({
                 onClick={() => { setDateFrom(""); setDateTo(""); }}
                 className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
               >
-                נקה סינון
+                {he.financialPage.clearFilter}
               </button>
             )}
           </motion.div>
@@ -557,7 +557,7 @@ export function FinancialsPageClient({
               value="subscriptions"
               className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
             >
-              הוצאות קבועות ({subscriptions.length})
+              {he.financialPage.fixedExpenses} ({subscriptions.length})
             </TabsTrigger>
           </TabsList>
 
@@ -567,7 +567,7 @@ export function FinancialsPageClient({
               <Button
                 size="sm"
                 onClick={handleCreateInvoice}
-                className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+                className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
               >
                 <Plus className="h-4 w-4 me-2" />
                 {he.financial.newInvoice}
@@ -580,25 +580,25 @@ export function FinancialsPageClient({
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">
-                        מספר
+                        {he.financialPage.number}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
-                        לקוח
+                        {he.common.client}
                       </TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">
-                        פרויקט
+                        {he.common.project}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
-                        סטטוס
+                        {he.common.status}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
                         {he.financial.total}
                       </TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">
-                        תאריך יעד
+                        {he.financialPage.dueDate}
                       </TableHead>
                       <TableHead className="w-[60px] text-muted-foreground">
-                        פעולות
+                        {he.common.actions}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -658,7 +658,7 @@ export function FinancialsPageClient({
                                     }
                                   >
                                     <ExternalLink className="h-4 w-4" />
-                                    <span>צפייה בחשבונית</span>
+                                    <span>{he.financialPage.viewInvoice}</span>
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
                                 </>
@@ -668,7 +668,7 @@ export function FinancialsPageClient({
                               <DropdownMenuSub>
                                 <DropdownMenuSubTrigger>
                                   <ArrowRightLeft className="h-4 w-4" />
-                                  <span>שינוי סטטוס</span>
+                                  <span>{he.financialPage.changeStatus}</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
                                   {invoiceStatusFlow.map((s) => (
@@ -691,7 +691,7 @@ export function FinancialsPageClient({
                                       </Badge>
                                       {inv.status === s.value && (
                                         <span className="mr-auto text-xs text-muted-foreground">
-                                          (נוכחי)
+                                          {he.financialPage.current}
                                         </span>
                                       )}
                                     </DropdownMenuItem>
@@ -706,7 +706,7 @@ export function FinancialsPageClient({
                                 onClick={() => handleEditInvoice(inv)}
                               >
                                 <Pencil className="h-4 w-4" />
-                                <span>עריכה</span>
+                                <span>{he.financialPage.editAction}</span>
                               </DropdownMenuItem>
 
                               {/* Delete */}
@@ -715,7 +715,7 @@ export function FinancialsPageClient({
                                 onClick={() => setDeleteInvoiceTarget(inv.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
-                                <span>מחיקה</span>
+                                <span>{he.financialPage.deleteAction}</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -738,25 +738,25 @@ export function FinancialsPageClient({
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">
-                        מספר
+                        {he.financialPage.number}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
-                        לקוח
+                        {he.common.client}
                       </TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">
-                        פרויקט
+                        {he.common.project}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
-                        סטטוס
+                        {he.common.status}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
                         {he.financial.total}
                       </TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">
-                        בתוקף עד
+                        {he.financialPage.validUntil}
                       </TableHead>
                       <TableHead className="w-[60px] text-muted-foreground">
-                        פעולות
+                        {he.common.actions}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -807,7 +807,7 @@ export function FinancialsPageClient({
                               <DropdownMenuSub>
                                 <DropdownMenuSubTrigger>
                                   <ArrowRightLeft className="h-4 w-4" />
-                                  <span>שינוי סטטוס</span>
+                                  <span>{he.financialPage.changeStatus}</span>
                                 </DropdownMenuSubTrigger>
                                 <DropdownMenuSubContent>
                                   {quoteStatusFlow.map((s) => (
@@ -827,7 +827,7 @@ export function FinancialsPageClient({
                                       </Badge>
                                       {q.status === s.value && (
                                         <span className="mr-auto text-xs text-muted-foreground">
-                                          (נוכחי)
+                                          {he.financialPage.current}
                                         </span>
                                       )}
                                     </DropdownMenuItem>
@@ -843,7 +843,7 @@ export function FinancialsPageClient({
                                 onClick={() => setDeleteQuoteTarget(q.id)}
                               >
                                 <Trash2 className="h-4 w-4" />
-                                <span>מחיקה</span>
+                                <span>{he.financialPage.deleteAction}</span>
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
@@ -863,7 +863,7 @@ export function FinancialsPageClient({
               <Button
                 size="sm"
                 onClick={handleCreateExpense}
-                className="bg-foreground text-white hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+                className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
               >
                 <Plus className="h-4 w-4 me-2" />
                 {he.financial.newExpense}
@@ -876,22 +876,22 @@ export function FinancialsPageClient({
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
                       <TableHead className="text-muted-foreground">
-                        תיאור
+                        {he.common.description}
                       </TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">
-                        קטגוריה
+                        {he.common.category}
                       </TableHead>
                       <TableHead className="text-muted-foreground">
-                        סכום
+                        {he.financialExtra.amount}
                       </TableHead>
                       <TableHead className="hidden sm:table-cell text-muted-foreground">
-                        תאריך
+                        {he.common.date}
                       </TableHead>
                       <TableHead className="hidden md:table-cell text-muted-foreground">
-                        ספק
+                        {he.financialExtra.vendor}
                       </TableHead>
                       <TableHead className="w-[80px] text-muted-foreground">
-                        פעולות
+                        {he.common.actions}
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -956,7 +956,7 @@ export function FinancialsPageClient({
           <TabsContent value="subscriptions">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm text-muted-foreground">
-                סה״כ חודשי פעיל: <span className="font-semibold text-red-500">{formatCurrency(totalMonthlyCost)}</span>
+                {he.subscriptions.totalMonthly}: <span className="font-semibold text-red-500">{formatCurrency(totalMonthlyCost)}</span>
               </p>
               <a
                 href="/financials"

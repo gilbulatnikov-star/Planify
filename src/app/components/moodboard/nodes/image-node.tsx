@@ -62,7 +62,7 @@ export function ImageNode({ data, selected }: NodeProps) {
           {url && (
             <button
               onClick={() => setEditing(false)}
-              className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-white hover:bg-foreground/90 transition-colors nodrag"
+              className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-background hover:bg-foreground/90 transition-colors nodrag"
             >
               הצג תמונה
             </button>

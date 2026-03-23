@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { updateScript } from "@/lib/actions/script-actions";
 import { ScriptCallSheet } from "./script-call-sheet";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
+import { useT } from "@/lib/i18n";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -95,13 +96,15 @@ const LENS_OPTS = [
 const MOVEMENT_OPTS = ["Static", "Handheld", "Gimbal", "Slider", "Drone", "Dolly", "Steadicam"];
 const FPS_OPTS = ["23.98", "24", "25", "29.97", "30", "48", "50", "60", "100", "120"];
 
-const PLATFORMS = [
-  { value: "youtube",    label: "YouTube",   icon: Youtube,   color: "text-red-500" },
-  { value: "tiktok",     label: "TikTok",    icon: Tv,        color: "text-foreground" },
-  { value: "instagram",  label: "Instagram", icon: Instagram, color: "text-pink-500" },
-  { value: "podcast",    label: "פודקאסט",   icon: Podcast,   color: "text-purple-500" },
-  { value: "commercial", label: "פרסומת",    icon: Megaphone, color: "text-blue-500" },
-];
+function getPlatforms(t: ReturnType<typeof useT>) {
+  return [
+    { value: "youtube",    label: "YouTube",          icon: Youtube,   color: "text-red-500" },
+    { value: "tiktok",     label: "TikTok",           icon: Tv,        color: "text-foreground" },
+    { value: "instagram",  label: "Instagram",        icon: Instagram, color: "text-pink-500" },
+    { value: "podcast",    label: t.scriptEditor.podcast,    icon: Podcast,   color: "text-purple-500" },
+    { value: "commercial", label: t.scriptEditor.commercial, icon: Megaphone, color: "text-blue-500" },
+  ];
+}
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -177,6 +180,7 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
   onDelete: (id: string) => void;
 }) {
+  const he = useT();
   const upd = (field: keyof ShotItem) => (v: string) => onUpdate(shot.id, field, v);
   const rowBg = idx % 2 === 0 ? "bg-card" : "bg-muted/50";
   const rowH = foldMode === "fold" ? "h-8" : "";
@@ -216,7 +220,7 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
           ) : (
             <label className="flex h-10 w-20 cursor-pointer flex-col items-center justify-center rounded border-2 border-dashed border-border text-muted-foreground hover:border-border hover:text-muted-foreground transition-colors">
               <Image className="h-3.5 w-3.5 mb-0.5" />
-              <span className="text-[9px]">הוסף</span>
+              <span className="text-[9px]">{he.scriptEditor.addFrame}</span>
               <input type="file" accept="image/*" className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -231,24 +235,24 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
         </td>
       )}
 
-      {cell("content", <InputCell value={shot.content} onChange={upd("content")} placeholder="אקשן..." />)}
+      {cell("content", <InputCell value={shot.content} onChange={upd("content")} placeholder={he.scriptEditor.action} />)}
       {cell("shotSize", <SelectCell value={shot.shotSize} opts={SHOT_SIZE_OPTS} onChange={upd("shotSize")} />)}
-      {cell("lens", <ComboCell value={shot.lens} opts={LENS_OPTS} onChange={upd("lens")} placeholder="עדשה..." />)}
+      {cell("lens", <ComboCell value={shot.lens} opts={LENS_OPTS} onChange={upd("lens")} placeholder={he.scriptEditor.lensPlaceholder} />)}
       {cell("movement", <SelectCell value={shot.movement} opts={MOVEMENT_OPTS} onChange={upd("movement")} />)}
       {cell("startTime", <InputCell type="time" value={shot.startTime} onChange={upd("startTime")} />)}
       {cell("endTime", <InputCell type="time" value={shot.endTime} onChange={upd("endTime")} />)}
       {cell("duration", <InputCell value={shot.duration} onChange={upd("duration")} placeholder="00:30" />)}
-      {cell("dialogues", <InputCell value={shot.dialogues} onChange={upd("dialogues")} placeholder="דיאלוג..." />)}
-      {cell("note", <InputCell value={shot.note} onChange={upd("note")} placeholder="הערה..." />)}
+      {cell("dialogues", <InputCell value={shot.dialogues} onChange={upd("dialogues")} placeholder={he.scriptEditor.dialoguePlaceholder} />)}
+      {cell("note", <InputCell value={shot.note} onChange={upd("note")} placeholder={he.scriptEditor.notePlaceholder} />)}
       {cell("sound", <SelectCell value={shot.sound} opts={SOUND_OPTS} onChange={upd("sound")} />)}
       {cell("shotType", <SelectCell value={shot.shotType} opts={SHOT_TYPE_OPTS} onChange={upd("shotType")} />)}
-      {cell("equipment", <InputCell value={shot.equipment} onChange={upd("equipment")} placeholder="ציוד..." />)}
+      {cell("equipment", <InputCell value={shot.equipment} onChange={upd("equipment")} placeholder={he.scriptEditor.equipmentPlaceholder} />)}
       {cell("frameRate", <ComboCell value={shot.frameRate} opts={FPS_OPTS} onChange={upd("frameRate")} placeholder="FPS..." />)}
-      {cell("lighting", <InputCell value={shot.lighting} onChange={upd("lighting")} placeholder="תאורה..." />)}
-      {cell("castId", <InputCell value={shot.castId} onChange={upd("castId")} placeholder="שחקן..." />)}
-      {cell("prop", <InputCell value={shot.prop} onChange={upd("prop")} placeholder="פרופ..." />)}
-      {cell("clothing", <InputCell value={shot.clothing} onChange={upd("clothing")} placeholder="תלבושת..." />)}
-      {cell("makeup", <InputCell value={shot.makeup} onChange={upd("makeup")} placeholder="איפור..." />)}
+      {cell("lighting", <InputCell value={shot.lighting} onChange={upd("lighting")} placeholder={he.scriptEditor.lightingPlaceholder} />)}
+      {cell("castId", <InputCell value={shot.castId} onChange={upd("castId")} placeholder={he.scriptEditor.actorPlaceholder} />)}
+      {cell("prop", <InputCell value={shot.prop} onChange={upd("prop")} placeholder={he.scriptEditor.propPlaceholder} />)}
+      {cell("clothing", <InputCell value={shot.clothing} onChange={upd("clothing")} placeholder={he.scriptEditor.costumePlaceholder} />)}
+      {cell("makeup", <InputCell value={shot.makeup} onChange={upd("makeup")} placeholder={he.scriptEditor.makeupPlaceholder} />)}
 
       {/* Delete */}
       <td className={`${cellPad} w-10 text-center`}>
@@ -268,6 +272,7 @@ function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
   onDelete: (id: string) => void;
 }) {
+  const he = useT();
   return (
     <div className="group rounded-xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       {/* Frame */}
@@ -277,12 +282,12 @@ function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={shot.frameUrl} alt="" className="h-full w-full object-cover" />
             <button onClick={() => onUpdate(shot.id, "frameUrl", "")}
-              className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white text-xs hover:bg-red-500 transition-colors">×</button>
+              className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-background text-xs hover:bg-red-500 transition-colors">×</button>
           </>
         ) : (
           <label className="flex h-full w-full cursor-pointer flex-col items-center justify-center text-muted-foreground hover:text-muted-foreground hover:bg-gray-200 transition-colors">
             <Image className="h-6 w-6 mb-1" />
-            <span className="text-xs">הוסף תמונה</span>
+            <span className="text-xs">{he.scriptEditor.addImageStoryboard}</span>
             <input type="file" accept="image/*" className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
@@ -294,7 +299,7 @@ function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
               }} />
           </label>
         )}
-        <div className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-white text-xs font-bold">
+        <div className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-background text-xs font-bold">
           {customShotNo ? shot.customShotNum : shot.shotNum}
         </div>
       </div>
@@ -316,7 +321,7 @@ function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
         <textarea
           value={shot.content}
           onChange={(e) => onUpdate(shot.id, "content", e.target.value)}
-          placeholder="אקשן / תיאור..."
+          placeholder={he.scriptEditor.actionDesc}
           rows={2}
           className="w-full resize-none rounded-lg border border-transparent bg-transparent px-1 py-0.5 text-xs text-foreground focus:outline-none focus:border-border focus:bg-muted font-[inherit] transition-colors"
         />
@@ -372,7 +377,7 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
     return (
       <button onClick={onClick}
         className={`relative flex flex-col items-center gap-1.5 flex-1 rounded-xl py-3 border transition-all ${
-          active ? "border-gray-900 bg-foreground text-white" : "border-border text-muted-foreground hover:border-border hover:bg-muted"
+          active ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border hover:bg-muted"
         }`}>
         {locked && (
           <span className="absolute top-1 left-1 text-amber-400">
@@ -408,13 +413,13 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
         <div className="flex gap-2">
           <button onClick={() => setFoldMode("unfold")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
-              foldMode === "unfold" ? "border-gray-900 bg-foreground text-white" : "border-border text-muted-foreground hover:border-border"
+              foldMode === "unfold" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
             <ChevronsUpDown className="h-3.5 w-3.5" />פתוח
           </button>
           <button onClick={() => setFoldMode("fold")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
-              foldMode === "fold" ? "border-gray-900 bg-foreground text-white" : "border-border text-muted-foreground hover:border-border"
+              foldMode === "fold" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
             <ChevronDn className="h-3.5 w-3.5" />מקופל
           </button>
@@ -441,13 +446,13 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
         <div className="flex gap-2">
           <button onClick={() => setShotOrdering("asc")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
-              shotOrdering === "asc" ? "border-gray-900 bg-foreground text-white" : "border-border text-muted-foreground hover:border-border"
+              shotOrdering === "asc" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
             <ChevronUp className="h-3.5 w-3.5" />עולה
           </button>
           <button onClick={() => setShotOrdering("desc")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
-              shotOrdering === "desc" ? "border-gray-900 bg-foreground text-white" : "border-border text-muted-foreground hover:border-border"
+              shotOrdering === "desc" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
             <ChevronDn className="h-3.5 w-3.5" />יורד
           </button>
@@ -471,7 +476,16 @@ export function ScriptEditorClient({
   projects: { id: string; title: string }[];
   isPro: boolean;
 }) {
+  const he = useT();
   const router = useRouter();
+
+  const PLATFORMS = [
+    { value: "YouTube", label: "YouTube", icon: Youtube, color: "text-red-500" },
+    { value: "Instagram", label: "Instagram", icon: Instagram, color: "text-pink-500" },
+    { value: "TikTok", label: "TikTok", icon: Tv, color: "text-foreground" },
+    { value: "Podcast", label: he.scriptEditor?.podcast ?? "Podcast", icon: Podcast, color: "text-violet-500" },
+    { value: "Commercial", label: he.scriptEditor?.commercial ?? "Commercial", icon: Megaphone, color: "text-amber-500" },
+  ];
 
   const [title, setTitle] = useState(script.title);
   const [content, setContent] = useState(script.content);
@@ -479,7 +493,7 @@ export function ScriptEditorClient({
   const [linkedProjectId, setLinkedProjectId] = useState(script.project?.id ?? "");
   const [showProjectMenu, setShowProjectMenu] = useState(false);
   const [duration] = useState(script.duration); // kept for save compatibility, no UI
-  const isPredefinedPlatform = PLATFORMS.some((p) => p.value === platform);
+  const isPredefinedPlatform = PLATFORMS.some((p: { value: string }) => p.value === platform);
   const [customPlatformMode, setCustomPlatformMode] = useState(!isPredefinedPlatform && !!platform);
   const [shotList, setShotList] = useState<ShotItem[]>(() => {
     try { return JSON.parse(script.shotListData || "[]"); } catch { return []; }
@@ -848,7 +862,7 @@ export function ScriptEditorClient({
               {/* AI floating button — hide when chat is open */}
               <div className={`absolute bottom-12 left-3 z-30 transition-opacity ${chatOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:scale-105 active:scale-95 transition-transform">
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-background shadow-lg hover:scale-105 active:scale-95 transition-transform">
                   <Sparkles className="h-4 w-4" />
                 </button>
                 {aiSidebarOpen && (
@@ -911,7 +925,7 @@ export function ScriptEditorClient({
                   {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === "user" ? "justify-start" : "justify-end"}`}>
                       <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                        m.role === "user" ? "bg-muted text-foreground rounded-tr-sm" : "bg-foreground text-white rounded-tl-sm"
+                        m.role === "user" ? "bg-muted text-foreground rounded-tr-sm" : "bg-foreground text-background rounded-tl-sm"
                       }`}>{m.text}</div>
                     </div>
                   ))}
@@ -934,7 +948,7 @@ export function ScriptEditorClient({
                     className="flex-1 resize-none rounded-xl border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none focus:border-gray-400 placeholder:text-muted-foreground max-h-20 overflow-auto font-[inherit]"
                     style={{ lineHeight: "1.5" }} />
                   <button onClick={sendChat} disabled={!chatInput.trim() || chatLoading}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-foreground text-white transition-opacity disabled:opacity-40 hover:bg-gray-700">
+                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-foreground text-background transition-opacity disabled:opacity-40 hover:bg-gray-700">
                     <Send className="h-4 w-4" />
                   </button>
                 </div>
@@ -958,7 +972,7 @@ export function ScriptEditorClient({
                 <div className="relative" data-menu>
                   <button onClick={() => { setShowColMenu((v) => !v); setShowViewMenu(false); }}
                     className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                      showColMenu ? "border-gray-900 bg-foreground text-white" : "border-border bg-card text-muted-foreground hover:bg-muted"
+                      showColMenu ? "border-gray-900 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
                     }`}>
                     <SlidersHorizontal className="h-3.5 w-3.5" /><span className="hidden sm:inline">סינון</span>
                   </button>
@@ -969,7 +983,7 @@ export function ScriptEditorClient({
                 <div className="relative" data-menu>
                   <button onClick={() => { setShowViewMenu((v) => !v); setShowColMenu(false); }}
                     className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                      showViewMenu ? "border-gray-900 bg-foreground text-white" : "border-border bg-card text-muted-foreground hover:bg-muted"
+                      showViewMenu ? "border-gray-900 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
                     }`}>
                     <Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline">תצוגה</span>
                   </button>
@@ -987,12 +1001,12 @@ export function ScriptEditorClient({
                 </div>
                 {storyboardAtLimit ? (
                   <button onClick={() => setStoryboardUpgradeOpen(true)}
-                    className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-white px-2.5 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-background px-2.5 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
                     🔒 <span className="hidden sm:inline">Pro —</span> עוד שוטים
                   </button>
                 ) : (
                   <button onClick={addShot}
-                    className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-2.5 py-1.5 text-xs font-medium hover:bg-foreground/90 transition-colors">
+                    className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-2.5 py-1.5 text-xs font-medium hover:bg-foreground/90 transition-colors">
                     <Plus className="h-3.5 w-3.5" /><span className="hidden sm:inline">הוסף</span> שוט
                   </button>
                 )}
@@ -1005,7 +1019,7 @@ export function ScriptEditorClient({
                 <p className="text-muted-foreground font-medium">אין שוטים עדיין</p>
                 <p className="text-sm text-muted-foreground mt-1">לחץ "הוסף שוט" להתחיל לבנות את השוט ליסט</p>
                 <button onClick={addShot}
-                  className="mt-4 flex items-center gap-1.5 rounded-lg bg-foreground text-white px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors">
+                  className="mt-4 flex items-center gap-1.5 rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors">
                   <Plus className="h-4 w-4" />הוסף שוט ראשון
                 </button>
               </div>

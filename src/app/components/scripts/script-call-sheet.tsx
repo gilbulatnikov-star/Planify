@@ -111,12 +111,12 @@ export function ScriptCallSheet({
               <Sun className="h-3 w-3" />בהיר
             </button>
             <button onClick={() => setDarkMode(true)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-white" : "text-muted-foreground hover:bg-muted"}`}>
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
               <Moon className="h-3 w-3" />כהה
             </button>
           </div>
           <button onClick={exportPDF} disabled={exporting}
-            className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-40">
+            className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-40">
             <Download className="h-4 w-4" />
             {exporting ? "מייצא..." : "ייצוא PDF"}
           </button>

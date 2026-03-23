@@ -19,7 +19,7 @@ import {
   getTodos,
 } from "@/lib/actions/widget-actions";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
-import { getT } from "@/lib/i18n-server";
+import { getT, getLocale } from "@/lib/i18n-server";
 import { getPhaseLabel } from "@/lib/project-config";
 import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
@@ -35,13 +35,14 @@ export default async function DashboardPage() {
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const todosLimit = getLimitsForPlan(plan).todos;
 
-  const [stats, recentProjects, upcomingContent, quickNote, todos, he] = await Promise.all([
+  const [stats, recentProjects, upcomingContent, quickNote, todos, he, locale] = await Promise.all([
     getDashboardStats(),
     getRecentProjects(),
     getUpcomingContent(),
     getOrCreateQuickNote(),
     getTodos(),
     getT(),
+    getLocale(),
   ]);
 
   return (
@@ -60,12 +61,12 @@ export default async function DashboardPage() {
           />
           <StatCard
             title={he.dashboard.monthlyRevenue}
-            value={formatCurrency(stats.monthlyRevenue)}
+            value={formatCurrency(stats.monthlyRevenue, locale)}
             icon={TrendingUp}
           />
           <StatCard
             title={he.dashboard.outstandingInvoices}
-            value={formatCurrency(stats.outstandingAmount)}
+            value={formatCurrency(stats.outstandingAmount, locale)}
             icon={Receipt}
           />
           <StatCard
@@ -112,7 +113,7 @@ export default async function DashboardPage() {
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {project.client?.name} · {formatDate(project.shootDate)}
+                            {project.client?.name} · {formatDate(project.shootDate, locale)}
                           </p>
                         </div>
                         <Badge variant={days !== null && days <= 3 ? "destructive" : "secondary"}>
@@ -151,7 +152,7 @@ export default async function DashboardPage() {
                         <div>
                           <p className="text-sm font-medium">{project.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {getPhaseLabel(project.phase)} · {formatDate(project.deadline)}
+                            {getPhaseLabel(project.phase, he)} · {formatDate(project.deadline, locale)}
                           </p>
                         </div>
                         <Badge variant={days !== null && days <= 5 ? "destructive" : "secondary"}>
@@ -197,7 +198,7 @@ export default async function DashboardPage() {
                             {he.calendar.contentTypes[item.contentType as keyof typeof he.calendar.contentTypes] ?? item.contentType}
                             {item.client ? ` · ${item.client.name}` : ""}
                             {" · "}
-                            {formatDate(item.date)}
+                            {formatDate(item.date, locale)}
                           </p>
                         </div>
                       </div>
@@ -245,7 +246,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                   <Badge className="bg-muted text-muted-foreground border-0">
-                    {getPhaseLabel(project.phase)}
+                    {getPhaseLabel(project.phase, he)}
                   </Badge>
                 </div>
               ))}

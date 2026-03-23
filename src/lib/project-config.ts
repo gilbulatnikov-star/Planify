@@ -393,8 +393,35 @@ export const CATEGORY_PHASES: Record<ProjectCategory, PhaseOption[]> = {
   ],
 };
 
-export function getPhaseLabel(phase: string): string {
-  // Universal statuses (primary)
+export function getPhaseLabel(
+  phase: string,
+  t?: { project: { phases: Record<string, string> }; common?: { statusPlanning?: string; statusInProgress?: string; statusReview?: string; statusDone?: string } },
+): string {
+  // If translations provided, use them for all phase keys
+  if (t) {
+    // Universal statuses via common translations
+    const universalMap: Record<string, string | undefined> = {
+      planning:    t.common?.statusPlanning,
+      in_progress: t.common?.statusInProgress,
+      review:      t.common?.statusReview,
+      done:        t.common?.statusDone,
+    };
+    if (universalMap[phase]) return universalMap[phase]!;
+    // Phase-specific translations
+    const phaseTranslation = t.project.phases[phase];
+    if (phaseTranslation) return phaseTranslation;
+    // Legacy mapping to universal via translations
+    const legacyMap: Record<string, string | undefined> = {
+      pre_production:  t.common?.statusPlanning,
+      post_production: t.common?.statusInProgress,
+      revisions:       t.common?.statusReview,
+      delivered:       t.common?.statusDone,
+    };
+    if (legacyMap[phase]) return legacyMap[phase]!;
+    return phase;
+  }
+
+  // Fallback: Hebrew hardcoded (backward compat)
   const universal: Record<string, string> = {
     planning:    "תכנון",
     in_progress: "בביצוע",
@@ -402,7 +429,6 @@ export function getPhaseLabel(phase: string): string {
     done:        "הושלם",
   };
   if (universal[phase]) return universal[phase];
-  // Legacy / specific phases
   for (const cfg of Object.values(PROJECT_TYPE_CONFIG)) {
     const found = cfg.phases.find((p) => p.value === phase);
     if (found) return found.label;
