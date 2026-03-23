@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Search, Phone, Mail, Banknote } from "lucide-react";
+import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -143,75 +142,53 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
         </select>
       </motion.div>
 
-      {/* Contact Cards Grid */}
-      <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {/* Contact List */}
+      <motion.div variants={fadeUp} className="space-y-2">
         {filtered.map((contact) => (
-          <motion.div key={contact.id} variants={fadeUp}>
-            <Card className="glass-card group transition-all duration-300 hover:scale-[1.02] hover:shadow-sm">
-              <CardContent className="p-5">
-                <div className="flex items-start justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold text-lg">{contact.name}</h3>
-                    <Badge className={`${categoryColors[contact.category] ?? "bg-muted text-muted-foreground"} border-0 mt-1`}>
-                      {he.contacts.categories[contact.category as keyof typeof he.contacts.categories] ?? contact.category}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:pointer-events-none sm:group-hover:opacity-100 sm:group-hover:pointer-events-auto transition-opacity duration-200">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
-                      onClick={() => handleEdit(contact)}
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
-                      onClick={() => setDeleteTarget({ id: contact.id, name: contact.name })}
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  {contact.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span dir="ltr" className="text-left">{contact.phone}</span>
-                    </div>
-                  )}
-                  {contact.email && (
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span className="truncate">{contact.email}</span>
-                    </div>
-                  )}
-                  {contact.dailyRate !== null && (
-                    <div className="flex items-center gap-2">
-                      <Banknote className="h-3.5 w-3.5 flex-shrink-0" />
-                      <span>{he.common.currency}{contact.dailyRate.toLocaleString()} / יום</span>
-                    </div>
-                  )}
-                  {contact.project && (
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs bg-muted rounded-full px-2 py-0.5 text-muted-foreground">📁 {contact.project.title}</span>
-                    </div>
-                  )}
-                  {contact.notes && (
-                    <p className="text-xs text-muted-foreground/70 mt-2 line-clamp-2">
-                      {contact.notes}
-                    </p>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <div
+            key={contact.id}
+            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 group hover:bg-muted/30 transition-colors cursor-pointer"
+            onClick={() => handleEdit(contact)}
+          >
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+              {contact.name.charAt(0)}
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-medium text-foreground">{contact.name}</span>
+                <Badge className={`${categoryColors[contact.category] ?? "bg-muted text-muted-foreground"} border-0 text-[10px]`}>
+                  {he.contacts.categories[contact.category as keyof typeof he.contacts.categories] ?? contact.category}
+                </Badge>
+                {contact.project && (
+                  <span className="text-[10px] bg-muted rounded-full px-2 py-0.5 text-muted-foreground">📁 {contact.project.title}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                {contact.phone && <span dir="ltr">{contact.phone}</span>}
+                {contact.phone && contact.email && <span>·</span>}
+                {contact.email && <span className="truncate">{contact.email}</span>}
+                {contact.dailyRate !== null && (
+                  <>
+                    <span>·</span>
+                    <span>{he.common.currency}{contact.dailyRate.toLocaleString()} / יום</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted hover:text-foreground"
+                onClick={(e) => { e.stopPropagation(); handleEdit(contact); }}>
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: contact.id, name: contact.name }); }}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </div>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full text-center text-muted-foreground py-12">
+          <div className="text-center text-muted-foreground py-12 bg-muted/20 rounded-xl border border-dashed border-border">
             {he.common.noResults}
           </div>
         )}

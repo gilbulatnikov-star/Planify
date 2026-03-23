@@ -1,6 +1,7 @@
 "use client";
 
 import { useTransition, useState, useEffect } from "react";
+import { Plus, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +15,16 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient, updateClient } from "@/lib/actions/client-actions";
+
+const SOCIAL_OPTIONS = [
+  { key: "website", label: "אתר", placeholder: "https://..." },
+  { key: "instagram", label: "Instagram", placeholder: "@username" },
+  { key: "youtube", label: "YouTube", placeholder: "קישור לערוץ" },
+  { key: "linkedin", label: "LinkedIn", placeholder: "קישור לפרופיל" },
+  { key: "tiktok", label: "TikTok", placeholder: "@username" },
+] as const;
+
+type SocialKey = typeof SOCIAL_OPTIONS[number]["key"];
 
 interface ClientDialogProps {
   client?: {
@@ -43,16 +54,44 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
   const [isActive, setIsActive] = useState(client?.isActive ?? true);
+  const [visibleSocials, setVisibleSocials] = useState<SocialKey[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   useEffect(() => {
-    if (open) setIsActive(client?.isActive ?? true);
+    if (open) {
+      setIsActive(client?.isActive ?? true);
+      // Show socials that already have values
+      const existing = SOCIAL_OPTIONS
+        .filter(s => client?.[s.key])
+        .map(s => s.key);
+      setVisibleSocials(existing);
+      setPickerOpen(false);
+    }
   }, [open, client]);
+
+  const availableSocials = SOCIAL_OPTIONS.filter(s => !visibleSocials.includes(s.key));
+
+  function addSocial(key: SocialKey) {
+    setVisibleSocials(prev => [...prev, key]);
+    setPickerOpen(false);
+  }
+
+  function removeSocial(key: SocialKey) {
+    setVisibleSocials(prev => prev.filter(k => k !== key));
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     formData.set("isActive", String(isActive));
+
+    // Clear hidden social fields
+    for (const s of SOCIAL_OPTIONS) {
+      if (!visibleSocials.includes(s.key)) {
+        formData.set(s.key, "");
+      }
+    }
 
     startTransition(async () => {
       const result = isEditing
@@ -72,7 +111,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
 
   return (
     <Dialog open={open} onOpenChange={(value) => onOpenChange(value)}>
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{isEditing ? "עריכת לקוח" : "לקוח חדש"}</DialogTitle>
           <DialogDescription className="sr-only">
@@ -125,29 +164,54 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
             <span className="text-sm font-medium text-foreground">לקוח פעיל</span>
           </label>
 
-          {/* Social and web links */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="website">אתר</Label>
-              <Input id="website" name="website" type="url" defaultValue={client?.website ?? ""} />
+          {/* Dynamic social links */}
+          {visibleSocials.length > 0 && (
+            <div className="space-y-2">
+              {visibleSocials.map(key => {
+                const opt = SOCIAL_OPTIONS.find(s => s.key === key)!;
+                return (
+                  <div key={key} className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground w-20 shrink-0 text-left">{opt.label}</span>
+                    <Input name={key} placeholder={opt.placeholder} defaultValue={client?.[key] ?? ""} className="flex-1 h-8 text-sm" />
+                    <button type="button" onClick={() => removeSocial(key)} className="p-1 rounded text-muted-foreground hover:text-red-500 transition-colors">
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="instagram">Instagram</Label>
-              <Input id="instagram" name="instagram" defaultValue={client?.instagram ?? ""} />
+          )}
+
+          {/* Add social button */}
+          {availableSocials.length > 0 && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setPickerOpen(!pickerOpen)}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                הוסף רשת חברתית
+              </button>
+              {pickerOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
+                  <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1 min-w-[160px]">
+                    {availableSocials.map(s => (
+                      <button
+                        key={s.key}
+                        type="button"
+                        onClick={() => addSocial(s.key)}
+                        className="flex w-full items-center rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                      >
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="youtube">YouTube</Label>
-              <Input id="youtube" name="youtube" defaultValue={client?.youtube ?? ""} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="linkedin">LinkedIn</Label>
-              <Input id="linkedin" name="linkedin" defaultValue={client?.linkedin ?? ""} />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="tiktok">TikTok</Label>
-              <Input id="tiktok" name="tiktok" defaultValue={client?.tiktok ?? ""} />
-            </div>
-          </div>
+          )}
 
           {/* Notes */}
           <div className="grid gap-2">

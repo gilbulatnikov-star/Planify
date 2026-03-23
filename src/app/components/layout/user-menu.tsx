@@ -3,21 +3,34 @@
 import { signOut, useSession } from "next-auth/react";
 import { LogOut, Settings, CreditCard } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 
 export function UserMenu() {
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      if (
+        btnRef.current && !btnRef.current.contains(e.target as Node) &&
+        menuRef.current && !menuRef.current.contains(e.target as Node)
+      ) {
         setOpen(false);
       }
     }
     if (open) document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
+  }, [open]);
+
+  useEffect(() => {
+    if (open && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 8, left: rect.left });
+    }
   }, [open]);
 
   if (!session?.user) return null;
@@ -27,8 +40,9 @@ export function UserMenu() {
     : session.user.email?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <div className="relative" ref={ref}>
+    <>
       <button
+        ref={btnRef}
         onClick={() => setOpen((v) => !v)}
         className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-80 transition-colors"
         title={session.user.name ?? session.user.email ?? ""}
@@ -36,11 +50,15 @@ export function UserMenu() {
         {initials}
       </button>
 
-      {open && (
+      {open && typeof document !== "undefined" && createPortal(
         <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div className="absolute left-0 top-full mt-2 z-50 w-60 rounded-xl border border-border bg-popover shadow-lg overflow-hidden">
-            {/* User info header — non-clickable */}
+          <div className="fixed inset-0 z-[9998] bg-black/5" onClick={() => setOpen(false)} />
+          <div
+            ref={menuRef}
+            style={{ top: pos.top, left: pos.left }}
+            className="fixed z-[9999] w-60 rounded-xl border border-border bg-popover shadow-lg overflow-hidden"
+          >
+            {/* User info */}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold shrink-0">
@@ -59,7 +77,7 @@ export function UserMenu() {
               </div>
             </div>
 
-            {/* Navigation items */}
+            {/* Navigation */}
             <div className="p-1">
               <Link
                 href="/settings/profile"
@@ -80,22 +98,22 @@ export function UserMenu() {
               </Link>
             </div>
 
-            {/* Divider */}
             <div className="h-px bg-border mx-2" />
 
             {/* Sign out */}
             <div className="p-1">
               <button
                 onClick={() => signOut({ callbackUrl: "/sign-in" })}
-                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
               >
                 <LogOut className="h-4 w-4" />
                 <span>התנתקות</span>
               </button>
             </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
-    </div>
+    </>
   );
 }

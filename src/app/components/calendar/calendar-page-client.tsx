@@ -392,7 +392,12 @@ export function CalendarPageClient({
                 >
                   <span className={`mt-1 h-2.5 w-2.5 rounded-full ${c.dot} shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <p className={`font-semibold text-sm ${c.text}`}>{item.title}</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className={`font-semibold text-sm ${c.text}`}>{item.title}</p>
+                      <span className="text-[10px] rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+                        {he.calendar.statuses[item.status as keyof typeof he.calendar.statuses] ?? item.status}
+                      </span>
+                    </div>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {format(new Date(item.date), "EEEE, d MMMM", { locale: heLocale })}
                       {item.client && ` · ${item.client.name}`}

@@ -838,7 +838,7 @@ export function ScriptEditorClient({
               </div>
 
               <button
-                onClick={() => { setChatOpen((o) => !o); if (!chatOpen) setTimeout(() => chatInputRef.current?.focus(), 300); }}
+                onClick={() => { setChatOpen((o) => !o); if (!chatOpen && window.innerWidth >= 768) setTimeout(() => chatInputRef.current?.focus(), 300); }}
                 className="flex h-9 shrink-0 items-center gap-2 border-t border-border bg-card px-4 text-xs text-muted-foreground hover:bg-muted transition-colors">
                 <MessageSquare className="h-3.5 w-3.5" /><span>עזרה מ-AI</span>
                 {messages.length > 0 && <span className="rounded-full bg-muted px-1.5 py-0.5 text-muted-foreground">{messages.length}</span>}

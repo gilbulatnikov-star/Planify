@@ -27,6 +27,14 @@ import {
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { Plus, X, Check, Trash2 } from "lucide-react";
+import { he } from "@/lib/he";
+
+const STATUS_OPTIONS = [
+  { key: "planned", label: he.calendar.statuses.planned },
+  { key: "editing", label: he.calendar.statuses.editing },
+  { key: "ready", label: he.calendar.statuses.ready },
+  { key: "published", label: he.calendar.statuses.published },
+];
 
 // ─── Color options ────────────────────────────────────────────────────────────
 
@@ -199,6 +207,23 @@ export function ContentDialog({
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* סטטוס */}
+            <div className="col-span-2 space-y-2">
+              <Label>סטטוס</Label>
+              <Select name="status" defaultValue={content?.status ?? "planned"}>
+                <SelectTrigger className="w-full">
+                  <span className="flex flex-1">
+                    {STATUS_OPTIONS.find(s => s.key === (content?.status ?? "planned"))?.label ?? "מתוכנן"}
+                  </span>
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map(s => (
+                    <SelectItem key={s.key} value={s.key}>{s.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* לקוח */}

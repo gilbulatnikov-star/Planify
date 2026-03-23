@@ -6,14 +6,6 @@ import { Plus, Pencil, Trash2, Users, UserPlus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClientDialog } from "./client-dialog";
 import { DeleteClientDialog } from "./delete-client-dialog";
@@ -55,52 +47,6 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] as const } },
 };
 
-// Lead pipeline steps in order
-const PIPELINE_STEPS = [
-  { key: "new",           label: "חדש" },
-  { key: "contacted",     label: "נוצר קשר" },
-  { key: "qualified",     label: "מתאים" },
-  { key: "proposal_sent", label: "הצעה נשלחה" },
-  { key: "won",           label: "נסגר" },
-  { key: "lost",          label: "אבוד" },
-];
-
-function LeadStatusPipeline({ status }: { status: string }) {
-  if (status === "lost") {
-    return (
-      <span className="inline-flex items-center rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">
-        אבוד
-      </span>
-    );
-  }
-  if (status === "won") {
-    return (
-      <span className="inline-flex items-center rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-        ✓ נסגר
-      </span>
-    );
-  }
-
-  const steps = PIPELINE_STEPS.filter((s) => s.key !== "won" && s.key !== "lost");
-  const currentIdx = steps.findIndex((s) => s.key === status);
-  const currentLabel = steps[currentIdx]?.label ?? status;
-
-  return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-foreground">{currentLabel}</span>
-      <div className="flex gap-0.5">
-        {steps.map((s, i) => (
-          <div
-            key={s.key}
-            className={`h-1 w-5 rounded-full transition-colors ${
-              i <= currentIdx ? "bg-indigo-500" : "bg-gray-200"
-            }`}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
 
 export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[]; planLimit: number }) {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -108,8 +54,8 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
-  const allClients = clients.filter((c) => c.type === "client");
-  const allLeads = clients.filter((c) => c.type === "lead");
+  const activeClients = clients.filter((c) => c.isActive);
+  const inactiveClients = clients.filter((c) => !c.isActive);
 
   function handleEdit(client: ClientData) {
     setEditingClient(client);
@@ -126,108 +72,77 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
   }
 
   const statCards = [
-    { label: "לקוחות פעילים", value: allClients.filter(c => c.isActive).length, icon: Users, color: "from-gray-700 to-gray-900" },
-    { label: "לידים",          value: allLeads.length, icon: UserPlus, color: "from-violet-400 to-purple-500" },
+    { label: "לקוחות פעילים", value: activeClients.length, icon: Users, color: "from-gray-700 to-gray-900" },
+    { label: "סה״כ לקוחות", value: clients.length, icon: UserPlus, color: "from-violet-400 to-purple-500" },
   ];
 
-  function renderTable(filtered: ClientData[]) {
+  function renderList(filtered: ClientData[]) {
+    if (filtered.length === 0) {
+      return (
+        <div className="text-center text-muted-foreground py-12 bg-muted/20 rounded-xl border border-dashed border-border">
+          {he.common.noResults}
+        </div>
+      );
+    }
     return (
-      <Card className="glass-card overflow-hidden">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">{he.client.name}</TableHead>
-                  <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.email}</TableHead>
-                  <TableHead className="hidden sm:table-cell text-muted-foreground">{he.client.phone}</TableHead>
-                  <TableHead className="text-muted-foreground">סטטוס</TableHead>
-                  <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((client) => (
-                  <TableRow
-                    key={client.id}
-                    className="border-border transition-all duration-200 hover:bg-muted/50"
-                  >
-                    {/* Name */}
-                    <TableCell>
-                      <div className="flex flex-col gap-0.5">
-                        <span className={`font-medium ${!client.isActive && client.type === "client" ? "text-muted-foreground" : ""}`}>
-                          {client.name}
-                        </span>
-                        {client.type === "client" && (
-                          <div className="flex gap-1">
-                            {!client.isActive && (
-                              <span className="text-[10px] text-muted-foreground">לא פעיל</span>
-                            )}
-                            {client.isRetainer && (
-                              <span className="inline-flex items-center rounded-full bg-emerald-50 px-1.5 py-0.5 text-[10px] text-emerald-700 font-medium">
-                                ריטיינר
-                              </span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
+      <div className="space-y-2">
+        {filtered.map((client) => (
+          <div
+            key={client.id}
+            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 group hover:bg-muted/30 transition-colors cursor-pointer"
+            onClick={() => handleEdit(client)}
+          >
+            {/* Avatar circle */}
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+              {client.name.charAt(0)}
+            </div>
 
-                    {/* Email */}
-                    <TableCell className="hidden sm:table-cell text-muted-foreground text-sm">
-                      {client.email ?? "—"}
-                    </TableCell>
-
-                    {/* Phone */}
-                    <TableCell dir="ltr" className="hidden sm:table-cell text-left text-muted-foreground">
-                      {client.phone ?? "—"}
-                    </TableCell>
-
-                    {/* Status */}
-                    <TableCell>
-                      {client.type === "client" ? (
-                        <Badge className={`border-0 text-xs ${client.isActive ? "bg-cyan-50 text-cyan-700" : "bg-muted text-muted-foreground"}`}>
-                          {client.isActive ? "לקוח פעיל" : "לא פעיל"}
-                        </Badge>
-                      ) : (
-                        <LeadStatusPipeline status={client.leadStatus} />
-                      )}
-                    </TableCell>
-
-                    {/* Actions - always visible */}
-                    <TableCell>
-                      <div className="flex items-center gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
-                          onClick={() => handleEdit(client)}
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
-                          onClick={() => setDeleteTarget({ id: client.id, name: client.name })}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {filtered.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                      {he.common.noResults}
-                    </TableCell>
-                  </TableRow>
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className={`text-sm font-medium ${!client.isActive && client.type === "client" ? "text-muted-foreground" : "text-foreground"}`}>
+                  {client.name}
+                </span>
+                <Badge className={`border-0 text-[10px] ${client.isActive ? "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300" : "bg-muted text-muted-foreground"}`}>
+                  {client.isActive ? "פעיל" : "לא פעיל"}
+                </Badge>
+                {client.isRetainer && (
+                  <Badge className="border-0 text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                    ריטיינר
+                  </Badge>
                 )}
-              </TableBody>
-            </Table>
+              </div>
+              {(client.phone || client.email) && (
+                <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                  {client.phone && <span dir="ltr">{client.phone}</span>}
+                  {client.phone && client.email && " · "}
+                  {client.email}
+                </p>
+              )}
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 hover:bg-muted hover:text-foreground"
+                onClick={(e) => { e.stopPropagation(); handleEdit(client); }}
+              >
+                <Pencil className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+                onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: client.id, name: client.name }); }}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
           </div>
-        </CardContent>
-      </Card>
+        ))}
+      </div>
     );
   }
 
@@ -274,16 +189,16 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
             <TabsTrigger value="all" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
               הכל ({clients.length})
             </TabsTrigger>
-            <TabsTrigger value="clients" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
-              לקוחות ({allClients.length})
+            <TabsTrigger value="active" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
+              פעילים ({activeClients.length})
             </TabsTrigger>
-            <TabsTrigger value="leads" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
-              לידים ({allLeads.length})
+            <TabsTrigger value="inactive" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
+              לא פעילים ({inactiveClients.length})
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="all">{renderTable(clients)}</TabsContent>
-          <TabsContent value="clients">{renderTable(allClients)}</TabsContent>
-          <TabsContent value="leads">{renderTable(allLeads)}</TabsContent>
+          <TabsContent value="all">{renderList(clients)}</TabsContent>
+          <TabsContent value="active">{renderList(activeClients)}</TabsContent>
+          <TabsContent value="inactive">{renderList(inactiveClients)}</TabsContent>
         </Tabs>
       </motion.div>
 
