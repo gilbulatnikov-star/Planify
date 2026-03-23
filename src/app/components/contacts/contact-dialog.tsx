@@ -129,12 +129,12 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת איש קשר" : he.contacts.newContact}
+            {isEditing ? he.common.editContact : he.common.newContactTitle}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי איש הקשר"
-              : "הוסף איש קשר חדש לרשת"}
+              ? he.common.editContactDetails
+              : he.common.newContactDetails}
           </DialogDescription>
         </DialogHeader>
 
@@ -142,7 +142,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* Name */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="name">שם *</Label>
+              <Label htmlFor="name">{he.common.name} *</Label>
               <Input
                 id="name"
                 name="name"
@@ -153,7 +153,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
 
             {/* Category */}
             <div className="space-y-2">
-              <Label>קטגוריה *</Label>
+              <Label>{he.common.category} *</Label>
               {customMode ? (
                 <div className="flex gap-1.5">
                   <Input
@@ -161,10 +161,10 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
                     value={customValue}
                     onChange={e => setCustomValue(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); confirmCustom(); } if (e.key === "Escape") { setCustomMode(false); setCustomValue(""); } }}
-                    placeholder="שם קטגוריה חדשה..."
+                    placeholder={he.common.newCategoryName}
                     className="flex-1 h-9 text-sm"
                   />
-                  <Button type="button" size="sm" onClick={confirmCustom} disabled={!customValue.trim()}>אישור</Button>
+                  <Button type="button" size="sm" onClick={confirmCustom} disabled={!customValue.trim()}>{he.common.confirm}</Button>
                   <button type="button" onClick={() => { setCustomMode(false); setCustomValue(""); }}
                     className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-red-500 transition-colors">
                     <X className="h-4 w-4" />
@@ -187,7 +187,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
                     <div className="mx-1 my-1 border-t border-border" />
                     <button type="button" onClick={() => setCustomMode(true)}
                       className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors">
-                      <Plus className="h-3.5 w-3.5" />הוסף קטגוריה חדשה
+                      <Plus className="h-3.5 w-3.5" />{he.common.addNewCategory}
                     </button>
                   </SelectContent>
                 </Select>
@@ -196,7 +196,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
 
             {/* Phone */}
             <div className="space-y-2">
-              <Label htmlFor="phone">טלפון</Label>
+              <Label htmlFor="phone">{he.common.phone}</Label>
               <Input
                 id="phone"
                 name="phone"
@@ -207,7 +207,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
 
             {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="email">אימייל</Label>
+              <Label htmlFor="email">{he.common.email}</Label>
               <Input
                 id="email"
                 name="email"
@@ -218,7 +218,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
 
             {/* Daily Rate */}
             <div className="space-y-2">
-              <Label htmlFor="dailyRate">תעריף יומי (₪)</Label>
+              <Label htmlFor="dailyRate">{`${he.common.dailyRate} (${he.common.currency})`}</Label>
               <Input
                 id="dailyRate"
                 name="dailyRate"
@@ -231,15 +231,15 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
             {/* Project link */}
             {projects.length > 0 && (
               <div className="col-span-2 space-y-2">
-                <Label>שיוך לפרויקט</Label>
+                <Label>{he.common.linkToProject}</Label>
                 <Select value={projectId} onValueChange={(v) => setProjectId(v === "__none__" ? "" : (v ?? ""))}>
                   <SelectTrigger className="w-full">
                     <span className="flex flex-1">
-                      {projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : "ללא פרויקט"}
+                      {projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : he.common.noProject}
                     </span>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="__none__">ללא פרויקט</SelectItem>
+                    <SelectItem value="__none__">{he.common.noProject}</SelectItem>
                     {projects.map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                     ))}
@@ -250,7 +250,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
 
             {/* Notes */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -264,7 +264,7 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
               {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : he.common.save}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

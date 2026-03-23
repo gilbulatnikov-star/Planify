@@ -3,8 +3,10 @@
 import { useState, useTransition } from "react";
 import { MessageSquarePlus, Star, X, Send } from "lucide-react";
 import { submitFeedback } from "@/lib/actions/feedback-actions";
+import { useT } from "@/lib/i18n";
 
 export function FeedbackButton() {
+  const he = useT();
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [rating, setRating] = useState<number | null>(null);
@@ -34,10 +36,10 @@ export function FeedbackButton() {
       <button
         onClick={handleOpen}
         className="fixed bottom-5 left-5 z-40 flex items-center gap-2 rounded-full bg-foreground text-background px-3.5 py-2 text-sm font-medium shadow-lg hover:bg-foreground/90 transition-all duration-200"
-        title="שלח פידבק"
+        title={he.common.sendFeedback}
       >
         <MessageSquarePlus className="h-4 w-4" />
-        <span className="hidden sm:inline">פידבק</span>
+        <span className="hidden sm:inline">{he.common.feedback}</span>
       </button>
 
       {/* Dialog backdrop */}
@@ -52,7 +54,7 @@ export function FeedbackButton() {
           >
             {/* Header */}
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-foreground">שלח פידבק</h3>
+              <h3 className="font-semibold text-foreground">{he.common.sendFeedback}</h3>
               <button
                 onClick={() => setOpen(false)}
                 className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted transition-colors"
@@ -64,14 +66,14 @@ export function FeedbackButton() {
             {done ? (
               <div className="text-center py-6">
                 <p className="text-2xl mb-2">🙏</p>
-                <p className="font-medium text-foreground">תודה על הפידבק!</p>
-                <p className="text-sm text-muted-foreground mt-1">זה עוזר לנו להשתפר</p>
+                <p className="font-medium text-foreground">{he.common.thankYouFeedback}</p>
+                <p className="text-sm text-muted-foreground mt-1">{he.common.helpsUsImprove}</p>
               </div>
             ) : (
               <>
                 {/* Stars */}
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">דירוג (אופציונלי)</p>
+                  <p className="text-sm text-muted-foreground mb-2">{he.common.ratingOptional}</p>
                   <div className="flex gap-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -96,11 +98,11 @@ export function FeedbackButton() {
 
                 {/* Message */}
                 <div>
-                  <p className="text-sm text-muted-foreground mb-2">מה דעתך? מה חסר? מה עבד מצוין?</p>
+                  <p className="text-sm text-muted-foreground mb-2">{he.common.feedbackQuestion}</p>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="כתוב כאן..."
+                    placeholder={he.common.writeHere}
                     rows={4}
                     className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
                     autoFocus
@@ -114,7 +116,7 @@ export function FeedbackButton() {
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-foreground text-background py-2.5 text-sm font-medium hover:bg-foreground/90 disabled:opacity-40 transition-all"
                 >
                   <Send className="h-4 w-4" />
-                  {isPending ? "שולח..." : "שלח פידבק"}
+                  {isPending ? he.common.sending : he.common.sendFeedback}
                 </button>
               </>
             )}

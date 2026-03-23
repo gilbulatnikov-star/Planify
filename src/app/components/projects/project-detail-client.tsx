@@ -58,6 +58,7 @@ type UnlinkedItems = {
 };
 
 function LinkItemDropdown({ items, onSelect }: { items: { id: string; title?: string; name?: string }[]; onSelect: (id: string) => void }) {
+  const he = useT();
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
@@ -67,7 +68,7 @@ function LinkItemDropdown({ items, onSelect }: { items: { id: string; title?: st
       {open && (
         <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
           {items.length === 0 ? (
-            <p className="text-xs text-muted-foreground px-2.5 py-2 text-center">הכל כבר משויך</p>
+            <p className="text-xs text-muted-foreground px-2.5 py-2 text-center">{he.common.allLinked}</p>
           ) : (
             items.map(item => (
               <button key={item.id} onClick={() => { onSelect(item.id); setOpen(false); }} className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
@@ -113,11 +114,11 @@ export function ProjectDetailClient({
   const totalTasks = project.tasks.length;
 
   const sections = [
-    { key: "tasks", label: "משימות", icon: ListTodo, count: project.tasks.length },
-    { key: "scripts", label: "תסריטים", icon: FileText, count: project.scripts.length },
-    { key: "moodboards", label: "Moodboards", icon: LayoutTemplate, count: project.moodboards.length },
-    { key: "contacts", label: "אנשי קשר", icon: Contact, count: project.contacts.length },
-    { key: "calendar", label: "לוח תוכן", icon: CalendarDays, count: project.scheduledContent.length },
+    { key: "tasks", label: he.common.tasks, icon: ListTodo, count: project.tasks.length },
+    { key: "scripts", label: he.nav.scripts, icon: FileText, count: project.scripts.length },
+    { key: "moodboards", label: he.nav.moodboard, icon: LayoutTemplate, count: project.moodboards.length },
+    { key: "contacts", label: he.contacts.title, icon: Contact, count: project.contacts.length },
+    { key: "calendar", label: he.nav.calendar, icon: CalendarDays, count: project.scheduledContent.length },
   ];
 
   return (
@@ -127,7 +128,7 @@ export function ProjectDetailClient({
       <motion.div variants={fadeUp} className="space-y-3">
         <button onClick={() => router.push("/projects")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowRight className="h-4 w-4" />
-          חזרה לפרויקטים
+          {he.common.backToProjects}
         </button>
         <div className="flex items-start justify-between gap-4">
           <div>
@@ -136,7 +137,7 @@ export function ProjectDetailClient({
           </div>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)} className="shrink-0">
             <Pencil className="h-3.5 w-3.5 me-1.5" />
-            עריכה
+            {he.common.edit}
           </Button>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -173,7 +174,7 @@ export function ProjectDetailClient({
       {/* ── Tasks ── */}
       <motion.div variants={fadeUp} id="tasks" className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <ListTodo className="h-4 w-4" /> משימות
+          <ListTodo className="h-4 w-4" /> {he.common.tasks}
           {totalTasks > 0 && <span className="text-xs opacity-60">({completedTasks}/{totalTasks})</span>}
         </h2>
         {project.tasks.length > 0 && (
@@ -190,7 +191,7 @@ export function ProjectDetailClient({
                 <button
                   onClick={() => { startTransition(async () => { await deleteProjectTask(task.id); router.refresh(); }); }}
                   className="opacity-0 group-hover/task:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all"
-                  title="מחק משימה"
+                  title={he.common.deleteTask}
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>
@@ -210,7 +211,7 @@ export function ProjectDetailClient({
           }}
           className="flex gap-2"
         >
-          <Input name="newTask" placeholder="הוסף משימה..." className="flex-1 h-9 text-sm" />
+          <Input name="newTask" placeholder={he.common.addTask} className="flex-1 h-9 text-sm" />
           <Button type="submit" size="sm" variant="outline" className="h-9 px-3">
             <Plus className="h-3.5 w-3.5" />
           </Button>
@@ -220,7 +221,7 @@ export function ProjectDetailClient({
       {/* ── Scripts ── */}
       <motion.div variants={fadeUp} id="scripts" className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <FileText className="h-4 w-4" /> תסריטים
+          <FileText className="h-4 w-4" /> {he.nav.scripts}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {project.scripts.map(s => (
@@ -230,7 +231,7 @@ export function ProjectDetailClient({
                   <p className="text-sm font-medium">{s.title}</p>
                   <span className="text-[10px] text-muted-foreground">{formatDate(s.updatedAt)}</span>
                 </Link>
-                <button onClick={() => handleUnlink("script", s.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                <button onClick={() => handleUnlink("script", s.id)} title={he.common.removeFromProject} className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </CardContent>
@@ -253,7 +254,7 @@ export function ProjectDetailClient({
                   <p className="text-sm font-medium">{m.title}</p>
                   <span className="text-[10px] text-muted-foreground mt-1">{formatDate(m.updatedAt)}</span>
                 </Link>
-                <button onClick={() => handleUnlink("moodboard", m.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                <button onClick={() => handleUnlink("moodboard", m.id)} title={he.common.removeFromProject} className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                   <X className="h-3.5 w-3.5" />
                 </button>
               </CardContent>
@@ -266,7 +267,7 @@ export function ProjectDetailClient({
       {/* ── Contacts ── */}
       <motion.div variants={fadeUp} id="contacts" className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <Contact className="h-4 w-4" /> אנשי קשר
+          <Contact className="h-4 w-4" /> {he.contacts.title}
         </h2>
         <div className="space-y-1.5">
           {project.contacts.map(c => (
@@ -278,7 +279,7 @@ export function ProjectDetailClient({
                 </Badge>
                 {c.phone && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
               </div>
-              <button onClick={() => handleUnlink("contact", c.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+              <button onClick={() => handleUnlink("contact", c.id)} title={he.common.removeFromProject} className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -290,7 +291,7 @@ export function ProjectDetailClient({
       {/* ── Calendar ── */}
       <motion.div variants={fadeUp} id="calendar" className="space-y-3">
         <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <CalendarDays className="h-4 w-4" /> לוח תוכן
+          <CalendarDays className="h-4 w-4" /> {he.nav.calendar}
         </h2>
         <div className="space-y-2">
           {project.scheduledContent.map(sc => (
@@ -299,7 +300,7 @@ export function ProjectDetailClient({
               <span className="text-sm flex-1">{sc.title}</span>
               <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>
               <span className="text-xs text-muted-foreground">{formatDate(sc.date)}</span>
-              <button onClick={() => handleUnlink("content", sc.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+              <button onClick={() => handleUnlink("content", sc.id)} title={he.common.removeFromProject} className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                 <X className="h-3.5 w-3.5" />
               </button>
             </div>

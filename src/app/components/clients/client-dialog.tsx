@@ -15,16 +15,11 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createClient, updateClient } from "@/lib/actions/client-actions";
+import { useT } from "@/lib/i18n";
 
-const SOCIAL_OPTIONS = [
-  { key: "website", label: "אתר", placeholder: "https://..." },
-  { key: "instagram", label: "Instagram", placeholder: "@username" },
-  { key: "youtube", label: "YouTube", placeholder: "קישור לערוץ" },
-  { key: "linkedin", label: "LinkedIn", placeholder: "קישור לפרופיל" },
-  { key: "tiktok", label: "TikTok", placeholder: "@username" },
-] as const;
+const SOCIAL_KEYS = ["website", "instagram", "youtube", "linkedin", "tiktok"] as const;
 
-type SocialKey = typeof SOCIAL_OPTIONS[number]["key"];
+type SocialKey = typeof SOCIAL_KEYS[number];
 
 interface ClientDialogProps {
   client?: {
@@ -51,6 +46,14 @@ interface ClientDialogProps {
 }
 
 export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: ClientDialogProps) {
+  const he = useT();
+  const SOCIAL_OPTIONS = [
+    { key: "website" as const, label: he.common.website, placeholder: "https://..." },
+    { key: "instagram" as const, label: "Instagram", placeholder: "@username" },
+    { key: "youtube" as const, label: "YouTube", placeholder: "YouTube" },
+    { key: "linkedin" as const, label: "LinkedIn", placeholder: "LinkedIn" },
+    { key: "tiktok" as const, label: "TikTok", placeholder: "@username" },
+  ];
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
   const [isActive, setIsActive] = useState(client?.isActive ?? true);
@@ -61,9 +64,8 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
     if (open) {
       setIsActive(client?.isActive ?? true);
       // Show socials that already have values
-      const existing = SOCIAL_OPTIONS
-        .filter(s => client?.[s.key])
-        .map(s => s.key);
+      const existing = SOCIAL_KEYS
+        .filter(key => client?.[key]);
       setVisibleSocials(existing);
       setPickerOpen(false);
     }
@@ -87,9 +89,9 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
     formData.set("isActive", String(isActive));
 
     // Clear hidden social fields
-    for (const s of SOCIAL_OPTIONS) {
-      if (!visibleSocials.includes(s.key)) {
-        formData.set(s.key, "");
+    for (const key of SOCIAL_KEYS) {
+      if (!visibleSocials.includes(key)) {
+        formData.set(key, "");
       }
     }
 
@@ -113,9 +115,9 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
     <Dialog open={open} onOpenChange={(value) => onOpenChange(value)}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "עריכת לקוח" : "לקוח חדש"}</DialogTitle>
+          <DialogTitle>{isEditing ? he.common.editClient : he.common.newClientTitle}</DialogTitle>
           <DialogDescription className="sr-only">
-            {isEditing ? "טופס עריכת לקוח" : "טופס יצירת לקוח חדש"}
+            {isEditing ? he.common.editClientForm : he.common.newClientForm}
           </DialogDescription>
         </DialogHeader>
 
@@ -123,22 +125,22 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
           {/* Basic info */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="name">שם *</Label>
+              <Label htmlFor="name">{he.common.name} *</Label>
               <Input id="name" name="name" required defaultValue={client?.name ?? ""} />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="email">אימייל</Label>
+              <Label htmlFor="email">{he.common.email}</Label>
               <Input id="email" name="email" type="email" defaultValue={client?.email ?? ""} />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="phone">טלפון</Label>
+              <Label htmlFor="phone">{he.common.phone}</Label>
               <Input id="phone" name="phone" type="tel" defaultValue={client?.phone ?? ""} />
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="company">חברה</Label>
+              <Label htmlFor="company">{he.common.company}</Label>
               <Input id="company" name="company" defaultValue={client?.company ?? ""} />
             </div>
           </div>
@@ -161,7 +163,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
                 }`}
               />
             </button>
-            <span className="text-sm font-medium text-foreground">לקוח פעיל</span>
+            <span className="text-sm font-medium text-foreground">{he.common.activeClient}</span>
           </label>
 
           {/* Dynamic social links */}
@@ -191,7 +193,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" />
-                הוסף רשת חברתית
+                {he.common.addSocialNetwork}
               </button>
               {pickerOpen && (
                 <>
@@ -215,16 +217,16 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
 
           {/* Notes */}
           <div className="grid gap-2">
-            <Label htmlFor="notes">הערות</Label>
+            <Label htmlFor="notes">{he.common.notes}</Label>
             <Textarea id="notes" name="notes" defaultValue={client?.notes ?? ""} />
           </div>
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              ביטול
+              {he.common.cancel}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : "שמור"}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

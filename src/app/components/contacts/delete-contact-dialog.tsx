@@ -13,6 +13,7 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { deleteContact } from "@/lib/actions/contact-actions";
+import { useT } from "@/lib/i18n";
 
 interface DeleteContactDialogProps {
   contactId: string;
@@ -27,6 +28,7 @@ export function DeleteContactDialog({
   open,
   onOpenChange,
 }: DeleteContactDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -44,19 +46,19 @@ export function DeleteContactDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>מחיקת איש קשר</AlertDialogTitle>
+          <AlertDialogTitle>{he.common.deleteConfirmTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            האם אתה בטוח שברצונך למחוק את {contactName}?
+            {he.common.deleteConfirmText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>ביטול</AlertDialogCancel>
+          <AlertDialogCancel>{he.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             disabled={isPending}
             onClick={handleDelete}
           >
-            {isPending ? "מוחק..." : "מחק"}
+            {isPending ? he.common.deleting : he.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -12,6 +12,7 @@ import {
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
 import { deleteClient } from "@/lib/actions/client-actions";
+import { useT } from "@/lib/i18n";
 
 interface DeleteClientDialogProps {
   clientId: string;
@@ -26,6 +27,7 @@ export function DeleteClientDialog({
   open,
   onOpenChange,
 }: DeleteClientDialogProps) {
+  const he = useT();
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -41,21 +43,21 @@ export function DeleteClientDialog({
     <AlertDialog open={open} onOpenChange={(value) => onOpenChange(value)}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>מחיקת לקוח</AlertDialogTitle>
+          <AlertDialogTitle>{he.common.deleteConfirmTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            האם אתה בטוח שברצונך למחוק את {clientName}?
+            {he.common.deleteConfirmText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={() => onOpenChange(false)}>
-            ביטול
+            {he.common.cancel}
           </AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={handleDelete}
             disabled={isPending}
           >
-            {isPending ? "מוחק..." : "מחק"}
+            {isPending ? he.common.deleting : he.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

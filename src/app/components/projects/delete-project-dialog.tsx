@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { deleteProject } from "@/lib/actions/project-actions";
+import { useT } from "@/lib/i18n";
 
 interface DeleteProjectDialogProps {
   projectId: string;
@@ -26,6 +27,7 @@ export function DeleteProjectDialog({
   open,
   onOpenChange,
 }: DeleteProjectDialogProps) {
+  const he = useT();
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -41,19 +43,19 @@ export function DeleteProjectDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>מחיקת פרויקט</AlertDialogTitle>
+          <AlertDialogTitle>{he.common.deleteConfirmTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            האם אתה בטוח שברצונך למחוק את {projectTitle}?
+            {he.common.deleteConfirmText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>ביטול</AlertDialogCancel>
+          <AlertDialogCancel>{he.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={handleDelete}
             disabled={isPending}
           >
-            {isPending ? "מוחק..." : "מחק"}
+            {isPending ? he.common.deleting : he.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

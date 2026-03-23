@@ -32,14 +32,14 @@ import { useT } from "@/lib/i18n";
 // ─── Color options ────────────────────────────────────────────────────────────
 
 export const EVENT_COLORS = [
-  { key: "gray",   label: "אפור",    bg: "bg-gray-400"    },
-  { key: "blue",   label: "כחול",    bg: "bg-blue-500"    },
-  { key: "violet", label: "סגול",    bg: "bg-violet-500"  },
-  { key: "green",  label: "ירוק",    bg: "bg-emerald-500" },
-  { key: "red",    label: "אדום",    bg: "bg-red-500"     },
-  { key: "orange", label: "כתום",    bg: "bg-orange-400"  },
-  { key: "yellow", label: "צהוב",    bg: "bg-yellow-400"  },
-  { key: "pink",   label: "ורוד",    bg: "bg-pink-500"    },
+  { key: "gray",   bg: "bg-gray-400"    },
+  { key: "blue",   bg: "bg-blue-500"    },
+  { key: "violet", bg: "bg-violet-500"  },
+  { key: "green",  bg: "bg-emerald-500" },
+  { key: "red",    bg: "bg-red-500"     },
+  { key: "orange", bg: "bg-orange-400"  },
+  { key: "yellow", bg: "bg-yellow-400"  },
+  { key: "pink",   bg: "bg-pink-500"    },
 ];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -153,9 +153,9 @@ export function ContentDialog({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{isEditing ? "עריכת תוכן" : "תוכן חדש"}</DialogTitle>
+          <DialogTitle>{isEditing ? he.common.editContent : he.common.newContentTitle}</DialogTitle>
           <DialogDescription>
-            {isEditing ? "ערוך את פרטי התוכן" : "הוסף תוכן חדש ללוח"}
+            {isEditing ? he.common.editContentDetails : he.common.enterContentDetails}
           </DialogDescription>
         </DialogHeader>
 
@@ -164,7 +164,7 @@ export function ContentDialog({
 
             {/* כותרת */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="title">כותרת</Label>
+              <Label htmlFor="title">{he.common.title}</Label>
               <Input
                 id="title"
                 name="title"
@@ -175,7 +175,7 @@ export function ContentDialog({
 
             {/* תאריך */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="date">תאריך</Label>
+              <Label htmlFor="date">{he.common.date}</Label>
               <Input
                 id="date"
                 name="date"
@@ -191,13 +191,13 @@ export function ContentDialog({
 
             {/* צבע */}
             <div className="col-span-2 space-y-2">
-              <Label>צבע</Label>
+              <Label>{he.common.color}</Label>
               <div className="flex flex-wrap gap-2">
                 {EVENT_COLORS.map((c) => (
                   <button
                     key={c.key}
                     type="button"
-                    title={c.label}
+                    title={c.key}
                     onClick={() => setSelectedColor(c.key)}
                     className={`relative h-7 w-7 rounded-full transition-transform hover:scale-110 ${c.bg} ${
                       selectedColor === c.key ? "ring-2 ring-offset-2 ring-gray-700 scale-110" : ""
@@ -213,11 +213,11 @@ export function ContentDialog({
 
             {/* סטטוס */}
             <div className="col-span-2 space-y-2">
-              <Label>סטטוס</Label>
+              <Label>{he.common.status}</Label>
               <Select name="status" defaultValue={content?.status ?? "planned"}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">
-                    {STATUS_OPTIONS.find(s => s.key === (content?.status ?? "planned"))?.label ?? "מתוכנן"}
+                    {STATUS_OPTIONS.find(s => s.key === (content?.status ?? "planned"))?.label ?? he.calendar.statuses.planned}
                   </span>
                 </SelectTrigger>
                 <SelectContent>
@@ -230,14 +230,14 @@ export function ContentDialog({
 
             {/* לקוח */}
             <div className="col-span-2 space-y-2">
-              <Label>לקוח (אופציונלי)</Label>
+              <Label>{`${he.common.client} (${he.common.optional})`}</Label>
               {newClientMode ? (
                 <div className="flex gap-1.5">
                   <Input
                     autoFocus
                     value={newClientName}
                     onChange={(e) => setNewClientName(e.target.value)}
-                    placeholder="שם הלקוח החדש..."
+                    placeholder={he.common.newClientName}
                     className="flex-1 h-9 text-sm"
                   />
                   <button
@@ -254,11 +254,11 @@ export function ContentDialog({
                     <span className="flex flex-1">
                       {clientId
                         ? (localClients.find((c) => c.id === clientId)?.name ?? clientId)
-                        : "בחר לקוח"}
+                        : he.common.selectClient}
                     </span>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">ללא לקוח</SelectItem>
+                    <SelectItem value="">{he.common.noClient}</SelectItem>
                     {localClients.map((c) => (
                       <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
                     ))}
@@ -268,7 +268,7 @@ export function ContentDialog({
                       onClick={() => { setNewClientMode(true); setClientId(""); }}
                       className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
                     >
-                      <Plus className="h-3.5 w-3.5" />הוסף לקוח חדש
+                      <Plus className="h-3.5 w-3.5" />{he.common.addNewClient}
                     </button>
                   </SelectContent>
                 </Select>
@@ -277,17 +277,17 @@ export function ContentDialog({
 
             {/* פרויקט */}
             <div className="col-span-2 space-y-2">
-              <Label>פרויקט (אופציונלי)</Label>
+              <Label>{`${he.common.project} (${he.common.optional})`}</Label>
               <Select value={projectId} onValueChange={(v) => setProjectId(v ?? "")}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">
                     {projectId
                       ? (projects.find((p) => p.id === projectId)?.title ?? projectId)
-                      : "בחר פרויקט"}
+                      : he.common.selectProject}
                   </span>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">ללא פרויקט</SelectItem>
+                  <SelectItem value="">{he.common.noProject}</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
                   ))}
@@ -297,7 +297,7 @@ export function ContentDialog({
 
             {/* הערות */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -315,14 +315,14 @@ export function ContentDialog({
                 onClick={() => { onOpenChange(false); onRequestDelete(content!.id); }}
               >
                 <Trash2 className="h-4 w-4 me-1.5" />
-                מחיקה
+                {he.common.deleteContent}
               </Button>
             )}
             <DialogClose render={<Button variant="outline" />}>
-              ביטול
+              {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : isEditing ? "עדכון תוכן" : "הוספת תוכן"}
+              {isPending ? he.common.saving : isEditing ? he.common.updateContent : he.common.addContent}
             </Button>
           </DialogFooter>
         </form>

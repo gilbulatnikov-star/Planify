@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { deleteTravelEntry } from "@/lib/actions/travel-actions";
+import { useT } from "@/lib/i18n";
 
 interface DeleteTravelDialogProps {
   entryId: string;
@@ -27,6 +28,7 @@ export function DeleteTravelDialog({
   open,
   onOpenChange,
 }: DeleteTravelDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -42,19 +44,19 @@ export function DeleteTravelDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>מחיקת נסיעה</AlertDialogTitle>
+          <AlertDialogTitle>{he.common.deleteConfirmTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            האם אתה בטוח שברצונך למחוק את הנסיעה {entryLabel}?
+            {he.common.deleteConfirmText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>ביטול</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>{he.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={handleDelete}
             disabled={isPending}
           >
-            {isPending ? "מוחק..." : "מחק"}
+            {isPending ? he.common.deleting : he.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

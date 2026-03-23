@@ -73,8 +73,8 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
   }
 
   const statCards = [
-    { label: "לקוחות פעילים", value: activeClients.length, icon: Users, color: "from-gray-700 to-gray-900" },
-    { label: "סה״כ לקוחות", value: clients.length, icon: UserPlus, color: "from-violet-400 to-purple-500" },
+    { label: he.common.activeClients, value: activeClients.length, icon: Users, color: "from-gray-700 to-gray-900" },
+    { label: he.common.totalClients, value: clients.length, icon: UserPlus, color: "from-violet-400 to-purple-500" },
   ];
 
   function renderList(filtered: ClientData[]) {
@@ -105,7 +105,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
                   {client.name}
                 </span>
                 <Badge className={`border-0 text-[10px] ${client.isActive ? "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300" : "bg-muted text-muted-foreground"}`}>
-                  {client.isActive ? "פעיל" : "לא פעיל"}
+                  {client.isActive ? he.common.active : he.common.inactive}
                 </Badge>
                 {client.isRetainer && (
                   <Badge className="border-0 text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
@@ -188,13 +188,13 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
         <Tabs defaultValue="all" dir="rtl">
           <TabsList className="bg-muted border border-border">
             <TabsTrigger value="all" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
-              הכל ({clients.length})
+              {he.common.all} ({clients.length})
             </TabsTrigger>
             <TabsTrigger value="active" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
-              פעילים ({activeClients.length})
+              {he.common.active} ({activeClients.length})
             </TabsTrigger>
             <TabsTrigger value="inactive" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
-              לא פעילים ({inactiveClients.length})
+              {he.common.inactive} ({inactiveClients.length})
             </TabsTrigger>
           </TabsList>
           <TabsContent value="all">{renderList(clients)}</TabsContent>
@@ -206,7 +206,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        feature="לקוחות"
+        feature={he.client.title}
         limit={planLimit}
       />
       <ClientDialog

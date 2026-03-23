@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { deleteEquipment } from "@/lib/actions/equipment-actions";
+import { useT } from "@/lib/i18n";
 
 interface DeleteEquipmentDialogProps {
   equipmentId: string;
@@ -26,6 +27,7 @@ export function DeleteEquipmentDialog({
   open,
   onOpenChange,
 }: DeleteEquipmentDialogProps) {
+  const he = useT();
   const [isPending, startTransition] = useTransition();
 
   function handleDelete() {
@@ -39,19 +41,19 @@ export function DeleteEquipmentDialog({
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>מחיקת ציוד</AlertDialogTitle>
+          <AlertDialogTitle>{he.common.deleteConfirmTitle}</AlertDialogTitle>
           <AlertDialogDescription>
-            האם אתה בטוח שברצונך למחוק את {equipmentName}?
+            {he.common.deleteConfirmText}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>ביטול</AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>{he.common.cancel}</AlertDialogCancel>
           <AlertDialogAction
             variant="destructive"
             onClick={handleDelete}
             disabled={isPending}
           >
-            {isPending ? "מוחק..." : "מחק"}
+            {isPending ? he.common.deleting : he.common.delete}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
