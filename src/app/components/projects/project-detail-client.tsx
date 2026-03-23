@@ -60,9 +60,9 @@ type UnlinkedItems = {
 function LinkItemDropdown({ items, onSelect }: { items: { id: string; title?: string; name?: string }[]; onSelect: (id: string) => void }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="relative inline-block">
-      <button onClick={() => setOpen(!open)} className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-        <Plus className="h-3.5 w-3.5" />
+    <div className="relative">
+      <button onClick={() => setOpen(!open)} className="flex items-center justify-center w-full min-h-[72px] rounded-xl border border-dashed border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:border-muted-foreground/30 transition-colors">
+        <Plus className="h-5 w-5" />
       </button>
       {open && (
         <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
@@ -234,125 +234,101 @@ export function ProjectDetailClient({
 
       {/* ── Scripts ── */}
       <motion.div variants={fadeUp} id="scripts" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-            <FileText className="h-4 w-4" /> תסריטים
-          </h2>
-          {<LinkItemDropdown items={unlinked.scripts} onSelect={(id) => handleLink("script", id)} />}
+        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+          <FileText className="h-4 w-4" /> תסריטים
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {project.scripts.map(s => (
+            <Card key={s.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
+              <CardContent className="p-4 flex items-start justify-between">
+                <Link href={`/scripts/${s.id}`} className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{s.title}</p>
+                  <div className="flex items-center gap-2 mt-1.5">
+                    <Badge className="text-[10px] bg-muted border-0 text-muted-foreground">{s.platform}</Badge>
+                    <span className="text-[10px] text-muted-foreground">{formatDate(s.updatedAt)}</span>
+                  </div>
+                </Link>
+                <button onClick={() => handleUnlink("script", s.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </CardContent>
+            </Card>
+          ))}
+          <LinkItemDropdown items={unlinked.scripts} onSelect={(id) => handleLink("script", id)} />
         </div>
-        {project.scripts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {project.scripts.map(s => (
-              <Card key={s.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
-                <CardContent className="p-4 flex items-start justify-between">
-                  <Link href={`/scripts/${s.id}`} className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{s.title}</p>
-                    <div className="flex items-center gap-2 mt-1.5">
-                      <Badge className="text-[10px] bg-muted border-0 text-muted-foreground">{s.platform}</Badge>
-                      <span className="text-[10px] text-muted-foreground">{formatDate(s.updatedAt)}</span>
-                    </div>
-                  </Link>
-                  <button onClick={() => handleUnlink("script", s.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין תסריטים</p>
-        )}
       </motion.div>
 
       {/* ── Moodboards ── */}
       <motion.div variants={fadeUp} id="moodboards" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-            <LayoutTemplate className="h-4 w-4" /> Moodboards
-          </h2>
-          {<LinkItemDropdown items={unlinked.moodboards} onSelect={(id) => handleLink("moodboard", id)} />}
+        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+          <LayoutTemplate className="h-4 w-4" /> Moodboards
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {project.moodboards.map(m => (
+            <Card key={m.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
+              <CardContent className="p-4 flex items-start justify-between">
+                <Link href={`/moodboard/${m.id}`} className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{m.title}</p>
+                  <span className="text-[10px] text-muted-foreground mt-1">{formatDate(m.updatedAt)}</span>
+                </Link>
+                <button onClick={() => handleUnlink("moodboard", m.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </CardContent>
+            </Card>
+          ))}
+          <LinkItemDropdown items={unlinked.moodboards} onSelect={(id) => handleLink("moodboard", id)} />
         </div>
-        {project.moodboards.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {project.moodboards.map(m => (
-              <Card key={m.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
-                <CardContent className="p-4 flex items-start justify-between">
-                  <Link href={`/moodboard/${m.id}`} className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{m.title}</p>
-                    <span className="text-[10px] text-muted-foreground mt-1">{formatDate(m.updatedAt)}</span>
-                  </Link>
-                  <button onClick={() => handleUnlink("moodboard", m.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין Moodboards</p>
-        )}
       </motion.div>
 
       {/* ── Contacts ── */}
       <motion.div variants={fadeUp} id="contacts" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-            <Contact className="h-4 w-4" /> אנשי קשר
-          </h2>
-          {<LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} onSelect={(id) => handleLink("contact", id)} />}
-        </div>
-        {project.contacts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {project.contacts.map(c => (
-              <Card key={c.id} className="glass-card group/item">
-                <CardContent className="p-4 flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{c.name}</p>
-                    <Badge className="text-[10px] bg-muted border-0 text-muted-foreground mt-1">
-                      {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
-                    </Badge>
-                    <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
-                      {c.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
-                      {c.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>}
-                    </div>
+        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+          <Contact className="h-4 w-4" /> אנשי קשר
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {project.contacts.map(c => (
+            <Card key={c.id} className="glass-card group/item">
+              <CardContent className="p-4 flex items-start justify-between">
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium">{c.name}</p>
+                  <Badge className="text-[10px] bg-muted border-0 text-muted-foreground mt-1">
+                    {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
+                  </Badge>
+                  <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
+                    {c.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
+                    {c.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>}
                   </div>
-                  <button onClick={() => handleUnlink("contact", c.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
-                    <X className="h-3.5 w-3.5" />
-                  </button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין אנשי קשר</p>
-        )}
+                </div>
+                <button onClick={() => handleUnlink("contact", c.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </CardContent>
+            </Card>
+          ))}
+          <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} onSelect={(id) => handleLink("contact", id)} />
+        </div>
       </motion.div>
 
       {/* ── Calendar ── */}
       <motion.div variants={fadeUp} id="calendar" className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-            <CalendarDays className="h-4 w-4" /> לוח תוכן
-          </h2>
-          {<LinkItemDropdown items={unlinked.content} onSelect={(id) => handleLink("content", id)} />}
+        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+          <CalendarDays className="h-4 w-4" /> לוח תוכן
+        </h2>
+        <div className="space-y-2">
+          {project.scheduledContent.map(sc => (
+            <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 group/item">
+              <div className={`h-2.5 w-2.5 rounded-full bg-${sc.color ?? "gray"}-400 shrink-0`} />
+              <span className="text-sm flex-1">{sc.title}</span>
+              <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>
+              <span className="text-xs text-muted-foreground">{formatDate(sc.date)}</span>
+              <button onClick={() => handleUnlink("content", sc.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+          <LinkItemDropdown items={unlinked.content} onSelect={(id) => handleLink("content", id)} />
         </div>
-        {project.scheduledContent.length > 0 ? (
-          <div className="space-y-2">
-            {project.scheduledContent.map(sc => (
-              <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 group/item">
-                <div className={`h-2.5 w-2.5 rounded-full bg-${sc.color ?? "gray"}-400 shrink-0`} />
-                <span className="text-sm flex-1">{sc.title}</span>
-                <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>
-                <span className="text-xs text-muted-foreground">{formatDate(sc.date)}</span>
-                <button onClick={() => handleUnlink("content", sc.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין תוכן מתוכנן</p>
-        )}
       </motion.div>
 
       {/* Edit dialog */}
