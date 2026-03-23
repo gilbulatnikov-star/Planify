@@ -146,30 +146,14 @@ export function ProjectDetailClient({
 
       {/* Info bar */}
       {(project.budget || project.shootDate || project.deadline || project.description) && (
-        <motion.div variants={fadeUp} className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {project.budget != null && (
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">תקציב</p>
-              <p className="text-sm font-semibold">{formatCurrency(project.budget)}</p>
-            </div>
-          )}
-          {project.shootDate && (
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">תאריך</p>
-              <p className="text-sm font-semibold">{formatDate(project.shootDate)}</p>
-            </div>
-          )}
-          {project.deadline && (
-            <div className="rounded-xl border border-border bg-card p-3">
-              <p className="text-xs text-muted-foreground">דדליין</p>
-              <p className="text-sm font-semibold">{formatDate(project.deadline)}</p>
-            </div>
-          )}
+        <motion.div variants={fadeUp} className="space-y-1.5">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+            {project.shootDate && <span>📅 {formatDate(project.shootDate)}</span>}
+            {project.deadline && <span>⏰ דדליין: {formatDate(project.deadline)}</span>}
+            {project.budget != null && <span>💰 {formatCurrency(project.budget)}</span>}
+          </div>
           {project.description && (
-            <div className="rounded-xl border border-border bg-card p-3 col-span-2 sm:col-span-4">
-              <p className="text-xs text-muted-foreground mb-1">תיאור</p>
-              <p className="text-sm whitespace-pre-line">{project.description}</p>
-            </div>
+            <p className="text-sm text-muted-foreground whitespace-pre-line">{project.description}</p>
           )}
         </motion.div>
       )}
