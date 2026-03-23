@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createAsset, updateAsset } from "@/lib/actions/asset-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 interface AssetDialogProps {
   asset?: {
@@ -37,14 +37,16 @@ interface AssetDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const typeOptions = [
-  { value: "music", label: he.assets.types.music },
-  { value: "sfx", label: he.assets.types.sfx },
-  { value: "font", label: he.assets.types.font },
-  { value: "stock_footage", label: he.assets.types.stock_footage },
-] as const;
-
 export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
+  const he = useT();
+
+  const typeOptions = [
+    { value: "music", label: he.assets.types.music },
+    { value: "sfx", label: he.assets.types.sfx },
+    { value: "font", label: he.assets.types.font },
+    { value: "stock_footage", label: he.assets.types.stock_footage },
+  ] as const;
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!asset;

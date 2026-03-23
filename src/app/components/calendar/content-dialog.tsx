@@ -27,14 +27,7 @@ import {
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { Plus, X, Check, Trash2 } from "lucide-react";
-import { he } from "@/lib/he";
-
-const STATUS_OPTIONS = [
-  { key: "planned", label: he.calendar.statuses.planned },
-  { key: "editing", label: he.calendar.statuses.editing },
-  { key: "ready", label: he.calendar.statuses.ready },
-  { key: "published", label: he.calendar.statuses.published },
-];
+import { useT } from "@/lib/i18n";
 
 // ─── Color options ────────────────────────────────────────────────────────────
 
@@ -92,6 +85,15 @@ export function ContentDialog({
   onOpenChange,
   onRequestDelete,
 }: ContentDialogProps) {
+  const he = useT();
+
+  const STATUS_OPTIONS = [
+    { key: "planned", label: he.calendar.statuses.planned },
+    { key: "editing", label: he.calendar.statuses.editing },
+    { key: "ready", label: he.calendar.statuses.ready },
+    { key: "published", label: he.calendar.statuses.published },
+  ];
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!content;

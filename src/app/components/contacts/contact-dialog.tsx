@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createContact, updateContact } from "@/lib/actions/contact-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { Plus, X } from "lucide-react";
 
 interface ContactDialogProps {
@@ -44,31 +44,33 @@ interface ContactDialogProps {
   onQuotaExceeded?: () => void;
 }
 
-const PRESET_CATEGORIES = [
-  { value: "editor",               label: he.contacts.categories.editor },
-  { value: "stills_photographer",  label: he.contacts.categories.stills_photographer },
-  { value: "video_photographer",   label: he.contacts.categories.video_photographer },
-  { value: "lighting",             label: he.contacts.categories.lighting },
-  { value: "director",             label: he.contacts.categories.director },
-  { value: "art",                  label: he.contacts.categories.art },
-  { value: "production_assistant", label: he.contacts.categories.production_assistant },
-  { value: "producer",             label: he.contacts.categories.producer },
-  { value: "three_d",              label: he.contacts.categories.three_d },
-  { value: "sound_designer",       label: he.contacts.categories.sound_designer },
-  { value: "makeup",               label: he.contacts.categories.makeup },
-  { value: "actor",                label: he.contacts.categories.actor },
-  { value: "rental_house",         label: he.contacts.categories.rental_house },
-  { value: "studio",               label: he.contacts.categories.studio },
-  { value: "social_manager",       label: he.contacts.categories.social_manager },
-];
-
-const PRESET_VALUES = new Set(PRESET_CATEGORIES.map(c => c.value));
-
-function getCategoryLabel(value: string): string {
-  return PRESET_CATEGORIES.find(c => c.value === value)?.label ?? value;
-}
-
 export function ContactDialog({ contact, open, onOpenChange, extraCategories = [], onQuotaExceeded, projects = [] }: ContactDialogProps) {
+  const he = useT();
+
+  const PRESET_CATEGORIES = [
+    { value: "editor",               label: he.contacts.categories.editor },
+    { value: "stills_photographer",  label: he.contacts.categories.stills_photographer },
+    { value: "video_photographer",   label: he.contacts.categories.video_photographer },
+    { value: "lighting",             label: he.contacts.categories.lighting },
+    { value: "director",             label: he.contacts.categories.director },
+    { value: "art",                  label: he.contacts.categories.art },
+    { value: "production_assistant", label: he.contacts.categories.production_assistant },
+    { value: "producer",             label: he.contacts.categories.producer },
+    { value: "three_d",              label: he.contacts.categories.three_d },
+    { value: "sound_designer",       label: he.contacts.categories.sound_designer },
+    { value: "makeup",               label: he.contacts.categories.makeup },
+    { value: "actor",                label: he.contacts.categories.actor },
+    { value: "rental_house",         label: he.contacts.categories.rental_house },
+    { value: "studio",               label: he.contacts.categories.studio },
+    { value: "social_manager",       label: he.contacts.categories.social_manager },
+  ];
+
+  const PRESET_VALUES = new Set(PRESET_CATEGORIES.map(c => c.value));
+
+  function getCategoryLabel(value: string): string {
+    return PRESET_CATEGORIES.find(c => c.value === value)?.label ?? value;
+  }
+
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!contact;
