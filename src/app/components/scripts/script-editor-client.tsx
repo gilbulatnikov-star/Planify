@@ -337,9 +337,10 @@ function ColumnMenu({ visibleCols, onToggle, onClose }: {
   onToggle: (id: string) => void;
   onClose: () => void;
 }) {
+  const he = useT();
   return (
     <div className="absolute left-0 top-full z-50 mt-1 w-52 rounded-xl border border-border bg-card py-2 shadow-xl">
-      <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">סינון עמודות</div>
+      <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{he.scriptEditor.filterColumns}</div>
       {COLUMNS.map((col) => {
         const visible = visibleCols.has(col.id);
         return (
@@ -353,7 +354,7 @@ function ColumnMenu({ visibleCols, onToggle, onClose }: {
         );
       })}
       <div className="mx-3 mt-1 border-t border-border pt-1">
-        <button onClick={onClose} className="w-full rounded-lg py-1.5 text-xs text-muted-foreground hover:text-muted-foreground transition-colors">סגור</button>
+        <button onClick={onClose} className="w-full rounded-lg py-1.5 text-xs text-muted-foreground hover:text-muted-foreground transition-colors">{he.scriptEditor.close}</button>
       </div>
     </div>
   );
@@ -370,6 +371,7 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
   isPro: boolean;
   onCinemaLocked: () => void;
 }) {
+  const he = useT();
   const sectionCls = "px-4 py-3 border-b border-border last:border-0";
   const labelCls = "mb-3 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest";
 
@@ -394,34 +396,34 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
     <div className="absolute left-0 top-full z-50 mt-1 w-64 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
       {/* Display Mode */}
       <div className={sectionCls}>
-        <div className={labelCls}>מצב תצוגה</div>
+        <div className={labelCls}>{he.scriptEditor.displayMode}</div>
         <div className="flex gap-2">
           <ModeBtn active={displayMode === "storyboard"} onClick={() => setDisplayMode("storyboard")}
-            icon={<LayoutGrid className="h-5 w-5" />} label={"סטורי\nבורד"} />
+            icon={<LayoutGrid className="h-5 w-5" />} label={he.scriptEditor.storyboard} />
           <ModeBtn active={displayMode === "text"} onClick={() => setDisplayMode("text")}
-            icon={<Type className="h-5 w-5" />} label={"טקסט\nבלבד"} />
+            icon={<Type className="h-5 w-5" />} label={he.scriptEditor.textOnly} />
           <ModeBtn active={displayMode === "image_text"}
             onClick={() => isPro ? setDisplayMode("image_text") : onCinemaLocked()}
-            icon={<Image className="h-5 w-5" />} label={"קולנועי"}
+            icon={<Image className="h-5 w-5" />} label={he.scriptEditor.cinematic}
             locked={!isPro} />
         </div>
       </div>
 
       {/* Fold Mode */}
       <div className={sectionCls}>
-        <div className={labelCls}>קיפול שורות</div>
+        <div className={labelCls}>{he.scriptEditor.foldRows}</div>
         <div className="flex gap-2">
           <button onClick={() => setFoldMode("unfold")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
               foldMode === "unfold" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
-            <ChevronsUpDown className="h-3.5 w-3.5" />פתוח
+            <ChevronsUpDown className="h-3.5 w-3.5" />{he.scriptEditor.open}
           </button>
           <button onClick={() => setFoldMode("fold")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
               foldMode === "fold" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
-            <ChevronDn className="h-3.5 w-3.5" />מקופל
+            <ChevronDn className="h-3.5 w-3.5" />{he.scriptEditor.folded}
           </button>
         </div>
       </div>
@@ -430,8 +432,8 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
       <div className={sectionCls}>
         <div className="flex items-center justify-between">
           <div>
-            <div className={labelCls + " mb-0"}>מספור שוט מותאם</div>
-            <p className="text-[10px] text-muted-foreground mt-0.5">אפשר עריכת מספרים כ-1A, 2B</p>
+            <div className={labelCls + " mb-0"}>{he.scriptEditor.customShotNo}</div>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{he.scriptEditor.customShotNoDesc}</p>
           </div>
           <button onClick={() => setCustomShotNo(!customShotNo)}
             className={`relative h-5 w-9 rounded-full transition-colors ${customShotNo ? "bg-foreground" : "bg-gray-200"}`}>
@@ -442,25 +444,25 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
 
       {/* Shot Ordering */}
       <div className={sectionCls}>
-        <div className={labelCls}>סדר שוטים</div>
+        <div className={labelCls}>{he.scriptEditor.shotOrder}</div>
         <div className="flex gap-2">
           <button onClick={() => setShotOrdering("asc")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
               shotOrdering === "asc" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
-            <ChevronUp className="h-3.5 w-3.5" />עולה
+            <ChevronUp className="h-3.5 w-3.5" />{he.scriptEditor.ascending}
           </button>
           <button onClick={() => setShotOrdering("desc")}
             className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg border py-2 text-xs font-medium transition-all ${
               shotOrdering === "desc" ? "border-gray-900 bg-foreground text-background" : "border-border text-muted-foreground hover:border-border"
             }`}>
-            <ChevronDn className="h-3.5 w-3.5" />יורד
+            <ChevronDn className="h-3.5 w-3.5" />{he.scriptEditor.descending}
           </button>
         </div>
       </div>
 
       <div className="px-4 py-2">
-        <button onClick={onClose} className="w-full rounded-lg py-1.5 text-xs text-muted-foreground hover:text-muted-foreground transition-colors">סגור</button>
+        <button onClick={onClose} className="w-full rounded-lg py-1.5 text-xs text-muted-foreground hover:text-muted-foreground transition-colors">{he.scriptEditor.close}</button>
       </div>
     </div>
   );
@@ -479,13 +481,7 @@ export function ScriptEditorClient({
   const he = useT();
   const router = useRouter();
 
-  const PLATFORMS = [
-    { value: "YouTube", label: "YouTube", icon: Youtube, color: "text-red-500" },
-    { value: "Instagram", label: "Instagram", icon: Instagram, color: "text-pink-500" },
-    { value: "TikTok", label: "TikTok", icon: Tv, color: "text-foreground" },
-    { value: "Podcast", label: he.scriptEditor?.podcast ?? "Podcast", icon: Podcast, color: "text-violet-500" },
-    { value: "Commercial", label: he.scriptEditor?.commercial ?? "Commercial", icon: Megaphone, color: "text-amber-500" },
-  ];
+  const PLATFORMS = getPlatforms(he);
 
   const [title, setTitle] = useState(script.title);
   const [content, setContent] = useState(script.content);
@@ -608,7 +604,7 @@ export function ScriptEditorClient({
       }
       setMessages([...newMessages, { role: "model", text: data.result }]);
     } catch {
-      setMessages([...newMessages, { role: "model", text: "שגיאה. נסה שוב." }]);
+      setMessages([...newMessages, { role: "model", text: he.scriptEditor.errorTryAgain }]);
     } finally { setChatLoading(false); }
   }
 

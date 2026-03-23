@@ -1106,6 +1106,13 @@ export const he = {
       "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני",
       "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר",
     ],
+    manageFixedExpenses: "ניהול הוצאות קבועות ←",
+    serviceName: "שם השירות",
+    cycle: "מחזור",
+    monthlyCost: "עלות חודשית",
+    nextBilling: "חיוב הבא",
+    perYear: "/שנה",
+    noFixedExpenses: "אין הוצאות קבועות",
   },
 
   // Document upload dialog

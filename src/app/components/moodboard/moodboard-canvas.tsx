@@ -920,6 +920,7 @@ function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
 // ─── Committed Draw (global draw committed to node) ───────────────────────────
 
 function CommittedDrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d: Record<string, string>) => void; selected: boolean }) {
+  const he = useT();
   const [rotation, setRotation] = useState(Number(node.data.rotation ?? "0"));
   const imgRef = useRef<HTMLImageElement>(null);
   const w = Number(node.data.w ?? 200);
@@ -956,7 +957,7 @@ function CommittedDrawCard({ node, onChange, selected }: { node: BoardNode; onCh
             onMouseDown={startRotate}
             style={{ position: "absolute", left: w / 2 - 11, top: -32, zIndex: 30, cursor: "grab" }}
             className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-card border border-blue-300 shadow-md text-blue-500 hover:bg-blue-50 transition-colors"
-            title="סובב"
+            title={he.moodboard.rotate}
           >
             <RotateCcw className="h-3 w-3" />
           </div>
@@ -967,7 +968,7 @@ function CommittedDrawCard({ node, onChange, selected }: { node: BoardNode; onCh
         ref={imgRef}
         src={node.data.dataUrl}
         style={{ width: w, height: h, display: "block", objectFit: "fill", transform: `rotate(${rotation}deg)`, transformOrigin: "center center", cursor: "grab" }}
-        alt="ציור"
+        alt={he.moodboard.drawingAlt}
         draggable={false}
       />
     </div>
@@ -1049,6 +1050,7 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
 export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLimit }: {
   id: string; title: string; initialNodes: string; initialEdges: string; planLimit: number;
 }) {
+  const he = useT();
   const [nodes, setNodes]       = useState<BoardNode[]>(() => { try { return JSON.parse(initialNodes || "[]"); } catch { return []; } });
   const [history, setHistory]   = useState<BoardNode[][]>([]);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
@@ -1283,10 +1285,10 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
   function addNode(type: NodeType) {
     if (isAtNodeLimit()) { setUpgradeOpen(true); return; }
     const defaults: Record<NodeType, Record<string, string>> = {
-      sticky:  { text: "הערה חדשה", color: "#fef08a" },
+      sticky:  { text: he.moodboard.newNote, color: "#fef08a" },
       image:   { url: "", alt: "" },
-      link:    { url: "", label: "קישור" },
-      heading: { text: "כותרת חדשה" },
+      link:    { url: "", label: he.moodboard.link },
+      heading: { text: he.moodboard.newHeading },
       text:    { text: "", fontSize: "14", fontFamily: "inherit", color: "#111827", bgColor: "transparent", bold: "false", italic: "false", underline: "false", align: "right" },
       table:   { cells: JSON.stringify([["", "", ""], ["", "", ""], ["", "", ""]]), rows: "3", cols: "3" },
       shape:   { shape: "rect", fill: "#3b82f6", stroke: "#1d4ed8", strokeWidth: "3", w: "200", h: "150" },
@@ -1380,12 +1382,12 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
   }
 
   const tools: { type: NodeType; Icon: React.ElementType; label: string }[] = [
-    { type: "sticky",  Icon: StickyNote,  label: "פתק"    },
-    { type: "image",   Icon: ImageIcon,   label: "תמונה"  },
-    { type: "link",    Icon: LinkIcon,    label: "קישור"  },
-    { type: "text",    Icon: Type,        label: "טקסט"   },
-    { type: "table",   Icon: Table2,      label: "טבלה"   },
-    { type: "shape",   Icon: Square,      label: "צורה"   },
+    { type: "sticky",  Icon: StickyNote,  label: he.moodboard.stickyNote },
+    { type: "image",   Icon: ImageIcon,   label: he.moodboard.image     },
+    { type: "link",    Icon: LinkIcon,    label: he.moodboard.link      },
+    { type: "text",    Icon: Type,        label: he.moodboard.text      },
+    { type: "table",   Icon: Table2,      label: he.moodboard.table     },
+    { type: "shape",   Icon: Square,      label: he.moodboard.shape     },
   ];
 
   return (
@@ -1393,7 +1395,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
     <UpgradeDialog
       open={upgradeOpen}
       onClose={() => setUpgradeOpen(false)}
-      feature="פריטים בלוח תוכן"
+      feature={he.moodboard.upgradeFeature}
       limit={planLimit}
     />
     <div className="w-full h-full flex flex-col bg-[#f4f4f5]" dir="ltr">
@@ -1401,7 +1403,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
       {/* Top bar */}
       <div className="flex items-center gap-3 px-4 py-3 bg-card border-b border-border shadow-sm z-10 flex-shrink-0" dir="rtl">
         <Link href="/moodboard" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <ArrowRight className="h-4 w-4" />חזרה
+          <ArrowRight className="h-4 w-4" />{he.moodboard.back}
         </Link>
         <div className="h-4 w-px bg-gray-200" />
         {editingTitle
@@ -1411,9 +1413,9 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
           : <button onClick={() => setET(true)} className="flex-1 text-right text-base font-semibold text-foreground hover:text-muted-foreground truncate min-w-0">{title}</button>
         }
         <div className="flex items-center gap-1.5 text-xs shrink-0">
-          {saveState === "saving"  && <><Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" /><span className="text-muted-foreground">שומר...</span></>}
-          {saveState === "saved"   && <><Check   className="h-3.5 w-3.5 text-emerald-500" /><span className="text-muted-foreground">נשמר</span></>}
-          {saveState === "unsaved" && <span className="text-orange-500">לא נשמר</span>}
+          {saveState === "saving"  && <><Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" /><span className="text-muted-foreground">{he.moodboard.saving}</span></>}
+          {saveState === "saved"   && <><Check   className="h-3.5 w-3.5 text-emerald-500" /><span className="text-muted-foreground">{he.moodboard.saved}</span></>}
+          {saveState === "unsaved" && <span className="text-orange-500">{he.moodboard.unsaved}</span>}
         </div>
       </div>
 
@@ -1423,7 +1425,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
         {/* Left toolbar */}
         <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 bg-card border border-border rounded-2xl shadow-lg p-2">
           {!drawMode && <>
-            <p className="text-[8px] font-semibold uppercase tracking-widest text-muted-foreground text-center mb-0.5">הוסף</p>
+            <p className="text-[8px] font-semibold uppercase tracking-widest text-muted-foreground text-center mb-0.5">{he.moodboard.add}</p>
             {tools.map(({ type, Icon, label }) => (
               <button key={type} onClick={() => addNode(type)}
                 className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
@@ -1435,27 +1437,27 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
             <button onClick={() => { setDrawMode(true); setSelId(null); setMultiSel(new Set()); }}
               className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground">
               <Pencil className="h-4 w-4" />
-              <span className="text-[9px] font-medium">ציור</span>
+              <span className="text-[9px] font-medium">{he.moodboard.draw}</span>
             </button>
             <div className="h-px bg-muted my-0.5" />
           </>}
 
           {drawMode && <>
-            <p className="text-[8px] font-semibold uppercase tracking-widest text-blue-500 text-center mb-0.5">ציור</p>
+            <p className="text-[8px] font-semibold uppercase tracking-widest text-blue-500 text-center mb-0.5">{he.moodboard.draw}</p>
             <button onClick={() => setPenTool("pen")}
               className={`flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 transition-colors ${penTool === "pen" ? "bg-blue-50 text-blue-600" : "hover:bg-muted text-muted-foreground"}`}>
               <Pencil className="h-4 w-4" />
-              <span className="text-[9px] font-medium">עט</span>
+              <span className="text-[9px] font-medium">{he.moodboard.pen}</span>
             </button>
             <button onClick={() => setPenTool("eraser")}
               className={`flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 transition-colors ${penTool === "eraser" ? "bg-blue-50 text-blue-600" : "hover:bg-muted text-muted-foreground"}`}>
               <Eraser className="h-4 w-4" />
-              <span className="text-[9px] font-medium">מחק</span>
+              <span className="text-[9px] font-medium">{he.moodboard.eraser}</span>
             </button>
             <label className="flex flex-col items-center gap-0.5 w-12 cursor-pointer">
               <input type="color" value={penColor} onChange={e => setPenColor(e.target.value)}
                 className="w-7 h-7 rounded cursor-pointer border border-border" />
-              <span className="text-[9px] text-muted-foreground">צבע</span>
+              <span className="text-[9px] text-muted-foreground">{he.moodboard.color}</span>
             </label>
             {[2, 4, 8, 14].map(w => (
               <button key={w} onClick={() => setPenWidth(w)}
@@ -1466,14 +1468,14 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
             <button onClick={() => {
               const ctx = drawCanvasRef.current?.getContext("2d");
               if (ctx && drawCanvasRef.current) { ctx.clearRect(0, 0, drawCanvasRef.current.width, drawCanvasRef.current.height); }
-            }} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-muted text-muted-foreground" title="נקה">
+            }} className="flex items-center justify-center w-12 h-7 rounded-xl hover:bg-muted text-muted-foreground" title={he.moodboard.clear}>
               <RotateCcw className="h-3.5 w-3.5" />
             </button>
             <div className="h-px bg-muted my-0.5" />
             <button onClick={exitDrawMode}
               className="flex flex-col items-center gap-0.5 w-12 rounded-xl py-1.5 hover:bg-muted text-muted-foreground">
               <MousePointer2 className="h-4 w-4" />
-              <span className="text-[9px] font-medium">סיים</span>
+              <span className="text-[9px] font-medium">{he.moodboard.finish}</span>
             </button>
           </>}
 
@@ -1491,7 +1493,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
             else { setNodes(prev => prev.filter(n => n.id !== selectedId)); setSelId(null); }
           }}
             className="absolute top-3 right-3 z-20 flex items-center gap-1.5 rounded-xl bg-red-50 border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100 transition-colors shadow-sm">
-            <Trash2 className="h-3.5 w-3.5" />{multiSel.size > 1 ? `מחק (${multiSel.size})` : "מחק"} <span className="opacity-50 text-[10px]">Del</span>
+            <Trash2 className="h-3.5 w-3.5" />{multiSel.size > 1 ? `${he.moodboard.deleteNode} (${multiSel.size})` : he.moodboard.deleteNode} <span className="opacity-50 text-[10px]">Del</span>
           </button>
         )}
 

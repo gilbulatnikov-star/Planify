@@ -3,8 +3,10 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { useState } from "react";
 import { ImageIcon } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function ImageNode({ data, selected }: NodeProps) {
+  const he = useT();
   const d = data as { url: string; alt: string };
   const [url, setUrl] = useState(d.url ?? "");
   const [alt, setAlt] = useState(d.alt ?? "");
@@ -27,7 +29,7 @@ export function ImageNode({ data, selected }: NodeProps) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={url}
-            alt={alt || "תמונה"}
+            alt={alt || he.moodboard.imageAlt}
             className="w-full object-cover max-h-64"
             onError={() => setEditing(true)}
             onDoubleClick={() => setEditing(true)}
@@ -47,7 +49,7 @@ export function ImageNode({ data, selected }: NodeProps) {
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="הדבק קישור לתמונה..."
+            placeholder={he.moodboard.pasteImageLink}
             dir="rtl"
             className="nodrag w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
           />
@@ -55,7 +57,7 @@ export function ImageNode({ data, selected }: NodeProps) {
             type="text"
             value={alt}
             onChange={(e) => setAlt(e.target.value)}
-            placeholder="תיאור (אופציונלי)"
+            placeholder={he.moodboard.descriptionOptional}
             dir="rtl"
             className="nodrag w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
           />
@@ -64,7 +66,7 @@ export function ImageNode({ data, selected }: NodeProps) {
               onClick={() => setEditing(false)}
               className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-background hover:bg-foreground/90 transition-colors nodrag"
             >
-              הצג תמונה
+              {he.moodboard.showImage}
             </button>
           )}
         </div>

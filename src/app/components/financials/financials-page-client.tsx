@@ -963,7 +963,7 @@ export function FinancialsPageClient({
                 onClick={(e) => { e.preventDefault(); window.location.href = "/subscriptions"; }}
                 className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
               >
-                ניהול הוצאות קבועות ←
+                {he.financialPage.manageFixedExpenses}
               </a>
             </div>
             <Card className="glass-card overflow-hidden">
@@ -972,11 +972,11 @@ export function FinancialsPageClient({
                 <Table>
                   <TableHeader>
                     <TableRow className="border-border hover:bg-transparent">
-                      <TableHead className="text-muted-foreground">שם השירות</TableHead>
-                      <TableHead className="hidden sm:table-cell text-muted-foreground">מחזור</TableHead>
-                      <TableHead className="text-muted-foreground">עלות חודשית</TableHead>
-                      <TableHead className="hidden sm:table-cell text-muted-foreground">חיוב הבא</TableHead>
-                      <TableHead className="text-muted-foreground">סטטוס</TableHead>
+                      <TableHead className="text-muted-foreground">{he.financialPage.serviceName}</TableHead>
+                      <TableHead className="hidden sm:table-cell text-muted-foreground">{he.financialPage.cycle}</TableHead>
+                      <TableHead className="text-muted-foreground">{he.financialPage.monthlyCost}</TableHead>
+                      <TableHead className="hidden sm:table-cell text-muted-foreground">{he.financialPage.nextBilling}</TableHead>
+                      <TableHead className="text-muted-foreground">{he.common.status}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -990,13 +990,13 @@ export function FinancialsPageClient({
                           </TableCell>
                           <TableCell className="hidden sm:table-cell">
                             <Badge variant="outline" className={sub.billingCycle === "yearly" ? "border-purple-200 text-purple-700" : "border-cyan-200 text-cyan-700"}>
-                              {sub.billingCycle === "yearly" ? "שנתי" : "חודשי"}
+                              {sub.billingCycle === "yearly" ? he.subscriptions.cycles.yearly : he.subscriptions.cycles.monthly}
                             </Badge>
                           </TableCell>
                           <TableCell className="font-medium text-red-500">
                             {formatCurrency(monthlyCost)}
                             {sub.billingCycle === "yearly" && (
-                              <span className="text-xs text-muted-foreground mr-1">({formatCurrency(sub.amount)}/שנה)</span>
+                              <span className="text-xs text-muted-foreground mr-1">({formatCurrency(sub.amount)}{he.financialPage.perYear})</span>
                             )}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-muted-foreground">
@@ -1004,7 +1004,7 @@ export function FinancialsPageClient({
                           </TableCell>
                           <TableCell>
                             <Badge className={sub.status === "active" ? "bg-emerald-50 text-emerald-700 border-0" : "bg-muted text-muted-foreground border-0"}>
-                              {sub.status === "active" ? "פעיל" : "בוטל"}
+                              {sub.status === "active" ? he.subscriptions.statuses.active : he.subscriptions.statuses.cancelled}
                             </Badge>
                           </TableCell>
                         </TableRow>
@@ -1013,7 +1013,7 @@ export function FinancialsPageClient({
                     {subscriptions.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                          אין הוצאות קבועות
+                          {he.financialPage.noFixedExpenses}
                         </TableCell>
                       </TableRow>
                     )}

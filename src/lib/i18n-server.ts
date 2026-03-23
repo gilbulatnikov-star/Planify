@@ -1,16 +1,15 @@
 import { auth } from "@/auth";
-import { he } from "./he";
-import { en } from "./en";
+import { he as heTranslations } from "./he";
+import { en as enTranslations } from "./en";
+import type { Locale } from "./i18n";
 
-/** Server-side translation helper — reads locale from session */
-export async function getT() {
+export async function getLocale(): Promise<Locale> {
   const session = await auth();
-  const locale = session?.user?.locale ?? "he";
-  return locale === "en" ? en : he;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return ((session?.user as any)?.locale as Locale) ?? "he";
 }
 
-/** Server-side locale getter */
-export async function getLocale() {
-  const session = await auth();
-  return (session?.user?.locale ?? "he") as "he" | "en";
+export async function getT() {
+  const locale = await getLocale();
+  return locale === "en" ? enTranslations : heTranslations;
 }

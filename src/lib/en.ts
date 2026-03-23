@@ -1103,6 +1103,13 @@ export const en = {
       "January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December",
     ],
+    manageFixedExpenses: "Manage fixed expenses ←",
+    serviceName: "Service Name",
+    cycle: "Cycle",
+    monthlyCost: "Monthly Cost",
+    nextBilling: "Next Billing",
+    perYear: "/year",
+    noFixedExpenses: "No fixed expenses",
   },
 
   // Document upload dialog

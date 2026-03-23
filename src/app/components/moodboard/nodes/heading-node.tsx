@@ -2,10 +2,12 @@
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { useState } from "react";
+import { useT } from "@/lib/i18n";
 
 export function HeadingNode({ data, selected }: NodeProps) {
+  const he = useT();
   const d = data as { text: string; size: string };
-  const [text, setText] = useState(d.text ?? "כותרת");
+  const [text, setText] = useState(d.text ?? he.moodboard.heading);
 
   d.text = text;
 
@@ -24,7 +26,7 @@ export function HeadingNode({ data, selected }: NodeProps) {
         dir="rtl"
         className="nodrag bg-transparent outline-none text-2xl font-black text-foreground placeholder-muted-foreground min-w-[120px]"
         onMouseDown={(e) => e.stopPropagation()}
-        placeholder="כותרת..."
+        placeholder={he.moodboard.headingPlaceholder}
       />
     </div>
   );
