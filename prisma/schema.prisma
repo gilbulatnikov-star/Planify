@@ -21,6 +21,7 @@ model User {
   primaryGoal         String?   // shoots_gear, retainer, financials, scripts
   teamSize            String?   // solo, small, studio
   onboardingCompleted Boolean   @default(false)
+  locale              String    @default("he") // "he" | "en"
 
   // Billing & subscription
   subscriptionPlan    String    @default("FREE")    // FREE | MONTHLY | ANNUAL

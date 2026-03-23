@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ContactDialog } from "./contact-dialog";
 import { DeleteContactDialog } from "./delete-contact-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 type ContactData = {
   id: string;
@@ -62,6 +62,7 @@ const PRESET_CATEGORIES_LIST = ["editor", "stills_photographer", "video_photogra
 const PRESET_SET = new Set<string>(PRESET_CATEGORIES_LIST);
 
 export function ContactsPageClient({ contacts, planLimit, projects }: { contacts: ContactData[]; planLimit: number; projects: { id: string; title: string }[] }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingContact, setEditingContact] = useState<ContactData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);

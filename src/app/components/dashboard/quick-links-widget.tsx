@@ -24,7 +24,7 @@ import {
   Bookmark,
   type LucideIcon,
 } from "lucide-react";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import {
   createQuickLink,
   deleteQuickLink,
@@ -62,6 +62,7 @@ function getIcon(iconName: string): LucideIcon {
 }
 
 export function QuickLinksWidget({ initialLinks }: QuickLinksWidgetProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [showForm, setShowForm] = useState(false);

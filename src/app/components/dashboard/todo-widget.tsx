@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { CheckSquare, Trash2 } from "lucide-react";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import {
   createTodo,
   toggleTodo,
@@ -25,6 +25,7 @@ interface TodoWidgetProps {
 }
 
 export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [newTask, setNewTask] = useState("");

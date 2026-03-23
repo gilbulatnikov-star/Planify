@@ -25,7 +25,7 @@ import {
   createTravelEntry,
   updateTravelEntry,
 } from "@/lib/actions/travel-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 interface TravelEntryDialogProps {
   entry?: {
@@ -61,6 +61,7 @@ export function TravelEntryDialog({
   open,
   onOpenChange,
 }: TravelEntryDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!entry;

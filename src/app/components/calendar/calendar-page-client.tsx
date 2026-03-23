@@ -34,7 +34,7 @@ import { Button } from "@/components/ui/button";
 import { ContentDialog } from "./content-dialog";
 import { DeleteContentDialog } from "./delete-content-dialog";
 import { CalendarExportStudio } from "./calendar-export-studio";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -96,6 +96,7 @@ export function CalendarPageClient({
   activeClientId: string | null;
   activeClientName: string | null;
 }) {
+  const he = useT();
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date(initialMonth));
   const [selectedClientId, setSelectedClientId] = useState<string | null>(activeClientId);

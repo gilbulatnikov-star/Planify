@@ -36,24 +36,7 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { he } from "@/lib/he";
-
-const navItems = [
-  { href: "/", label: he.nav.dashboard, icon: LayoutDashboard, tourId: "nav-dashboard" },
-  { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
-  { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
-  { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
-  { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
-  { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
-  { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
-  { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
-  { href: "/tasks", label: "משימות", icon: ListTodo, tourId: "nav-tasks" },
-];
-
-const financialsSubItems = [
-  { href: "/financials", label: "חשבוניות והצעות מחיר", icon: Receipt },
-  { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard },
-];
+import { useT } from "@/lib/i18n";
 
 // Shared className for all menu buttons – overrides the hardcoded text-left
 const btnBase = "!text-right transition-all duration-200";
@@ -61,10 +44,28 @@ const btnActive = `${btnBase} bg-foreground text-background font-medium shadow-s
 const btnIdle   = `${btnBase} text-muted-foreground hover:bg-muted hover:text-foreground`;
 
 export function AppSidebar() {
+  const he = useT();
   const pathname = usePathname();
   const { data: session } = useSession();
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
+
+  const navItems = [
+    { href: "/", label: he.nav.dashboard, icon: LayoutDashboard, tourId: "nav-dashboard" },
+    { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
+    { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
+    { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
+    { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
+    { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
+    { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
+    { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
+    { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
+  ];
+
+  const financialsSubItems = [
+    { href: "/financials", label: he.financial.invoices + " " + he.financial.quotes, icon: Receipt },
+    { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard },
+  ];
 
   const isFinancialsActive =
     pathname.startsWith("/financials") || pathname.startsWith("/subscriptions");

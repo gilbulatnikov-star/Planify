@@ -25,7 +25,7 @@ import {
   createSubscription,
   updateSubscription,
 } from "@/lib/actions/subscription-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 interface SubscriptionDialogProps {
   subscription?: {
@@ -64,6 +64,7 @@ export function SubscriptionDialog({
   open,
   onOpenChange,
 }: SubscriptionDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!subscription;

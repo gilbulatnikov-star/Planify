@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheatSheetDialog } from "./cheat-sheet-dialog";
 import { DeleteCheatSheetDialog } from "./delete-cheat-sheet-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 type CheatSheetData = {
   id: string;
@@ -50,6 +50,7 @@ function getCategoryColor(category: string, allCategories: string[]): string {
 }
 
 export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheetData[] }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSheet, setEditingSheet] = useState<CheatSheetData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);

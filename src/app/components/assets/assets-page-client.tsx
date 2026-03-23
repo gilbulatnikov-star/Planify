@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 import { AssetDialog } from "./asset-dialog";
 import { DeleteAssetDialog } from "./delete-asset-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 type AssetData = {
   id: string;
@@ -55,6 +55,7 @@ const typeColors: Record<string, string> = {
 const allTypes = ["music", "sfx", "font", "stock_footage"] as const;
 
 export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingAsset, setEditingAsset] = useState<AssetData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);

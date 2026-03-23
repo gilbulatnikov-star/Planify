@@ -15,7 +15,7 @@ import { ProjectDialog } from "./project-dialog";
 import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/project-config";
 import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject } from "@/lib/actions/project-actions";
 import { Input } from "@/components/ui/input";
 
@@ -90,6 +90,7 @@ export function ProjectDetailClient({
   clients: { id: string; name: string }[];
   unlinked: UnlinkedItems;
 }) {
+  const he = useT();
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [, startTransition] = useTransition();

@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ClientDialog } from "./client-dialog";
 import { DeleteClientDialog } from "./delete-client-dialog";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 type ClientData = {
   id: string;
@@ -49,6 +49,7 @@ const fadeUp = {
 
 
 export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[]; planLimit: number }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingClient, setEditingClient] = useState<ClientData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);

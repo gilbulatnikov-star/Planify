@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { createCheatSheet, updateCheatSheet } from "@/lib/actions/cheat-sheet-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 interface CheatSheetDialogProps {
   cheatSheet?: {
@@ -30,6 +30,7 @@ interface CheatSheetDialogProps {
 }
 
 export function CheatSheetDialog({ cheatSheet, open, onOpenChange }: CheatSheetDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!cheatSheet;

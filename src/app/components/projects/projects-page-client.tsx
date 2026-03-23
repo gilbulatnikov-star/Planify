@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProjectDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { getPhaseLabel, toUniversalColumn } from "@/lib/project-config";
 
@@ -57,6 +57,7 @@ export function ProjectsPageClient({
   clients: ClientOption[];
   planLimit: number;
 }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);

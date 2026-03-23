@@ -48,6 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           name: user.name,
           onboardingCompleted: user.onboardingCompleted,
           subscriptionPlan: user.subscriptionPlan,
+          locale: user.locale,
           createdAt: user.createdAt.toISOString(),
         };
       },
@@ -71,26 +72,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.sub                = dbUser.id;
         token.onboardingCompleted = dbUser.onboardingCompleted;
         token.subscriptionPlan   = dbUser.subscriptionPlan;
+        token.locale             = dbUser.locale;
         token.createdAt          = dbUser.createdAt.toISOString();
       } else if (user) {
         // Credentials sign-in
         token.onboardingCompleted = user.onboardingCompleted ?? false;
         token.subscriptionPlan   = user.subscriptionPlan ?? "FREE";
+        token.locale             = user.locale ?? "he";
         token.createdAt          = user.createdAt ?? new Date().toISOString();
       } else if (token.sub) {
         // Subsequent requests — refresh plan from DB so plan upgrades take effect immediately
         const fresh = await prisma.user.findUnique({
           where: { id: token.sub },
-          select: { subscriptionPlan: true, onboardingCompleted: true },
+          select: { subscriptionPlan: true, onboardingCompleted: true, locale: true },
         });
         if (fresh) {
           token.subscriptionPlan   = fresh.subscriptionPlan;
           token.onboardingCompleted = fresh.onboardingCompleted;
+          token.locale             = fresh.locale;
         }
       }
       if (trigger === "update") {
         if (session?.onboardingCompleted !== undefined) token.onboardingCompleted = session.onboardingCompleted;
         if (session?.subscriptionPlan    !== undefined) token.subscriptionPlan    = session.subscriptionPlan;
+        if (session?.locale              !== undefined) token.locale              = session.locale;
       }
       return token;
     },
@@ -99,6 +104,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (token.sub) session.user.id = token.sub;
       session.user.onboardingCompleted = token.onboardingCompleted ?? false;
       session.user.subscriptionPlan    = token.subscriptionPlan    ?? "FREE";
+      session.user.locale              = token.locale              ?? "he";
       session.user.createdAt           = token.createdAt           ?? "";
       return session;
     },

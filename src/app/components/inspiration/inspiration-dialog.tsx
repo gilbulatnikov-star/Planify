@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createInspiration, updateInspiration } from "@/lib/actions/inspiration-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import type { CategoryData } from "./inspiration-page-client";
 
 interface InspirationDialogProps {
@@ -40,6 +40,7 @@ interface InspirationDialogProps {
 }
 
 export function InspirationDialog({ inspiration, categories, open, onOpenChange }: InspirationDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState<string | null>(null);

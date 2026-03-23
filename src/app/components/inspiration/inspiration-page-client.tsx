@@ -11,7 +11,7 @@ import { InspirationDialog } from "./inspiration-dialog";
 import { DeleteInspirationDialog } from "./delete-inspiration-dialog";
 import { CategoryManagerDialog } from "./category-manager-dialog";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 
 type InspirationData = {
   id: string;
@@ -79,6 +79,7 @@ export function InspirationPageClient({
   categories: CategoryData[];
   planLimit: number;
 }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingInspiration, setEditingInspiration] = useState<InspirationData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);

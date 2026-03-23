@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { EquipmentDialog } from "./equipment-dialog";
 import { DeleteEquipmentDialog } from "./delete-equipment-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { formatCurrency } from "@/lib/utils/format";
 
 const statusStyles: Record<string, string> = {
@@ -57,6 +57,7 @@ export function EquipmentPageClient({
 }: {
   equipment: EquipmentData[];
 }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<EquipmentData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{

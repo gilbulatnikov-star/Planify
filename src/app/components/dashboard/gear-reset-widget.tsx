@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Wrench, HardDrive, Film, Battery } from "lucide-react";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { toggleGearStatus } from "@/lib/actions/widget-actions";
 import { type LucideIcon } from "lucide-react";
 
@@ -26,6 +26,7 @@ const gearIconMap: Record<string, LucideIcon> = {
 };
 
 export function GearResetWidget({ initialStatuses }: GearResetWidgetProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 

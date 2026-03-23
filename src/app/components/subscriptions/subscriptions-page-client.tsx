@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SubscriptionDialog } from "./subscription-dialog";
 import { DeleteSubscriptionDialog } from "./delete-subscription-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 
 const stagger = {
@@ -69,6 +69,7 @@ export function SubscriptionsPageClient({
   subscriptions: SubscriptionData[];
   totalMonthlyCost: number;
 }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<SubscriptionData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{

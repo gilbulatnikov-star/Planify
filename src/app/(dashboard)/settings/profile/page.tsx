@@ -1,15 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
-import { User, Mail, Shield, Eye, EyeOff, Check, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe } from "lucide-react";
+import { updateLocale } from "@/lib/actions/user-actions";
+import { useLocale } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ProfileSettingsPage() {
-  const { data: session } = useSession();
+  const { data: session, update: updateSession } = useSession();
   const user = session?.user;
+  const router = useRouter();
+  const currentLocale = useLocale();
+  const [isPendingLocale, startLocaleTransition] = useTransition();
+
+  function handleLocaleChange(newLocale: "he" | "en") {
+    startLocaleTransition(async () => {
+      await updateLocale(newLocale);
+      await updateSession({ locale: newLocale });
+      router.refresh();
+    });
+  }
 
   const [currentPassword, setCurrentPassword]   = useState("");
   const [newPassword, setNewPassword]           = useState("");
@@ -105,6 +119,39 @@ export default function ProfileSettingsPage() {
               <p className="text-xs text-muted-foreground font-medium">אבטחה</p>
               <p className="text-sm text-muted-foreground mt-0.5">סיסמה מוצפנת · אימות בכניסה</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Language selector */}
+      <div className="rounded-2xl border border-border bg-card shadow-sm px-6 py-5">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Globe className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-semibold text-foreground">שפה / Language</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{currentLocale === "he" ? "עברית" : "English"}</p>
+            </div>
+          </div>
+          <div className="flex gap-1.5">
+            <button
+              onClick={() => handleLocaleChange("he")}
+              disabled={isPendingLocale}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                currentLocale === "he" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              עברית
+            </button>
+            <button
+              onClick={() => handleLocaleChange("en")}
+              disabled={isPendingLocale}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors ${
+                currentLocale === "en" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              English
+            </button>
           </div>
         </div>
       </div>

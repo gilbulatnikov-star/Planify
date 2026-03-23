@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { TravelEntryDialog } from "./travel-entry-dialog";
 import { DeleteTravelDialog } from "./delete-travel-dialog";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { formatDate } from "@/lib/utils/format";
 
 const stagger = {
@@ -68,6 +68,7 @@ export function TravelLogPageClient({
   clients: ClientOption[];
   projects: ProjectOption[];
 }) {
+  const he = useT();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<TravelLogData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{

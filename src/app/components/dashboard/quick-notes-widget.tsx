@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StickyNote } from "lucide-react";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { updateQuickNote } from "@/lib/actions/widget-actions";
 
 interface QuickNotesWidgetProps {
@@ -11,6 +11,7 @@ interface QuickNotesWidgetProps {
 }
 
 export function QuickNotesWidget({ initialContent }: QuickNotesWidgetProps) {
+  const he = useT();
   const [content, setContent] = useState(initialContent);
   const [saved, setSaved] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);

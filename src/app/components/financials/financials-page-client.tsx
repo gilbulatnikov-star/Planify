@@ -53,7 +53,7 @@ import {
   updateInvoiceStatus,
   updateQuoteStatus,
 } from "@/lib/actions/financial-actions";
-import { he } from "@/lib/he";
+import { useT } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 
 const invoiceStatusStyles: Record<string, string> = {
@@ -176,6 +176,7 @@ export function FinancialsPageClient({
   subscriptions: SubscriptionData[];
   totalMonthlyCost: number;
 }) {
+  const he = useT();
   const [isPending, startTransition] = useTransition();
 
   // Month navigation
