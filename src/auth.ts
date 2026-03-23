@@ -9,6 +9,7 @@ declare module "next-auth" {
   interface User {
     onboardingCompleted: boolean;
     subscriptionPlan?: string;
+    locale?: string;
     createdAt?: string;
   }
   interface Session {
@@ -16,6 +17,7 @@ declare module "next-auth" {
       id: string;
       onboardingCompleted: boolean;
       subscriptionPlan: string;
+      locale: string;
       createdAt: string;
     } & import("next-auth").DefaultSession["user"];
   }

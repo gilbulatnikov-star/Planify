@@ -19,7 +19,7 @@ import {
   getTodos,
 } from "@/lib/actions/widget-actions";
 import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
-import { he } from "@/lib/he";
+import { getT } from "@/lib/i18n-server";
 import { getPhaseLabel } from "@/lib/project-config";
 import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
@@ -35,12 +35,13 @@ export default async function DashboardPage() {
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const todosLimit = getLimitsForPlan(plan).todos;
 
-  const [stats, recentProjects, upcomingContent, quickNote, todos] = await Promise.all([
+  const [stats, recentProjects, upcomingContent, quickNote, todos, he] = await Promise.all([
     getDashboardStats(),
     getRecentProjects(),
     getUpcomingContent(),
     getOrCreateQuickNote(),
     getTodos(),
+    getT(),
   ]);
 
   return (

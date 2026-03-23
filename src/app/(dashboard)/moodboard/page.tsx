@@ -2,19 +2,22 @@ import { getMoodboards, createMoodboard } from "@/lib/actions/moodboard-actions"
 import { getProjects } from "@/lib/actions/project-actions";
 import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
+import { getT, getLocale } from "@/lib/i18n-server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LayoutTemplate, Pencil } from "lucide-react";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import { DeleteMoodboardButton } from "@/app/components/moodboard/delete-moodboard-button";
 import { NewMoodboardButton } from "@/app/components/moodboard/new-moodboard-button";
 import { MoodboardProjectLink } from "@/app/components/moodboard/moodboard-project-link";
 
 export default async function MoodboardListPage() {
-  const [boards, session, projects] = await Promise.all([getMoodboards(), auth(), getProjects()]);
+  const [boards, session, projects, t, locale] = await Promise.all([getMoodboards(), auth(), getProjects(), getT(), getLocale()]);
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const limits = getLimitsForPlan(plan);
+  const dateFnsLocale = locale === "en" ? enUS : heLocale;
   const canCreate = limits.moodboards === -1 || boards.length < limits.moodboards;
 
   async function handleCreate() {
@@ -28,7 +31,7 @@ export default async function MoodboardListPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Moodboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">עצב ואסוף השראה ויזואלית לפרויקטים שלך</p>
+          <p className="text-sm text-muted-foreground mt-1">{t.moodboard.subtitle}</p>
         </div>
         <NewMoodboardButton action={handleCreate} canCreate={canCreate} planLimit={limits.moodboards} />
       </div>
@@ -39,10 +42,10 @@ export default async function MoodboardListPage() {
             <LayoutTemplate className="h-8 w-8 text-muted-foreground" />
           </div>
           <div>
-            <p className="text-base font-semibold text-foreground">אין Moodboards עדיין</p>
-            <p className="text-sm text-muted-foreground mt-1">צור Moodboard חדש כדי להתחיל לאסוף השראה</p>
+            <p className="text-base font-semibold text-foreground">{t.moodboard.noMoodboards}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t.moodboard.noMoodboardsDesc}</p>
           </div>
-          <NewMoodboardButton action={handleCreate} canCreate={canCreate} planLimit={limits.moodboards} label="צור Moodboard ראשון" />
+          <NewMoodboardButton action={handleCreate} canCreate={canCreate} planLimit={limits.moodboards} label={t.moodboard.createFirst} />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -59,7 +62,7 @@ export default async function MoodboardListPage() {
                 <div className="p-4">
                   <p className="font-semibold text-foreground truncate">{board.title}</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    עודכן {format(new Date(board.updatedAt), "d בMMM yyyy", { locale: heLocale })}
+                    {t.moodboard.updated} {format(new Date(board.updatedAt), "d MMM yyyy", { locale: dateFnsLocale })}
                   </p>
                 </div>
               </Link>
