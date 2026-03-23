@@ -685,19 +685,19 @@ export function ScriptEditorClient({
     <div className="flex h-[calc(100vh-80px)] flex-col">
 
       {/* ── Top Bar ── */}
-      <div className="flex items-center gap-3 border-b border-border bg-card px-4 py-3 shrink-0">
+      <div className="flex flex-wrap items-center gap-2 md:gap-3 border-b border-border bg-card px-3 md:px-4 py-2.5 md:py-3 shrink-0">
         <button onClick={() => router.push("/scripts")}
-          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          <ArrowRight className="h-4 w-4" /><span>תסריטים</span>
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
+          <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">תסריטים</span>
         </button>
-        <span className="text-muted-foreground">/</span>
+        <span className="text-muted-foreground hidden sm:inline">/</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 bg-transparent text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground"
+          className="flex-1 min-w-0 bg-transparent text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground"
           placeholder="כותרת התסריט..." />
-        <div className="flex items-center gap-2">
-          {/* Platform / Category picker */}
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          {/* Platform / Category picker — hidden on small mobile */}
           {customPlatformMode ? (
-            <div className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-2.5 py-1.5">
+            <div className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border bg-muted px-2.5 py-1.5">
               <Megaphone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <input
                 value={platform}
@@ -712,7 +712,7 @@ export function ScriptEditorClient({
               </button>
             </div>
           ) : (
-            <div className="relative">
+            <div className="relative hidden sm:block">
               {showPlatformMenu && <div className="fixed inset-0 z-40" onClick={() => setShowPlatformMenu(false)} />}
               <button onClick={() => setShowPlatformMenu((v) => !v)}
                 className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">
@@ -737,9 +737,9 @@ export function ScriptEditorClient({
               )}
             </div>
           )}
-          {/* Project link */}
+          {/* Project link — hidden on small mobile */}
           {projects.length > 0 && (
-            <div className="relative">
+            <div className="relative hidden sm:block">
               {showProjectMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProjectMenu(false)} />}
               <button
                 onClick={() => setShowProjectMenu((v) => !v)}
@@ -773,24 +773,24 @@ export function ScriptEditorClient({
 
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Save className="h-3.5 w-3.5" />}
-            <span>{saving ? "שומר..." : saved ? "נשמר" : "שמור אוטומטי"}</span>
+            <span className="hidden sm:inline">{saving ? "שומר..." : saved ? "נשמר" : "שמור אוטומטי"}</span>
           </div>
         </div>
       </div>
 
       {/* ── Tab Bar ── */}
-      <div className="flex items-center border-b border-border bg-card px-4 shrink-0">
+      <div className="flex items-center border-b border-border bg-card px-2 md:px-4 shrink-0">
         {TABS.map(({ id, label, Icon, badge }) => {
           const locked = id === "callsheet" && !isPro;
           return (
             <button key={id}
               onClick={() => locked ? setCallsheetUpgradeOpen(true) : setActiveTab(id)}
-              className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === id ? "border-gray-900 text-foreground" : "border-transparent text-muted-foreground hover:text-muted-foreground"
+              className={`relative flex items-center gap-1.5 px-3 md:px-4 py-2.5 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+                activeTab === id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-muted-foreground"
               }`}>
               <Icon className="h-3.5 w-3.5" />
-              {label}
-              {locked && <span className="text-amber-400 text-[10px]">★ פרו</span>}
+              <span className="hidden sm:inline">{label}</span>
+              {locked && <span className="text-amber-400 text-[10px]">★</span>}
               {!locked && badge !== undefined && badge > 0 && (
                 <span className="rounded-full bg-muted text-muted-foreground px-1.5 py-0.5 text-[10px] font-medium">{badge}</span>
               )}
@@ -806,7 +806,7 @@ export function ScriptEditorClient({
         {activeTab === "script" && (
           <>
             <div className="relative flex flex-1 flex-col overflow-hidden">
-              <div className="flex-1 overflow-auto bg-muted p-3 md:p-6">
+              <div className={`overflow-auto bg-muted p-3 md:p-6 ${chatOpen ? "shrink-0 md:flex-1" : "flex-1"}`}>
                 <textarea
                   ref={textareaRef}
                   defaultValue={content}
@@ -845,8 +845,8 @@ export function ScriptEditorClient({
                 <ChevronDown className={`mr-auto h-3.5 w-3.5 transition-transform duration-300 ${chatOpen ? "rotate-180" : ""}`} />
               </button>
 
-              <div style={{ maxHeight: chatOpen ? "288px" : "0px" }}
-                className="shrink-0 flex flex-col border-t border-border bg-card overflow-hidden transition-[max-height] duration-300 ease-in-out">
+              <div style={{ maxHeight: chatOpen ? "600px" : "0px" }}
+                className={`${chatOpen ? "flex-1 md:flex-none" : ""} flex flex-col border-t border-border bg-card overflow-hidden transition-[max-height] duration-300 ease-in-out`}>
                 <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                     <MessageSquare className="h-4 w-4 text-muted-foreground" />עוזר כתיבה
@@ -888,111 +888,57 @@ export function ScriptEditorClient({
               </div>
             </div>
 
-            {/* Mobile AI bottom sheet */}
-            <div className={`md:hidden absolute bottom-0 left-0 right-0 z-40 bg-card border-t border-border rounded-t-2xl shadow-2xl transition-all duration-300 ease-out ${aiSidebarOpen ? "max-h-[70vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none"} overflow-hidden flex flex-col`}>
-              <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
-                    <Sparkles className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">AI Copilot</span>
-                </div>
-                <button onClick={() => setAiSidebarOpen(false)} className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="flex flex-1 flex-col gap-3 overflow-auto p-4">
-                <div className="rounded-xl border border-border bg-muted p-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-semibold text-foreground">צור תסריט</span>
-                  </div>
-                  <p className="mb-3 text-xs text-muted-foreground">על מה הוידאו? לאיזה קהל? מה הטון?</p>
-                  {aiMode === "generate" ? (
-                    <div className="space-y-2">
-                      <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
-                        placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
-                        className="w-full min-h-[85px] resize-none rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground outline-none focus:border-gray-400 placeholder:text-muted-foreground font-[inherit]" />
-                      <div className="flex gap-2">
-                        <Button onClick={() => callAI("generate")} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
-                          {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
-                        </Button>
-                        <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <Button onClick={() => setAiMode("generate")} size="sm" variant="outline" className="w-full gap-1.5 text-xs">
-                      <Sparkles className="h-3.5 w-3.5" />התחל מפרומפט
-                    </Button>
-                  )}
-                </div>
-                <div className="rounded-xl border border-border bg-muted p-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <Wand2 className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-semibold text-foreground">שדרג תסריט</span>
-                  </div>
-                  <p className="mb-3 text-xs text-muted-foreground">ה-AI ישפר הוק, פייסינג וניסוח.</p>
-                  <Button onClick={() => callAI("upgrade")} disabled={aiLoading || !content.trim()} size="sm" variant="outline" className="w-full gap-1.5 text-xs">
-                    {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}שדרג עם AI
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile AI floating button */}
-            {!aiSidebarOpen && (
-              <button onClick={() => setAiSidebarOpen(true)} className="md:hidden absolute bottom-14 left-4 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:scale-105 active:scale-95 transition-transform">
-                <Sparkles className="h-4.5 w-4.5" />
+            {/* AI floating menu — both desktop and mobile */}
+            <div className="absolute top-2 left-2 md:top-4 md:left-4 z-30">
+              <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
+                className="flex h-9 items-center gap-1.5 rounded-xl bg-foreground text-white px-3 text-xs font-medium shadow-lg hover:bg-foreground/90 transition-colors">
+                <Sparkles className="h-3.5 w-3.5" />AI
               </button>
-            )}
-
-            {/* AI Sidebar — desktop only */}
-            <div className="hidden md:flex w-72 shrink-0 flex-col border-r border-border bg-card">
-              <div className="border-b border-border px-4 py-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
-                    <Sparkles className="h-3.5 w-3.5 text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground">AI Copilot</span>
-                </div>
-              </div>
-              <div className="flex flex-1 flex-col gap-3 overflow-auto p-4">
-                <div className="rounded-xl border border-border bg-muted p-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-semibold text-foreground">צור תסריט</span>
-                  </div>
-                  <p className="mb-3 text-xs text-muted-foreground">על מה הוידאו? לאיזה קהל? מה הטון?</p>
-                  {aiMode === "generate" ? (
-                    <div className="space-y-2">
-                      <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
-                        placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
-                        className="w-full min-h-[85px] resize-none rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground outline-none focus:border-gray-400 placeholder:text-muted-foreground font-[inherit]"
-                        autoFocus />
-                      <div className="flex gap-2">
-                        <Button onClick={() => callAI("generate")} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
-                          {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
-                        </Button>
-                        <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
+              {aiSidebarOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setAiSidebarOpen(false)} />
+                  <div className="absolute top-full mt-2 left-0 z-50 w-64 rounded-xl border border-border bg-card shadow-xl p-3 space-y-2.5">
+                    {aiMode === "generate" ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                          <span className="text-xs font-semibold text-foreground">צור תסריט</span>
+                        </div>
+                        <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
+                          placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
+                          className="w-full min-h-[70px] resize-none rounded-lg border border-border bg-muted px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground"
+                          autoFocus />
+                        <div className="flex gap-2">
+                          <Button onClick={() => { callAI("generate"); setAiSidebarOpen(false); }} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
+                            {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
+                          </Button>
+                          <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <Button onClick={() => setAiMode("generate")} size="sm" variant="outline" className="w-full gap-1.5 text-xs">
-                      <Sparkles className="h-3.5 w-3.5" />התחל מפרומפט
-                    </Button>
-                  )}
-                </div>
-                <div className="rounded-xl border border-border bg-muted p-4">
-                  <div className="mb-2 flex items-center gap-2">
-                    <Wand2 className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm font-semibold text-foreground">שדרג תסריט</span>
+                    ) : (
+                      <>
+                        <button onClick={() => setAiMode("generate")}
+                          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors">
+                          <Sparkles className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">צור תסריט</p>
+                            <p className="text-[10px] text-muted-foreground">מפרומפט עם AI</p>
+                          </div>
+                        </button>
+                        <button onClick={() => { callAI("upgrade"); setAiSidebarOpen(false); }}
+                          disabled={aiLoading || !content.trim()}
+                          className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors disabled:opacity-40">
+                          <Wand2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <div>
+                            <p className="text-xs font-semibold text-foreground">שדרג תסריט</p>
+                            <p className="text-[10px] text-muted-foreground">הוק, פייסינג וניסוח</p>
+                          </div>
+                        </button>
+                      </>
+                    )}
                   </div>
-                  <p className="mb-3 text-xs text-muted-foreground">ה-AI ישפר הוק, פייסינג וניסוח.</p>
-                  <Button onClick={() => callAI("upgrade")} disabled={aiLoading || !content.trim()} size="sm" variant="outline" className="w-full gap-1.5 text-xs">
-                    {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}שדרג עם AI
-                  </Button>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </>
         )}
@@ -1002,32 +948,29 @@ export function ScriptEditorClient({
           <div className="flex-1 overflow-auto bg-muted flex flex-col">
 
             {/* Toolbar */}
-            <div className="flex items-center justify-between gap-3 px-5 py-3 bg-card border-b border-border shrink-0">
-              <div>
-                <h3 className="font-semibold text-foreground">שוט ליסט — {script.title}</h3>
-                <p className="text-xs text-muted-foreground mt-0.5">{shotList.length} שוטים</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 md:px-5 py-3 bg-card border-b border-border shrink-0">
+              <div className="flex items-center justify-between sm:block">
+                <h3 className="text-sm font-semibold text-foreground truncate">שוט ליסט</h3>
+                <p className="text-xs text-muted-foreground">{shotList.length} שוטים</p>
               </div>
-              <div className="flex items-center gap-2">
-                {/* Column visibility / filter */}
+              <div className="flex items-center gap-1.5">
                 <div className="relative" data-menu>
                   <button onClick={() => { setShowColMenu((v) => !v); setShowViewMenu(false); }}
-                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                    className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
                       showColMenu ? "border-gray-900 bg-foreground text-white" : "border-border bg-card text-muted-foreground hover:bg-muted"
                     }`}>
-                    <SlidersHorizontal className="h-3.5 w-3.5" />סינון
+                    <SlidersHorizontal className="h-3.5 w-3.5" /><span className="hidden sm:inline">סינון</span>
                   </button>
                   {showColMenu && (
                     <ColumnMenu visibleCols={visibleCols} onToggle={toggleCol} onClose={() => setShowColMenu(false)} />
                   )}
                 </div>
-
-                {/* View settings */}
                 <div className="relative" data-menu>
                   <button onClick={() => { setShowViewMenu((v) => !v); setShowColMenu(false); }}
-                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-colors ${
+                    className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
                       showViewMenu ? "border-gray-900 bg-foreground text-white" : "border-border bg-card text-muted-foreground hover:bg-muted"
                     }`}>
-                    <Eye className="h-3.5 w-3.5" />תצוגה
+                    <Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline">תצוגה</span>
                   </button>
                   {showViewMenu && (
                     <ViewSettingsMenu
@@ -1041,16 +984,15 @@ export function ScriptEditorClient({
                     />
                   )}
                 </div>
-
                 {storyboardAtLimit ? (
                   <button onClick={() => setStoryboardUpgradeOpen(true)}
-                    className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-white px-3 py-2 text-xs font-medium hover:bg-amber-600 transition-colors">
-                    🔒 Pro — עוד שוטים
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-white px-2.5 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
+                    🔒 <span className="hidden sm:inline">Pro —</span> עוד שוטים
                   </button>
                 ) : (
                   <button onClick={addShot}
-                    className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-3 py-2 text-xs font-medium hover:bg-foreground/90 transition-colors">
-                    <Plus className="h-3.5 w-3.5" />הוסף שוט
+                    className="flex items-center gap-1.5 rounded-lg bg-foreground text-white px-2.5 py-1.5 text-xs font-medium hover:bg-foreground/90 transition-colors">
+                    <Plus className="h-3.5 w-3.5" /><span className="hidden sm:inline">הוסף</span> שוט
                   </button>
                 )}
               </div>
