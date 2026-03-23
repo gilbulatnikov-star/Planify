@@ -36,15 +36,17 @@ import {
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { useT } from "@/lib/i18n";
-
-// Shared className for all menu buttons – overrides the hardcoded text-left
-const btnBase = "!text-right transition-all duration-200";
-const btnActive = `${btnBase} bg-foreground text-background font-medium shadow-sm`;
-const btnIdle   = `${btnBase} text-muted-foreground hover:bg-muted hover:text-foreground`;
+import { useT, useLocale } from "@/lib/i18n";
 
 export function AppSidebar() {
   const he = useT();
+  const locale = useLocale();
+  const isRTL = locale === "he";
+
+  // Shared className for all menu buttons
+  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200`;
+  const btnActive = `${btnBase} bg-foreground text-background font-medium shadow-sm`;
+  const btnIdle   = `${btnBase} text-muted-foreground hover:bg-muted hover:text-foreground`;
   const pathname = usePathname();
   const { data: session } = useSession();
   const { state } = useSidebar();
@@ -78,7 +80,7 @@ export function AppSidebar() {
     : user?.email?.[0]?.toUpperCase() ?? "U";
 
   return (
-    <Sidebar side="right" collapsible="icon" dir="rtl">
+    <Sidebar side={isRTL ? "right" : "left"} collapsible="icon" dir={isRTL ? "rtl" : "ltr"}>
       {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-border px-3 py-3">
         <div className="flex w-full items-center gap-2">
@@ -178,19 +180,19 @@ export function AppSidebar() {
         <SidebarMenuButton
           render={<Link href="/billing" />}
           isActive={pathname.startsWith("/billing")}
-          tooltip="תוכנית המנוי"
+          tooltip={he.nav.billing}
           className={pathname.startsWith("/billing") ? btnActive : btnIdle}
         >
           <Crown className="h-4 w-4 shrink-0" />
-          <span className="truncate group-data-[collapsible=icon]:hidden">תוכנית המנוי</span>
+          <span className="truncate group-data-[collapsible=icon]:hidden">{he.common.billingPlan}</span>
         </SidebarMenuButton>
         <SidebarMenuButton
           onClick={() => signOut({ callbackUrl: "/login" })}
-          tooltip="יציאה מהמערכת"
+          tooltip={he.common.signOut}
           className={`${btnIdle} cursor-pointer`}
         >
           <LogOut className="h-4 w-4 shrink-0" />
-          <span className="truncate group-data-[collapsible=icon]:hidden">יציאה מהמערכת</span>
+          <span className="truncate group-data-[collapsible=icon]:hidden">{he.common.signOut}</span>
         </SidebarMenuButton>
       </SidebarFooter>
     </Sidebar>

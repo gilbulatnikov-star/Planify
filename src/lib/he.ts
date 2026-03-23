@@ -385,5 +385,7 @@ export const he = {
     noResults: "לא נמצאו תוצאות",
     loading: "טוען...",
     currency: "₪",
+    signOut: "יציאה מהמערכת",
+    billingPlan: "תוכנית המנוי",
   },
 } as const;

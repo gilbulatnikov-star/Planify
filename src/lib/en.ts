@@ -385,5 +385,7 @@ export const en = {
     noResults: "No results found",
     loading: "Loading...",
     currency: "₪",
+    signOut: "Sign Out",
+    billingPlan: "Subscription Plan",
   },
 } as const;
