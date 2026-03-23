@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
 import { Download, Sun, Moon, FileText } from "lucide-react";
@@ -37,8 +37,9 @@ export function ScriptCallSheet({
   const callSheetRef = useRef<HTMLDivElement>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [today, setToday] = useState("");
   const t = getTheme(darkMode);
-  const today = format(new Date(), "d MMMM yyyy", { locale: heLocale });
+  useEffect(() => { setToday(format(new Date(), "d MMMM yyyy", { locale: heLocale })); }, []);
 
   async function exportPDF() {
     if (!callSheetRef.current) return;

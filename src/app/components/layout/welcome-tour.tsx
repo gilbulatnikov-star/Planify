@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useId } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -110,7 +110,7 @@ export function WelcomeTour() {
   const [step,       setStep]       = useState(0);
   const [spotRect,   setSpotRect]   = useState<SpotRect | null>(null);
   const [tipPos,     setTipPos]     = useState<TipPos   | null>(null);
-  const maskId = useRef(`tm-${Math.random().toString(36).slice(2)}`);
+  const maskId = useId();
 
   // Compute spotlight rect and tooltip position for a given step index
   const updateSpotlight = useCallback((idx: number) => {
@@ -203,7 +203,7 @@ export function WelcomeTour() {
               style={{ width: "100vw", height: "100vh" }}
             >
               <defs>
-                <mask id={maskId.current}>
+                <mask id={maskId}>
                   <rect width="100%" height="100%" fill="white" />
                   <motion.rect
                     animate={{ x: sx, y: sy, width: sw, height: sh }}
@@ -219,7 +219,7 @@ export function WelcomeTour() {
                 width="100%"
                 height="100%"
                 fill="rgba(0,0,0,0.72)"
-                mask={`url(#${maskId.current})`}
+                mask={`url(#${maskId})`}
               />
 
               {/* Animated highlight ring */}

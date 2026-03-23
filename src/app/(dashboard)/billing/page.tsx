@@ -65,7 +65,7 @@ export default function BillingPricingPage() {
         <p className="inline-flex items-center gap-1.5 rounded-full bg-[#38b6ff]/10 px-3 py-1 text-xs font-semibold text-[#38b6ff]">
           <Crown className="h-3.5 w-3.5" /> תמחור שקוף וגמיש
         </p>
-        <h1 className="text-4xl font-black text-[#0a0a0a] leading-tight">
+        <h1 className="text-4xl font-black text-foreground leading-tight">
           הכל כלול. ללא הפתעות.
         </h1>
         <p className="text-base text-muted-foreground max-w-md mx-auto">
@@ -74,13 +74,13 @@ export default function BillingPricingPage() {
 
         {/* Billing toggle */}
         <div className="flex items-center justify-center gap-3 pt-2">
-          <span className={`text-sm font-semibold ${billing === "monthly" ? "text-[#0a0a0a]" : "text-muted-foreground"}`}>
+          <span className={`text-sm font-semibold ${billing === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>
             חודשי
           </span>
           <button
             dir="ltr"
             onClick={() => setBilling(b => b === "annual" ? "monthly" : "annual")}
-            className={`relative inline-flex h-7 w-14 shrink-0 rounded-full transition-colors duration-300 ${isAnnual ? "bg-[#38b6ff]" : "bg-gray-300"}`}
+            className={`relative inline-flex h-7 w-14 shrink-0 rounded-full transition-colors duration-300 ${isAnnual ? "bg-[#38b6ff]" : "bg-muted-foreground/30"}`}
           >
             <span
               className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-card shadow-sm ring-0 transition-transform duration-300 mt-1 ${
@@ -88,7 +88,7 @@ export default function BillingPricingPage() {
               }`}
             />
           </button>
-          <span className={`text-sm font-semibold flex items-center gap-1.5 ${billing === "annual" ? "text-[#0a0a0a]" : "text-muted-foreground"}`}>
+          <span className={`text-sm font-semibold flex items-center gap-1.5 ${billing === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
             שנתי
             <span className={`inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-black text-amber-600 transition-opacity duration-200 ${isAnnual ? "opacity-100" : "opacity-0"}`}>
               חיסכון ₪118
@@ -105,11 +105,11 @@ export default function BillingPricingPage() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted mb-5">
             <Sparkles className="h-5 w-5 text-muted-foreground" />
           </div>
-          <p className="text-xl font-black text-[#0a0a0a] mb-1">Planify חינמי</p>
+          <p className="text-xl font-black text-foreground mb-1">Planify חינמי</p>
           <p className="text-xs text-muted-foreground mb-6">ניסיון של 3 ימים</p>
 
           <div className="mb-1">
-            <span className="text-5xl font-black text-[#0a0a0a] leading-none">₪0</span>
+            <span className="text-5xl font-black text-foreground leading-none">₪0</span>
           </div>
           <p className="text-xs text-muted-foreground mb-8">ל-3 ימי ניסיון</p>
 
@@ -185,14 +185,14 @@ export default function BillingPricingPage() {
 
       {/* Comparison table */}
       <div className="mb-10 max-w-3xl mx-auto">
-        <h2 className="text-xl font-black text-[#0a0a0a] mb-5 text-center">השוואה מלאה</h2>
+        <h2 className="text-xl font-black text-foreground mb-5 text-center">השוואה מלאה</h2>
         <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           <table className="w-full" dir="rtl">
             <thead>
               <tr className="border-b border-border">
                 <th className="px-6 py-4 text-sm font-semibold text-muted-foreground text-right bg-muted">פיצ&#39;ר</th>
                 <th className="px-4 py-4 text-sm font-bold text-muted-foreground text-center bg-muted">Planify חינמי</th>
-                <th className="px-4 py-4 text-sm font-black text-[#0a0a0a] text-center bg-[#38b6ff]/5">
+                <th className="px-4 py-4 text-sm font-black text-foreground text-center bg-[#38b6ff]/5">
                   Pro {isAnnual ? "שנתי" : "חודשי"}
                 </th>
               </tr>
@@ -218,7 +218,7 @@ export default function BillingPricingPage() {
           { title: "נתונים שלך", desc: "כל הנתונים נשמרים גם לאחר הביטול." },
         ].map((item) => (
           <div key={item.title} className="rounded-2xl border border-[#38b6ff]/15 bg-[#38b6ff]/5 px-5 py-5">
-            <p className="text-sm font-bold text-[#0a0a0a] mb-1">{item.title}</p>
+            <p className="text-sm font-bold text-foreground mb-1">{item.title}</p>
             <p className="text-xs text-muted-foreground">{item.desc}</p>
           </div>
         ))}
