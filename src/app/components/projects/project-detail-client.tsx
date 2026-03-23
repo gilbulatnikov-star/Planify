@@ -16,7 +16,8 @@ import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/proje
 import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { he } from "@/lib/he";
-import { toggleProjectTask, linkItemToProject } from "@/lib/actions/project-actions";
+import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject } from "@/lib/actions/project-actions";
+import { Input } from "@/components/ui/input";
 
 type ProjectDetail = {
   id: string;
@@ -190,23 +191,45 @@ export function ProjectDetailClient({
           <ListTodo className="h-4 w-4" /> משימות
           {totalTasks > 0 && <span className="text-xs opacity-60">({completedTasks}/{totalTasks})</span>}
         </h2>
-        {project.tasks.length > 0 ? (
+        {project.tasks.length > 0 && (
           <div className="space-y-1.5">
             {project.tasks.map(task => (
-              <div key={task.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2">
+              <div key={task.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 group/task">
                 <input
                   type="checkbox"
                   checked={task.completed}
-                  onChange={() => { toggleProjectTask(task.id, !task.completed); router.refresh(); }}
+                  onChange={() => { startTransition(async () => { await toggleProjectTask(task.id, !task.completed); router.refresh(); }); }}
                   className="h-4 w-4 rounded accent-foreground"
                 />
                 <span className={`text-sm flex-1 ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>{task.title}</span>
+                <button
+                  onClick={() => { startTransition(async () => { await deleteProjectTask(task.id); router.refresh(); }); }}
+                  className="opacity-0 group-hover/task:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all"
+                  title="מחק משימה"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
               </div>
             ))}
           </div>
-        ) : (
-          <p className="text-xs text-muted-foreground bg-muted/30 rounded-lg px-4 py-3 text-center">אין משימות</p>
         )}
+        {/* Add task inline */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            const input = e.currentTarget.elements.namedItem("newTask") as HTMLInputElement;
+            const title = input.value.trim();
+            if (!title) return;
+            input.value = "";
+            startTransition(async () => { await addProjectTask(project.id, title); router.refresh(); });
+          }}
+          className="flex gap-2"
+        >
+          <Input name="newTask" placeholder="הוסף משימה..." className="flex-1 h-9 text-sm" />
+          <Button type="submit" size="sm" variant="outline" className="h-9 px-3">
+            <Plus className="h-3.5 w-3.5" />
+          </Button>
+        </form>
       </motion.div>
 
       {/* ── Scripts ── */}

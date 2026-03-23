@@ -148,6 +148,24 @@ export async function getUnlinkedItems() {
   return { scripts, moodboards, contacts, content };
 }
 
+export async function addProjectTask(projectId: string, title: string) {
+  if (!title.trim()) return { success: false };
+  await prisma.task.create({ data: { projectId, title: title.trim() } });
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}
+
+export async function deleteProjectTask(taskId: string) {
+  const task = await prisma.task.findUnique({ where: { id: taskId } });
+  await prisma.task.delete({ where: { id: taskId } });
+  if (task?.projectId) {
+    revalidatePath(`/projects/${task.projectId}`);
+  }
+  revalidatePath("/projects");
+  return { success: true };
+}
+
 export async function toggleProjectTask(taskId: string, completed: boolean) {
   await prisma.task.update({
     where: { id: taskId },
