@@ -806,7 +806,7 @@ export function ScriptEditorClient({
         {activeTab === "script" && (
           <>
             <div className="relative flex flex-1 flex-col overflow-hidden">
-              <div className={`overflow-auto bg-muted p-3 md:p-6 ${chatOpen ? "shrink-0 md:flex-1" : "flex-1"}`}>
+              <div className={`overflow-auto bg-muted p-3 md:p-6 ${chatOpen ? "max-h-[40vh] md:max-h-none md:flex-1" : "flex-1"}`}>
                 <textarea
                   ref={textareaRef}
                   defaultValue={content}
@@ -845,8 +845,8 @@ export function ScriptEditorClient({
                 <ChevronDown className={`mr-auto h-3.5 w-3.5 transition-transform duration-300 ${chatOpen ? "rotate-180" : ""}`} />
               </button>
 
-              {/* AI floating button */}
-              <div className="absolute bottom-12 left-3 z-30">
+              {/* AI floating button — hide when chat is open */}
+              <div className={`absolute bottom-12 left-3 z-30 transition-opacity ${chatOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
                   className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:scale-105 active:scale-95 transition-transform">
                   <Sparkles className="h-4 w-4" />
@@ -899,7 +899,7 @@ export function ScriptEditorClient({
               </div>
 
               <div style={{ maxHeight: chatOpen ? "600px" : "0px" }}
-                className={`${chatOpen ? "flex-1 md:flex-none" : ""} flex flex-col border-t border-border bg-card overflow-hidden transition-[max-height] duration-300 ease-in-out`}>
+                className={`${chatOpen ? "flex-1 min-h-[200px] md:flex-none md:min-h-0" : ""} flex flex-col border-t border-border bg-card overflow-hidden transition-[max-height] duration-300 ease-in-out`}>
                 <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                     <MessageSquare className="h-4 w-4 text-muted-foreground" />עוזר כתיבה
