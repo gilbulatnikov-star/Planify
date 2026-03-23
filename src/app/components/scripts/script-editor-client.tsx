@@ -511,6 +511,7 @@ export function ScriptEditorClient({
 
   // Chat state
   const [chatOpen, setChatOpen] = useState(false);
+  const [aiSidebarOpen, setAiSidebarOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [chatInput, setChatInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
@@ -805,15 +806,15 @@ export function ScriptEditorClient({
         {activeTab === "script" && (
           <>
             <div className="flex flex-1 flex-col overflow-hidden">
-              <div className="flex-1 overflow-auto bg-muted p-6">
+              <div className="flex-1 overflow-auto bg-muted p-3 md:p-6">
                 <textarea
                   ref={textareaRef}
                   defaultValue={content}
                   onChange={(e) => { setContent(e.target.value); autoResize(e.target); }}
                   onContextMenu={handleScriptContextMenu}
                   placeholder="התחל לכתוב את התסריט שלך..."
-                  className="w-full rounded-xl border border-border bg-card p-6 text-base leading-8 text-foreground shadow-sm outline-none focus:border-border focus:shadow-md resize-none overflow-hidden"
-                  style={{ direction: "rtl", fontFamily: "inherit", minHeight: "400px" }}
+                  className="w-full rounded-xl border border-border bg-card p-4 md:p-6 text-base leading-8 text-foreground shadow-sm outline-none focus:border-border focus:shadow-md resize-none overflow-hidden"
+                  style={{ direction: "rtl", fontFamily: "inherit", minHeight: "300px" }}
                 />
                 {/* Right-click context menu */}
                 {scriptCtxMenu && (
@@ -887,15 +888,23 @@ export function ScriptEditorClient({
               </div>
             </div>
 
-            {/* AI Sidebar */}
-            <div className="flex w-72 shrink-0 flex-col border-r border-border bg-card">
-              <div className="border-b border-border px-4 py-3">
+            {/* Mobile AI toggle */}
+            <button onClick={() => setAiSidebarOpen(true)} className="md:hidden fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:bg-foreground/90 transition-colors">
+              <Sparkles className="h-5 w-5" />
+            </button>
+
+            {/* AI Sidebar — hidden on mobile, shown as overlay via toggle */}
+            <div className={`${aiSidebarOpen ? "fixed inset-0 z-50 flex flex-col bg-card md:relative md:inset-auto md:z-auto" : "hidden md:flex"} w-full md:w-72 shrink-0 flex-col border-r border-border bg-card`}>
+              <div className="border-b border-border px-4 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
                     <Sparkles className="h-3.5 w-3.5 text-white" />
                   </div>
                   <span className="text-sm font-semibold text-foreground">AI Copilot</span>
                 </div>
+                <button onClick={() => setAiSidebarOpen(false)} className="md:hidden p-1 rounded text-muted-foreground hover:text-foreground">
+                  <X className="h-4 w-4" />
+                </button>
               </div>
               <div className="flex flex-1 flex-col gap-3 overflow-auto p-4">
                 <div className="rounded-xl border border-border bg-muted p-4">
