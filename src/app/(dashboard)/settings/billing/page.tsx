@@ -17,6 +17,7 @@ import {
   Clapperboard,
 } from "lucide-react";
 import { getLimitsForPlan, formatLimit } from "@/lib/plan-limits";
+import { useT } from "@/lib/i18n";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -59,6 +60,7 @@ function CancelModal({
   onConfirm: () => Promise<void>;
   loading: boolean;
 }) {
+  const he = useT();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       {/* Backdrop */}
@@ -73,10 +75,9 @@ function CancelModal({
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
-          <h2 className="text-lg font-bold text-foreground">ביטול המנוי</h2>
+          <h2 className="text-lg font-bold text-foreground">{he.billing.cancelConfirmTitle}</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            האם אתה בטוח שברצונך לבטל את המנוי?<br />
-            תאבד גישה לפיצ&#39;רים הפרמיום בסוף מחזור החיוב הנוכחי.
+            {he.billing.cancelConfirmDesc}
           </p>
         </div>
 
@@ -86,7 +87,7 @@ function CancelModal({
             disabled={loading}
             className="w-full rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors disabled:opacity-50"
           >
-            שמור על המנוי שלי
+            {he.billing.keepSubscription}
           </button>
           <button
             onClick={onConfirm}
@@ -96,10 +97,10 @@ function CancelModal({
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                מבטל...
+                {he.billing.canceling}
               </>
             ) : (
-              "כן, בטל את המנוי"
+              he.billing.yesCancelSubscription
             )}
           </button>
         </div>
@@ -111,6 +112,7 @@ function CancelModal({
 // ─── Main Page ───────────────────────────────────────────────────────────────
 
 export default function BillingPage() {
+  const he = useT();
   const { update: updateSession } = useSession();
   const [user, setUser] = useState<UserBilling | null>(null);
   const [fetching, setFetching] = useState(true);
@@ -168,12 +170,12 @@ export default function BillingPage() {
     return (
       <div className="flex flex-col items-center justify-center h-48 gap-3" dir="rtl">
         <AlertTriangle className="h-8 w-8 text-red-400" />
-        <p className="text-sm text-muted-foreground">לא ניתן לטעון את פרטי המנוי. נסה לרענן את הדף.</p>
+        <p className="text-sm text-muted-foreground">{he.billing.loadError}</p>
         <button
           onClick={() => window.location.reload()}
           className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-white hover:bg-foreground/90 transition-colors"
         >
-          רענן
+          {he.billing.refresh}
         </button>
       </div>
     );
@@ -191,8 +193,8 @@ export default function BillingPage() {
     <div className="max-w-2xl mx-auto space-y-6" dir="rtl">
       {/* Page header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">מנוי ותשלומים</h1>
-        <p className="mt-1 text-sm text-muted-foreground">ניהול המנוי, שיטת התשלום ואפשרויות החיוב</p>
+        <h1 className="text-2xl font-bold text-foreground">{he.billing.subscriptionAndPayments}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{he.billing.subscriptionManagement}</p>
       </div>
 
       {/* Success banner after upgrade */}
@@ -200,9 +202,9 @@ export default function BillingPage() {
         <div className="flex items-center gap-3 rounded-2xl bg-emerald-50 border border-emerald-200 px-5 py-4">
           <PartyPopper className="h-5 w-5 text-emerald-600 shrink-0" />
           <div>
-            <p className="text-sm font-semibold text-emerald-800">ברוך הבא לתוכנית הפרו! 🎉</p>
+            <p className="text-sm font-semibold text-emerald-800">{he.billing.welcomePro} 🎉</p>
             <p className="text-xs text-emerald-600 mt-0.5">
-              השדרוג הצליח. כעת יש לך גישה לכל הפיצ&#39;רים.
+              {he.billing.upgradeSuccess}
             </p>
           </div>
         </div>
@@ -215,7 +217,7 @@ export default function BillingPage() {
             <Crown className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">תוכנית פעילה</p>
+            <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">{he.billing.activePlan}</p>
             <p className="text-xl font-bold text-foreground">{getPlanLabel(plan)}</p>
           </div>
         </div>
@@ -223,7 +225,7 @@ export default function BillingPage() {
         <div className="px-6 py-5 grid grid-cols-2 gap-5">
           {/* Status */}
           <div className="flex flex-col gap-1">
-            <p className="text-xs text-muted-foreground font-medium">סטטוס</p>
+            <p className="text-xs text-muted-foreground font-medium">{he.billing.statusLabel}</p>
             {isCanceled ? (
               <span className="inline-flex items-center gap-1.5 w-fit rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
                 <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
@@ -249,7 +251,7 @@ export default function BillingPage() {
           <div className="flex flex-col gap-1">
             <p className="text-xs text-muted-foreground font-medium flex items-center gap-1.5">
               <CalendarDays className="h-3.5 w-3.5" />
-              {isCanceled ? "גישה עד" : "חידוש הבא"}
+              {isCanceled ? he.billing.accessUntil : he.billing.nextRenewal}
             </p>
             <p className="text-sm font-semibold text-foreground">
               {formatDate(endsAt)}
@@ -263,20 +265,20 @@ export default function BillingPage() {
           const isUnlimited = (n: number) => n === -1;
           return (
             <div className="px-6 pb-5">
-              <p className="text-xs text-muted-foreground font-medium mb-3">מכסות התוכנית</p>
+              <p className="text-xs text-muted-foreground font-medium mb-3">{he.billing.planQuotas}</p>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { icon: FolderOpen,   label: "פרויקטים",  value: lim.projects },
-                  { icon: Users,        label: "אנשי קשר",  value: lim.contacts },
-                  { icon: FileText,     label: "מסמכים",    value: lim.documents },
-                  { icon: Clapperboard, label: "תסריטים",   value: lim.scripts },
+                  { icon: FolderOpen,   label: he.billing.projectsQuota,  value: lim.projects },
+                  { icon: Users,        label: he.billing.contactsQuota,  value: lim.contacts },
+                  { icon: FileText,     label: he.billing.documentsQuota,    value: lim.documents },
+                  { icon: Clapperboard, label: he.billing.scriptsQuota,   value: lim.scripts },
                 ].map(({ icon: Icon, label, value }) => (
                   <div key={label} className="flex items-center gap-2 rounded-xl bg-muted border border-border px-3 py-2.5">
                     <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-muted-foreground">{label}</p>
                       <p className={`text-sm font-bold ${isUnlimited(value) ? "text-emerald-600" : "text-foreground"}`}>
-                        {isUnlimited(value) ? "ללא הגבלה" : formatLimit(value)}
+                        {isUnlimited(value) ? "{he.billing.unlimited}" : formatLimit(value)}
                       </p>
                     </div>
                   </div>
@@ -289,12 +291,12 @@ export default function BillingPage() {
         {/* Features checklist */}
         {isPaid && (
           <div className="px-6 pb-5 flex flex-col gap-2 border-t border-border pt-4">
-            <p className="text-xs text-muted-foreground font-medium mb-1">מה כלול בתוכנית שלך</p>
+            <p className="text-xs text-muted-foreground font-medium mb-1">{he.billing.includedInPlan}</p>
             {[
-              "כל פיצ'רי המערכת",
-              "חשבוניות והצעות מחיר",
-              "לוח תוכן + תסריטים + השראה",
-              "גישה לכל העדכונים העתידיים",
+              he.billing.includedFeature1,
+              he.billing.includedFeature2,
+              he.billing.includedFeature3,
+              he.billing.includedFeature4,
             ].map((f) => (
               <div key={f} className="flex items-center gap-2 text-sm text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -307,13 +309,13 @@ export default function BillingPage() {
         {/* Upgrade CTA for free users */}
         {!isPaid && (
           <div className="px-6 pb-5 border-t border-border pt-4">
-            <p className="text-xs text-muted-foreground mb-3">שדרג לקבלת מכסות גדולות יותר וגישה לכל הפיצ&#39;רים</p>
+            <p className="text-xs text-muted-foreground mb-3">{he.billing.upgradeForMore}</p>
             <a
               href="/billing"
               className="inline-flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors"
             >
               <Crown className="h-4 w-4" />
-              שדרג לפרו
+              {he.billing.upgradeToPro}
             </a>
           </div>
         )}
@@ -322,7 +324,7 @@ export default function BillingPage() {
       {/* ── Payment Method ───────────────────────────────────────────── */}
       <div className="rounded-2xl border border-border bg-card shadow-sm px-6 py-5">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm font-semibold text-foreground">שיטת תשלום</p>
+          <p className="text-sm font-semibold text-foreground">{he.billing.paymentMethod}</p>
           {/* TODO: replace href with Stripe Customer Portal URL once Stripe is connected */}
           <span className="rounded-full bg-muted px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground">
             בקרוב
@@ -334,10 +336,10 @@ export default function BillingPage() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm text-muted-foreground">
-              ניהול שיטת התשלום יהיה זמין לאחר חיבור מערכת הסליקה (Stripe).
+              {he.billing.paymentMethodDesc}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              לאחר החיבור — הכפתור יפתח את פורטל הלקוח של Stripe לניהול הכרטיס.
+              {he.billing.paymentMethodNote}
             </p>
           </div>
         </div>
@@ -346,15 +348,15 @@ export default function BillingPage() {
       {/* ── Danger zone: Cancel ──────────────────────────────────────── */}
       {isPaid && !isCanceled && (
         <div className="rounded-2xl border border-red-100 bg-red-50/50 px-6 py-5">
-          <p className="text-sm font-semibold text-foreground mb-1">ביטול מנוי</p>
+          <p className="text-sm font-semibold text-foreground mb-1">{he.billing.cancelSubscription}</p>
           <p className="text-xs text-muted-foreground mb-4">
-            לאחר הביטול תמשיך ליהנות מהגישה עד סוף תקופת החיוב הנוכחית.
+            {he.billing.cancelDesc}
           </p>
           <button
             onClick={() => setShowCancelModal(true)}
             className="text-sm font-medium text-red-600 hover:text-red-700 underline underline-offset-2 transition-colors"
           >
-            ביטול מנוי
+            {he.billing.cancelSubscription}
           </button>
         </div>
       )}
@@ -362,8 +364,7 @@ export default function BillingPage() {
       {isCanceled && endsAt && (
         <div className="rounded-2xl border border-orange-100 bg-orange-50 px-6 py-4">
           <p className="text-sm font-medium text-orange-800">
-            המנוי שלך בוטל. תוכל להמשיך להשתמש בפיצ&#39;רים הפרמיום עד{" "}
-            {formatDate(endsAt)}.
+            {he.billing.canceledNotice} {formatDate(endsAt)}.
           </p>
         </div>
       )}

@@ -115,7 +115,7 @@ export default async function DashboardPage() {
                           </p>
                         </div>
                         <Badge variant={days !== null && days <= 3 ? "destructive" : "secondary"}>
-                          {days !== null ? `${days} ימים` : "—"}
+                          {days !== null ? `${days} ${he.common.days}` : "—"}
                         </Badge>
                       </div>
                     );
@@ -154,7 +154,7 @@ export default async function DashboardPage() {
                           </p>
                         </div>
                         <Badge variant={days !== null && days <= 5 ? "destructive" : "secondary"}>
-                          {days !== null ? `${days} ימים` : "—"}
+                          {days !== null ? `${days} ${he.common.days}` : "—"}
                         </Badge>
                       </div>
                     );

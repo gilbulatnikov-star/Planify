@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createInvoice, updateInvoice } from "@/lib/actions/financial-actions";
+import { useT } from "@/lib/i18n";
 
 interface InvoiceDialogProps {
   invoice?: {
@@ -41,12 +42,7 @@ interface InvoiceDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const invoiceStatuses = [
-  { value: "draft", label: "טיוטה" },
-  { value: "sent", label: "נשלחה" },
-  { value: "paid", label: "שולמה" },
-  { value: "overdue", label: "באיחור" },
-] as const;
+// Invoice statuses are resolved dynamically via useT()
 
 function formatDateForInput(date: Date): string {
   const d = new Date(date);
@@ -64,7 +60,15 @@ export function InvoiceDialog({
   onOpenChange,
 }: InvoiceDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const he = useT();
   const isEditing = !!invoice;
+
+  const invoiceStatuses = [
+    { value: "draft", label: he.financial.invoiceStatuses.draft },
+    { value: "sent", label: he.financial.invoiceStatuses.sent },
+    { value: "paid", label: he.financial.invoiceStatuses.paid },
+    { value: "overdue", label: he.financial.invoiceStatuses.overdue },
+  ];
 
   const [clientId, setClientId] = useState(invoice?.clientId ?? "");
   const [projectId, setProjectId] = useState(invoice?.projectId ?? "");
@@ -103,12 +107,12 @@ export function InvoiceDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת חשבונית" : "חשבונית חדשה"}
+            {isEditing ? he.financialExtra.editInvoice : he.financialExtra.newInvoice}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי החשבונית"
-              : "הוסף חשבונית/הכנסה חדשה למערכת"}
+              ? he.financialExtra.editInvoiceDetails
+              : he.financialExtra.newInvoiceDetails}
           </DialogDescription>
         </DialogHeader>
 
@@ -116,10 +120,10 @@ export function InvoiceDialog({
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* לקוח */}
             <div className="space-y-2">
-              <Label htmlFor="clientId">לקוח</Label>
+              <Label htmlFor="clientId">{he.common.client}</Label>
               <Select value={clientId} onValueChange={(v) => v && setClientId(v)}>
                 <SelectTrigger id="clientId" className="w-full">
-                  <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : "בחר לקוח"}</span>
+                  <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : he.financialExtra.selectClient}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((c) => (
@@ -133,10 +137,10 @@ export function InvoiceDialog({
 
             {/* פרויקט */}
             <div className="space-y-2">
-              <Label htmlFor="projectId">פרויקט</Label>
+              <Label htmlFor="projectId">{he.common.project}</Label>
               <Select value={projectId} onValueChange={(v) => v && setProjectId(v)}>
                 <SelectTrigger id="projectId" className="w-full">
-                  <span className="flex flex-1">{projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : "בחר פרויקט (אופציונלי)"}</span>
+                  <span className="flex flex-1">{projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : he.financialExtra.selectProjectOptional}</span>
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map((p) => (
@@ -150,7 +154,7 @@ export function InvoiceDialog({
 
             {/* סכום */}
             <div className="space-y-2">
-              <Label htmlFor="amount">סכום לפני מע&quot;מ (₪)</Label>
+              <Label htmlFor="amount">{he.financialExtra.amountBeforeVat}</Label>
               <Input
                 id="amount"
                 name="amount"
@@ -164,7 +168,7 @@ export function InvoiceDialog({
 
             {/* סטטוס */}
             <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
+              <Label htmlFor="status">{he.common.status}</Label>
               <Select value={status} onValueChange={(v) => v && setStatus(v)}>
                 <SelectTrigger id="status" className="w-full">
                   <span className="flex flex-1">{invoiceStatuses.find(s => s.value === status)?.label ?? status}</span>
@@ -181,7 +185,7 @@ export function InvoiceDialog({
 
             {/* תאריך יעד */}
             <div className="space-y-2">
-              <Label htmlFor="date">תאריך יעד</Label>
+              <Label htmlFor="date">{he.financialExtra.dueDate}</Label>
               <Input
                 id="date"
                 name="date"
@@ -196,7 +200,7 @@ export function InvoiceDialog({
 
             {/* קישור חיצוני */}
             <div className="space-y-2">
-              <Label htmlFor="externalLink">קישור לחשבונית חיצונית</Label>
+              <Label htmlFor="externalLink">{he.financialExtra.externalInvoiceLink}</Label>
               <Input
                 id="externalLink"
                 name="externalLink"
@@ -208,7 +212,7 @@ export function InvoiceDialog({
 
             {/* הערות */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -219,14 +223,14 @@ export function InvoiceDialog({
 
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              ביטול
+              {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
               {isPending
-                ? "שומר..."
+                ? he.common.saving
                 : isEditing
-                  ? "עדכון חשבונית"
-                  : "הוספת חשבונית"}
+                  ? he.financialExtra.updateInvoice
+                  : he.financialExtra.addInvoice}
             </Button>
           </DialogFooter>
         </form>

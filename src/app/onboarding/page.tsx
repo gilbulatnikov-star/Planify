@@ -10,55 +10,9 @@ import {
   User, Users, Building,
   CheckCircle2, ArrowLeft,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
-// ─── Step 1: Role (multi-select) ────────────────────────────────
-const roles = [
-  { value: "videographer",  label: "צלם וידאו",        icon: Camera,       desc: "מצלמים, עורכים, מעבירים" },
-  { value: "photographer",  label: "צלם סטילס",         icon: Image,        desc: "צילום אנשי ומוצרים" },
-  { value: "smm",           label: "מנהל סושיאל",       icon: Share2,       desc: "ריטיינרים ותוכן שוטף" },
-  { value: "editor",        label: "עורך וידאו",         icon: Film,         desc: "עריכה, גרפיקה, אנימציה" },
-  { value: "producer",      label: "מפיק",              icon: Clapperboard, desc: "ניהול הפקות ולוגיסטיקה" },
-  { value: "agency",        label: "סוכנות / סטודיו",   icon: Building2,    desc: "צוות מלא, מספר לקוחות" },
-];
-
-// ─── Step 2: Goal (multi-select) ────────────────────────────────
-const goals = [
-  { value: "shoots_gear",  label: "ניהול צילומים",    icon: Camera,   desc: "לוחות זמנים, לוגיסטיקה" },
-  { value: "retainer",     label: "תוכן שוטף",         icon: Repeat,   desc: "ריטיינרים, קונטנט חודשי" },
-  { value: "financials",   label: "חשבוניות וכספים",   icon: Receipt,  desc: "הכנסות, הוצאות, הצעות מחיר" },
-  { value: "scripts",      label: "סקריפטים ויוצרות",  icon: FileText, desc: "כתיבת סקריפטים, שוט ליסט" },
-];
-
-// ─── Step 3: Team Size (single-select) ──────────────────────────
-const teamSizes = [
-  { value: "solo",   label: "פרילנסר סולו",    icon: User,     desc: "עובד לבד בעיקר" },
-  { value: "small",  label: "צוות קטן (2–5)",  icon: Users,    desc: "שותף או כמה עובדים" },
-  { value: "studio", label: "סטודיו (5+)",      icon: Building, desc: "צוות מלא, מבנה ארגוני" },
-];
-
-const steps = [
-  {
-    title: "במה אתה עוסק?",
-    subtitle: "ניתן לבחור יותר מאפשרות אחת",
-    options: roles,
-    key: "role" as const,
-    multiSelect: true,
-  },
-  {
-    title: "מה המטרה הראשית שלך?",
-    subtitle: "ניתן לבחור יותר מאפשרות אחת",
-    options: goals,
-    key: "primaryGoal" as const,
-    multiSelect: true,
-  },
-  {
-    title: "איך אתה עובד?",
-    subtitle: "בחר גודל צוות",
-    options: teamSizes,
-    key: "teamSize" as const,
-    multiSelect: false,
-  },
-];
+// Steps, roles, goals and teamSizes are now defined inside the component to use translations
 
 const slideVariants = {
   enter: (direction: number) => ({
@@ -80,6 +34,35 @@ const slideVariants = {
 export default function OnboardingPage() {
   const router = useRouter();
   const { update } = useSession();
+  const he = useT();
+
+  const roles = [
+    { value: "videographer",  label: he.onboarding.roles.videographer,  icon: Camera,       desc: he.onboarding.roles.videographerDesc },
+    { value: "photographer",  label: he.onboarding.roles.photographer,  icon: Image,        desc: he.onboarding.roles.photographerDesc },
+    { value: "smm",           label: he.onboarding.roles.smm,           icon: Share2,       desc: he.onboarding.roles.smmDesc },
+    { value: "editor",        label: he.onboarding.roles.editor,        icon: Film,         desc: he.onboarding.roles.editorDesc },
+    { value: "producer",      label: he.onboarding.roles.producer,      icon: Clapperboard, desc: he.onboarding.roles.producerDesc },
+    { value: "agency",        label: he.onboarding.roles.agency,        icon: Building2,    desc: he.onboarding.roles.agencyDesc },
+  ];
+
+  const goals = [
+    { value: "shoots_gear",  label: he.onboarding.goals.shoots_gear,  icon: Camera,   desc: he.onboarding.goals.shoots_gearDesc },
+    { value: "retainer",     label: he.onboarding.goals.retainer,     icon: Repeat,   desc: he.onboarding.goals.retainerDesc },
+    { value: "financials",   label: he.onboarding.goals.financials,   icon: Receipt,  desc: he.onboarding.goals.financialsDesc },
+    { value: "scripts",      label: he.onboarding.goals.scripts,      icon: FileText, desc: he.onboarding.goals.scriptsDesc },
+  ];
+
+  const teamSizes = [
+    { value: "solo",   label: he.onboarding.teamSizes.solo,   icon: User,     desc: he.onboarding.teamSizes.soloDesc },
+    { value: "small",  label: he.onboarding.teamSizes.small,  icon: Users,    desc: he.onboarding.teamSizes.smallDesc },
+    { value: "studio", label: he.onboarding.teamSizes.studio, icon: Building, desc: he.onboarding.teamSizes.studioDesc },
+  ];
+
+  const steps = [
+    { title: he.onboarding.whatDoYouDo, subtitle: he.onboarding.selectMultiple, options: roles, key: "role" as const, multiSelect: true },
+    { title: he.onboarding.mainGoal, subtitle: he.onboarding.selectMultiple, options: goals, key: "primaryGoal" as const, multiSelect: true },
+    { title: he.onboarding.howDoYouWork, subtitle: he.onboarding.selectTeamSize, options: teamSizes, key: "teamSize" as const, multiSelect: false },
+  ];
 
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
@@ -175,8 +158,8 @@ export default function OnboardingPage() {
                 <CheckCircle2 className="h-10 w-10 text-emerald-400" />
               </div>
               <div className="text-center">
-                <p className="text-xl font-semibold">הסביבה מוכנה!</p>
-                <p className="text-muted-foreground text-sm mt-1">מעביר אותך...</p>
+                <p className="text-xl font-semibold">{he.onboarding.envReady}</p>
+                <p className="text-muted-foreground text-sm mt-1">{he.onboarding.transferring}</p>
               </div>
             </>
           ) : (
@@ -189,8 +172,8 @@ export default function OnboardingPage() {
                 </div>
               </div>
               <div className="text-center">
-                <p className="text-xl font-semibold">מכין לך את הסביבה...</p>
-                <p className="text-muted-foreground text-sm mt-1">שנייה אחת</p>
+                <p className="text-xl font-semibold">{he.onboarding.preparingEnv}</p>
+                <p className="text-muted-foreground text-sm mt-1">{he.onboarding.oneSecond}</p>
               </div>
             </>
           )}
@@ -211,7 +194,7 @@ export default function OnboardingPage() {
             onClick={() => signOut({ callbackUrl: "/sign-in" })}
             className="text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
           >
-            יציאה
+            {he.onboarding.exit}
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -313,7 +296,7 @@ export default function OnboardingPage() {
                     disabled={!canContinue}
                     className="flex items-center gap-2 rounded-2xl bg-card text-foreground px-8 py-3.5 text-sm font-bold hover:bg-muted transition-colors disabled:pointer-events-none"
                   >
-                    {step === steps.length - 1 ? "סיים" : "המשך"}
+                    {step === steps.length - 1 ? he.onboarding.finish : he.onboarding.continueBtn}
                     <ArrowLeft className="h-4 w-4" />
                     {Array.isArray(currentValue) && currentValue.length > 1 && (
                       <span className="mr-1 rounded-full bg-gray-200 px-1.5 py-0.5 text-[11px] font-semibold text-foreground">
@@ -340,7 +323,7 @@ export default function OnboardingPage() {
                 }}
                 className="text-sm text-muted-foreground hover:text-muted-foreground transition-colors"
               >
-                → חזור
+                {he.onboarding.goBack}
               </button>
             </motion.div>
           )}

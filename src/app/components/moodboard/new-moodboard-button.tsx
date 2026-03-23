@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
+import { useT } from "@/lib/i18n";
 
 interface NewMoodboardButtonProps {
   action: () => Promise<void>;
@@ -11,7 +12,9 @@ interface NewMoodboardButtonProps {
   label?: string;
 }
 
-export function NewMoodboardButton({ action, canCreate, planLimit, label = "Moodboard חדש" }: NewMoodboardButtonProps) {
+export function NewMoodboardButton({ action, canCreate, planLimit, label }: NewMoodboardButtonProps) {
+  const he = useT();
+  const displayLabel = label ?? he.moodboard.newMoodboard;
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   function handleClick(e: React.MouseEvent) {
@@ -26,7 +29,7 @@ export function NewMoodboardButton({ action, canCreate, planLimit, label = "Mood
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        feature="לוחות תוכן"
+        feature={he.moodboard.contentBoards}
         limit={planLimit}
       />
       <form action={action}>
@@ -36,7 +39,7 @@ export function NewMoodboardButton({ action, canCreate, planLimit, label = "Mood
           className="flex items-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 transition-colors shadow-sm"
         >
           <Plus className="h-4 w-4" />
-          {label}
+          {displayLabel}
         </button>
       </form>
     </>

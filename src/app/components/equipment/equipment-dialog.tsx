@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createEquipment, updateEquipment } from "@/lib/actions/equipment-actions";
+import { useT } from "@/lib/i18n";
 
 interface EquipmentDialogProps {
   equipment?: {
@@ -36,22 +37,7 @@ interface EquipmentDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const categories = [
-  { value: "camera", label: "מצלמה" },
-  { value: "lens", label: "עדשה" },
-  { value: "drone", label: "רחפן" },
-  { value: "lighting", label: "תאורה" },
-  { value: "audio", label: "אודיו" },
-  { value: "grip", label: "גריפ" },
-  { value: "other", label: "אחר" },
-];
-
-const statuses = [
-  { value: "available", label: "זמין" },
-  { value: "rented", label: "מושכר" },
-  { value: "in_repair", label: "בתיקון" },
-  { value: "retired", label: "לא בשימוש" },
-];
+// Categories and statuses are now resolved dynamically via useT()
 
 export function EquipmentDialog({
   equipment,
@@ -59,7 +45,25 @@ export function EquipmentDialog({
   onOpenChange,
 }: EquipmentDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const he = useT();
   const isEditing = !!equipment;
+
+  const categories = [
+    { value: "camera", label: he.equipment.categories.camera },
+    { value: "lens", label: he.equipment.categories.lens },
+    { value: "drone", label: he.equipment.categories.drone },
+    { value: "lighting", label: he.equipment.categories.lighting },
+    { value: "audio", label: he.equipment.categories.audio },
+    { value: "grip", label: he.equipment.categories.grip },
+    { value: "other", label: he.equipment.categories.other },
+  ];
+
+  const statuses = [
+    { value: "available", label: he.equipment.statuses.available },
+    { value: "rented", label: he.equipment.statuses.rented },
+    { value: "in_repair", label: he.equipment.statuses.in_repair },
+    { value: "retired", label: he.equipment.statuses.retired },
+  ];
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState("camera");
@@ -118,7 +122,7 @@ export function EquipmentDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת ציוד" : "הוספת ציוד חדש"}
+            {isEditing ? he.financialExtra.editEquipment : he.financialExtra.newEquipment}
           </DialogTitle>
         </DialogHeader>
 
@@ -126,7 +130,7 @@ export function EquipmentDialog({
           <div className="grid grid-cols-2 gap-4">
             {/* name */}
             <div className="space-y-2">
-              <Label htmlFor="name">שם</Label>
+              <Label htmlFor="name">{he.equipment.name}</Label>
               <Input
                 id="name"
                 name="name"
@@ -138,7 +142,7 @@ export function EquipmentDialog({
 
             {/* category */}
             <div className="space-y-2">
-              <Label htmlFor="category">קטגוריה</Label>
+              <Label htmlFor="category">{he.equipment.category}</Label>
               <Select
                 name="category"
                 value={category}
@@ -159,7 +163,7 @@ export function EquipmentDialog({
 
             {/* brand */}
             <div className="space-y-2">
-              <Label htmlFor="brand">מותג</Label>
+              <Label htmlFor="brand">{he.equipment.brand}</Label>
               <Input
                 id="brand"
                 name="brand"
@@ -170,7 +174,7 @@ export function EquipmentDialog({
 
             {/* model */}
             <div className="space-y-2">
-              <Label htmlFor="model">דגם</Label>
+              <Label htmlFor="model">{he.equipment.model}</Label>
               <Input
                 id="model"
                 name="model"
@@ -181,7 +185,7 @@ export function EquipmentDialog({
 
             {/* serialNumber */}
             <div className="space-y-2">
-              <Label htmlFor="serialNumber">מספר סריאלי</Label>
+              <Label htmlFor="serialNumber">{he.equipment.serialNumber}</Label>
               <Input
                 id="serialNumber"
                 name="serialNumber"
@@ -192,7 +196,7 @@ export function EquipmentDialog({
 
             {/* purchasePrice */}
             <div className="space-y-2">
-              <Label htmlFor="purchasePrice">מחיר רכישה (&#8362;)</Label>
+              <Label htmlFor="purchasePrice">{he.financialExtra.purchasePriceLabel}</Label>
               <Input
                 id="purchasePrice"
                 name="purchasePrice"
@@ -206,7 +210,7 @@ export function EquipmentDialog({
 
             {/* status */}
             <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
+              <Label htmlFor="status">{he.equipment.status}</Label>
               <Select
                 name="status"
                 value={status}
@@ -228,7 +232,7 @@ export function EquipmentDialog({
 
           {/* notes — full width */}
           <div className="space-y-2">
-            <Label htmlFor="notes">הערות</Label>
+            <Label htmlFor="notes">{he.common.notes}</Label>
             <Textarea
               id="notes"
               name="notes"
@@ -244,10 +248,10 @@ export function EquipmentDialog({
               onClick={() => onOpenChange(false)}
               disabled={isPending}
             >
-              ביטול
+              {he.common.cancel}
             </Button>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : "שמור"}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

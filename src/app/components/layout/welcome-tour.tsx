@@ -15,88 +15,14 @@ import {
   ArrowRight,
   Contact,
 } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 const TOUR_KEY = "gp_tour_completed";
 const SPOTLIGHT_PAD = 10;
 const TOOLTIP_WIDTH = 296;
 const TOOLTIP_GAP = 18;
 
-// ─── Tour steps ───────────────────────────────────────────────────────────────
-
-const steps = [
-  {
-    target: null as string | null,
-    title: "ברוכים הבאים ל-Planify! 🚀",
-    description:
-      "זהו ה-CRM שבנוי במיוחד לאנשי תוכן, מצלמים ומפיקים. בואו נסביר לך מה יש כאן בכמה שניות.",
-    icon: Sparkles,
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    target: '[data-tour="nav-dashboard"]' as string | null,
-    title: "לוח בקרה",
-    description:
-      "מבט מהיר על הפרויקטים הפעילים, הכנסות, צילומים קרובים ומשימות פתוחות — הכל במקום אחד.",
-    icon: LayoutDashboard,
-    color: "from-blue-500 to-cyan-500",
-  },
-  {
-    target: '[data-tour="nav-projects"]' as string | null,
-    title: "פרויקטים",
-    description:
-      "עקוב אחרי כל פרויקט מרגע הפנייה הראשונה ועד המסירה ללקוח — מאורגן לפי שלבים ברורים.",
-    icon: FolderKanban,
-    color: "from-amber-500 to-orange-500",
-  },
-  {
-    target: '[data-tour="nav-clients"]' as string | null,
-    title: "לקוחות",
-    description:
-      "נהל לידים, לקוחות קיימים ואינטראקציות. ראה בקצב אחד מי מוכן לסגירה ומה הסטטוס של כל ליד.",
-    icon: Users,
-    color: "from-emerald-500 to-green-600",
-  },
-  {
-    target: '[data-tour="nav-financials"]' as string | null,
-    title: "כספים",
-    description:
-      "שלח חשבוניות והצעות מחיר, עקוב אחרי הוצאות וראה את הרווח החודשי שלך בזמן אמת.",
-    icon: Receipt,
-    color: "from-pink-500 to-rose-500",
-  },
-  {
-    target: '[data-tour="nav-calendar"]' as string | null,
-    title: "לוח תוכן",
-    description:
-      "תכנן פוסטים, ריטיינרים וצילומים בלוח חודשי. ראה הכל בצורה ויזואלית ברורה.",
-    icon: CalendarDays,
-    color: "from-indigo-500 to-blue-600",
-  },
-  {
-    target: '[data-tour="nav-scripts"]' as string | null,
-    title: "תסריטים",
-    description:
-      "כתוב ושמור תסריטים לסרטונים, ריילס ופרסומות. הכל מאורגן לפי פרויקט ומוכן להפקה.",
-    icon: FileText,
-    color: "from-teal-500 to-cyan-600",
-  },
-  {
-    target: '[data-tour="nav-contacts"]' as string | null,
-    title: "אנשי קשר",
-    description:
-      "שמור טלפונים, מיילים ופרטי קשר של צלמים, עורכים, לקוחות ושאר גורמים שאתה עובד איתם.",
-    icon: Contact,
-    color: "from-sky-500 to-indigo-500",
-  },
-  {
-    target: '[data-tour="nav-inspiration"]' as string | null,
-    title: "לוח השראה",
-    description:
-      "אסוף תמונות, סרטונים ורפרנסים בקטגוריות. הדלק השראה לפרויקטים הבאים ושתף עם לקוחות.",
-    icon: Sparkles,
-    color: "from-purple-500 to-fuchsia-600",
-  },
-];
+// Steps are defined inside the component to use translations
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -106,6 +32,20 @@ interface TipPos   { x: number; y: number }
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function WelcomeTour() {
+  const he = useT();
+
+  const steps = [
+    { target: null as string | null, title: `${he.tour.welcome} 🚀`, description: he.tour.welcomeDesc, icon: Sparkles, color: "from-violet-500 to-purple-600" },
+    { target: '[data-tour="nav-dashboard"]' as string | null, title: he.tour.dashboardTitle, description: he.tour.dashboardDesc, icon: LayoutDashboard, color: "from-blue-500 to-cyan-500" },
+    { target: '[data-tour="nav-projects"]' as string | null, title: he.tour.projectsTitle, description: he.tour.projectsDesc, icon: FolderKanban, color: "from-amber-500 to-orange-500" },
+    { target: '[data-tour="nav-clients"]' as string | null, title: he.tour.clientsTitle, description: he.tour.clientsDesc, icon: Users, color: "from-emerald-500 to-green-600" },
+    { target: '[data-tour="nav-financials"]' as string | null, title: he.tour.financialsTitle, description: he.tour.financialsDesc, icon: Receipt, color: "from-pink-500 to-rose-500" },
+    { target: '[data-tour="nav-calendar"]' as string | null, title: he.tour.calendarTitle, description: he.tour.calendarDesc, icon: CalendarDays, color: "from-indigo-500 to-blue-600" },
+    { target: '[data-tour="nav-scripts"]' as string | null, title: he.tour.scriptsTitle, description: he.tour.scriptsDesc, icon: FileText, color: "from-teal-500 to-cyan-600" },
+    { target: '[data-tour="nav-contacts"]' as string | null, title: he.tour.contactsTitle, description: he.tour.contactsDesc, icon: Contact, color: "from-sky-500 to-indigo-500" },
+    { target: '[data-tour="nav-inspiration"]' as string | null, title: he.tour.inspirationTitle, description: he.tour.inspirationDesc, icon: Sparkles, color: "from-purple-500 to-fuchsia-600" },
+  ];
+
   const [visible,    setVisible]    = useState(false);
   const [step,       setStep]       = useState(0);
   const [spotRect,   setSpotRect]   = useState<SpotRect | null>(null);
@@ -321,7 +261,7 @@ function TourCard({
   onDot,
   centered = false,
 }: {
-  current: (typeof steps)[number];
+  current: { target: string | null; title: string; description: string; icon: React.ElementType; color: string };
   Icon: React.ElementType;
   step: number;
   total: number;
@@ -333,6 +273,7 @@ function TourCard({
   onDot: (i: number) => void;
   centered?: boolean;
 }) {
+  const he = useT();
   return (
     <div className="rounded-2xl bg-card shadow-2xl overflow-hidden" dir="rtl">
       {/* Gradient color strip */}
@@ -359,7 +300,7 @@ function TourCard({
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-muted-foreground transition-colors"
           >
             <X className="h-3.5 w-3.5" />
-            דלג
+            {he.tour.skip}
           </button>
         </div>
 
@@ -407,20 +348,20 @@ function TourCard({
             className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors disabled:opacity-0 disabled:pointer-events-none shrink-0"
           >
             <ArrowRight className="h-3.5 w-3.5" />
-            הקודם
+            {he.tour.prev}
           </button>
           <button
             onClick={onNext}
             className={`flex-1 flex items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-bold transition-all bg-gradient-to-r ${current.color} text-white hover:opacity-90 shadow-sm`}
           >
-            {isLast ? "בואו נתחיל 🚀" : "הבא"}
+            {isLast ? `${he.tour.letsStart} 🚀` : he.tour.next}
             {!isLast && <ArrowLeft className="h-3.5 w-3.5" />}
           </button>
         </div>
 
         {/* Counter */}
         <p className="text-center text-[10px] text-muted-foreground mt-3">
-          {step + 1} מתוך {total}
+          {step + 1} {he.tour.stepOf} {total}
         </p>
       </div>
     </div>

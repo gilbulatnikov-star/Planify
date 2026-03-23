@@ -128,8 +128,8 @@ export function EquipmentPageClient({
                   <TableHead className="hidden md:table-cell text-muted-foreground">{he.equipment.model}</TableHead>
                   <TableHead className="text-muted-foreground">{he.equipment.status}</TableHead>
                   <TableHead className="hidden sm:table-cell text-muted-foreground">{he.equipment.purchasePrice}</TableHead>
-                  <TableHead className="hidden lg:table-cell text-muted-foreground">משויך לפרויקט</TableHead>
-                  <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
+                  <TableHead className="hidden lg:table-cell text-muted-foreground">{he.common.assignedToProject}</TableHead>
+                  <TableHead className="w-[80px] text-muted-foreground">{he.common.actions}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -189,7 +189,7 @@ export function ProjectsPageClient({
                   {totalTasks > 0 && (
                     <div className="space-y-1">
                       <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>משימות</span>
+                        <span>{he.common.tasksLabel}</span>
                         <span>{completedTasks}/{totalTasks}</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-muted">
@@ -208,15 +208,15 @@ export function ProjectsPageClient({
         </motion.div>
       ) : (
         <motion.div variants={fadeUp} className="rounded-xl border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">אין פרויקטים עדיין</p>
-          <p className="text-xs text-muted-foreground mt-1">לחץ על &quot;פרויקט חדש&quot; כדי להתחיל</p>
+          <p className="text-sm text-muted-foreground">{he.common.noProjectsYet}</p>
+          <p className="text-xs text-muted-foreground mt-1">{he.common.clickNewProject}</p>
         </motion.div>
       )}
 
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        feature="פרויקטים"
+        feature={he.project.title}
         limit={planLimit}
       />
       <ProjectDialog

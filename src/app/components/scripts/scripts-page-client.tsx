@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { createScript, deleteScript } from "@/lib/actions/script-actions";
 import { formatDate } from "@/lib/utils/format";
+import { useT } from "@/lib/i18n";
 
 const platformIcons: Record<string, React.ReactNode> = {
   youtube: <Youtube className="h-4 w-4 text-red-500" />,
@@ -29,8 +30,8 @@ const platformLabels: Record<string, string> = {
   youtube: "YouTube",
   tiktok: "TikTok",
   instagram: "Instagram",
-  podcast: "פודקאסט",
-  commercial: "פרסומת",
+  podcast: "Podcast",
+  commercial: "Commercial",
 };
 
 type Script = {
@@ -53,6 +54,7 @@ export function ScriptsPageClient({
   planLimit: number;
 }) {
   const router = useRouter();
+  const he = useT();
   const [creating, setCreating] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
@@ -73,7 +75,7 @@ export function ScriptsPageClient({
 
   async function handleDelete(id: string, e: React.MouseEvent) {
     e.stopPropagation();
-    if (confirm("למחוק את התסריט?")) {
+    if (confirm(he.scripts.deleteConfirm)) {
       await deleteScript(id);
     }
   }
@@ -83,15 +85,15 @@ export function ScriptsPageClient({
     <UpgradeDialog
       open={upgradeOpen}
       onClose={() => setUpgradeOpen(false)}
-      feature="תסריטים"
+      feature={he.scripts.title}
       limit={planLimit}
     />
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">תסריטים</h1>
+        <h1 className="text-2xl font-bold text-foreground">{he.scripts.title}</h1>
         <Button onClick={handleCreate} disabled={creating} className="gap-2">
           <Plus className="h-4 w-4" />
-          תסריט חדש
+          {he.scripts.newScript}
         </Button>
       </div>
 
@@ -101,10 +103,10 @@ export function ScriptsPageClient({
             <FileText className="h-10 w-10 text-muted-foreground" />
           </div>
           <h2 className="text-lg font-semibold text-foreground">
-            אין תסריטים עדיין
+            {he.scripts.noScripts}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            צור תסריט חדש כדי להתחיל
+            {he.scriptEditor.createFirstScriptDesc}
           </p>
           <Button
             onClick={handleCreate}
@@ -112,7 +114,7 @@ export function ScriptsPageClient({
             className="mt-6 gap-2"
           >
             <Plus className="h-4 w-4" />
-            צור תסריט ראשון
+            {he.scriptEditor.createFirstScript}
           </Button>
         </div>
       ) : (

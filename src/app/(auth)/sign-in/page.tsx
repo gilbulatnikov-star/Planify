@@ -5,9 +5,11 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export default function SignInPage() {
   const router = useRouter();
+  const he = useT();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +30,7 @@ export default function SignInPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("כתובת האימייל או הסיסמה שגויים");
+      setError(he.auth.invalidCredentials);
     } else {
       router.push("/");
       router.refresh();
@@ -46,8 +48,8 @@ export default function SignInPage() {
             <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">ברוך שובך ל-Planify</h1>
-        <p className="text-sm text-muted-foreground mt-1">היכנס לחשבון שלך להמשיך</p>
+        <h1 className="text-2xl font-bold text-foreground">{he.auth.welcomeBack}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{he.auth.signInSubtitle}</p>
       </div>
 
       {/* Card */}
@@ -63,7 +65,7 @@ export default function SignInPage() {
 
           {/* Email */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">אימייל</label>
+            <label className="text-sm font-medium text-foreground">{he.auth.email}</label>
             <input
               type="email"
               value={email}
@@ -77,7 +79,7 @@ export default function SignInPage() {
 
           {/* Password */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">סיסמה</label>
+            <label className="text-sm font-medium text-foreground">{he.auth.password}</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -107,10 +109,10 @@ export default function SignInPage() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>מתחבר...</span>
+                <span>{he.auth.signingIn}</span>
               </>
             ) : (
-              "כניסה לחשבון"
+              he.auth.signInButton
             )}
           </button>
 
@@ -120,7 +122,7 @@ export default function SignInPage() {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs text-muted-foreground">
-              <span className="bg-card px-3">או המשך עם</span>
+              <span className="bg-card px-3">{he.auth.orContinueWith}</span>
             </div>
           </div>
 
@@ -143,9 +145,9 @@ export default function SignInPage() {
 
       {/* Sign up link */}
       <p className="text-center text-sm text-muted-foreground mt-6" dir="rtl">
-        אין לך חשבון?{" "}
+        {he.auth.noAccount}{" "}
         <Link href="/sign-up" className="font-semibold text-foreground hover:underline">
-          הרשמה חינם
+          {he.auth.freeSignUp}
         </Link>
       </p>
     </div>

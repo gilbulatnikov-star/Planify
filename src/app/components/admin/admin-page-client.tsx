@@ -6,6 +6,7 @@ import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionEx
 import { deleteFeedback } from "@/lib/actions/feedback-actions";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
+import { useT } from "@/lib/i18n";
 
 type UserRow = {
   id: string;
@@ -54,6 +55,7 @@ const PLAN_COLORS: Record<string, string> = {
 };
 
 export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; users: UserRow[]; feedbacks: FeedbackRow[] }) {
+  const he = useT();
   const [search, setSearch] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [passwordModal, setPasswordModal] = useState<{ userId: string; name: string } | null>(null);
@@ -85,7 +87,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
       await resetUserPassword(passwordModal.userId, newPassword);
       setPasswordModal(null);
       setNewPassword("");
-      setFeedback("הסיסמה עודכנה בהצלחה");
+      setFeedback(he.admin.passwordUpdated);
       setTimeout(() => setFeedback(null), 3000);
     });
   }
@@ -96,7 +98,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
       await updateUserSubscriptionExpiry(expiryModal.userId, newExpiry ? new Date(newExpiry) : null);
       setExpiryModal(null);
       setNewExpiry("");
-      setFeedback("תוקף המנוי עודכן");
+      setFeedback(he.admin.expiryUpdated);
       setTimeout(() => setFeedback(null), 3000);
     });
   }
@@ -110,8 +112,8 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
             <ShieldCheck className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-foreground">לוח ניהול</h1>
-            <p className="text-sm text-muted-foreground">ניהול משתמשים ומנויים</p>
+            <h1 className="text-xl font-bold text-foreground">{he.admin.dashboard}</h1>
+            <p className="text-sm text-muted-foreground">{he.admin.dashboardDesc}</p>
           </div>
         </div>
       </div>
@@ -127,10 +129,10 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
         {/* Stats — plans */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "סה״כ משתמשים", value: stats.totalUsers, icon: Users, color: "text-foreground" },
-            { label: "חינמי", value: stats.freeUsers, icon: Users, color: "text-muted-foreground" },
-            { label: "Pro חודשי", value: stats.monthlyUsers, icon: Crown, color: "text-blue-600" },
-            { label: "Pro שנתי", value: stats.annualUsers, icon: Crown, color: "text-amber-600" },
+            { label: he.admin.totalUsers, value: stats.totalUsers, icon: Users, color: "text-foreground" },
+            { label: he.admin.free, value: stats.freeUsers, icon: Users, color: "text-muted-foreground" },
+            { label: he.admin.proMonthly, value: stats.monthlyUsers, icon: Crown, color: "text-blue-600" },
+            { label: he.admin.proAnnual, value: stats.annualUsers, icon: Crown, color: "text-amber-600" },
           ].map(s => (
             <div key={s.label} className="bg-card rounded-2xl border border-border p-4 shadow-sm">
               <s.icon className={`h-5 w-5 ${s.color} mb-2`} />
@@ -184,7 +186,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="חפש לפי שם או אימייל..."
+            placeholder={he.admin.searchPlaceholder}
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="w-full rounded-xl border border-border bg-card pr-10 pl-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
@@ -197,13 +199,13 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-border bg-muted">
-                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">משתמש</th>
-                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">מנוי</th>
-                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">תוקף</th>
-                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">סטטוס</th>
-                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">הצטרף</th>
-                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">שינוי מנוי</th>
-                  <th className="px-5 py-3 text-right font-medium text-muted-foreground">פעולות</th>
+                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">{he.admin.user}</th>
+                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">{he.admin.subscription}</th>
+                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">{he.admin.expiry}</th>
+                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">{he.admin.statusCol}</th>
+                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">{he.admin.joined}</th>
+                  <th className="text-right px-5 py-3 font-medium text-muted-foreground">{he.admin.changePlan}</th>
+                  <th className="px-5 py-3 text-right font-medium text-muted-foreground">{he.admin.actionsCol}</th>
                 </tr>
               </thead>
               <tbody>
@@ -236,7 +238,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                     {/* Status */}
                     <td className="px-5 py-3.5">
                       <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${user.onboardingCompleted ? "bg-green-50 text-green-700" : "bg-yellow-50 text-yellow-700"}`}>
-                        {user.onboardingCompleted ? "פעיל" : "אונבורדינג"}
+                        {user.onboardingCompleted ? he.admin.active : he.admin.onboardingStatus}
                       </span>
                     </td>
                     {/* Joined */}
@@ -251,9 +253,9 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                         disabled={isPending}
                         className="rounded-lg border border-border bg-card px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-gray-900 disabled:opacity-50"
                       >
-                        <option value="FREE">חינמי</option>
-                        <option value="MONTHLY">Pro חודשי</option>
-                        <option value="ANNUAL">Pro שנתי</option>
+                        <option value="FREE">{he.admin.free}</option>
+                        <option value="MONTHLY">{he.admin.proMonthly}</option>
+                        <option value="ANNUAL">{he.admin.proAnnual}</option>
                       </select>
                     </td>
                     {/* Actions */}
@@ -278,8 +280,8 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                         {/* Delete */}
                         {confirmDelete === user.id ? (
                           <div className="flex items-center gap-1">
-                            <button onClick={() => handleDelete(user.id)} disabled={isPending} className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50">מחק</button>
-                            <button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted">ביטול</button>
+                            <button onClick={() => handleDelete(user.id)} disabled={isPending} className="rounded-lg bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700 disabled:opacity-50">{he.admin.deleteConfirm}</button>
+                            <button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
                           </div>
                         ) : (
                           <button onClick={() => setConfirmDelete(user.id)} className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors" title="מחק משתמש">
@@ -294,7 +296,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                   <tr>
                     <td colSpan={7} className="px-5 py-12 text-center text-muted-foreground">
                       <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                      לא נמצאו משתמשים
+                      {he.admin.noUsersFound}
                     </td>
                   </tr>
                 )}
@@ -306,12 +308,12 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
         <div>
           <div className="flex items-center gap-2 mb-4">
             <MessageSquare className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-base font-semibold text-foreground">פידבק מהמשתמשים</h2>
+            <h2 className="text-base font-semibold text-foreground">{he.admin.feedbackTitle}</h2>
             <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">{feedbacks.length}</span>
           </div>
           {feedbacks.length === 0 ? (
             <div className="rounded-2xl border border-border bg-card p-8 text-center text-muted-foreground text-sm">
-              אין פידבק עדיין
+              {he.admin.noFeedback}
             </div>
           ) : (
             <div className="space-y-3">
@@ -355,18 +357,18 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
       {passwordModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setPasswordModal(null)}>
           <div className="bg-card rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()} dir="rtl">
-            <h2 className="text-base font-bold text-foreground mb-1">איפוס סיסמה</h2>
+            <h2 className="text-base font-bold text-foreground mb-1">{he.admin.resetPassword}</h2>
             <p className="text-sm text-muted-foreground mb-4">{passwordModal.name}</p>
             <input
               type="password"
-              placeholder="סיסמה חדשה..."
+              placeholder={he.admin.newPasswordPlaceholder}
               value={newPassword}
               onChange={e => setNewPassword(e.target.value)}
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
             <div className="flex gap-2">
-              <button onClick={handleResetPassword} disabled={isPending || !newPassword} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 disabled:opacity-50">עדכן סיסמה</button>
-              <button onClick={() => setPasswordModal(null)} className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted">ביטול</button>
+              <button onClick={handleResetPassword} disabled={isPending || !newPassword} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 disabled:opacity-50">{he.admin.updatePassword}</button>
+              <button onClick={() => setPasswordModal(null)} className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
             </div>
           </div>
         </div>
@@ -376,7 +378,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
       {expiryModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setExpiryModal(null)}>
           <div className="bg-card rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()} dir="rtl">
-            <h2 className="text-base font-bold text-foreground mb-1">תוקף מנוי</h2>
+            <h2 className="text-base font-bold text-foreground mb-1">{he.admin.expiryTitle}</h2>
             <p className="text-sm text-muted-foreground mb-4">{expiryModal.name}</p>
             <input
               type="date"
@@ -385,9 +387,9 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
               className="w-full rounded-xl border border-border px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
             />
             <div className="flex gap-2">
-              <button onClick={handleUpdateExpiry} disabled={isPending} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 disabled:opacity-50">עדכן</button>
-              <button onClick={() => { setExpiryModal(null); updateUserSubscriptionExpiry(expiryModal.userId, null); }} className="rounded-xl border border-border px-3 py-2.5 text-sm text-red-500 hover:bg-red-50">הסר תוקף</button>
-              <button onClick={() => setExpiryModal(null)} className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted">ביטול</button>
+              <button onClick={handleUpdateExpiry} disabled={isPending} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white hover:bg-foreground/90 disabled:opacity-50">{he.admin.updateBtn}</button>
+              <button onClick={() => { setExpiryModal(null); updateUserSubscriptionExpiry(expiryModal.userId, null); }} className="rounded-xl border border-border px-3 py-2.5 text-sm text-red-500 hover:bg-red-50">{he.admin.removeExpiry}</button>
+              <button onClick={() => setExpiryModal(null)} className="flex-1 rounded-xl border border-border py-2.5 text-sm text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
             </div>
           </div>
         </div>

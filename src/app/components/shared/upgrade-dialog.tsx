@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Crown, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n";
 
 interface UpgradeDialogProps {
   open: boolean;
@@ -13,6 +14,7 @@ interface UpgradeDialogProps {
 
 export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogProps) {
   const router = useRouter();
+  const he = useT();
 
   if (!open) return null;
 
@@ -46,19 +48,19 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
 
         {/* Title */}
         <h2 className="text-xl font-black text-foreground text-center mb-1">
-          הגעת למגבלה!
+          {he.upgrade.reachedLimit}
         </h2>
         <p className="text-sm text-muted-foreground text-center mb-5 leading-relaxed">
-          בתוכנית החינמית ניתן להוסיף עד <span className="font-bold text-foreground">{limit} {feature}</span>.{" "}
-          שדרג לפרו וקבל גישה ללא הגבלה.
+          {he.upgrade.freeLimit} <span className="font-bold text-foreground">{limit} {feature}</span>.{" "}
+          {he.upgrade.upgradeForUnlimited}
         </p>
 
         {/* Features list */}
         <div className="rounded-xl bg-muted border border-border p-4 mb-5 space-y-2.5">
           {[
-            "פרויקטים, אנשי קשר ותסריטים ללא הגבלה",
-            "חשבוניות, הצעות מחיר ולוח השראה",
-            "גישה מלאה לכל כלי הניהול",
+            he.upgrade.feature1,
+            he.upgrade.feature2,
+            he.upgrade.feature3,
           ].map((f) => (
             <div key={f} className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-emerald-500 shrink-0" />
@@ -76,7 +78,7 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
           className="w-full bg-[#38b6ff] text-white hover:bg-[#38b6ff]/90 rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2"
         >
           <Crown className="h-4 w-4" />
-          שדרג לפרו עכשיו
+          {he.upgrade.upgradeNow}
         </Button>
 
         {/* Secondary dismiss */}
@@ -84,7 +86,7 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
           onClick={onClose}
           className="w-full mt-2 text-xs text-muted-foreground hover:text-muted-foreground transition-colors py-2"
         >
-          אולי מאוחר יותר
+          {he.upgrade.maybeLater}
         </button>
       </div>
     </div>

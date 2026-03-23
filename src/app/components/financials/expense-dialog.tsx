@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createExpense, updateExpense } from "@/lib/actions/financial-actions";
+import { useT } from "@/lib/i18n";
 
 interface ExpenseDialogProps {
   expense?: {
@@ -38,13 +39,7 @@ interface ExpenseDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const expenseCategories = [
-  { value: "overhead", label: "הוצאה חודשית קבועה" },
-  { value: "project", label: "הוצאה לפרויקט" },
-  { value: "gear_purchase", label: "רכישת ציוד" },
-  { value: "vehicle_travel", label: "רכב/נסיעות" },
-  { value: "other", label: "אחר" },
-] as const;
+// Expense categories are resolved dynamically via useT()
 
 function formatDateForInput(date: Date): string {
   const d = new Date(date);
@@ -60,7 +55,16 @@ export function ExpenseDialog({
   onOpenChange,
 }: ExpenseDialogProps) {
   const [isPending, startTransition] = useTransition();
+  const he = useT();
   const isEditing = !!expense;
+
+  const expenseCategories = [
+    { value: "overhead", label: he.financial.expenseCategories.overhead },
+    { value: "project", label: he.financial.expenseCategories.project },
+    { value: "gear_purchase", label: he.financial.expenseCategories.gear_purchase },
+    { value: "vehicle_travel", label: he.financial.expenseCategories.vehicle_travel },
+    { value: "other", label: he.financial.expenseCategories.other },
+  ];
   const [category, setCategory] = useState(expense?.category ?? "other");
   const [receiptUrl, setReceiptUrl] = useState(expense?.receiptUrl ?? "");
   const [receiptName, setReceiptName] = useState("");
@@ -117,12 +121,12 @@ export function ExpenseDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת הוצאה" : "הוצאה חדשה"}
+            {isEditing ? he.financialExtra.editExpense : he.financialExtra.newExpense}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי ההוצאה"
-              : "הוסף הוצאה חדשה למערכת"}
+              ? he.financialExtra.editExpenseDetails
+              : he.financialExtra.newExpenseDetails}
           </DialogDescription>
         </DialogHeader>
 
@@ -130,7 +134,7 @@ export function ExpenseDialog({
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* תיאור */}
             <div className="space-y-2">
-              <Label htmlFor="description">תיאור</Label>
+              <Label htmlFor="description">{he.common.description}</Label>
               <Input
                 id="description"
                 name="description"
@@ -141,7 +145,7 @@ export function ExpenseDialog({
 
             {/* קטגוריה */}
             <div className="space-y-2">
-              <Label htmlFor="category">קטגוריה</Label>
+              <Label htmlFor="category">{he.common.category}</Label>
               <Select value={category} onValueChange={(v) => v && setCategory(v)}>
                 <SelectTrigger id="category" className="w-full">
                   <span className="flex flex-1">{expenseCategories.find(cat => cat.value === category)?.label ?? category}</span>
@@ -158,7 +162,7 @@ export function ExpenseDialog({
 
             {/* סכום */}
             <div className="space-y-2">
-              <Label htmlFor="amount">סכום (₪)</Label>
+              <Label htmlFor="amount">{he.financialExtra.amount}</Label>
               <Input
                 id="amount"
                 name="amount"
@@ -172,7 +176,7 @@ export function ExpenseDialog({
 
             {/* תאריך */}
             <div className="space-y-2">
-              <Label htmlFor="date">תאריך</Label>
+              <Label htmlFor="date">{he.common.date}</Label>
               <Input
                 id="date"
                 name="date"
@@ -188,7 +192,7 @@ export function ExpenseDialog({
 
             {/* ספק */}
             <div className="space-y-2">
-              <Label htmlFor="vendor">ספק</Label>
+              <Label htmlFor="vendor">{he.financialExtra.vendor}</Label>
               <Input
                 id="vendor"
                 name="vendor"
@@ -198,7 +202,7 @@ export function ExpenseDialog({
 
             {/* הערות */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -208,7 +212,7 @@ export function ExpenseDialog({
 
             {/* צרף קבלה */}
             <div className="col-span-2 space-y-2">
-              <Label>צרף קבלה / PDF</Label>
+              <Label>{he.financialExtra.attachReceipt}</Label>
               {receiptUrl ? (
                 <div className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm">
                   <Paperclip className="h-4 w-4 text-emerald-600 shrink-0" />
@@ -224,7 +228,7 @@ export function ExpenseDialog({
               ) : (
                 <label className={`flex cursor-pointer items-center gap-2 rounded-lg border border-dashed px-3 py-2 text-sm transition-colors ${uploading ? "border-border text-muted-foreground" : "border-border text-muted-foreground hover:border-gray-400 hover:bg-muted"}`}>
                   {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Paperclip className="h-4 w-4" />}
-                  {uploading ? "מעלה..." : "לחץ לצירוף קובץ (PDF, JPG, PNG)"}
+                  {uploading ? he.moodboard.uploading : he.financialExtra.clickToAttach}
                   <input ref={fileInputRef} type="file" accept=".pdf,.jpg,.jpeg,.png"
                     className="hidden" onChange={handleFileSelect} disabled={uploading} />
                 </label>
@@ -234,14 +238,14 @@ export function ExpenseDialog({
 
           <DialogFooter>
             <DialogClose render={<Button variant="outline" />}>
-              ביטול
+              {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
               {isPending
-                ? "שומר..."
+                ? he.common.saving
                 : isEditing
-                  ? "עדכון הוצאה"
-                  : "הוספת הוצאה"}
+                  ? he.financialExtra.updateExpense
+                  : he.financialExtra.addExpense}
             </Button>
           </DialogFooter>
         </form>

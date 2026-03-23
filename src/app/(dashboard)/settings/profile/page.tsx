@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe } from "lucide-react";
 import { updateLocale } from "@/lib/actions/user-actions";
-import { useLocale } from "@/lib/i18n";
+import { useLocale, useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ export default function ProfileSettingsPage() {
   const user = session?.user;
   const router = useRouter();
   const currentLocale = useLocale();
+  const he = useT();
   const [isPendingLocale, startLocaleTransition] = useTransition();
 
   function handleLocaleChange(newLocale: "he" | "en") {
@@ -41,11 +42,11 @@ export default function ProfileSettingsPage() {
     setSuccess(false);
 
     if (newPassword !== confirmPassword) {
-      setError("הסיסמאות החדשות אינן תואמות");
+      setError(he.profile.passwordsDoNotMatch);
       return;
     }
     if (newPassword.length < 6) {
-      setError("הסיסמה החדשה חייבת להכיל לפחות 6 תווים");
+      setError(he.profile.passwordTooShort);
       return;
     }
 
@@ -58,7 +59,7 @@ export default function ProfileSettingsPage() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "שגיאה בשינוי הסיסמה");
+        setError(data.error ?? he.profile.passwordChangeError);
       } else {
         setSuccess(true);
         setCurrentPassword("");
@@ -66,7 +67,7 @@ export default function ProfileSettingsPage() {
         setConfirmPassword("");
       }
     } catch {
-      setError("שגיאת רשת, נסה שוב");
+      setError(he.profile.networkError);
     } finally {
       setLoading(false);
     }
@@ -76,8 +77,8 @@ export default function ProfileSettingsPage() {
     <div className="max-w-2xl mx-auto space-y-6" dir="rtl">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-foreground">הגדרות חשבון</h1>
-        <p className="mt-1 text-sm text-muted-foreground">פרטי המשתמש שלך</p>
+        <h1 className="text-2xl font-bold text-foreground">{he.profile.accountSettings}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{he.profile.userDetails}</p>
       </div>
 
       {/* Profile card */}
@@ -102,22 +103,22 @@ export default function ProfileSettingsPage() {
           <div className="flex items-start gap-3">
             <User className="h-4 w-4 text-muted-foreground mt-0.5" />
             <div>
-              <p className="text-xs text-muted-foreground font-medium">שם מלא</p>
-              <p className="text-sm text-foreground font-medium mt-0.5">{user?.name ?? "לא הוגדר"}</p>
+              <p className="text-xs text-muted-foreground font-medium">{he.profile.fullName}</p>
+              <p className="text-sm text-foreground font-medium mt-0.5">{user?.name ?? he.profile.notSet}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Mail className="h-4 w-4 text-muted-foreground mt-0.5" />
             <div>
-              <p className="text-xs text-muted-foreground font-medium">כתובת דוא&quot;ל</p>
+              <p className="text-xs text-muted-foreground font-medium">{he.profile.emailAddress}</p>
               <p className="text-sm text-foreground font-medium mt-0.5">{user?.email ?? "—"}</p>
             </div>
           </div>
           <div className="flex items-start gap-3">
             <Shield className="h-4 w-4 text-muted-foreground mt-0.5" />
             <div>
-              <p className="text-xs text-muted-foreground font-medium">אבטחה</p>
-              <p className="text-sm text-muted-foreground mt-0.5">סיסמה מוצפנת · אימות בכניסה</p>
+              <p className="text-xs text-muted-foreground font-medium">{he.profile.security}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{he.profile.securityDesc}</p>
             </div>
           </div>
         </div>
@@ -129,7 +130,7 @@ export default function ProfileSettingsPage() {
           <div className="flex items-center gap-3">
             <Globe className="h-4 w-4 text-muted-foreground" />
             <div>
-              <p className="text-sm font-semibold text-foreground">שפה / Language</p>
+              <p className="text-sm font-semibold text-foreground">{he.profile.languageLabel}</p>
               <p className="text-xs text-muted-foreground mt-0.5">{currentLocale === "he" ? "עברית" : "English"}</p>
             </div>
           </div>
@@ -158,13 +159,13 @@ export default function ProfileSettingsPage() {
 
       {/* Change password card */}
       <div className="rounded-2xl border border-border bg-card shadow-sm px-6 py-6">
-        <h2 className="text-base font-semibold text-foreground mb-1">שינוי סיסמה</h2>
-        <p className="text-sm text-muted-foreground mb-5">בחר סיסמה חזקה של לפחות 6 תווים</p>
+        <h2 className="text-base font-semibold text-foreground mb-1">{he.profile.changePassword}</h2>
+        <p className="text-sm text-muted-foreground mb-5">{he.profile.changePasswordDesc}</p>
 
         <form onSubmit={handleChangePassword} className="space-y-4">
           {/* Current password */}
           <div className="space-y-1.5">
-            <Label htmlFor="current">סיסמה נוכחית</Label>
+            <Label htmlFor="current">{he.profile.currentPassword}</Label>
             <div className="relative">
               <Input
                 id="current"
@@ -172,7 +173,7 @@ export default function ProfileSettingsPage() {
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 required
-                placeholder="הזן סיסמה נוכחית"
+                placeholder={he.profile.currentPasswordPlaceholder}
                 className="pl-10"
               />
               <button type="button" onClick={() => setShowCurrent(v => !v)}
@@ -184,7 +185,7 @@ export default function ProfileSettingsPage() {
 
           {/* New password */}
           <div className="space-y-1.5">
-            <Label htmlFor="new">סיסמה חדשה</Label>
+            <Label htmlFor="new">{he.profile.newPassword}</Label>
             <div className="relative">
               <Input
                 id="new"
@@ -192,7 +193,7 @@ export default function ProfileSettingsPage() {
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 required
-                placeholder="לפחות 6 תווים"
+                placeholder={he.auth.minChars}
                 className="pl-10"
               />
               <button type="button" onClick={() => setShowNew(v => !v)}
@@ -204,7 +205,7 @@ export default function ProfileSettingsPage() {
 
           {/* Confirm password */}
           <div className="space-y-1.5">
-            <Label htmlFor="confirm">אימות סיסמה חדשה</Label>
+            <Label htmlFor="confirm">{he.profile.confirmNewPassword}</Label>
             <div className="relative">
               <Input
                 id="confirm"
@@ -212,7 +213,7 @@ export default function ProfileSettingsPage() {
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 required
-                placeholder="חזור על הסיסמה החדשה"
+                placeholder={he.profile.confirmNewPasswordPlaceholder}
                 className="pl-10"
               />
               <button type="button" onClick={() => setShowConfirm(v => !v)}
@@ -229,12 +230,12 @@ export default function ProfileSettingsPage() {
           {success && (
             <div className="flex items-center gap-2 text-sm text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-xl px-4 py-2.5">
               <Check className="h-4 w-4 flex-shrink-0" />
-              הסיסמה שונתה בהצלחה
+              {he.profile.passwordChanged}
             </div>
           )}
 
           <Button type="submit" disabled={loading} className="bg-foreground hover:bg-foreground/90 text-white w-full sm:w-auto">
-            {loading ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />שומר...</> : "שמור סיסמה"}
+            {loading ? <><Loader2 className="h-4 w-4 me-2 animate-spin" />{he.common.saving}</> : he.profile.savePassword}
           </Button>
         </form>
       </div>

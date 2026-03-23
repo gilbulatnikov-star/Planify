@@ -3,14 +3,16 @@
 import { Trash2 } from "lucide-react";
 import { deleteMoodboard } from "@/lib/actions/moodboard-actions";
 import { useTransition } from "react";
+import { useT } from "@/lib/i18n";
 
 export function DeleteMoodboardButton({ id }: { id: string }) {
   const [isPending, startTransition] = useTransition();
+  const he = useT();
 
   function handleDelete(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm("למחוק את הלוח?")) return;
+    if (!confirm(he.moodboard.deleteConfirm)) return;
     startTransition(() => deleteMoodboard(id));
   }
 

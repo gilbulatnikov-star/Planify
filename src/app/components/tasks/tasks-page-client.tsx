@@ -13,6 +13,7 @@ import {
   updateTodoProject,
 } from "@/lib/actions/widget-actions";
 import { ProjectLinker } from "@/app/components/shared/project-linker";
+import { useT } from "@/lib/i18n";
 
 interface TodoItem {
   id: string;
@@ -29,6 +30,7 @@ interface TasksPageClientProps {
 
 export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPageClientProps) {
   const router = useRouter();
+  const he = useT();
   const [isPending, startTransition] = useTransition();
   const [newTask, setNewTask] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "done">("all");
@@ -85,7 +87,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        feature="משימות יומיות"
+        feature={he.tasks.dailyTasks}
         limit={todosLimit}
       />
 
@@ -95,9 +97,9 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           <ListTodo className="h-5 w-5 text-[#38b6ff]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">משימות</h1>
+          <h1 className="text-2xl font-bold text-foreground">{he.tasks.title}</h1>
           <p className="text-sm text-muted-foreground">
-            {activeCount} פעילות · {doneCount} הושלמו
+            {activeCount} {he.tasks.activeCount} · {doneCount} {he.tasks.doneCount}
           </p>
         </div>
       </div>
@@ -109,7 +111,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           onChange={(e) => setNewTask(e.target.value)}
           onKeyDown={handleKeyDown}
           onClick={() => { if (atLimit) setUpgradeOpen(true); }}
-          placeholder={atLimit ? `הגעת למגבלת ${todosLimit} משימות — לחץ לשדרוג` : "הוסף משימה חדשה..."}
+          placeholder={atLimit ? he.tasks.reachedLimit.replace("{limit}", String(todosLimit)) : he.tasks.addNewTask}
           disabled={isPending}
           readOnly={atLimit}
           className={`flex-1 ${atLimit ? "cursor-pointer text-muted-foreground bg-muted" : ""}`}
@@ -138,7 +140,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            {f === "all" ? "הכל" : f === "active" ? "פעילות" : "הושלמו"}
+            {f === "all" ? he.tasks.allFilter : f === "active" ? he.tasks.activeFilter : he.tasks.doneFilter}
           </button>
         ))}
       </div>
@@ -149,7 +151,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <CheckSquare className="h-10 w-10 text-gray-200 mb-3" />
             <p className="text-sm text-muted-foreground">
-              {filter === "done" ? "עוד לא סיימת משימות" : "אין משימות כאן"}
+              {filter === "done" ? he.tasks.noDoneTasks : he.tasks.noTasksHere}
             </p>
           </div>
         ) : (
@@ -226,13 +228,13 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           </div>
           <div className="flex-1">
             <p className="text-sm font-bold text-foreground group-hover:text-[#38b6ff] transition-colors">
-              שדרג לפרו — משימות ללא הגבלה
+              {he.tasks.upgradeUnlimited}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              בתוכנית החינמית: {initialTodos.length} / {todosLimit} משימות
+              {he.tasks.freeLimit} {initialTodos.length} / {todosLimit}
             </p>
             <div className="flex flex-wrap gap-3 mt-3">
-              {["פרויקטים ולקוחות ללא הגבלה", "חשבוניות והצעות מחיר", "לוח השראה ותסריטים"].map((f) => (
+              {[he.tasks.upgradeFeature1, he.tasks.upgradeFeature2, he.tasks.upgradeFeature3].map((f) => (
                 <div key={f} className="flex items-center gap-1.5">
                   <Sparkles className="h-3 w-3 text-[#38b6ff]" />
                   <span className="text-xs text-muted-foreground">{f}</span>

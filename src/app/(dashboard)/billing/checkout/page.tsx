@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { PLANS } from "@/lib/plan-limits";
+import { useT } from "@/lib/i18n";
 
 // ─── Card number formatter ────────────────────────────────────────────────────
 
@@ -30,6 +31,7 @@ function formatExpiry(value: string) {
 // ─── Mini plan summary ────────────────────────────────────────────────────────
 
 function PlanSummary({ planKey }: { planKey: "MONTHLY" | "ANNUAL" }) {
+  const he = useT();
   const plan = PLANS.find((p) => p.key === planKey)!;
   const Icon = planKey === "MONTHLY" ? Zap : Crown;
   const isAnnual = planKey === "ANNUAL";
@@ -58,7 +60,7 @@ function PlanSummary({ planKey }: { planKey: "MONTHLY" | "ANNUAL" }) {
           </div>
           {isAnnual && (
             <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded-lg px-2.5 py-1">
-              חיסכון ₪118
+              {he.billing.savings}
             </span>
           )}
         </div>
@@ -80,7 +82,7 @@ function PlanSummary({ planKey }: { planKey: "MONTHLY" | "ANNUAL" }) {
       {/* Guarantee */}
       <div className="px-6 py-3 bg-muted border-t border-border flex items-center gap-2" dir="rtl">
         <ShieldCheck className="h-4 w-4 text-muted-foreground shrink-0" />
-        <p className="text-xs text-muted-foreground">ביטול בכל עת, ללא חיוב נוסף</p>
+        <p className="text-xs text-muted-foreground">{he.billing.cancelAnytimeNoCharge}</p>
       </div>
     </div>
   );
@@ -130,6 +132,7 @@ function CardVisual({
 
 function CheckoutContent() {
   const router = useRouter();
+  const he = useT();
   const searchParams = useSearchParams();
   const planParam = searchParams.get("plan") as "MONTHLY" | "ANNUAL" | null;
 
@@ -156,11 +159,11 @@ function CheckoutContent() {
 
     // Basic validation
     const digits = cardNumber.replace(/\D/g, "");
-    if (digits.length < 16) { setError("מספר כרטיס אינו תקין"); return; }
-    if (!cardName.trim()) { setError("יש להזין שם בעל הכרטיס"); return; }
+    if (digits.length < 16) { setError(he.billing.invalidCardNumber); return; }
+    if (!cardName.trim()) { setError(he.billing.enterCardholderName); return; }
     const expiryDigits = expiry.replace(/\D/g, "");
-    if (expiryDigits.length < 4) { setError("תאריך תפוגה אינו תקין"); return; }
-    if (cvv.length < 3) { setError("CVV אינו תקין"); return; }
+    if (expiryDigits.length < 4) { setError(he.billing.invalidExpiry); return; }
+    if (cvv.length < 3) { setError(he.billing.invalidCVV); return; }
 
     setLoading(true);
     try {
@@ -171,12 +174,12 @@ function CheckoutContent() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error ?? "שגיאה בעיבוד התשלום");
+        setError(data.error ?? he.billing.paymentError);
       } else if (data.url) {
         router.push(data.url);
       }
     } catch {
-      setError("שגיאת רשת, נסה שוב");
+      setError(he.profile.networkError);
     } finally {
       setLoading(false);
     }
@@ -191,10 +194,10 @@ function CheckoutContent() {
           className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowRight className="h-4 w-4" />
-          חזור
+          {he.billing.goBack}
         </button>
         <div className="h-4 w-px bg-gray-200" />
-        <h1 className="text-xl font-bold text-foreground">סיום רכישה</h1>
+        <h1 className="text-xl font-bold text-foreground">{he.billing.completePurchase}</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
@@ -206,11 +209,11 @@ function CheckoutContent() {
           <div className="flex items-center justify-center gap-6 py-2">
             <div className="flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">תשלום מאובטח SSL</span>
+              <span className="text-xs text-muted-foreground">{he.billing.secureSSL}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">הצפנה PCI DSS</span>
+              <span className="text-xs text-muted-foreground">{he.billing.pciEncryption}</span>
             </div>
           </div>
         </div>
@@ -221,7 +224,7 @@ function CheckoutContent() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground">
               <CreditCard className="h-4 w-4 text-white" />
             </div>
-            <h2 className="text-base font-bold text-foreground">פרטי כרטיס אשראי</h2>
+            <h2 className="text-base font-bold text-foreground">{he.billing.creditCardDetails}</h2>
           </div>
 
           {/* Card visual */}
@@ -231,7 +234,7 @@ function CheckoutContent() {
             {/* Card number */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                מספר כרטיס
+                {he.billing.cardNumber}
               </label>
               <input
                 type="text"
@@ -248,7 +251,7 @@ function CheckoutContent() {
             {/* Cardholder name */}
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                שם בעל הכרטיס
+                {he.billing.cardholderName}
               </label>
               <input
                 type="text"
@@ -264,7 +267,7 @@ function CheckoutContent() {
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  תאריך תפוגה
+                  {he.billing.expiryDate}
                 </label>
                 <input
                   type="text"
@@ -308,17 +311,17 @@ function CheckoutContent() {
               className="w-full rounded-xl bg-foreground text-white py-3.5 text-sm font-bold hover:bg-foreground/90 disabled:opacity-60 transition-all flex items-center justify-center gap-2 shadow-sm"
             >
               {loading ? (
-                <><Loader2 className="h-4 w-4 animate-spin" />מעבד תשלום...</>
+                <><Loader2 className="h-4 w-4 animate-spin" />{he.billing.processingPayment}</>
               ) : (
-                <><Lock className="h-4 w-4" />שלם {planMeta.price} עכשיו</>
+                <><Lock className="h-4 w-4" />{he.billing.payNow} {planMeta.price} {he.billing.now}</>
               )}
             </button>
 
             <p className="text-center text-xs text-muted-foreground">
-              על ידי לחיצה על &quot;שלם&quot; אתה מסכים ל
-              <a href="#" className="underline hover:text-foreground">תנאי השירות</a>
-              {" "}ול
-              <a href="#" className="underline hover:text-foreground">מדיניות הפרטיות</a>
+              {he.billing.agreeTerms}
+              <a href="#" className="underline hover:text-foreground">{he.billing.termsOfService}</a>
+              {" "}{he.billing.and}
+              <a href="#" className="underline hover:text-foreground">{he.billing.privacyPolicy}</a>
             </p>
           </form>
         </div>

@@ -5,9 +5,11 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const he = useT();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +33,7 @@ export default function SignUpPage() {
 
     if (!res.ok) {
       setLoading(false);
-      setError(data.error || "משהו השתבש. נסה שוב.");
+      setError(data.error || he.auth.signUpFailed);
       return;
     }
 
@@ -45,7 +47,7 @@ export default function SignUpPage() {
     setLoading(false);
 
     if (result?.error) {
-      setError("ההרשמה הצליחה אך הכניסה נכשלה. נסה להיכנס ידנית.");
+      setError(he.auth.signUpSuccessSignInFailed);
     } else {
       router.push("/onboarding");
       router.refresh();
@@ -63,8 +65,8 @@ export default function SignUpPage() {
             <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">צור חשבון ב-Planify</h1>
-        <p className="text-sm text-muted-foreground mt-1">מערכת הניהול לצלמים ומפיקים</p>
+        <h1 className="text-2xl font-bold text-foreground">{he.auth.createAccount}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{he.auth.createAccountSubtitle}</p>
       </div>
 
       {/* Card */}
@@ -80,12 +82,12 @@ export default function SignUpPage() {
 
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">שם מלא</label>
+            <label className="text-sm font-medium text-foreground">{he.auth.fullName}</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="גיל כהן"
+              placeholder="Gil Cohen"
               dir="rtl"
               className="w-full h-11 rounded-xl border border-border bg-muted px-4 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
             />
@@ -93,7 +95,7 @@ export default function SignUpPage() {
 
           {/* Email */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">אימייל</label>
+            <label className="text-sm font-medium text-foreground">{he.auth.email}</label>
             <input
               type="email"
               value={email}
@@ -107,13 +109,13 @@ export default function SignUpPage() {
 
           {/* Password */}
           <div className="space-y-1.5">
-            <label className="text-sm font-medium text-foreground">סיסמה</label>
+            <label className="text-sm font-medium text-foreground">{he.auth.password}</label>
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="לפחות 6 תווים"
+                placeholder={he.auth.minChars}
                 required
                 dir="ltr"
                 className="w-full h-11 rounded-xl border border-border bg-muted px-4 pl-11 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
@@ -137,10 +139,10 @@ export default function SignUpPage() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                <span>יוצר חשבון...</span>
+                <span>{he.auth.creatingAccount}</span>
               </>
             ) : (
-              "יצירת חשבון חינם"
+              he.auth.createAccountButton
             )}
           </button>
 
@@ -150,7 +152,7 @@ export default function SignUpPage() {
               <div className="w-full border-t border-border" />
             </div>
             <div className="relative flex justify-center text-xs text-muted-foreground">
-              <span className="bg-card px-3">או המשך עם</span>
+              <span className="bg-card px-3">{he.auth.orContinueWith}</span>
             </div>
           </div>
 
@@ -171,16 +173,16 @@ export default function SignUpPage() {
 
           {/* Terms */}
           <p className="text-center text-xs text-muted-foreground">
-            בהרשמה אתה מסכים לתנאי השימוש ומדיניות הפרטיות
+            {he.auth.agreeToTerms}
           </p>
         </form>
       </div>
 
       {/* Sign in link */}
       <p className="text-center text-sm text-muted-foreground mt-6" dir="rtl">
-        כבר יש לך חשבון?{" "}
+        {he.auth.alreadyHaveAccount}{" "}
         <Link href="/sign-in" className="font-semibold text-foreground hover:underline">
-          כניסה
+          {he.auth.signIn}
         </Link>
       </p>
     </div>
