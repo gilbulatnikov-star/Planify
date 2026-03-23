@@ -243,10 +243,7 @@ export function ProjectDetailClient({
               <CardContent className="p-4 flex items-start justify-between">
                 <Link href={`/scripts/${s.id}`} className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{s.title}</p>
-                  <div className="flex items-center gap-2 mt-1.5">
-                    <Badge className="text-[10px] bg-muted border-0 text-muted-foreground">{s.platform}</Badge>
-                    <span className="text-[10px] text-muted-foreground">{formatDate(s.updatedAt)}</span>
-                  </div>
+                  <span className="text-[10px] text-muted-foreground">{formatDate(s.updatedAt)}</span>
                 </Link>
                 <button onClick={() => handleUnlink("script", s.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                   <X className="h-3.5 w-3.5" />
@@ -286,25 +283,20 @@ export function ProjectDetailClient({
         <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
           <Contact className="h-4 w-4" /> אנשי קשר
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div className="space-y-1.5">
           {project.contacts.map(c => (
-            <Card key={c.id} className="glass-card group/item">
-              <CardContent className="p-4 flex items-start justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{c.name}</p>
-                  <Badge className="text-[10px] bg-muted border-0 text-muted-foreground mt-1">
-                    {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
-                  </Badge>
-                  <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
-                    {c.phone && <span className="flex items-center gap-1"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
-                    {c.email && <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{c.email}</span>}
-                  </div>
-                </div>
-                <button onClick={() => handleUnlink("contact", c.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
-                  <X className="h-3.5 w-3.5" />
-                </button>
-              </CardContent>
-            </Card>
+            <div key={c.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 group/item">
+              <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
+                <span className="text-sm font-medium">{c.name}</span>
+                <Badge className="text-[10px] bg-muted border-0 text-muted-foreground">
+                  {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
+                </Badge>
+                {c.phone && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
+              </div>
+              <button onClick={() => handleUnlink("contact", c.id)} title="הסר מהפרויקט" className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
           ))}
           <LinkItemDropdown items={unlinked.contacts.map(c => ({ id: c.id, title: c.name }))} onSelect={(id) => handleLink("contact", id)} />
         </div>
