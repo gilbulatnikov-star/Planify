@@ -88,12 +88,12 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת השראה" : he.inspiration.newItem}
+            {isEditing ? he.inspirationExtra.editInspiration : he.inspiration.newItem}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי ההשראה"
-              : "הוסף השראה חדשה ללוח"}
+              ? he.inspirationExtra.editDetails
+              : he.inspirationExtra.addToBoard}
           </DialogDescription>
         </DialogHeader>
 
@@ -101,7 +101,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* Title */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="title">כותרת *</Label>
+              <Label htmlFor="title">{he.inspirationExtra.titleRequired}</Label>
               <Input
                 id="title"
                 name="title"
@@ -112,7 +112,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
 
             {/* URL */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="url">קישור</Label>
+              <Label htmlFor="url">{he.inspirationExtra.linkLabel}</Label>
               <Input
                 id="url"
                 name="url"
@@ -123,15 +123,15 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
 
             {/* Category */}
             <div className="col-span-2 space-y-2">
-              <Label>קטגוריה *</Label>
+              <Label>{he.inspirationExtra.categoryRequired}</Label>
               {categories.length === 0 ? (
                 <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 rounded-lg px-3 py-2">
-                  אין קטגוריות עדיין — סגור ולחץ על &quot;קטגוריות&quot; כדי ליצור אחת
+                  {he.inspirationExtra.noCategoriesYet}
                 </p>
               ) : (
                 <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
                   <SelectTrigger className="w-full">
-                    <span className="flex flex-1">{categoryId ? (categories.find(cat => cat.id === categoryId)?.label ?? categoryId) : "בחר קטגוריה"}</span>
+                    <span className="flex flex-1">{categoryId ? (categories.find(cat => cat.id === categoryId)?.label ?? categoryId) : he.inspirationExtra.selectCategory}</span>
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
@@ -146,7 +146,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
 
             {/* Notes */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
