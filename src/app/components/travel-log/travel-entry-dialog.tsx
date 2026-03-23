@@ -118,12 +118,12 @@ export function TravelEntryDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת נסיעה" : he.travelLog.newEntry}
+            {isEditing ? he.travelExtra.editTrip : he.travelLog.newEntry}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי הנסיעה"
-              : "הוסף נסיעה חדשה ליומן"}
+              ? he.travelExtra.editDetails
+              : he.travelExtra.addNew}
           </DialogDescription>
         </DialogHeader>
 
@@ -131,7 +131,7 @@ export function TravelEntryDialog({
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* תאריך */}
             <div className="space-y-2">
-              <Label htmlFor="date">תאריך</Label>
+              <Label htmlFor="date">{he.common.date}</Label>
               <DatePicker value={date} onChange={setDate} name="date" />
             </div>
 
@@ -176,16 +176,16 @@ export function TravelEntryDialog({
 
             {/* לקוח */}
             <div className="space-y-2">
-              <Label htmlFor="clientId">לקוח</Label>
+              <Label htmlFor="clientId">{he.common.client}</Label>
               <Select
                 value={clientId}
                 onValueChange={(v) => v && setClientId(v)}
               >
                 <SelectTrigger id="clientId" className="w-full">
-                  <span className="flex flex-1">{clientId === NONE_VALUE ? "ללא" : (clients.find(c => c.id === clientId)?.name ?? clientId)}</span>
+                  <span className="flex flex-1">{clientId === NONE_VALUE ? he.common.none : (clients.find(c => c.id === clientId)?.name ?? clientId)}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE_VALUE}>ללא</SelectItem>
+                  <SelectItem value={NONE_VALUE}>{he.common.none}</SelectItem>
                   {clients.map((c) => (
                     <SelectItem key={c.id} value={c.id}>
                       {c.name}
@@ -197,16 +197,16 @@ export function TravelEntryDialog({
 
             {/* פרויקט */}
             <div className="space-y-2">
-              <Label htmlFor="projectId">פרויקט</Label>
+              <Label htmlFor="projectId">{he.common.project}</Label>
               <Select
                 value={projectId}
                 onValueChange={(v) => v && setProjectId(v)}
               >
                 <SelectTrigger id="projectId" className="w-full">
-                  <span className="flex flex-1">{projectId === NONE_VALUE ? "ללא" : (projects.find(p => p.id === projectId)?.title ?? projectId)}</span>
+                  <span className="flex flex-1">{projectId === NONE_VALUE ? he.common.none : (projects.find(p => p.id === projectId)?.title ?? projectId)}</span>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={NONE_VALUE}>ללא</SelectItem>
+                  <SelectItem value={NONE_VALUE}>{he.common.none}</SelectItem>
                   {projects.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.title}
@@ -218,7 +218,7 @@ export function TravelEntryDialog({
 
             {/* מטרה */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="purpose">מטרה</Label>
+              <Label htmlFor="purpose">{he.travelExtra.purposeLabel}</Label>
               <Textarea
                 id="purpose"
                 name="purpose"
@@ -233,7 +233,7 @@ export function TravelEntryDialog({
               {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : he.common.save}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

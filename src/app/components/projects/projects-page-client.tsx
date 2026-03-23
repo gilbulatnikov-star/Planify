@@ -116,7 +116,7 @@ export function ProjectsPageClient({
                         <Button
                           variant="ghost"
                           size="icon"
-                          title="הוסף ל-Google Calendar"
+                          title={he.projectsPage.addToGCal}
                           className="h-6 w-6 hover:bg-blue-50 hover:text-blue-700"
                           onClick={() => {
                             const d = new Date(project.shootDate!);
@@ -133,10 +133,10 @@ export function ProjectsPageClient({
                       <Button
                         variant="ghost"
                         size="icon"
-                        title="צור תיקיית Drive"
+                        title={he.projectsPage.createDriveFolder}
                         className="h-6 w-6 hover:bg-green-50 hover:text-green-700"
                         onClick={async () => {
-                          const folderName = `${project.shootDate ? new Date(project.shootDate).getFullYear() + " - " : ""}${project.client?.name ?? "ללא לקוח"} - ${project.title}`;
+                          const folderName = `${project.shootDate ? new Date(project.shootDate).getFullYear() + " - " : ""}${project.client?.name ?? he.projectsPage.noClientLabel} - ${project.title}`;
                           const res = await fetch("/api/google/drive", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -144,8 +144,8 @@ export function ProjectsPageClient({
                           });
                           const data = await res.json();
                           if (data.folderUrl) window.open(data.folderUrl, "_blank", "noopener");
-                          else if (data.setupRequired) alert("חיבור Google Drive דורש הגדרה.");
-                          else alert(data.error ?? "שגיאה ביצירת תיקייה");
+                          else if (data.setupRequired) alert(he.projectsPage.driveSetupRequired);
+                          else alert(data.error ?? he.projectsPage.driveFolderError);
                         }}
                       >
                         <FolderPlus className="h-3 w-3" />

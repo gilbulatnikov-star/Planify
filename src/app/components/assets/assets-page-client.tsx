@@ -105,7 +105,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="חיפוש..."
+            placeholder={he.common.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pr-10 bg-card border-border"
@@ -122,7 +122,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
                 : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }
           >
-            הכל
+            {he.common.all}
           </Button>
           {allTypes.map((t) => (
             <Button
@@ -149,12 +149,12 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
-                  <TableHead className="text-muted-foreground">שם</TableHead>
-                  <TableHead className="text-muted-foreground">סוג</TableHead>
-                  <TableHead className="text-muted-foreground">מקור</TableHead>
-                  <TableHead className="text-muted-foreground">קישור</TableHead>
-                  <TableHead className="text-muted-foreground">הערות</TableHead>
-                  <TableHead className="w-[80px] text-muted-foreground">פעולות</TableHead>
+                  <TableHead className="text-muted-foreground">{he.assetsPage.nameCol}</TableHead>
+                  <TableHead className="text-muted-foreground">{he.assetsPage.typeCol}</TableHead>
+                  <TableHead className="text-muted-foreground">{he.assetsPage.sourceCol}</TableHead>
+                  <TableHead className="text-muted-foreground">{he.assetsPage.linkCol}</TableHead>
+                  <TableHead className="text-muted-foreground">{he.assetsPage.notesCol}</TableHead>
+                  <TableHead className="w-[80px] text-muted-foreground">{he.assetsPage.actionsCol}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -181,7 +181,7 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
                           className="inline-flex items-center gap-1 text-foreground hover:text-foreground transition-colors duration-200 text-sm"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
-                          <span className="truncate max-w-[150px]">פתח</span>
+                          <span className="truncate max-w-[150px]">{he.assetExtra.openLabel}</span>
                         </a>
                       ) : (
                         <span className="text-muted-foreground">—</span>

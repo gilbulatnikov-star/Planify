@@ -163,7 +163,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
               {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending || categories.length === 0}>
-              {isPending ? "שומר..." : he.common.save}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

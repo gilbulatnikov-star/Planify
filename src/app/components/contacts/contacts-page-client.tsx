@@ -120,7 +120,7 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
         <div className="relative flex-1">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="חיפוש..."
+            placeholder={he.common.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pr-10 bg-background border-border"
@@ -199,7 +199,7 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        feature="אנשי קשר"
+        feature={he.contactsPage.contactsFeature}
         limit={planLimit}
       />
       <ContactDialog

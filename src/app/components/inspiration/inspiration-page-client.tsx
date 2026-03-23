@@ -131,7 +131,7 @@ export function InspirationPageClient({
             className="border-border text-muted-foreground hover:text-foreground hover:bg-muted"
           >
             <Settings2 className="h-4 w-4 me-2" />
-            קטגוריות
+            {he.inspirationExtra.categoriesBtn}
           </Button>
           <Button
             size="sm"
@@ -149,7 +149,7 @@ export function InspirationPageClient({
         <div className="relative">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="חיפוש..."
+            placeholder={he.common.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pr-10 bg-background border-border"
@@ -166,7 +166,7 @@ export function InspirationPageClient({
                 : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }
           >
-            הכל
+            {he.common.all}
           </Button>
           {categories.map((cat) => (
             <Button
@@ -245,7 +245,7 @@ export function InspirationPageClient({
                       className="inline-flex items-center gap-1.5 text-foreground hover:text-foreground/70 transition-colors duration-200 text-sm mb-2"
                     >
                       <ExternalLink className="h-3.5 w-3.5" />
-                      <span className="truncate max-w-[200px]">פתח קישור</span>
+                      <span className="truncate max-w-[200px]">{he.inspirationExtra.openLink}</span>
                     </a>
                   )}
 
@@ -271,7 +271,7 @@ export function InspirationPageClient({
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        feature="רפרנסים בהשראה"
+        feature={he.inspirationExtra.inspirationRefs}
         limit={planLimit}
       />
       <InspirationDialog

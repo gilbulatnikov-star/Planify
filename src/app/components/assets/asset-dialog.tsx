@@ -82,12 +82,12 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת נכס" : he.assets.newAsset}
+            {isEditing ? he.assetExtra.editAsset : he.assets.newAsset}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי הנכס"
-              : "הוסף נכס חדש לספרייה"}
+              ? he.assetExtra.editDetails
+              : he.assetExtra.addNew}
           </DialogDescription>
         </DialogHeader>
 
@@ -95,7 +95,7 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* Name */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="name">שם *</Label>
+              <Label htmlFor="name">{he.assetExtra.nameRequired}</Label>
               <Input
                 id="name"
                 name="name"
@@ -106,7 +106,7 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
 
             {/* Type */}
             <div className="space-y-2">
-              <Label>סוג *</Label>
+              <Label>{he.assetExtra.typeRequired}</Label>
               <Select value={type} onValueChange={(v) => v && setType(v)}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">{typeOptions.find(o => o.value === type)?.label ?? type}</span>
@@ -123,7 +123,7 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
 
             {/* Source */}
             <div className="space-y-2">
-              <Label htmlFor="source">מקור</Label>
+              <Label htmlFor="source">{he.assetExtra.sourceLabel}</Label>
               <Input
                 id="source"
                 name="source"
@@ -134,7 +134,7 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
 
             {/* URL */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="originalUrl">קישור</Label>
+              <Label htmlFor="originalUrl">{he.assetExtra.linkLabel}</Label>
               <Input
                 id="originalUrl"
                 name="originalUrl"
@@ -145,7 +145,7 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
 
             {/* Notes */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -159,7 +159,7 @@ export function AssetDialog({ asset, open, onOpenChange }: AssetDialogProps) {
               {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : he.common.save}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

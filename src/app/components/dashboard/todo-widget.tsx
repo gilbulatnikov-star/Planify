@@ -71,7 +71,7 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
     <UpgradeDialog
       open={upgradeOpen}
       onClose={() => setUpgradeOpen(false)}
-      feature="משימות יומיות"
+      feature={he.todoExtra.dailyTasks}
       limit={todosLimit}
     />
     <Card className="glass-card">
@@ -88,7 +88,7 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
           onKeyDown={handleAddTodo}
-          placeholder={atLimit ? `מגבלת ${todosLimit} משימות — לחץ Enter לשדרוג` : he.widgets.todosPlaceholder}
+          placeholder={atLimit ? he.todoExtra.limitReached.replace("{limit}", String(todosLimit)) : he.widgets.todosPlaceholder}
           className="bg-transparent"
           disabled={isPending}
         />

@@ -120,7 +120,7 @@ export function QuickLinksWidget({ initialLinks }: QuickLinksWidgetProps) {
             <Input
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
-              placeholder="שם הקישור"
+              placeholder={he.quickLinksExtra.linkNamePlaceholder}
               className="bg-transparent"
             />
             <Input

@@ -343,7 +343,7 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
                   <Label className="text-xs">{he.docUpload.clientOptional}</Label>
                   <Select value={clientId || "_none"} onValueChange={(v) => setClientId(v === "_none" ? "" : (v ?? ""))}>
                     <SelectTrigger className="w-full h-9 text-sm">
-                      <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : "{he.docUpload.noClient}"}</span>
+                      <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : he.docUpload.noClient}</span>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="_none">{he.docUpload.noClient}</SelectItem>

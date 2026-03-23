@@ -50,22 +50,22 @@ function formatDateForInput(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-const billingCycles = [
-  { value: "monthly", label: "חודשי" },
-  { value: "yearly", label: "שנתי" },
-] as const;
-
-const subscriptionStatuses = [
-  { value: "active", label: "פעיל" },
-  { value: "cancelled", label: "בוטל" },
-] as const;
-
 export function SubscriptionDialog({
   subscription,
   open,
   onOpenChange,
 }: SubscriptionDialogProps) {
   const he = useT();
+
+  const billingCycles = [
+    { value: "monthly", label: he.subscriptions.cycles.monthly },
+    { value: "yearly", label: he.subscriptions.cycles.yearly },
+  ];
+
+  const subscriptionStatuses = [
+    { value: "active", label: he.subscriptions.statuses.active },
+    { value: "cancelled", label: he.subscriptions.statuses.cancelled },
+  ];
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const isEditing = !!subscription;
@@ -122,12 +122,12 @@ export function SubscriptionDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {isEditing ? "עריכת מנוי" : he.subscriptions.newSubscription}
+            {isEditing ? he.subscriptionExtra.editSubscription : he.subscriptions.newSubscription}
           </DialogTitle>
           <DialogDescription>
             {isEditing
-              ? "ערוך את פרטי המנוי"
-              : "הוסף מנוי חדש למערכת"}
+              ? he.subscriptionExtra.editDetails
+              : he.subscriptionExtra.addNew}
           </DialogDescription>
         </DialogHeader>
 
@@ -135,7 +135,7 @@ export function SubscriptionDialog({
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* שם השירות */}
             <div className="space-y-2">
-              <Label htmlFor="serviceName">שם השירות</Label>
+              <Label htmlFor="serviceName">{he.subscriptionExtra.serviceName}</Label>
               <Input
                 id="serviceName"
                 name="serviceName"
@@ -147,7 +147,7 @@ export function SubscriptionDialog({
 
             {/* מחזור חיוב */}
             <div className="space-y-2">
-              <Label htmlFor="billingCycle">מחזור חיוב</Label>
+              <Label htmlFor="billingCycle">{he.subscriptionExtra.billingCycle}</Label>
               <Select
                 value={billingCycle}
                 onValueChange={(v) => v && setBillingCycle(v)}
@@ -167,7 +167,7 @@ export function SubscriptionDialog({
 
             {/* סכום */}
             <div className="space-y-2">
-              <Label htmlFor="amount">סכום (&#8362;)</Label>
+              <Label htmlFor="amount">{he.subscriptionExtra.amountLabel}</Label>
               <Input
                 id="amount"
                 name="amount"
@@ -182,13 +182,13 @@ export function SubscriptionDialog({
 
             {/* תאריך חיוב הבא */}
             <div className="space-y-2">
-              <Label htmlFor="nextBillingDate">חיוב הבא</Label>
+              <Label htmlFor="nextBillingDate">{he.subscriptionExtra.nextBilling}</Label>
               <DatePicker value={nextBillingDate} onChange={setNextBillingDate} name="nextBillingDate" />
             </div>
 
             {/* סטטוס */}
             <div className="space-y-2">
-              <Label htmlFor="status">סטטוס</Label>
+              <Label htmlFor="status">{he.common.status}</Label>
               <Select
                 value={status}
                 onValueChange={(v) => v && setStatus(v)}
@@ -208,7 +208,7 @@ export function SubscriptionDialog({
 
             {/* הערות */}
             <div className="col-span-2 space-y-2">
-              <Label htmlFor="notes">הערות</Label>
+              <Label htmlFor="notes">{he.common.notes}</Label>
               <Textarea
                 id="notes"
                 name="notes"
@@ -223,7 +223,7 @@ export function SubscriptionDialog({
               {he.common.cancel}
             </DialogClose>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "שומר..." : he.common.save}
+              {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>
         </form>

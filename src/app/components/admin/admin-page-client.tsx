@@ -43,11 +43,7 @@ type FeedbackRow = {
   createdAt: Date;
 };
 
-const PLAN_LABELS: Record<string, string> = {
-  FREE: "חינמי",
-  MONTHLY: "Pro חודשי",
-  ANNUAL: "Pro שנתי",
-};
+/* PLAN_LABELS is built inside the component to access i18n */
 
 const PLAN_COLORS: Record<string, string> = {
   FREE: "bg-muted text-muted-foreground",
@@ -57,6 +53,13 @@ const PLAN_COLORS: Record<string, string> = {
 
 export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; users: UserRow[]; feedbacks: FeedbackRow[] }) {
   const he = useT();
+
+  const PLAN_LABELS: Record<string, string> = {
+    FREE: he.admin.free,
+    MONTHLY: he.admin.proMonthly,
+    ANNUAL: he.admin.proAnnual,
+  };
+
   const [search, setSearch] = useState("");
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [passwordModal, setPasswordModal] = useState<{ userId: string; name: string } | null>(null);
@@ -266,7 +269,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                         <button
                           onClick={() => setPasswordModal({ userId: user.id, name: user.name ?? user.email })}
                           className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-blue-50 hover:text-blue-500 transition-colors"
-                          title="איפוס סיסמה"
+                          title={he.admin.resetPassword}
                         >
                           <Key className="h-3.5 w-3.5" />
                         </button>
@@ -274,7 +277,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                         <button
                           onClick={() => { setExpiryModal({ userId: user.id, name: user.name ?? user.email, current: user.subscriptionEndsAt }); setNewExpiry(user.subscriptionEndsAt ? format(new Date(user.subscriptionEndsAt), "yyyy-MM-dd") : ""); }}
                           className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-amber-50 hover:text-amber-500 transition-colors"
-                          title="עדכון תוקף מנוי"
+                          title={he.admin.updateExpiry}
                         >
                           <Calendar className="h-3.5 w-3.5" />
                         </button>
@@ -285,7 +288,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                             <button onClick={() => setConfirmDelete(null)} className="rounded-lg border border-border px-2 py-1 text-xs text-muted-foreground hover:bg-muted">{he.admin.cancelAction}</button>
                           </div>
                         ) : (
-                          <button onClick={() => setConfirmDelete(user.id)} className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors" title="מחק משתמש">
+                          <button onClick={() => setConfirmDelete(user.id)} className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors" title={he.admin.deleteUser}>
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         )}
@@ -334,7 +337,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                   </div>
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span>{fb.userName ?? fb.userEmail ?? "אנונימי"}</span>
+                      <span>{fb.userName ?? fb.userEmail ?? he.admin.anonymous}</span>
                       <span>·</span>
                       <span>{format(new Date(fb.createdAt), "d MMM yyyy, HH:mm", { locale: heLocale })}</span>
                     </div>
@@ -342,7 +345,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                       onClick={() => startTransition(async () => { await deleteFeedback(fb.id); window.location.reload(); })}
                       disabled={isPending}
                       className="flex h-6 w-6 items-center justify-center rounded-lg text-muted-foreground hover:bg-red-50 hover:text-red-500 transition-colors"
-                      title="מחק פידבק"
+                      title={he.admin.deleteFeedback}
                     >
                       <Trash2 className="h-3 w-3" />
                     </button>
