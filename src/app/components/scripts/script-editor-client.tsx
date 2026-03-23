@@ -805,7 +805,7 @@ export function ScriptEditorClient({
         {/* ── SCRIPT TAB ── */}
         {activeTab === "script" && (
           <>
-            <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="relative flex flex-1 flex-col overflow-hidden">
               <div className="flex-1 overflow-auto bg-muted p-3 md:p-6">
                 <textarea
                   ref={textareaRef}
@@ -888,23 +888,73 @@ export function ScriptEditorClient({
               </div>
             </div>
 
-            {/* Mobile AI toggle */}
-            <button onClick={() => setAiSidebarOpen(true)} className="md:hidden fixed bottom-20 left-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:bg-foreground/90 transition-colors">
-              <Sparkles className="h-5 w-5" />
-            </button>
-
-            {/* AI Sidebar — hidden on mobile, shown as overlay via toggle */}
-            <div className={`${aiSidebarOpen ? "fixed inset-0 z-50 flex flex-col bg-card md:relative md:inset-auto md:z-auto" : "hidden md:flex"} w-full md:w-72 shrink-0 flex-col border-r border-border bg-card`}>
-              <div className="border-b border-border px-4 py-3 flex items-center justify-between">
+            {/* Mobile AI bottom sheet */}
+            <div className={`md:hidden absolute bottom-0 left-0 right-0 z-40 bg-card border-t border-border rounded-t-2xl shadow-2xl transition-all duration-300 ease-out ${aiSidebarOpen ? "max-h-[70vh] opacity-100" : "max-h-0 opacity-0 pointer-events-none"} overflow-hidden flex flex-col`}>
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
                 <div className="flex items-center gap-2">
                   <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
                     <Sparkles className="h-3.5 w-3.5 text-white" />
                   </div>
                   <span className="text-sm font-semibold text-foreground">AI Copilot</span>
                 </div>
-                <button onClick={() => setAiSidebarOpen(false)} className="md:hidden p-1 rounded text-muted-foreground hover:text-foreground">
+                <button onClick={() => setAiSidebarOpen(false)} className="p-1.5 rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
                   <X className="h-4 w-4" />
                 </button>
+              </div>
+              <div className="flex flex-1 flex-col gap-3 overflow-auto p-4">
+                <div className="rounded-xl border border-border bg-muted p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-semibold text-foreground">צור תסריט</span>
+                  </div>
+                  <p className="mb-3 text-xs text-muted-foreground">על מה הוידאו? לאיזה קהל? מה הטון?</p>
+                  {aiMode === "generate" ? (
+                    <div className="space-y-2">
+                      <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
+                        placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
+                        className="w-full min-h-[85px] resize-none rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground outline-none focus:border-gray-400 placeholder:text-muted-foreground font-[inherit]" />
+                      <div className="flex gap-2">
+                        <Button onClick={() => callAI("generate")} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
+                          {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
+                        </Button>
+                        <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <Button onClick={() => setAiMode("generate")} size="sm" variant="outline" className="w-full gap-1.5 text-xs">
+                      <Sparkles className="h-3.5 w-3.5" />התחל מפרומפט
+                    </Button>
+                  )}
+                </div>
+                <div className="rounded-xl border border-border bg-muted p-4">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Wand2 className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm font-semibold text-foreground">שדרג תסריט</span>
+                  </div>
+                  <p className="mb-3 text-xs text-muted-foreground">ה-AI ישפר הוק, פייסינג וניסוח.</p>
+                  <Button onClick={() => callAI("upgrade")} disabled={aiLoading || !content.trim()} size="sm" variant="outline" className="w-full gap-1.5 text-xs">
+                    {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}שדרג עם AI
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile AI floating button */}
+            {!aiSidebarOpen && (
+              <button onClick={() => setAiSidebarOpen(true)} className="md:hidden absolute bottom-14 left-4 z-30 flex h-11 w-11 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:scale-105 active:scale-95 transition-transform">
+                <Sparkles className="h-4.5 w-4.5" />
+              </button>
+            )}
+
+            {/* AI Sidebar — desktop only */}
+            <div className="hidden md:flex w-72 shrink-0 flex-col border-r border-border bg-card">
+              <div className="border-b border-border px-4 py-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground">
+                    <Sparkles className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">AI Copilot</span>
+                </div>
               </div>
               <div className="flex flex-1 flex-col gap-3 overflow-auto p-4">
                 <div className="rounded-xl border border-border bg-muted p-4">
