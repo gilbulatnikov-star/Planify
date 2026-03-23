@@ -17,6 +17,7 @@ import {
   updateInspirationCategory,
   deleteInspirationCategory,
 } from "@/lib/actions/inspiration-actions";
+import { useT } from "@/lib/i18n";
 import type { CategoryData } from "./inspiration-page-client";
 
 interface CategoryManagerDialogProps {
@@ -26,6 +27,7 @@ interface CategoryManagerDialogProps {
 }
 
 export function CategoryManagerDialog({ categories, open, onOpenChange }: CategoryManagerDialogProps) {
+  const he = useT();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -53,7 +55,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
         setNewLabel("");
         router.refresh();
       } else {
-        setError(result.error ?? "שגיאה ביצירת קטגוריה");
+        setError(result.error ?? he.inspirationExtra.createError);
       }
     });
   }
@@ -83,7 +85,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
         cancelEdit();
         router.refresh();
       } else {
-        setError(result.error ?? "שגיאה בעדכון קטגוריה");
+        setError(result.error ?? he.inspirationExtra.updateError);
       }
     });
   }
@@ -95,7 +97,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
       if (result.success) {
         router.refresh();
       } else {
-        setError(result.error ?? "שגיאה במחיקת קטגוריה");
+        setError(result.error ?? he.inspirationExtra.deleteError);
       }
     });
   }
@@ -104,8 +106,8 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>ניהול קטגוריות</DialogTitle>
-          <DialogDescription>הוסף, ערוך או מחק קטגוריות השראה</DialogDescription>
+          <DialogTitle>{he.inspirationExtra.manageCategories}</DialogTitle>
+          <DialogDescription>{he.inspirationExtra.manageCategoriesDesc}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -172,7 +174,7 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
             )}
             {categories.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-4">
-                אין קטגוריות עדיין. הוסף אחת למטה.
+                {he.inspirationExtra.noCategoriesEmpty}
               </p>
             )}
           </div>
@@ -184,10 +186,10 @@ export function CategoryManagerDialog({ categories, open, onOpenChange }: Catego
 
           {/* Add new category */}
           <div className="border-t border-border pt-4 space-y-3">
-            <p className="text-sm font-medium text-muted-foreground">קטגוריה חדשה</p>
+            <p className="text-sm font-medium text-muted-foreground">{he.inspirationExtra.newCategory}</p>
             <div className="flex items-center gap-2">
               <Input
-                placeholder="שם הקטגוריה..."
+                placeholder={he.inspirationExtra.categoryNamePlaceholder}
                 value={newLabel}
                 onChange={(e) => setNewLabel(e.target.value)}
                 className="flex-1 h-9 bg-background border-border"

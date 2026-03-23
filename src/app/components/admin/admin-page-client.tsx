@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar, MessageSquare, Star } from "lucide-react";
 import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionExpiry } from "@/lib/actions/admin-actions";
+import { DatePicker } from "@/components/ui/date-picker";
 import { deleteFeedback } from "@/lib/actions/feedback-actions";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
@@ -380,12 +381,9 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
           <div className="bg-card rounded-2xl shadow-xl p-6 w-full max-w-sm mx-4" onClick={e => e.stopPropagation()} dir="rtl">
             <h2 className="text-base font-bold text-foreground mb-1">{he.admin.expiryTitle}</h2>
             <p className="text-sm text-muted-foreground mb-4">{expiryModal.name}</p>
-            <input
-              type="date"
-              value={newExpiry}
-              onChange={e => setNewExpiry(e.target.value)}
-              className="w-full rounded-xl border border-border px-3 py-2.5 text-sm mb-4 focus:outline-none focus:ring-2 focus:ring-gray-900"
-            />
+            <div className="mb-4">
+              <DatePicker value={newExpiry} onChange={setNewExpiry} name="newExpiry" />
+            </div>
             <div className="flex gap-2">
               <button onClick={handleUpdateExpiry} disabled={isPending} className="flex-1 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background hover:bg-foreground/90 disabled:opacity-50">{he.admin.updateBtn}</button>
               <button onClick={() => { setExpiryModal(null); updateUserSubscriptionExpiry(expiryModal.userId, null); }} className="rounded-xl border border-border px-3 py-2.5 text-sm text-red-500 hover:bg-red-50">{he.admin.removeExpiry}</button>

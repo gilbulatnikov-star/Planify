@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectTrigger,
@@ -66,6 +67,9 @@ export function ExpenseDialog({
     { value: "other", label: he.financial.expenseCategories.other },
   ];
   const [category, setCategory] = useState(expense?.category ?? "other");
+  const [dateValue, setDateValue] = useState(
+    expense?.date ? formatDateForInput(expense.date) : ""
+  );
   const [receiptUrl, setReceiptUrl] = useState(expense?.receiptUrl ?? "");
   const [receiptName, setReceiptName] = useState("");
   const [uploading, setUploading] = useState(false);
@@ -110,6 +114,7 @@ export function ExpenseDialog({
   function handleOpenChange(open: boolean) {
     if (open) {
       setCategory(expense?.category ?? "other");
+      setDateValue(expense?.date ? formatDateForInput(expense.date) : "");
       setReceiptUrl(expense?.receiptUrl ?? "");
       setReceiptName("");
     }
@@ -177,17 +182,7 @@ export function ExpenseDialog({
             {/* תאריך */}
             <div className="space-y-2">
               <Label htmlFor="date">{he.common.date}</Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                required
-                defaultValue={
-                  expense?.date
-                    ? formatDateForInput(expense.date)
-                    : ""
-                }
-              />
+              <DatePicker value={dateValue} onChange={setDateValue} name="date" />
             </div>
 
             {/* ספק */}

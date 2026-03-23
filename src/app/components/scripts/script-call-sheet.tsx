@@ -4,6 +4,7 @@ import { useRef, useState, useEffect } from "react";
 import { format } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
 import { Download, Sun, Moon, FileText } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 type ShotItem = {
   id: string; shotNum: number; customShotNum: string;
@@ -34,6 +35,7 @@ export function ScriptCallSheet({
   title: string; platform: string; projectTitle: string;
   clientName: string; shotList: ShotItem[];
 }) {
+  const he = useT();
   const callSheetRef = useRef<HTMLDivElement>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -102,23 +104,23 @@ export function ScriptCallSheet({
       <div className="flex items-center justify-between px-6 py-3 bg-card border-b border-border shrink-0">
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <FileText className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">קול שיט — {title}</span>
+          <span className="font-medium">{he.callSheet.title} — {title}</span>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg border border-border overflow-hidden">
             <button onClick={() => setDarkMode(false)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}>
-              <Sun className="h-3 w-3" />בהיר
+              <Sun className="h-3 w-3" />{he.callSheet.light}
             </button>
             <button onClick={() => setDarkMode(true)}
               className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${darkMode ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
-              <Moon className="h-3 w-3" />כהה
+              <Moon className="h-3 w-3" />{he.callSheet.dark}
             </button>
           </div>
           <button onClick={exportPDF} disabled={exporting}
             className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors disabled:opacity-40">
             <Download className="h-4 w-4" />
-            {exporting ? "מייצא..." : "ייצוא PDF"}
+            {exporting ? he.callSheet.exporting : he.callSheet.exportPDF}
           </button>
         </div>
       </div>
@@ -139,15 +141,15 @@ export function ScriptCallSheet({
               <div>
                 <div style={{ fontSize: "30px", fontWeight: 800, color: t.accent, letterSpacing: "-0.5px", lineHeight: 1 }}>CALL SHEET</div>
                 <div style={{ fontSize: "17px", fontWeight: 700, color: t.text, marginTop: "6px" }}>{title}</div>
-                {projectTitle && <div style={{ fontSize: "13px", color: t.subText, marginTop: "3px" }}>פרויקט: {projectTitle}</div>}
-                {clientName && <div style={{ fontSize: "13px", color: t.subText }}>לקוח: {clientName}</div>}
-                {platform && <div style={{ fontSize: "12px", color: t.subText, marginTop: "2px" }}>פלטפורמה: {platform}</div>}
+                {projectTitle && <div style={{ fontSize: "13px", color: t.subText, marginTop: "3px" }}>{he.callSheet.projectLabel} {projectTitle}</div>}
+                {clientName && <div style={{ fontSize: "13px", color: t.subText }}>{he.callSheet.clientLabel} {clientName}</div>}
+                {platform && <div style={{ fontSize: "12px", color: t.subText, marginTop: "2px" }}>{he.callSheet.platformLabel} {platform}</div>}
               </div>
               <div style={{ textAlign: "left" }}>
-                <div style={{ fontSize: "11px", color: t.subText, textTransform: "uppercase", letterSpacing: "0.06em" }}>תאריך</div>
+                <div style={{ fontSize: "11px", color: t.subText, textTransform: "uppercase", letterSpacing: "0.06em" }}>{he.callSheet.dateLabel}</div>
                 <div style={{ fontSize: "18px", fontWeight: 700, color: t.text, marginTop: "2px" }}>{today}</div>
                 <div style={{ marginTop: "10px", background: t.accent + "20", color: t.accent, borderRadius: "6px", padding: "4px 10px", fontSize: "11px", fontWeight: 700, textAlign: "center" }}>
-                  {shotList.length} שוטים
+                  {shotList.length} {he.callSheet.shotsCount}
                 </div>
               </div>
             </div>
@@ -158,7 +160,7 @@ export function ScriptCallSheet({
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px", marginBottom: "20px" }}>
               {castMembers.length > 0 && (
                 <div style={{ border: `1px solid ${t.border}`, borderRadius: "8px", overflow: "hidden" }}>
-                  <SectionHeader title="הרכב שחקנים" t={t} />
+                  <SectionHeader title={he.callSheet.castSection} t={t} />
                   <div style={{ padding: "10px 14px" }}>
                     {castMembers.map((c, i) => (
                       <div key={i} style={{ padding: "4px 0", borderBottom: i < castMembers.length - 1 ? `1px solid ${t.border}` : "none", color: t.text, fontSize: "12px", display: "flex", alignItems: "center", gap: "6px" }}>
@@ -171,7 +173,7 @@ export function ScriptCallSheet({
               )}
               {lensUsed.length > 0 && (
                 <div style={{ border: `1px solid ${t.border}`, borderRadius: "8px", overflow: "hidden" }}>
-                  <SectionHeader title="עדשות" t={t} />
+                  <SectionHeader title={he.callSheet.lensSection} t={t} />
                   <div style={{ padding: "10px 14px" }}>
                     {lensUsed.map((l, i) => (
                       <div key={i} style={{ padding: "4px 0", borderBottom: i < lensUsed.length - 1 ? `1px solid ${t.border}` : "none", color: t.text, fontSize: "12px" }}>{l}</div>
@@ -184,15 +186,15 @@ export function ScriptCallSheet({
 
           {/* Shooting Schedule */}
           <div style={{ marginBottom: "24px" }}>
-            <SectionHeader title="לו״ז צילומים" t={t} />
+            <SectionHeader title={he.callSheet.scheduleSection} t={t} />
             <div style={{ borderLeft: `1px solid ${t.border}`, borderRight: `1px solid ${t.border}`, borderBottom: `1px solid ${t.border}`, borderRadius: "0 0 8px 8px", overflow: "hidden" }}>
               {shotList.length === 0 ? (
-                <div style={{ padding: "20px 14px", color: t.subText, fontSize: "13px" }}>לא נוספו שוטים לשוט ליסט</div>
+                <div style={{ padding: "20px 14px", color: t.subText, fontSize: "13px" }}>{he.callSheet.noShotsAdded}</div>
               ) : (
                 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
                   <thead>
                     <tr style={{ background: t.headerBg }}>
-                      {["#", "שם סצנה", "SHOT SIZE", "תנועה", "עדשה", "FPS", "אודיו", "שחקן", "אקשן / תיאור"].map((h) => (
+                      {["#", he.callSheet.sceneName, "SHOT SIZE", he.callSheet.movement, he.callSheet.lens, he.callSheet.fps, he.callSheet.audio, he.callSheet.actor, he.callSheet.actionDesc].map((h) => (
                         <th key={h} style={{ padding: "8px 10px", textAlign: "right", color: t.subText, fontWeight: 600, borderBottom: `1px solid ${t.border}`, whiteSpace: "nowrap" as const }}>{h}</th>
                       ))}
                     </tr>
@@ -219,7 +221,7 @@ export function ScriptCallSheet({
 
           {/* Footer */}
           <div style={{ borderTop: `1px solid ${t.border}`, paddingTop: "12px", display: "flex", justifyContent: "space-between", fontSize: "10px", color: t.subText }}>
-            <span>הופק ע"י Planify</span>
+            <span>{he.callSheet.producedBy}</span>
             <span>{today}</span>
           </div>
         </div>

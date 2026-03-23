@@ -13,6 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectTrigger,
@@ -73,6 +74,9 @@ export function InvoiceDialog({
   const [clientId, setClientId] = useState(invoice?.clientId ?? "");
   const [projectId, setProjectId] = useState(invoice?.projectId ?? "");
   const [status, setStatus] = useState(invoice?.status ?? "draft");
+  const [dateValue, setDateValue] = useState(
+    invoice?.dueDate ? formatDateForInput(invoice.dueDate) : ""
+  );
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -98,6 +102,7 @@ export function InvoiceDialog({
       setClientId(invoice?.clientId ?? "");
       setProjectId(invoice?.projectId ?? "");
       setStatus(invoice?.status ?? "draft");
+      setDateValue(invoice?.dueDate ? formatDateForInput(invoice.dueDate) : "");
     }
     onOpenChange(open);
   }
@@ -186,16 +191,7 @@ export function InvoiceDialog({
             {/* תאריך יעד */}
             <div className="space-y-2">
               <Label htmlFor="date">{he.financialExtra.dueDate}</Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                defaultValue={
-                  invoice?.dueDate
-                    ? formatDateForInput(invoice.dueDate)
-                    : ""
-                }
-              />
+              <DatePicker value={dateValue} onChange={setDateValue} name="date" />
             </div>
 
             {/* קישור חיצוני */}

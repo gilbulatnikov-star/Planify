@@ -62,7 +62,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
     setSaveError(null);
 
     if (!categoryId) {
-      setSaveError("יש ליצור קטגוריה לפחות אחת לפני שמירה");
+      setSaveError(he.inspirationExtra.needCategoryFirst);
       return;
     }
 
@@ -78,7 +78,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
         onOpenChange(false);
         router.refresh();
       } else {
-        setSaveError(result.error ?? "שגיאה בשמירה");
+        setSaveError(result.error ?? he.inspirationExtra.saveError);
       }
     });
   }

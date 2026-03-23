@@ -2,6 +2,7 @@
 
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { useState } from "react";
+import { useT } from "@/lib/i18n";
 
 const STICKY_COLORS = [
   "#fef08a", // yellow
@@ -14,6 +15,7 @@ const STICKY_COLORS = [
 ];
 
 export function StickyNoteNode({ data, selected }: NodeProps) {
+  const he = useT();
   const d = data as { text: string; color: string };
   const [text, setText] = useState(d.text ?? "");
   const [color, setColor] = useState(d.color ?? "#fef08a");
@@ -60,7 +62,7 @@ export function StickyNoteNode({ data, selected }: NodeProps) {
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="כתוב כאן..."
+        placeholder={he.moodboard.writeHere}
         dir="rtl"
         className="flex-1 bg-transparent resize-none outline-none text-sm text-foreground placeholder-muted-foreground min-h-20 nodrag"
         onMouseDown={(e) => e.stopPropagation()}

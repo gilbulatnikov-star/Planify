@@ -12,6 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { createExpense, createInvoice } from "@/lib/actions/financial-actions";
@@ -379,7 +380,7 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
 
               <div className="space-y-1.5">
                 <Label className="text-xs">{he.common.date}</Label>
-                <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9 text-sm" />
+                <DatePicker value={date} onChange={setDate} name="date" />
               </div>
 
               <div className={`space-y-1.5 ${docType === "expense" ? "" : "col-span-2"}`}>
@@ -401,7 +402,7 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
               {uploadState === "saving" ? (
                 <><Loader2 className="h-4 w-4 animate-spin" />{he.docUpload.savingLabel}</>
               ) : (
-                `שמור ${docType === "expense" ? "הוצאה" : "חשבונית"}`
+                <>{docType === "expense" ? he.docUpload.saveExpense : he.docUpload.saveInvoice}</>
               )}
             </Button>
           </DialogFooter>

@@ -659,9 +659,9 @@ export function ScriptEditorClient({
   const PlatformIcon = currentPlatform.icon;
 
   const TABS: { id: Tab; label: string; Icon: React.ElementType; badge?: number }[] = [
-    { id: "script",    label: "תסריט",    Icon: AlignLeft },
-    { id: "shotlist",  label: "שוט ליסט", Icon: Film, badge: shotList.length || undefined },
-    { id: "callsheet", label: "קול שיט",  Icon: FileText },
+    { id: "script",    label: he.scriptEditor.tabScript,    Icon: AlignLeft },
+    { id: "shotlist",  label: he.scriptEditor.tabShotList, Icon: Film, badge: shotList.length || undefined },
+    { id: "callsheet", label: he.scriptEditor.tabCallSheet,  Icon: FileText },
   ];
 
   // ─── Visible columns for table header ────────────────────────────────────────
@@ -677,19 +677,19 @@ export function ScriptEditorClient({
     <UpgradeDialog
       open={cinemaUpgradeOpen}
       onClose={() => setCinemaUpgradeOpen(false)}
-      feature='תצוגה "קולנועי"'
+      feature={he.scriptEditor.cinematicFeature}
       limit={-1}
     />
     <UpgradeDialog
       open={callsheetUpgradeOpen}
       onClose={() => setCallsheetUpgradeOpen(false)}
-      feature="קול שיט"
+      feature={he.scriptEditor.callSheetFeature}
       limit={-1}
     />
     <UpgradeDialog
       open={storyboardUpgradeOpen}
       onClose={() => setStoryboardUpgradeOpen(false)}
-      feature="שוטים בסטורי בורד"
+      feature={he.scriptEditor.storyboardShotsFeature}
       limit={STORYBOARD_FREE_LIMIT}
     />
     <div className="flex h-[calc(100vh-80px)] flex-col">
@@ -698,12 +698,12 @@ export function ScriptEditorClient({
       <div className="flex flex-wrap items-center gap-2 md:gap-3 border-b border-border bg-card px-3 md:px-4 py-2.5 md:py-3 shrink-0">
         <button onClick={() => router.push("/scripts")}
           className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">תסריטים</span>
+          <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">{he.scriptEditor.scriptsBack}</span>
         </button>
         <span className="text-muted-foreground hidden sm:inline">/</span>
         <input value={title} onChange={(e) => setTitle(e.target.value)}
           className="flex-1 min-w-0 bg-transparent text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground"
-          placeholder="כותרת התסריט..." />
+          placeholder={he.scriptEditor.scriptTitlePlaceholder} />
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
           {/* Platform / Category picker — hidden on small mobile */}
           {customPlatformMode ? (
@@ -712,7 +712,7 @@ export function ScriptEditorClient({
               <input
                 value={platform}
                 onChange={(e) => setPlatform(e.target.value)}
-                placeholder="פלטפורמה מותאמת..."
+                placeholder={he.scriptEditor.customPlatformPlaceholder}
                 autoFocus
                 className="bg-transparent text-xs text-foreground outline-none w-32 placeholder:text-muted-foreground"
               />
@@ -741,7 +741,7 @@ export function ScriptEditorClient({
                   <div className="mx-2 my-1 border-t border-border" />
                   <button onClick={() => { setCustomPlatformMode(true); setPlatform(""); setShowPlatformMenu(false); }}
                     className="flex w-full items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:bg-muted">
-                    <Megaphone className="h-3.5 w-3.5 text-muted-foreground" />אחר...
+                    <Megaphone className="h-3.5 w-3.5 text-muted-foreground" />{he.scriptEditor.other}
                   </button>
                 </div>
               )}
@@ -755,7 +755,7 @@ export function ScriptEditorClient({
                 onClick={() => setShowProjectMenu((v) => !v)}
                 className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors max-w-[140px]"
               >
-                <span className="truncate">{linkedProjectId ? (projects.find(p => p.id === linkedProjectId)?.title ?? "פרויקט") : "📁 שייך לפרויקט"}</span>
+                <span className="truncate">{linkedProjectId ? (projects.find(p => p.id === linkedProjectId)?.title ?? he.scriptEditor.linkedProject) : `📁 ${he.scriptEditor.assignToProject}`}</span>
                 <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
               </button>
               {showProjectMenu && (
@@ -764,7 +764,7 @@ export function ScriptEditorClient({
                     onClick={() => { setLinkedProjectId(""); setShowProjectMenu(false); }}
                     className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedProjectId ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                   >
-                    ללא פרויקט
+                    {he.scriptEditor.noProject}
                   </button>
                   <div className="mx-2 my-1 border-t border-border" />
                   {projects.map(p => (
@@ -783,7 +783,7 @@ export function ScriptEditorClient({
 
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Save className="h-3.5 w-3.5" />}
-            <span className="hidden sm:inline">{saving ? "שומר..." : saved ? "נשמר" : "שמור אוטומטי"}</span>
+            <span className="hidden sm:inline">{saving ? he.scriptEditor.saving : saved ? he.scriptEditor.saved : he.scriptEditor.autoSave}</span>
           </div>
         </div>
       </div>
@@ -822,7 +822,7 @@ export function ScriptEditorClient({
                   defaultValue={content}
                   onChange={(e) => { setContent(e.target.value); autoResize(e.target); }}
                   onContextMenu={handleScriptContextMenu}
-                  placeholder="התחל לכתוב את התסריט שלך..."
+                  placeholder={he.scriptEditor.scriptPlaceholder}
                   className="w-full rounded-xl border border-border bg-card p-4 md:p-6 text-base leading-8 text-foreground shadow-sm outline-none focus:border-border focus:shadow-md resize-none overflow-hidden"
                   style={{ direction: "rtl", fontFamily: "inherit", minHeight: "300px" }}
                 />
@@ -840,7 +840,7 @@ export function ScriptEditorClient({
                         onClick={() => addSelectedTextToShotList(scriptCtxMenu.text)}
                       >
                         <Film className="h-3.5 w-3.5 text-muted-foreground" />
-                        הוסף לשוט ליסט
+                        {he.scriptEditor.addToShotList}
                       </button>
                     </div>
                   </>
@@ -850,7 +850,7 @@ export function ScriptEditorClient({
               <button
                 onClick={() => { setChatOpen((o) => !o); if (!chatOpen && window.innerWidth >= 768) setTimeout(() => chatInputRef.current?.focus(), 300); }}
                 className="flex h-9 shrink-0 items-center gap-2 border-t border-border bg-card px-4 text-xs text-muted-foreground hover:bg-muted transition-colors">
-                <MessageSquare className="h-3.5 w-3.5" /><span>עזרה מ-AI</span>
+                <MessageSquare className="h-3.5 w-3.5" /><span>{he.scriptEditor.aiHelp}</span>
                 {messages.length > 0 && <span className="rounded-full bg-muted px-1.5 py-0.5 text-muted-foreground">{messages.length}</span>}
                 <ChevronDown className={`mr-auto h-3.5 w-3.5 transition-transform duration-300 ${chatOpen ? "rotate-180" : ""}`} />
               </button>
@@ -869,17 +869,17 @@ export function ScriptEditorClient({
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 mb-1">
                             <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-                            <span className="text-xs font-semibold text-foreground">צור תסריט</span>
+                            <span className="text-xs font-semibold text-foreground">{he.scriptEditor.generateScript}</span>
                           </div>
                           <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
-                            placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
+                            placeholder={he.scriptEditor.aiPromptPlaceholder}
                             className="w-full min-h-[70px] resize-none rounded-lg border border-border bg-muted px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground"
                             autoFocus />
                           <div className="flex gap-2">
                             <Button onClick={() => { callAI("generate"); setAiSidebarOpen(false); }} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
-                              {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
+                              {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}{he.scriptEditor.generate}
                             </Button>
-                            <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
+                            <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">{he.scriptEditor.cancel}</Button>
                           </div>
                         </div>
                       ) : (
@@ -888,8 +888,8 @@ export function ScriptEditorClient({
                             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors">
                             <Sparkles className="h-4 w-4 text-muted-foreground shrink-0" />
                             <div>
-                              <p className="text-xs font-semibold text-foreground">צור תסריט</p>
-                              <p className="text-[10px] text-muted-foreground">מפרומפט עם AI</p>
+                              <p className="text-xs font-semibold text-foreground">{he.scriptEditor.generateScript}</p>
+                              <p className="text-[10px] text-muted-foreground">{he.scriptEditor.fromPrompt}</p>
                             </div>
                           </button>
                           <button onClick={() => { callAI("upgrade"); setAiSidebarOpen(false); }}
@@ -897,8 +897,8 @@ export function ScriptEditorClient({
                             className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors disabled:opacity-40">
                             <Wand2 className="h-4 w-4 text-muted-foreground shrink-0" />
                             <div>
-                              <p className="text-xs font-semibold text-foreground">שדרג תסריט</p>
-                              <p className="text-[10px] text-muted-foreground">הוק, פייסינג וניסוח</p>
+                              <p className="text-xs font-semibold text-foreground">{he.scriptEditor.upgradeScript}</p>
+                              <p className="text-[10px] text-muted-foreground">{he.scriptEditor.upgradeScriptDesc}</p>
                             </div>
                           </button>
                         </>
@@ -912,12 +912,12 @@ export function ScriptEditorClient({
                 className={`${chatOpen ? "flex-1 min-h-[200px] md:flex-none md:min-h-0" : ""} flex flex-col border-t border-border bg-card overflow-hidden transition-[max-height] duration-300 ease-in-out`}>
                 <div className="flex h-10 shrink-0 items-center justify-between border-b border-border px-4">
                   <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />עוזר כתיבה
+                    <MessageSquare className="h-4 w-4 text-muted-foreground" />{he.scriptEditor.writingAssistant}
                   </div>
-                  <button onClick={() => setChatOpen(false)} className="text-xs text-muted-foreground hover:text-muted-foreground">סגור</button>
+                  <button onClick={() => setChatOpen(false)} className="text-xs text-muted-foreground hover:text-muted-foreground">{he.scriptEditor.close}</button>
                 </div>
                 <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-                  {messages.length === 0 && <p className="text-center text-xs text-muted-foreground pt-6">כתוב מה לשנות בתסריט...</p>}
+                  {messages.length === 0 && <p className="text-center text-xs text-muted-foreground pt-6">{he.scriptEditor.chatEmpty}</p>}
                   {messages.map((m, i) => (
                     <div key={i} className={`flex ${m.role === "user" ? "justify-start" : "justify-end"}`}>
                       <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
@@ -940,7 +940,7 @@ export function ScriptEditorClient({
                   <textarea ref={chatInputRef} value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendChat(); } }}
-                    placeholder="מה לשנות? (Enter לשליחה)" rows={1}
+                    placeholder={he.scriptEditor.chatPlaceholder} rows={1}
                     className="flex-1 resize-none rounded-xl border border-border bg-muted px-3 py-2 text-sm text-foreground outline-none focus:border-gray-400 placeholder:text-muted-foreground max-h-20 overflow-auto font-[inherit]"
                     style={{ lineHeight: "1.5" }} />
                   <button onClick={sendChat} disabled={!chatInput.trim() || chatLoading}
@@ -961,8 +961,8 @@ export function ScriptEditorClient({
             {/* Toolbar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 md:px-5 py-3 bg-card border-b border-border shrink-0">
               <div className="flex items-center justify-between sm:block">
-                <h3 className="text-sm font-semibold text-foreground truncate">שוט ליסט</h3>
-                <p className="text-xs text-muted-foreground">{shotList.length} שוטים</p>
+                <h3 className="text-sm font-semibold text-foreground truncate">{he.scriptEditor.shotListTitle}</h3>
+                <p className="text-xs text-muted-foreground">{shotList.length} {he.scriptEditor.shotsCount}</p>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="relative" data-menu>
@@ -970,7 +970,7 @@ export function ScriptEditorClient({
                     className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
                       showColMenu ? "border-gray-900 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
                     }`}>
-                    <SlidersHorizontal className="h-3.5 w-3.5" /><span className="hidden sm:inline">סינון</span>
+                    <SlidersHorizontal className="h-3.5 w-3.5" /><span className="hidden sm:inline">{he.scriptEditor.filter}</span>
                   </button>
                   {showColMenu && (
                     <ColumnMenu visibleCols={visibleCols} onToggle={toggleCol} onClose={() => setShowColMenu(false)} />
@@ -981,7 +981,7 @@ export function ScriptEditorClient({
                     className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
                       showViewMenu ? "border-gray-900 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
                     }`}>
-                    <Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline">תצוגה</span>
+                    <Eye className="h-3.5 w-3.5" /><span className="hidden sm:inline">{he.scriptEditor.view}</span>
                   </button>
                   {showViewMenu && (
                     <ViewSettingsMenu
@@ -998,12 +998,12 @@ export function ScriptEditorClient({
                 {storyboardAtLimit ? (
                   <button onClick={() => setStoryboardUpgradeOpen(true)}
                     className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-background px-2.5 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
-                    🔒 <span className="hidden sm:inline">Pro —</span> עוד שוטים
+                    🔒 <span className="hidden sm:inline">Pro —</span> {he.scriptEditor.moreShots}
                   </button>
                 ) : (
                   <button onClick={addShot}
                     className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-2.5 py-1.5 text-xs font-medium hover:bg-foreground/90 transition-colors">
-                    <Plus className="h-3.5 w-3.5" /><span className="hidden sm:inline">הוסף</span> שוט
+                    <Plus className="h-3.5 w-3.5" /><span className="hidden sm:inline">{he.scriptEditor.addFrame}</span> {he.scriptEditor.addShot}
                   </button>
                 )}
               </div>
@@ -1012,11 +1012,11 @@ export function ScriptEditorClient({
             {shotList.length === 0 ? (
               <div className="flex flex-col items-center justify-center flex-1 text-center">
                 <Film className="h-12 w-12 text-gray-200 mb-4" />
-                <p className="text-muted-foreground font-medium">אין שוטים עדיין</p>
-                <p className="text-sm text-muted-foreground mt-1">לחץ "הוסף שוט" להתחיל לבנות את השוט ליסט</p>
+                <p className="text-muted-foreground font-medium">{he.scriptEditor.noShotsYet}</p>
+                <p className="text-sm text-muted-foreground mt-1">{he.scriptEditor.emptyShotListHint}</p>
                 <button onClick={addShot}
                   className="mt-4 flex items-center gap-1.5 rounded-lg bg-foreground text-background px-4 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors">
-                  <Plus className="h-4 w-4" />הוסף שוט ראשון
+                  <Plus className="h-4 w-4" />{he.scriptEditor.addFirstShot}
                 </button>
               </div>
             ) : displayMode === "storyboard" ? (
@@ -1030,14 +1030,14 @@ export function ScriptEditorClient({
                     <button onClick={() => setStoryboardUpgradeOpen(true)}
                       className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 text-amber-500 hover:border-amber-300 transition-colors min-h-[200px] text-center px-2">
                       <span className="text-2xl">🔒</span>
-                      <span className="text-xs font-medium">מגבלת {STORYBOARD_FREE_LIMIT} שוטים</span>
-                      <span className="text-[10px] text-amber-400">שדרג ל-Pro</span>
+                      <span className="text-xs font-medium">{he.scriptEditor.shotLimit} {STORYBOARD_FREE_LIMIT} {he.scriptEditor.shotLimitSuffix}</span>
+                      <span className="text-[10px] text-amber-400">{he.scriptEditor.upgradeToPro}</span>
                     </button>
                   ) : (
                     <button onClick={addShot}
                       className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-card text-muted-foreground hover:border-border hover:text-muted-foreground transition-colors min-h-[200px]">
                       <Plus className="h-6 w-6" />
-                      <span className="text-xs">הוסף שוט</span>
+                      <span className="text-xs">{he.scriptEditor.addShotFull}</span>
                     </button>
                   )}
                 </div>

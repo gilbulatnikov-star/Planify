@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Button } from "@/components/ui/button";
 import { createProject, updateProject } from "@/lib/actions/project-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
@@ -72,6 +73,8 @@ export function ProjectDialog({
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients] = useState(clients);
+  const [shootDate, setShootDate] = useState(formatDateForInput(project?.shootDate) ?? "");
+  const [deadline, setDeadline] = useState(formatDateForInput(project?.deadline) ?? "");
 
   // Reset on open
   useEffect(() => {
@@ -81,6 +84,8 @@ export function ProjectDialog({
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
+      setShootDate(formatDateForInput(project?.shootDate) ?? "");
+      setDeadline(formatDateForInput(project?.deadline) ?? "");
     }
   }, [open, project, clients]);
 
@@ -225,23 +230,13 @@ export function ProjectDialog({
             {/* Date */}
             <div className="space-y-2">
               <Label htmlFor="shootDate">{he.common.date}</Label>
-              <Input
-                id="shootDate"
-                name="shootDate"
-                type="date"
-                defaultValue={formatDateForInput(project?.shootDate)}
-              />
+              <DatePicker value={shootDate} onChange={setShootDate} name="shootDate" />
             </div>
 
             {/* Deadline */}
             <div className="space-y-2">
               <Label htmlFor="deadline">{he.common.deadline}</Label>
-              <Input
-                id="deadline"
-                name="deadline"
-                type="date"
-                defaultValue={formatDateForInput(project?.deadline)}
-              />
+              <DatePicker value={deadline} onChange={setDeadline} name="deadline" />
             </div>
 
             {/* Description */}

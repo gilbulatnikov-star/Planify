@@ -55,6 +55,7 @@ import {
 } from "@/lib/actions/financial-actions";
 import { useT } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const invoiceStatusStyles: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-0",
@@ -473,24 +474,11 @@ export function FinancialsPageClient({
           >
             <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
               <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">{he.financialPage.fromDate}</label>
-              <input
-                type="date"
-                value={dateFrom}
-                onChange={e => setDateFrom(e.target.value)}
-                className="text-sm text-foreground bg-transparent border-0 outline-none cursor-pointer"
-                dir="ltr"
-              />
+              <DatePicker value={dateFrom} onChange={setDateFrom} name="dateFrom" placeholder={he.financialPage.fromDate} />
             </div>
             <div className="flex items-center gap-2 bg-background border border-border rounded-2xl px-4 py-3 shadow-sm">
               <label className="text-xs text-muted-foreground font-medium whitespace-nowrap">{he.financialPage.toDate}</label>
-              <input
-                type="date"
-                value={dateTo}
-                onChange={e => setDateTo(e.target.value)}
-                min={dateFrom}
-                className="text-sm text-foreground bg-transparent border-0 outline-none cursor-pointer"
-                dir="ltr"
-              />
+              <DatePicker value={dateTo} onChange={setDateTo} name="dateTo" placeholder={he.financialPage.toDate} />
             </div>
             {hasDateFilter && (
               <button

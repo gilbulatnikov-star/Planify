@@ -3,8 +3,10 @@
 import { Handle, Position, type NodeProps } from "@xyflow/react";
 import { useState } from "react";
 import { LinkIcon, ExternalLink } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 export function LinkCardNode({ data, selected }: NodeProps) {
+  const he = useT();
   const d = data as { url: string; label: string };
   const [url, setUrl] = useState(d.url ?? "");
   const [label, setLabel] = useState(d.label ?? "");
@@ -13,7 +15,7 @@ export function LinkCardNode({ data, selected }: NodeProps) {
   d.url = url;
   d.label = label;
 
-  const displayLabel = label || url || "קישור";
+  const displayLabel = label || url || he.moodboard.link;
 
   return (
     <div
@@ -64,7 +66,7 @@ export function LinkCardNode({ data, selected }: NodeProps) {
             type="text"
             value={label}
             onChange={(e) => setLabel(e.target.value)}
-            placeholder="כותרת (אופציונלי)"
+            placeholder={he.moodboard.titleOptional}
             dir="rtl"
             className="nodrag w-full rounded-lg border border-border px-3 py-2 text-xs outline-none focus:border-blue-400"
           />
@@ -72,7 +74,7 @@ export function LinkCardNode({ data, selected }: NodeProps) {
             onClick={() => setEditing(false)}
             className="rounded-lg bg-foreground py-1.5 text-xs font-medium text-background hover:bg-foreground/90 transition-colors nodrag"
           >
-            שמור
+            {he.moodboard.save}
           </button>
         </div>
       )}

@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectTrigger,
@@ -131,14 +132,7 @@ export function TravelEntryDialog({
             {/* תאריך */}
             <div className="space-y-2">
               <Label htmlFor="date">תאריך</Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                required
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-              />
+              <DatePicker value={date} onChange={setDate} name="date" />
             </div>
 
             {/* ק״מ */}

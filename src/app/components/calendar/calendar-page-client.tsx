@@ -69,7 +69,7 @@ function getColor(color?: string | null) {
   return COLOR_MAP[color ?? "gray"] ?? COLOR_MAP.gray;
 }
 
-const dayNames = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+/* dayNames is built from i18n inside the component */
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -97,6 +97,7 @@ export function CalendarPageClient({
   activeClientName: string | null;
 }) {
   const he = useT();
+  const dayNames = he.calendar.dayNames as unknown as string[];
   const router = useRouter();
   const [currentMonth, setCurrentMonth] = useState(new Date(initialMonth));
   const [selectedClientId, setSelectedClientId] = useState<string | null>(activeClientId);
@@ -157,7 +158,7 @@ export function CalendarPageClient({
     const d = new Date(item.date);
     d.setHours(12, 0, 0, 0);
     const end = new Date(d.getTime() + 3600000);
-    const details = [item.client?.name ? `לקוח: ${item.client.name}` : "", item.contentType, item.notes ?? ""]
+    const details = [item.client?.name ? `${he.calendarPage.clientPrefix}: ${item.client.name}` : "", item.contentType, item.notes ?? ""]
       .filter(Boolean).join(" | ");
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${fmt(d)}/${fmt(end)}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
   }
@@ -207,7 +208,7 @@ export function CalendarPageClient({
             >
               {isIsolated
                 ? <><User className="h-3.5 w-3.5 text-muted-foreground" /><span className="hidden sm:inline">{selectedClientName}</span></>
-                : <><Globe className="h-3.5 w-3.5 text-muted-foreground" /><span className="hidden sm:inline">בחר לקוח</span></>
+                : <><Globe className="h-3.5 w-3.5 text-muted-foreground" /><span className="hidden sm:inline">{he.calendarPage.selectClient}</span></>
               }
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
@@ -217,7 +218,7 @@ export function CalendarPageClient({
                   onClick={() => { handleClientSwitch(null); setClientMenuOpen(false); }}
                   className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${!isIsolated ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                 >
-                  <Globe className="h-3.5 w-3.5 text-muted-foreground" />כל הלקוחות
+                  <Globe className="h-3.5 w-3.5 text-muted-foreground" />{he.common.allClients}
                 </button>
                 {clients.length > 0 && <div className="mx-3 my-1 border-t border-border" />}
                 {clients.map((client) => (
@@ -240,7 +241,7 @@ export function CalendarPageClient({
               className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
             >
               <CalendarPlus className="h-4 w-4 text-blue-500" />
-              <span className="hidden sm:inline">הוסף לגוגל קלנדר</span>
+              <span className="hidden sm:inline">{he.calendarPage.addToGCal}</span>
               <ChevronDown className="h-3 w-3 text-muted-foreground" />
             </button>
             {calendarPopoverOpen && (
@@ -248,10 +249,10 @@ export function CalendarPageClient({
                 <div className="fixed inset-0 z-40" onClick={() => setCalendarPopoverOpen(false)} />
                 <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-border bg-popover shadow-lg overflow-hidden">
                   <div className="px-3 py-2 border-b border-border">
-                    <p className="text-xs font-semibold text-muted-foreground">בחר אירוע להוספה לגוגל קלנדר</p>
+                    <p className="text-xs font-semibold text-muted-foreground">{he.calendarPage.selectEventForGCal}</p>
                   </div>
                   {visibleItems.length === 0 ? (
-                    <p className="px-3 py-3 text-xs text-muted-foreground">אין אירועים בתצוגה הנוכחית</p>
+                    <p className="px-3 py-3 text-xs text-muted-foreground">{he.calendarPage.noEventsInView}</p>
                   ) : (
                     <div className="max-h-64 overflow-y-auto py-1">
                       {visibleItems.map((item) => (
@@ -281,7 +282,7 @@ export function CalendarPageClient({
             className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-3 py-2 text-sm font-medium hover:bg-foreground/90 transition-colors shadow-sm"
           >
             <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">ייצוא</span>
+            <span className="hidden sm:inline">{he.calendarPage.exportLabel}</span>
           </button>
 
           <Button
@@ -291,7 +292,7 @@ export function CalendarPageClient({
           >
             <Plus className="h-4 w-4 me-1 sm:me-2" />
             <span className="hidden sm:inline">{he.calendar.newContent}</span>
-            <span className="sm:hidden">חדש</span>
+            <span className="sm:hidden">{he.calendarPage.newShort}</span>
           </Button>
         </div>
       </motion.div>
@@ -380,7 +381,7 @@ export function CalendarPageClient({
       {monthEvents.length > 0 && (
         <motion.div variants={fadeUp} className="">
           <h3 className="text-sm font-semibold text-foreground mb-3">
-            אירועים — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
+            {he.common.events} — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
           </h3>
           <div className="flex flex-col gap-2">
             {monthEvents.map((item) => {

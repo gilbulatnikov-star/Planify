@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectTrigger,
@@ -182,13 +183,7 @@ export function SubscriptionDialog({
             {/* תאריך חיוב הבא */}
             <div className="space-y-2">
               <Label htmlFor="nextBillingDate">חיוב הבא</Label>
-              <Input
-                id="nextBillingDate"
-                name="nextBillingDate"
-                type="date"
-                value={nextBillingDate}
-                onChange={(e) => setNextBillingDate(e.target.value)}
-              />
+              <DatePicker value={nextBillingDate} onChange={setNextBillingDate} name="nextBillingDate" />
             </div>
 
             {/* סטטוס */}

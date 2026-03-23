@@ -13,6 +13,7 @@ import {
 } from "date-fns";
 import { he as heLocale } from "date-fns/locale";
 import { X, Download, Image as ImageIcon, Grid3X3, List, Paintbrush, Sun, Moon, ZoomIn, ZoomOut } from "lucide-react";
+import { useT } from "@/lib/i18n";
 
 type ContentItem = {
   id: string;
@@ -26,11 +27,7 @@ type ContentItem = {
   notes: string | null;
 };
 
-const platformLabel: Record<string, string> = {
-  client_shoot: "צילום",
-  youtube_long: "YouTube",
-  short_form: "Reel",
-};
+/* platformLabel is built from i18n inside components */
 
 const PRESET_COLORS = [
   { hex: "#6366f1", name: "Indigo" },
@@ -58,7 +55,7 @@ function buildCalendarWeeks(currentMonth: Date) {
   return weeks;
 }
 
-const DAY_NAMES = ["ראשון", "שני", "שלישי", "רביעי", "חמישי", "שישי", "שבת"];
+/* DAY_NAMES is built from i18n inside components */
 
 // ── Theme tokens ─────────────────────────────────────────────────
 function getTheme(dark: boolean, accent: string) {
@@ -106,6 +103,13 @@ function GridPreview({
   content: ContentItem[]; currentMonth: Date; themeColor: string;
   logoUrl: string | null; clientName: string; darkMode: boolean;
 }) {
+  const he = useT();
+  const DAY_NAMES = he.calendar.dayNames as unknown as string[];
+  const platformLabel: Record<string, string> = {
+    client_shoot: he.calendarExportExtra.platformShoot,
+    youtube_long: he.calendarExportExtra.platformYouTube,
+    short_form: he.calendarExportExtra.platformReel,
+  };
   const weeks = buildCalendarWeeks(currentMonth);
   const monthLabel = format(currentMonth, "MMMM yyyy", { locale: heLocale });
   const t = getTheme(darkMode, themeColor);
@@ -157,7 +161,7 @@ function GridPreview({
           ))}
         </tbody>
       </table>
-      <div style={{ marginTop: "10px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Planify</div>
+      <div style={{ marginTop: "10px", fontSize: "9px", color: t.footer, textAlign: "left" }}>{he.calendarExport.producedBy}</div>
     </div>
   );
 }
@@ -169,6 +173,12 @@ function TimelinePreview({
   content: ContentItem[]; currentMonth: Date; themeColor: string;
   logoUrl: string | null; clientName: string; darkMode: boolean;
 }) {
+  const he = useT();
+  const platformLabel: Record<string, string> = {
+    client_shoot: he.calendarExportExtra.platformShoot,
+    youtube_long: he.calendarExportExtra.platformYouTube,
+    short_form: he.calendarExportExtra.platformReel,
+  };
   const monthLabel = format(currentMonth, "MMMM yyyy", { locale: heLocale });
   const sorted = [...content]
     .filter((item) => isSameMonth(new Date(item.date), currentMonth))
@@ -190,14 +200,14 @@ function TimelinePreview({
       </div>
 
       {sorted.length === 0 ? (
-        <div style={{ color: t.subText, fontSize: "14px", textAlign: "center", padding: "40px 0" }}>אין ימי תוכן בחודש זה</div>
+        <div style={{ color: t.subText, fontSize: "14px", textAlign: "center", padding: "40px 0" }}>{he.calendarExport.noContentThisMonth}</div>
       ) : (
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ background: t.chipBg }}>
-              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right", width: "110px" }}>תאריך</th>
-              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right" }}>תוצר</th>
-              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right", width: "85px" }}>פלטפורמה</th>
+              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right", width: "110px" }}>{he.calendarExport.dateCol}</th>
+              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right" }}>{he.calendarExport.productCol}</th>
+              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right", width: "85px" }}>{he.calendarExport.platformCol}</th>
             </tr>
           </thead>
           <tbody>
@@ -219,7 +229,7 @@ function TimelinePreview({
           </tbody>
         </table>
       )}
-      <div style={{ marginTop: "14px", fontSize: "9px", color: t.footer, textAlign: "left" }}>הופק ע"י Planify</div>
+      <div style={{ marginTop: "14px", fontSize: "9px", color: t.footer, textAlign: "left" }}>{he.calendarExport.producedBy}</div>
     </div>
   );
 }
@@ -231,6 +241,7 @@ export function CalendarExportStudio({
   open: boolean; onClose: () => void; content: ContentItem[];
   currentMonth: Date; clientName: string;
 }) {
+  const he = useT();
   const exportRef = useRef<HTMLDivElement>(null);
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -301,7 +312,7 @@ export function CalendarExportStudio({
       link.click();
     } catch (err) {
       console.error("PNG export failed:", err);
-      alert("ייצוא PNG נכשל — נסה שוב");
+      alert(he.calendarExport.exportPngFailed);
     } finally {
       setExporting(false);
     }
@@ -328,7 +339,7 @@ export function CalendarExportStudio({
       pdf.save(`לוח-תוכן-${clientName || "export"}-${format(currentMonth, "yyyy-MM")}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
-      alert("ייצוא PDF נכשל — נסה שוב");
+      alert(he.calendarExport.exportPdfFailed);
     } finally {
       setExporting(false);
     }
@@ -345,9 +356,9 @@ export function CalendarExportStudio({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-foreground">ייצוא ללקוח</h2>
+            <h2 className="text-base sm:text-lg font-bold text-foreground">{he.calendarExport.exportToClient}</h2>
             <p className="text-xs sm:text-sm text-muted-foreground">
-              {clientName || "כל הלקוחות"} — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
+              {clientName || he.calendarExport.allClients} — {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
             </p>
           </div>
           <button onClick={onClose} className="p-2 rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-muted transition-colors">
@@ -360,10 +371,10 @@ export function CalendarExportStudio({
           {/* Layout */}
           <div className="flex rounded-lg border border-border overflow-hidden bg-card shrink-0">
             <button onClick={() => setLayout("grid")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "grid" ? "bg-foreground text-background" : "text-muted-foreground"}`}>
-              <Grid3X3 className="h-3 w-3" /> לוח
+              <Grid3X3 className="h-3 w-3" /> {he.calendarExport.grid}
             </button>
             <button onClick={() => setLayout("timeline")} className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-background" : "text-muted-foreground"}`}>
-              <List className="h-3 w-3" /> רשימה
+              <List className="h-3 w-3" /> {he.calendarExport.list}
             </button>
           </div>
           {/* Theme */}
@@ -403,34 +414,34 @@ export function CalendarExportStudio({
 
             {/* Layout */}
             <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">תצוגה</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">{he.calendarExport.layout}</p>
               <div className="flex rounded-xl border border-border overflow-hidden bg-card">
                 <button onClick={() => setLayout("grid")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
-                  <Grid3X3 className="h-3.5 w-3.5" /> לוח
+                  <Grid3X3 className="h-3.5 w-3.5" /> {he.calendarExport.grid}
                 </button>
                 <button onClick={() => setLayout("timeline")} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${layout === "timeline" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
-                  <List className="h-3.5 w-3.5" /> רשימה
+                  <List className="h-3.5 w-3.5" /> {he.calendarExport.list}
                 </button>
               </div>
             </div>
 
             {/* Theme */}
             <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">ערכת נושא</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">{he.calendarExport.themeLabel}</p>
               <div className="flex rounded-xl border border-border overflow-hidden bg-card">
                 <button onClick={() => setDarkMode(false)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${!darkMode ? "bg-muted text-foreground" : "text-muted-foreground hover:bg-muted"}`}>
-                  <Sun className="h-3.5 w-3.5" /> בהיר
+                  <Sun className="h-3.5 w-3.5" /> {he.calendarExport.light}
                 </button>
                 <button onClick={() => setDarkMode(true)} className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-sm font-medium transition-colors ${darkMode ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"}`}>
-                  <Moon className="h-3.5 w-3.5" /> כהה
+                  <Moon className="h-3.5 w-3.5" /> {he.calendarExport.dark}
                 </button>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-1.5 text-center">מצב כהה מתאים ללוגו לבן</p>
+              <p className="text-[10px] text-muted-foreground mt-1.5 text-center">{he.calendarExport.darkModeNote}</p>
             </div>
 
             {/* Color */}
             <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">צבע מותג</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-3">{he.calendarExport.brandColor}</p>
               <div className="grid grid-cols-4 gap-2 mb-3">
                 {PRESET_COLORS.map((c) => (
                   <button key={c.hex} title={c.name} onClick={() => setThemeColor(c.hex)}
@@ -444,7 +455,7 @@ export function CalendarExportStudio({
                 className="w-full flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card py-2.5 text-sm text-muted-foreground hover:border-gray-400 hover:text-foreground transition-colors"
               >
                 <Paintbrush className="h-4 w-4" style={{ color: themeColor }} />
-                <span>צבע מותאם אישית</span>
+                <span>{he.calendarExport.customColor}</span>
               </button>
               <input ref={colorInputRef} type="color" value={themeColor}
                 onChange={(e) => setThemeColor(e.target.value)} className="sr-only" />
@@ -452,28 +463,28 @@ export function CalendarExportStudio({
 
             {/* Logo */}
             <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">לוגו</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">{he.calendarExport.logo}</p>
               <label className={`flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 cursor-pointer transition-colors ${darkMode ? "border-slate-600 bg-slate-800 hover:border-slate-400" : "border-border bg-card hover:border-gray-400"}`}>
                 {logoUrl ? (
                   <img src={logoUrl} alt="logo" className="h-14 object-contain" />
                 ) : (
                   <>
                     <ImageIcon className={`h-6 w-6 ${darkMode ? "text-slate-500" : "text-muted-foreground"}`} />
-                    <span className={`text-xs text-center ${darkMode ? "text-slate-400" : "text-muted-foreground"}`}>לחץ להעלאת לוגו</span>
+                    <span className={`text-xs text-center ${darkMode ? "text-slate-400" : "text-muted-foreground"}`}>{he.calendarExport.clickToUploadLogo}</span>
                   </>
                 )}
                 <input type="file" accept="image/*" className="hidden" onChange={handleLogoUpload} />
               </label>
               {logoUrl && (
                 <button onClick={() => setLogoUrl(null)} className="mt-1.5 text-xs text-red-400 hover:text-red-600 w-full text-center">
-                  הסר לוגו
+                  {he.calendarExport.removeLogo}
                 </button>
               )}
             </div>
 
             {/* Zoom — desktop */}
             <div>
-              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">זום תצוגה</p>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">{he.calendarExport.zoomLabel}</p>
               <div className="flex items-center gap-2">
                 <button onClick={() => setZoom(z => Math.max(0.3, +(z - 0.1).toFixed(1)))} className="p-1.5 rounded-lg border border-border bg-card text-muted-foreground hover:bg-muted">
                   <ZoomOut className="h-4 w-4" />
@@ -500,17 +511,17 @@ export function CalendarExportStudio({
 
         {/* Footer */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-border bg-muted shrink-0">
-          <p className="hidden sm:block text-xs text-muted-foreground">הלוגו, הצבעים והתוכן הם לצורך תצוגת לקוח בלבד</p>
+          <p className="hidden sm:block text-xs text-muted-foreground">{he.calendarExport.footerNote}</p>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <button onClick={downloadPNG} disabled={exporting}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-40">
               <Download className="h-4 w-4 text-indigo-500" />
-              {exporting ? "מייצא..." : "PNG"}
+              {exporting ? he.calendarExport.exporting : "PNG"}
             </button>
             <button onClick={downloadPDF} disabled={exporting}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg bg-foreground px-4 py-2.5 text-sm font-medium text-background hover:bg-foreground/90 transition-colors disabled:opacity-40">
               <Download className="h-4 w-4" />
-              {exporting ? "מייצא..." : "PDF"}
+              {exporting ? he.calendarExport.exporting : "PDF"}
             </button>
           </div>
         </div>

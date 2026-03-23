@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { DatePicker } from "@/components/ui/date-picker";
 import {
   Select,
   SelectTrigger,
@@ -104,6 +105,9 @@ export function ContentDialog({
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [localClients, setLocalClients]   = useState(clients);
+  const [dateValue, setDateValue]         = useState(
+    content?.date ? formatDateForInput(content.date) : defaultDate ?? ""
+  );
 
   function handleOpenChange(open: boolean) {
     if (open) {
@@ -113,6 +117,7 @@ export function ContentDialog({
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
+      setDateValue(content?.date ? formatDateForInput(content.date) : defaultDate ?? "");
     }
     onOpenChange(open);
   }
@@ -176,17 +181,7 @@ export function ContentDialog({
             {/* תאריך */}
             <div className="col-span-2 space-y-2">
               <Label htmlFor="date">{he.common.date}</Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                required
-                defaultValue={
-                  content?.date
-                    ? formatDateForInput(content.date)
-                    : defaultDate ?? ""
-                }
-              />
+              <DatePicker value={dateValue} onChange={setDateValue} name="date" />
             </div>
 
             {/* צבע */}
