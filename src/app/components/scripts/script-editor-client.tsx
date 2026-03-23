@@ -837,66 +837,65 @@ export function ScriptEditorClient({
                 )}
               </div>
 
-              <div className="flex shrink-0 items-center border-t border-border bg-card">
-                <button
-                  onClick={() => { setChatOpen((o) => !o); if (!chatOpen) setTimeout(() => chatInputRef.current?.focus(), 300); }}
-                  className="flex h-9 flex-1 items-center gap-2 px-4 text-xs text-muted-foreground hover:bg-muted transition-colors">
-                  <MessageSquare className="h-3.5 w-3.5" /><span>עזרה מ-AI</span>
-                  {messages.length > 0 && <span className="rounded-full bg-muted px-1.5 py-0.5 text-muted-foreground">{messages.length}</span>}
-                  <ChevronDown className={`mr-auto h-3.5 w-3.5 transition-transform duration-300 ${chatOpen ? "rotate-180" : ""}`} />
+              <button
+                onClick={() => { setChatOpen((o) => !o); if (!chatOpen) setTimeout(() => chatInputRef.current?.focus(), 300); }}
+                className="flex h-9 shrink-0 items-center gap-2 border-t border-border bg-card px-4 text-xs text-muted-foreground hover:bg-muted transition-colors">
+                <MessageSquare className="h-3.5 w-3.5" /><span>עזרה מ-AI</span>
+                {messages.length > 0 && <span className="rounded-full bg-muted px-1.5 py-0.5 text-muted-foreground">{messages.length}</span>}
+                <ChevronDown className={`mr-auto h-3.5 w-3.5 transition-transform duration-300 ${chatOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {/* AI floating button */}
+              <div className="absolute bottom-12 left-3 z-30">
+                <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-white shadow-lg hover:scale-105 active:scale-95 transition-transform">
+                  <Sparkles className="h-4 w-4" />
                 </button>
-                {/* AI generate/upgrade menu */}
-                <div className="relative border-r border-border">
-                  <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
-                    className="flex h-9 items-center gap-1.5 px-3 text-xs text-muted-foreground hover:bg-muted transition-colors">
-                    <Sparkles className="h-3.5 w-3.5" /><span className="hidden sm:inline">כלי AI</span>
-                  </button>
-                  {aiSidebarOpen && (
-                    <>
-                      <div className="fixed inset-0 z-40" onClick={() => setAiSidebarOpen(false)} />
-                      <div className="absolute bottom-full mb-2 left-0 z-50 w-64 rounded-xl border border-border bg-card shadow-xl p-3 space-y-2.5">
-                        {aiMode === "generate" ? (
-                          <div className="space-y-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
-                              <span className="text-xs font-semibold text-foreground">צור תסריט</span>
-                            </div>
-                            <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
-                              placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
-                              className="w-full min-h-[70px] resize-none rounded-lg border border-border bg-muted px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground"
-                              autoFocus />
-                            <div className="flex gap-2">
-                              <Button onClick={() => { callAI("generate"); setAiSidebarOpen(false); }} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
-                                {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
-                              </Button>
-                              <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
-                            </div>
+                {aiSidebarOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setAiSidebarOpen(false)} />
+                    <div className="absolute bottom-full mb-2 left-0 z-50 w-64 rounded-xl border border-border bg-card shadow-xl p-3 space-y-1">
+                      {aiMode === "generate" ? (
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Sparkles className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="text-xs font-semibold text-foreground">צור תסריט</span>
                           </div>
-                        ) : (
-                          <>
-                            <button onClick={() => setAiMode("generate")}
-                              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors">
-                              <Sparkles className="h-4 w-4 text-muted-foreground shrink-0" />
-                              <div>
-                                <p className="text-xs font-semibold text-foreground">צור תסריט</p>
-                                <p className="text-[10px] text-muted-foreground">מפרומפט עם AI</p>
-                              </div>
-                            </button>
-                            <button onClick={() => { callAI("upgrade"); setAiSidebarOpen(false); }}
-                              disabled={aiLoading || !content.trim()}
-                              className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors disabled:opacity-40">
-                              <Wand2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                              <div>
-                                <p className="text-xs font-semibold text-foreground">שדרג תסריט</p>
-                                <p className="text-[10px] text-muted-foreground">הוק, פייסינג וניסוח</p>
-                              </div>
-                            </button>
-                          </>
-                        )}
-                      </div>
-                    </>
-                  )}
-                </div>
+                          <textarea value={genInstruction} onChange={(e) => setGenInstruction(e.target.value)}
+                            placeholder="לדוג׳: וידאו על מוצר תכשיטים, קהל 25-35, טון שאיפתי"
+                            className="w-full min-h-[70px] resize-none rounded-lg border border-border bg-muted px-3 py-2 text-xs text-foreground outline-none placeholder:text-muted-foreground"
+                            autoFocus />
+                          <div className="flex gap-2">
+                            <Button onClick={() => { callAI("generate"); setAiSidebarOpen(false); }} disabled={aiLoading || !genInstruction.trim()} size="sm" className="flex-1 gap-1.5 text-xs">
+                              {aiLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}צור
+                            </Button>
+                            <Button onClick={() => setAiMode("idle")} size="sm" variant="ghost" className="text-xs px-2">ביטול</Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <button onClick={() => setAiMode("generate")}
+                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors">
+                            <Sparkles className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <p className="text-xs font-semibold text-foreground">צור תסריט</p>
+                              <p className="text-[10px] text-muted-foreground">מפרומפט עם AI</p>
+                            </div>
+                          </button>
+                          <button onClick={() => { callAI("upgrade"); setAiSidebarOpen(false); }}
+                            disabled={aiLoading || !content.trim()}
+                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors disabled:opacity-40">
+                            <Wand2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                            <div>
+                              <p className="text-xs font-semibold text-foreground">שדרג תסריט</p>
+                              <p className="text-[10px] text-muted-foreground">הוק, פייסינג וניסוח</p>
+                            </div>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
 
               <div style={{ maxHeight: chatOpen ? "600px" : "0px" }}
