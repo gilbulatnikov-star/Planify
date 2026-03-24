@@ -60,6 +60,10 @@ export async function createInvoice(formData: FormData) {
 
 export async function updateInvoice(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const clientId = formData.get("clientId") as string;
     if (!clientId) return { success: false, error: "Client is required" };
 
@@ -77,7 +81,7 @@ export async function updateInvoice(id: string, formData: FormData) {
     const total = amount + tax;
 
     await prisma.invoice.update({
-      where: { id },
+      where: { id, userId },
       data: {
         clientId,
         projectId: projectId || null,
@@ -105,9 +109,13 @@ export async function updateInvoice(id: string, formData: FormData) {
 
 export async function deleteInvoice(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     // Delete related items first
     await prisma.invoiceItem.deleteMany({ where: { invoiceId: id } });
-    await prisma.invoice.delete({ where: { id } });
+    await prisma.invoice.delete({ where: { id, userId } });
 
     revalidatePath("/financials");
     revalidatePath("/");
@@ -122,8 +130,12 @@ export async function deleteInvoice(id: string) {
 
 export async function updateInvoiceStatus(id: string, status: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.invoice.update({
-      where: { id },
+      where: { id, userId },
       data: {
         status,
         paidAt: status === "paid" ? new Date() : null,
@@ -145,8 +157,12 @@ export async function updateInvoiceStatus(id: string, status: string) {
 
 export async function updateQuoteStatus(id: string, status: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.quote.update({
-      where: { id },
+      where: { id, userId },
       data: { status },
     });
 
@@ -163,8 +179,12 @@ export async function updateQuoteStatus(id: string, status: string) {
 
 export async function deleteQuote(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.quoteItem.deleteMany({ where: { quoteId: id } });
-    await prisma.quote.delete({ where: { id } });
+    await prisma.quote.delete({ where: { id, userId } });
 
     revalidatePath("/financials");
     revalidatePath("/");
@@ -231,6 +251,10 @@ export async function createExpense(formData: FormData) {
 
 export async function updateExpense(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const description = formData.get("description") as string;
     if (!description) {
       return { success: false, error: "Description is required" };
@@ -253,7 +277,7 @@ export async function updateExpense(id: string, formData: FormData) {
     }
 
     await prisma.expense.update({
-      where: { id },
+      where: { id, userId },
       data: {
         description,
         category,
@@ -277,8 +301,12 @@ export async function updateExpense(id: string, formData: FormData) {
 
 export async function deleteExpense(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.expense.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/financials");

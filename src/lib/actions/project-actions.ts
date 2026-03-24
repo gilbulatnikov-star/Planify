@@ -88,6 +88,10 @@ export async function createProject(formData: FormData) {
 
 export async function updateProject(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const title = formData.get("title") as string;
     if (!title) {
       return { success: false, error: "Title is required" };
@@ -100,7 +104,7 @@ export async function updateProject(id: string, formData: FormData) {
     const deadlineStr = formData.get("deadline") as string;
 
     await prisma.project.update({
-      where: { id },
+      where: { id, userId },
       data: {
         title,
         description: (formData.get("description") as string) || null,
@@ -126,9 +130,20 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function linkItemToProject(type: "script" | "moodboard" | "contact" | "content", itemId: string, projectId: string | null) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  // Verify user owns the target project (if linking, not unlinking)
+  if (projectId) {
+    const project = await prisma.project.findFirst({ where: { id: projectId, userId } });
+    if (!project) return { success: false, error: "Project not found" };
+  }
+
   const model = { script: prisma.script, moodboard: prisma.moodboard, contact: prisma.contact, content: prisma.scheduledContent }[type];
+  // Verify user owns the item by including userId in the where clause
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (model as any).update({ where: { id: itemId }, data: { projectId } });
+  await (model as any).update({ where: { id: itemId, userId }, data: { projectId } });
   revalidatePath("/projects");
   if (projectId) revalidatePath(`/projects/${projectId}`);
   revalidatePath("/calendar");
@@ -149,6 +164,14 @@ export async function getUnlinkedItems() {
 }
 
 export async function addProjectTask(projectId: string, title: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  // Verify user owns the project
+  const project = await prisma.project.findFirst({ where: { id: projectId, userId } });
+  if (!project) return { success: false, error: "Project not found" };
+
   if (!title.trim()) return { success: false };
   await prisma.task.create({ data: { projectId, title: title.trim() } });
   revalidatePath("/projects");
@@ -157,7 +180,14 @@ export async function addProjectTask(projectId: string, title: string) {
 }
 
 export async function deleteProjectTask(taskId: string) {
-  const task = await prisma.task.findUnique({ where: { id: taskId } });
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  // Verify user owns the parent project
+  const task = await prisma.task.findUnique({ where: { id: taskId }, include: { project: { select: { userId: true } } } });
+  if (!task || task.project.userId !== userId) return { success: false, error: "Task not found" };
+
   await prisma.task.delete({ where: { id: taskId } });
   if (task?.projectId) {
     revalidatePath(`/projects/${task.projectId}`);
@@ -167,6 +197,14 @@ export async function deleteProjectTask(taskId: string) {
 }
 
 export async function toggleProjectTask(taskId: string, completed: boolean) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  // Verify user owns the parent project
+  const task = await prisma.task.findUnique({ where: { id: taskId }, include: { project: { select: { userId: true } } } });
+  if (!task || task.project.userId !== userId) return { success: false, error: "Task not found" };
+
   await prisma.task.update({
     where: { id: taskId },
     data: { completed },
@@ -177,8 +215,12 @@ export async function toggleProjectTask(taskId: string, completed: boolean) {
 
 export async function deleteProject(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.project.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/projects");

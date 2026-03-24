@@ -61,6 +61,10 @@ export async function createContact(formData: FormData) {
 
 export async function updateContact(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const name = formData.get("name") as string;
     if (!name) {
       return { success: false, error: "Name is required" };
@@ -77,7 +81,7 @@ export async function updateContact(id: string, formData: FormData) {
     const projectId = (formData.get("projectId") as string) || null;
 
     await prisma.contact.update({
-      where: { id },
+      where: { id, userId },
       data: {
         name,
         category,
@@ -102,8 +106,12 @@ export async function updateContact(id: string, formData: FormData) {
 
 export async function deleteContact(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.contact.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/contacts");

@@ -95,6 +95,10 @@ export async function createClient(formData: FormData) {
 
 export async function updateClient(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const name = formData.get("name") as string;
     if (!name) {
       return { success: false, error: "Name is required" };
@@ -104,7 +108,7 @@ export async function updateClient(id: string, formData: FormData) {
     const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
 
     await prisma.client.update({
-      where: { id },
+      where: { id, userId },
       data: {
         name,
         email: (formData.get("email") as string) || null,
@@ -138,8 +142,12 @@ export async function updateClient(id: string, formData: FormData) {
 
 export async function deleteClient(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.client.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/clients");

@@ -50,6 +50,10 @@ export async function createCheatSheet(formData: FormData) {
 
 export async function updateCheatSheet(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const title = formData.get("title") as string;
     if (!title) {
       return { success: false, error: "Title is required" };
@@ -61,7 +65,7 @@ export async function updateCheatSheet(id: string, formData: FormData) {
     }
 
     await prisma.cheatSheet.update({
-      where: { id },
+      where: { id, userId },
       data: {
         title,
         category,
@@ -82,8 +86,12 @@ export async function updateCheatSheet(id: string, formData: FormData) {
 
 export async function deleteCheatSheet(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.cheatSheet.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/cheat-sheets");

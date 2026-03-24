@@ -49,6 +49,10 @@ export async function createEquipment(formData: FormData) {
 
 export async function updateEquipment(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const name = formData.get("name") as string;
     if (!name) {
       return { success: false, error: "Name is required" };
@@ -63,7 +67,7 @@ export async function updateEquipment(id: string, formData: FormData) {
     const purchasePrice = purchasePriceStr ? parseFloat(purchasePriceStr) : null;
 
     await prisma.equipment.update({
-      where: { id },
+      where: { id, userId },
       data: {
         name,
         category,
@@ -89,8 +93,12 @@ export async function updateEquipment(id: string, formData: FormData) {
 
 export async function deleteEquipment(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.equipment.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/equipment");

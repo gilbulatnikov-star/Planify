@@ -55,6 +55,10 @@ export async function createSubscription(formData: FormData) {
 
 export async function updateSubscription(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const serviceName = formData.get("serviceName") as string;
     if (!serviceName) {
       return { success: false, error: "Service name is required" };
@@ -72,7 +76,7 @@ export async function updateSubscription(id: string, formData: FormData) {
     const notes = (formData.get("notes") as string) || null;
 
     await prisma.subscription.update({
-      where: { id },
+      where: { id, userId },
       data: {
         serviceName,
         billingCycle,
@@ -101,8 +105,12 @@ export async function updateSubscription(id: string, formData: FormData) {
 
 export async function deleteSubscription(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.subscription.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/subscriptions");

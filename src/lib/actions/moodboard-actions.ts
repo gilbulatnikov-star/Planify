@@ -39,13 +39,21 @@ export async function updateMoodboard(
   id: string,
   data: { title?: string; nodesData?: string; edgesData?: string; projectId?: string | null }
 ) {
-  await prisma.moodboard.update({ where: { id }, data });
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  await prisma.moodboard.update({ where: { id, userId }, data });
   revalidatePath("/moodboard");
   revalidatePath(`/moodboard/${id}`);
   revalidatePath("/projects");
 }
 
 export async function deleteMoodboard(id: string) {
-  await prisma.moodboard.delete({ where: { id } });
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  await prisma.moodboard.delete({ where: { id, userId } });
   revalidatePath("/moodboard");
 }

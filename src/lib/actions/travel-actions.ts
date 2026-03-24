@@ -63,6 +63,10 @@ export async function createTravelEntry(formData: FormData) {
 
 export async function updateTravelEntry(id: string, formData: FormData) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const dateStr = formData.get("date") as string;
     if (!dateStr) {
       return { success: false, error: "Date is required" };
@@ -89,7 +93,7 @@ export async function updateTravelEntry(id: string, formData: FormData) {
     const projectId = (formData.get("projectId") as string) || null;
 
     await prisma.travelLog.update({
-      where: { id },
+      where: { id, userId },
       data: {
         date: new Date(dateStr),
         origin,
@@ -117,8 +121,12 @@ export async function updateTravelEntry(id: string, formData: FormData) {
 
 export async function deleteTravelEntry(id: string) {
   try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     await prisma.travelLog.delete({
-      where: { id },
+      where: { id, userId },
     });
 
     revalidatePath("/travel-log");

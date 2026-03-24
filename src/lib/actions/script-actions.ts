@@ -76,13 +76,21 @@ export async function updateScript(
     clientId?: string;
   }
 ) {
-  const script = await prisma.script.update({ where: { id }, data });
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  const script = await prisma.script.update({ where: { id, userId }, data });
   revalidatePath("/scripts");
   revalidatePath(`/scripts/${id}`);
   return script;
 }
 
 export async function deleteScript(id: string) {
-  await prisma.script.delete({ where: { id } });
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  await prisma.script.delete({ where: { id, userId } });
   revalidatePath("/scripts");
 }
