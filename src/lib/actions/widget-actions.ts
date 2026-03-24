@@ -105,7 +105,10 @@ export async function createTodo(text: string) {
 }
 
 export async function updateTodoProject(id: string, projectId: string | null) {
-  await prisma.todo.update({ where: { id }, data: { projectId } });
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+  await prisma.todo.update({ where: { id, userId }, data: { projectId } });
   revalidatePath("/tasks");
   revalidatePath("/projects");
   return { success: true };
@@ -282,7 +285,7 @@ export async function toggleGearStatus(id: string) {
     }
 
     await prisma.gearStatus.update({
-      where: { id },
+      where: { id, userId },
       data: { isReady: !status.isReady },
     });
 
