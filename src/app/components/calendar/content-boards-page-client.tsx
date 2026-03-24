@@ -8,6 +8,7 @@ import { Plus, CalendarDays, Trash2, Users, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
 import { useT } from "@/lib/i18n";
 import { createContentBoard, deleteContentBoard } from "@/lib/actions/content-board-actions";
 
@@ -85,27 +86,29 @@ export function ContentBoardsPageClient({
             className="text-sm"
             autoFocus
           />
-          <div className="flex gap-3">
-            <select
-              value={newClientId}
-              onChange={(e) => setNewClientId(e.target.value)}
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
-            >
-              <option value="">{he.calendar.noClient ?? "ללא לקוח"}</option>
-              {clients.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-            <select
-              value={newProjectId}
-              onChange={(e) => setNewProjectId(e.target.value)}
-              className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
-            >
-              <option value="">{he.calendar.noProject ?? "ללא פרויקט"}</option>
-              {filteredProjects.map(p => (
-                <option key={p.id} value={p.id}>{p.title}</option>
-              ))}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <Select value={newClientId} onValueChange={setNewClientId}>
+              <SelectTrigger className="w-full">
+                <span className="truncate">{newClientId ? clients.find(c => c.id === newClientId)?.name : (he.calendar.noClient ?? "ללא לקוח")}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{he.calendar.noClient ?? "ללא לקוח"}</SelectItem>
+                {clients.map(c => (
+                  <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={newProjectId} onValueChange={setNewProjectId}>
+              <SelectTrigger className="w-full">
+                <span className="truncate">{newProjectId ? filteredProjects.find(p => p.id === newProjectId)?.title : (he.calendar.noProject ?? "ללא פרויקט")}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">{he.calendar.noProject ?? "ללא פרויקט"}</SelectItem>
+                {filteredProjects.map(p => (
+                  <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex gap-2">
             <Button size="sm" onClick={handleCreate} disabled={!newTitle.trim()}>
