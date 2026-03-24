@@ -189,15 +189,17 @@ function InputCell({ value, onChange, placeholder, type = "text" }: {
 
 // ─── Shot Row ─────────────────────────────────────────────────────────────────
 
-function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShotNo, onUpdate, onDelete }: {
+function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShotNo, rowHeight, onUpdate, onDelete, onRowResize }: {
   shot: ShotItem;
   idx: number;
   visibleCols: Set<string>;
   showFrames: boolean;
   foldMode: FoldMode;
   customShotNo: boolean;
+  rowHeight?: number;
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
   onDelete: (id: string) => void;
+  onRowResize?: (id: string, height: number) => void;
 }) {
   const he = useT();
   const upd = (field: keyof ShotItem) => (v: string) => onUpdate(shot.id, field, v);
@@ -214,7 +216,9 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
   const showFrame = showFrames && visibleCols.has("frameUrl");
 
   return (
-    <tr className={`border-b border-border hover:bg-blue-50/20 transition-colors group ${rowBg} ${rowH}`}>
+    <tr className={`border-b border-border hover:bg-blue-50/20 transition-colors group ${rowBg} ${rowH} relative`}
+      style={rowHeight ? { height: rowHeight } : undefined}
+    >
       {/* Shot # */}
       {visibleCols.has("shotNum") && (
         <td className={`${cellPad} w-14 text-center`}>
@@ -274,11 +278,29 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
       {cell("makeup", <InputCell value={shot.makeup} onChange={upd("makeup")} placeholder={he.scriptEditor.makeupPlaceholder} />)}
 
       {/* Delete */}
-      <td className={`${cellPad} w-10 text-center`}>
+      <td className={`${cellPad} w-10 text-center relative`}>
         <button onClick={() => onDelete(shot.id)}
           className="p-1 text-gray-200 hover:text-red-500 transition-colors opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
           <Trash2 className="h-3.5 w-3.5" />
         </button>
+        {/* Row resize handle */}
+        {onRowResize && (
+          <div
+            className="absolute bottom-0 left-0 right-0 h-1 cursor-row-resize hover:bg-blue-400/40 active:bg-blue-500/50 z-20"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              const tr = e.currentTarget.closest("tr")!;
+              const startY = e.clientY;
+              const startH = tr.offsetHeight;
+              const onMove = (ev: MouseEvent) => {
+                onRowResize(shot.id, Math.max(32, startH + (ev.clientY - startY)));
+              };
+              const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+              document.addEventListener("mousemove", onMove);
+              document.addEventListener("mouseup", onUp);
+            }}
+          />
+        )}
       </td>
     </tr>
   );
@@ -536,6 +558,7 @@ export function ScriptEditorClient({
   const [displayMode, setDisplayMode] = useState<DisplayMode>("storyboard");
   const [showFrames, setShowFrames] = useState(true);
   const [colWidths, setColWidths] = useState<Record<string, number>>({});
+  const [rowHeights, setRowHeights] = useState<Record<string, number>>({});
   const [cinemaUpgradeOpen, setCinemaUpgradeOpen] = useState(false);
   const [callsheetUpgradeOpen, setCallsheetUpgradeOpen] = useState(false);
   const [storyboardUpgradeOpen, setStoryboardUpgradeOpen] = useState(false);
@@ -1098,8 +1121,9 @@ export function ScriptEditorClient({
                               const th = e.currentTarget.parentElement!;
                               const startX = e.clientX;
                               const startW = th.offsetWidth;
+                              const isRtl = getComputedStyle(th).direction === "rtl";
                               const onMove = (ev: MouseEvent) => {
-                                const diff = startX - ev.clientX;
+                                const diff = isRtl ? (ev.clientX - startX) : (startX - ev.clientX);
                                 setColWidths(prev => ({ ...prev, [col.id]: Math.max(60, startW + diff) }));
                               };
                               const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
@@ -1118,7 +1142,9 @@ export function ScriptEditorClient({
                         key={shot.id} shot={shot} idx={idx}
                         visibleCols={visibleCols} showFrames={showFrames}
                         foldMode={foldMode} customShotNo={customShotNo}
+                        rowHeight={rowHeights[shot.id]}
                         onUpdate={updateShot} onDelete={deleteShot}
+                        onRowResize={(id, h) => setRowHeights(prev => ({ ...prev, [id]: h }))}
                       />
                     ))}
                   </tbody>
