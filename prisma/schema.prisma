@@ -44,6 +44,7 @@ model User {
   subscriptions        Subscription[]
   travelLogs           TravelLog[]
   scheduledContents    ScheduledContent[]
+  contentBoards        ContentBoard[]
   invoices             Invoice[]
   quotes               Quote[]
   expenses             Expense[]
@@ -86,6 +87,7 @@ model Client {
   invoices         Invoice[]
   quotes           Quote[]
   scheduledContent ScheduledContent[]
+  contentBoards    ContentBoard[]
   travelLogs       TravelLog[]
 
   createdAt DateTime @default(now())
@@ -136,6 +138,7 @@ model Project {
   invoices         Invoice[]
   quotes           Quote[]
   scheduledContent ScheduledContent[]
+  contentBoards    ContentBoard[]
   travelLogs       TravelLog[]
 
   createdAt DateTime @default(now())
@@ -272,13 +275,32 @@ model Expense {
 }
 
 // ---------- CONTENT CALENDAR ----------
+model ContentBoard {
+  id        String   @id @default(cuid())
+  title     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  clientId  String?
+  client    Client?  @relation(fields: [clientId], references: [id])
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id])
+
+  items     ScheduledContent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model ScheduledContent {
   id          String   @id @default(cuid())
   title       String
   date        DateTime
   contentType String   // client_shoot, youtube_long, short_form
-  status      String   @default("planned") // planned, editing, ready, published
+  status      String   @default("planned") // planned, editing, ready, published, event
+  isEvent     Boolean  @default(false) // show in events list
 
+  boardId   String?
+  board     ContentBoard? @relation(fields: [boardId], references: [id], onDelete: SetNull)
   clientId  String?
   client    Client?  @relation(fields: [clientId], references: [id])
   projectId String?

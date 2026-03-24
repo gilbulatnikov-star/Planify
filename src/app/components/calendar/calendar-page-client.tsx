@@ -88,6 +88,8 @@ export function CalendarPageClient({
   projects,
   initialMonth,
   activeClientId,
+  boardId,
+  boardTitle,
 }: {
   content: ContentItem[];
   clients: { id: string; name: string }[];
@@ -95,6 +97,8 @@ export function CalendarPageClient({
   initialMonth: string;
   activeClientId: string | null;
   activeClientName: string | null;
+  boardId?: string;
+  boardTitle?: string;
 }) {
   const he = useT();
   const dayNames = he.calendar.dayNames as unknown as string[];
@@ -114,13 +118,15 @@ export function CalendarPageClient({
     ? clients.find((c) => c.id === selectedClientId)?.name ?? null
     : null;
 
+  const basePath = boardId ? `/calendar/${boardId}` : "/calendar";
+
   function buildUrl(overrides: { month?: string; clientId?: string | null }) {
     const monthStr = overrides.month ?? format(currentMonth, "yyyy-MM");
     const clientStr = overrides.clientId !== undefined ? overrides.clientId : selectedClientId;
     const params = new URLSearchParams();
     params.set("month", monthStr);
     if (clientStr) params.set("clientId", clientStr);
-    return `/calendar?${params.toString()}`;
+    return `${basePath}?${params.toString()}`;
   }
 
   function navigateMonth(direction: "prev" | "next") {
@@ -195,8 +201,16 @@ export function CalendarPageClient({
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5">
 
       {/* ── Header ── */}
+      {boardId && (
+        <motion.div variants={fadeUp}>
+          <button onClick={() => router.push("/calendar")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <ChevronRight className="h-4 w-4" />
+            {he.common.backToBoards ?? "חזרה ללוחות"}
+          </button>
+        </motion.div>
+      )}
       <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2 justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{he.calendar.title}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{boardTitle ?? he.calendar.title}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Client selector */}
@@ -426,6 +440,7 @@ export function CalendarPageClient({
         defaultClientId={selectedClientId}
         clients={clients}
         projects={projects}
+        boardId={boardId}
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onRequestDelete={(id) => { setDeleteTarget(id); }}

@@ -61,6 +61,7 @@ interface ContentDialogProps {
   defaultClientId?: string | null;
   clients: { id: string; name: string }[];
   projects: { id: string; title: string }[];
+  boardId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onRequestDelete?: (id: string) => void;
@@ -82,6 +83,7 @@ export function ContentDialog({
   defaultClientId,
   clients,
   projects,
+  boardId,
   open,
   onOpenChange,
   onRequestDelete,
@@ -93,6 +95,7 @@ export function ContentDialog({
     { key: "editing", label: he.calendar.statuses.editing },
     { key: "ready", label: he.calendar.statuses.ready },
     { key: "published", label: he.calendar.statuses.published },
+    { key: "event", label: he.calendar.statuses.event ?? "אירוע" },
   ];
 
   const router = useRouter();
@@ -142,6 +145,7 @@ export function ContentDialog({
       formData.set("clientId",  resolvedClientId);
       formData.set("projectId", projectId);
       formData.set("color",     selectedColor);
+      if (boardId) formData.set("boardId", boardId);
 
       const result = isEditing
         ? await updateScheduledContent(content.id, formData)

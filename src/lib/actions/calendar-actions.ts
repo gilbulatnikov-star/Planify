@@ -13,11 +13,13 @@ export async function createScheduledContent(formData: FormData) {
     if (!dateStr) return { success: false, error: "Date is required" };
 
     const contentType = (formData.get("contentType") as string) || "general";
-    const status = "planned";
+    const status = (formData.get("status") as string) || "planned";
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
+    const boardId = (formData.get("boardId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
     const color = (formData.get("color") as string) || "gray";
+    const isEvent = status === "event";
 
     const session = await auth();
     const userId = session?.user?.id;
@@ -28,8 +30,10 @@ export async function createScheduledContent(formData: FormData) {
         date: new Date(dateStr),
         contentType,
         status,
+        isEvent,
         clientId: clientId || undefined,
         projectId: projectId || undefined,
+        boardId: boardId || undefined,
         notes,
         color,
         userId: userId ?? undefined,
