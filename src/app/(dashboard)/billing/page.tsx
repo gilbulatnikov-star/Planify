@@ -63,11 +63,11 @@ export default function BillingPricingPage() {
       )}
 
       {/* Header */}
-      <div className="text-center mb-8 space-y-3">
+      <div className="text-center mb-6 sm:mb-8 space-y-2 sm:space-y-3">
         <p className="inline-flex items-center gap-1.5 rounded-full bg-[#38b6ff]/10 px-3 py-1 text-xs font-semibold text-[#38b6ff]">
           <Crown className="h-3.5 w-3.5" /> {he.billing.transparentPricing}
         </p>
-        <h1 className="text-4xl font-black text-foreground leading-tight">
+        <h1 className="text-2xl sm:text-4xl font-black text-foreground leading-tight">
           {he.billing.allIncluded}
         </h1>
         <p className="text-base text-muted-foreground max-w-md mx-auto">
@@ -103,19 +103,19 @@ export default function BillingPricingPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch mb-12 max-w-3xl mx-auto">
 
         {/* Free */}
-        <div className="flex flex-col rounded-2xl border border-border bg-card p-8 shadow-sm">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted mb-5">
+        <div className="flex flex-col rounded-2xl border border-border bg-card p-5 sm:p-8 shadow-sm">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted mb-4 sm:mb-5">
             <Sparkles className="h-5 w-5 text-muted-foreground" />
           </div>
-          <p className="text-xl font-black text-foreground mb-1">{he.billing.freePlan}</p>
-          <p className="text-xs text-muted-foreground mb-6">{he.billing.trialDays}</p>
+          <p className="text-lg sm:text-xl font-black text-foreground mb-1">{he.billing.freePlan}</p>
+          <p className="text-xs text-muted-foreground mb-4 sm:mb-6">{he.billing.trialDays}</p>
 
           <div className="mb-1">
-            <span className="text-5xl font-black text-foreground leading-none">₪0</span>
+            <span className="text-4xl sm:text-5xl font-black text-foreground leading-none">₪0</span>
           </div>
-          <p className="text-xs text-muted-foreground mb-8">{he.billing.forTrialDays}</p>
+          <p className="text-xs text-muted-foreground mb-5 sm:mb-8">{he.billing.forTrialDays}</p>
 
-          <div className="mb-8 w-full rounded-xl py-3.5 text-sm font-semibold text-center bg-muted text-muted-foreground cursor-default select-none">
+          <div className="mb-5 sm:mb-8 w-full rounded-xl py-3 sm:py-3.5 text-sm font-semibold text-center bg-muted text-muted-foreground cursor-default select-none">
             התוכנית הנוכחית
           </div>
 
@@ -132,7 +132,7 @@ export default function BillingPricingPage() {
         </div>
 
         {/* Pro */}
-        <div className="relative flex flex-col rounded-2xl p-8 shadow-2xl" style={{ background: "linear-gradient(145deg, #0284c7 0%, #38b6ff 55%, #7dd3fc 100%)" }}>
+        <div className="relative flex flex-col rounded-2xl p-5 sm:p-8 shadow-2xl" style={{ background: "linear-gradient(145deg, #0284c7 0%, #38b6ff 55%, #7dd3fc 100%)" }}>
           {isAnnual && (
             <div className="absolute -top-4 right-6">
               <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-1.5 text-xs font-black text-white shadow-lg whitespace-nowrap">
@@ -141,14 +141,14 @@ export default function BillingPricingPage() {
             </div>
           )}
 
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-card/20 mb-5">
+          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-card/20 mb-4 sm:mb-5">
             <Crown className="h-5 w-5 text-white" />
           </div>
-          <p className="text-xl font-black text-white mb-1">Planify Pro {isAnnual ? he.billing.annual : he.billing.monthly}</p>
-          <p className="text-xs text-white/40 mb-6">{isAnnual ? he.billing.annualBilling : he.billing.monthlyBilling}</p>
+          <p className="text-lg sm:text-xl font-black text-white mb-1">Planify Pro {isAnnual ? he.billing.annual : he.billing.monthly}</p>
+          <p className="text-xs text-white/40 mb-4 sm:mb-6">{isAnnual ? he.billing.annualBilling : he.billing.monthlyBilling}</p>
 
           <div className="mb-1 flex items-end gap-1.5">
-            <span className="text-5xl font-black text-white leading-none">{price}</span>
+            <span className="text-4xl sm:text-5xl font-black text-white leading-none">{price}</span>
             <span className="text-sm text-white/40 mb-1.5">{he.billing.perMonth}</span>
           </div>
           <p className="text-xs text-white/40 mb-2">{priceSub}</p>
@@ -185,8 +185,8 @@ export default function BillingPricingPage() {
         </div>
       </div>
 
-      {/* Comparison table */}
-      <div className="mb-10 max-w-3xl mx-auto">
+      {/* Comparison table — hidden on mobile */}
+      <div className="mb-10 max-w-3xl mx-auto hidden sm:block">
         <h2 className="text-xl font-black text-foreground mb-5 text-center">{he.billing.fullComparison}</h2>
         <div className="rounded-2xl border border-border bg-card shadow-sm overflow-hidden">
           <table className="w-full" dir="rtl">
