@@ -43,7 +43,7 @@ type ShotItem = {
   makeup: string;
 };
 
-type DisplayMode = "image_text" | "text" | "storyboard";
+type DisplayMode = "image_text" | "storyboard";
 type FoldMode = "unfold" | "fold";
 type ShotOrdering = "asc" | "desc";
 type ChatMsg = { role: "user" | "model"; text: string };
@@ -133,20 +133,39 @@ const selectCls = inputCls + " cursor-pointer";
 function ComboCell({ value, opts, onChange, placeholder }: {
   value: string; opts: string[]; onChange: (v: string) => void; placeholder?: string;
 }) {
-  const listId = useId();
-  return (
-    <>
+  const [editing, setEditing] = useState(false);
+  if (editing) {
+    return (
       <input
-        list={listId}
+        autoFocus
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onBlur={() => {
+          // Auto-add "mm" suffix for lens values that are just numbers
+          if (value && /^\d+$/.test(value.trim())) onChange(value.trim() + "mm");
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            if (value && /^\d+$/.test(value.trim())) onChange(value.trim() + "mm");
+            setEditing(false);
+          }
+        }}
         placeholder={placeholder ?? "—"}
         className={inputCls}
       />
-      <datalist id={listId}>
-        {opts.map((o) => <option key={o} value={o} />)}
-      </datalist>
-    </>
+    );
+  }
+  return (
+    <select
+      value={opts.includes(value) ? value : "__custom__"}
+      onChange={(e) => { if (e.target.value === "__custom__") { setEditing(true); } else { onChange(e.target.value); } }}
+      className={selectCls}
+    >
+      <option value="">{placeholder ?? "—"}</option>
+      {opts.map((o) => <option key={o} value={o}>{o}</option>)}
+      <option value="__custom__">{value && !opts.includes(value) ? value : "אחר..."}</option>
+    </select>
   );
 }
 
@@ -154,7 +173,7 @@ function SelectCell({ value, opts, onChange }: { value: string; opts: string[]; 
   return (
     <select value={value} onChange={(e) => onChange(e.target.value)} className={selectCls}>
       <option value="">—</option>
-      {opts.map((o) => <option key={o}>{o}</option>)}
+      {opts.map((o) => <option key={o} value={o}>{o}</option>)}
     </select>
   );
 }
@@ -170,11 +189,11 @@ function InputCell({ value, onChange, placeholder, type = "text" }: {
 
 // ─── Shot Row ─────────────────────────────────────────────────────────────────
 
-function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customShotNo, onUpdate, onDelete }: {
+function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShotNo, onUpdate, onDelete }: {
   shot: ShotItem;
   idx: number;
   visibleCols: Set<string>;
-  displayMode: DisplayMode;
+  showFrames: boolean;
   foldMode: FoldMode;
   customShotNo: boolean;
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
@@ -192,7 +211,7 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
     return <td key={colId} className={`${cellPad} ${overflow} ${foldMode === "fold" ? "max-h-8" : ""}`}>{content}</td>;
   }
 
-  const showFrame = displayMode !== "text" && visibleCols.has("frameUrl");
+  const showFrame = showFrames && visibleCols.has("frameUrl");
 
   return (
     <tr className={`border-b border-border hover:bg-blue-50/20 transition-colors group ${rowBg} ${rowH}`}>
@@ -267,8 +286,8 @@ function ShotTableRow({ shot, idx, visibleCols, displayMode, foldMode, customSho
 
 // ─── Storyboard Card ──────────────────────────────────────────────────────────
 
-function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
-  shot: ShotItem; customShotNo: boolean;
+function StoryboardCard({ shot, customShotNo, showFrames, onUpdate, onDelete }: {
+  shot: ShotItem; customShotNo: boolean; showFrames: boolean;
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
   onDelete: (id: string) => void;
 }) {
@@ -276,7 +295,7 @@ function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
   return (
     <div className="group rounded-xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-md transition-shadow">
       {/* Frame */}
-      <div className="relative bg-muted h-36">
+      {showFrames && <div className="relative bg-muted h-36">
         {shot.frameUrl ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -302,7 +321,7 @@ function StoryboardCard({ shot, customShotNo, onUpdate, onDelete }: {
         <div className="absolute top-1.5 left-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/70 text-background text-xs font-bold">
           {customShotNo ? shot.customShotNum : shot.shotNum}
         </div>
-      </div>
+      </div>}
       {/* Info */}
       <div className="p-3 space-y-1.5">
         <div className="flex items-start justify-between gap-1">
@@ -362,10 +381,11 @@ function ColumnMenu({ visibleCols, onToggle, onClose }: {
 
 // ─── View Settings Popover ────────────────────────────────────────────────────
 
-function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, customShotNo, setCustomShotNo, shotOrdering, setShotOrdering, onClose, isPro, onCinemaLocked }: {
+function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, customShotNo, setCustomShotNo, shotOrdering, setShotOrdering, showFrames, setShowFrames, onClose, isPro, onCinemaLocked }: {
   displayMode: DisplayMode; setDisplayMode: (m: DisplayMode) => void;
   foldMode: FoldMode; setFoldMode: (m: FoldMode) => void;
   customShotNo: boolean; setCustomShotNo: (v: boolean) => void;
+  showFrames: boolean; setShowFrames: (v: boolean) => void;
   shotOrdering: ShotOrdering; setShotOrdering: (o: ShotOrdering) => void;
   onClose: () => void;
   isPro: boolean;
@@ -400,12 +420,23 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
         <div className="flex gap-2">
           <ModeBtn active={displayMode === "storyboard"} onClick={() => setDisplayMode("storyboard")}
             icon={<LayoutGrid className="h-5 w-5" />} label={he.scriptEditor.storyboard} />
-          <ModeBtn active={displayMode === "text"} onClick={() => setDisplayMode("text")}
-            icon={<Type className="h-5 w-5" />} label={he.scriptEditor.textOnly} />
           <ModeBtn active={displayMode === "image_text"}
             onClick={() => isPro ? setDisplayMode("image_text") : onCinemaLocked()}
             icon={<Image className="h-5 w-5" />} label={he.scriptEditor.cinematic}
             locked={!isPro} />
+        </div>
+      </div>
+
+      {/* Show Frames toggle */}
+      <div className={sectionCls}>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className={labelCls + " mb-0"}>{he.scriptEditor.showFrames ?? "הצג תמונה"}</div>
+          </div>
+          <button onClick={() => setShowFrames(!showFrames)}
+            className={`relative h-5 w-9 rounded-full transition-colors ${showFrames ? "bg-foreground" : "bg-gray-200"}`}>
+            <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform ${showFrames ? "translate-x-4" : "translate-x-0.5"}`} />
+          </button>
         </div>
       </div>
 
@@ -503,6 +534,8 @@ export function ScriptEditorClient({
     () => new Set(COLUMNS.filter((c) => c.defaultVisible).map((c) => c.id))
   );
   const [displayMode, setDisplayMode] = useState<DisplayMode>("storyboard");
+  const [showFrames, setShowFrames] = useState(true);
+  const [colWidths, setColWidths] = useState<Record<string, number>>({});
   const [cinemaUpgradeOpen, setCinemaUpgradeOpen] = useState(false);
   const [callsheetUpgradeOpen, setCallsheetUpgradeOpen] = useState(false);
   const [storyboardUpgradeOpen, setStoryboardUpgradeOpen] = useState(false);
@@ -665,7 +698,7 @@ export function ScriptEditorClient({
   ];
 
   // ─── Visible columns for table header ────────────────────────────────────────
-  const showFrame = displayMode !== "text" && visibleCols.has("frameUrl");
+  const showFrame = showFrames && visibleCols.has("frameUrl");
   const headerCols = COLUMNS.filter((c) => {
     if (c.id === "frameUrl") return showFrame;
     return visibleCols.has(c.id);
@@ -989,6 +1022,7 @@ export function ScriptEditorClient({
                       foldMode={foldMode} setFoldMode={setFoldMode}
                       customShotNo={customShotNo} setCustomShotNo={setCustomShotNo}
                       shotOrdering={shotOrdering} setShotOrdering={setShotOrdering}
+                      showFrames={showFrames} setShowFrames={setShowFrames}
                       onClose={() => setShowViewMenu(false)}
                       isPro={isPro}
                       onCinemaLocked={() => { setShowViewMenu(false); setCinemaUpgradeOpen(true); }}
@@ -1024,7 +1058,7 @@ export function ScriptEditorClient({
               <div className="flex-1 overflow-auto p-5">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {orderedShots.map((shot) => (
-                    <StoryboardCard key={shot.id} shot={shot} customShotNo={customShotNo} onUpdate={updateShot} onDelete={deleteShot} />
+                    <StoryboardCard key={shot.id} shot={shot} customShotNo={customShotNo} showFrames={showFrames} onUpdate={updateShot} onDelete={deleteShot} />
                   ))}
                   {storyboardAtLimit ? (
                     <button onClick={() => setStoryboardUpgradeOpen(true)}
@@ -1049,8 +1083,28 @@ export function ScriptEditorClient({
                   <thead>
                     <tr className="bg-muted text-right sticky top-0 z-10 shadow-sm">
                       {headerCols.map((col) => (
-                        <th key={col.id} className="px-3 py-2.5 text-xs font-semibold text-muted-foreground whitespace-nowrap border-b border-border">
+                        <th
+                          key={col.id}
+                          style={colWidths[col.id] ? { width: colWidths[col.id], minWidth: colWidths[col.id] } : undefined}
+                          className="relative px-3 py-2.5 text-xs font-semibold text-muted-foreground whitespace-nowrap border-b border-border"
+                        >
                           {col.label}
+                          <div
+                            className="absolute top-0 left-0 h-full w-1.5 cursor-col-resize hover:bg-blue-400/40 active:bg-blue-500/50 z-20"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              const th = e.currentTarget.parentElement!;
+                              const startX = e.clientX;
+                              const startW = th.offsetWidth;
+                              const onMove = (ev: MouseEvent) => {
+                                const diff = startX - ev.clientX;
+                                setColWidths(prev => ({ ...prev, [col.id]: Math.max(60, startW + diff) }));
+                              };
+                              const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+                              document.addEventListener("mousemove", onMove);
+                              document.addEventListener("mouseup", onUp);
+                            }}
+                          />
                         </th>
                       ))}
                       <th className="w-10 border-b border-border" />
@@ -1060,7 +1114,7 @@ export function ScriptEditorClient({
                     {orderedShots.map((shot, idx) => (
                       <ShotTableRow
                         key={shot.id} shot={shot} idx={idx}
-                        visibleCols={visibleCols} displayMode={displayMode}
+                        visibleCols={visibleCols} showFrames={showFrames}
                         foldMode={foldMode} customShotNo={customShotNo}
                         onUpdate={updateShot} onDelete={deleteShot}
                       />
