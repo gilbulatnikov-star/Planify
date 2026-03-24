@@ -228,26 +228,6 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
               />
             </div>
 
-            {/* Project link */}
-            {projects.length > 0 && (
-              <div className="col-span-2 space-y-2">
-                <Label>{he.common.linkToProject}</Label>
-                <Select value={projectId} onValueChange={(v) => setProjectId(v === "__none__" ? "" : (v ?? ""))}>
-                  <SelectTrigger className="w-full">
-                    <span className="flex flex-1">
-                      {projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : he.common.noProject}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__none__">{he.common.noProject}</SelectItem>
-                    {projects.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
-
             {/* Notes */}
             <div className="col-span-2 space-y-2">
               <Label htmlFor="notes">{he.common.notes}</Label>
