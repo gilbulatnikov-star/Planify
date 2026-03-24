@@ -972,6 +972,7 @@ export const he = {
     addFrame: "הוסף",
     action: "אקשן...",
     lensPlaceholder: "עדשה...",
+    soundPlaceholder: "סאונד...",
     dialoguePlaceholder: "דיאלוג...",
     notePlaceholder: "הערה...",
     equipmentPlaceholder: "ציוד...",

@@ -969,6 +969,7 @@ export const en = {
     addFrame: "Add",
     action: "Action...",
     lensPlaceholder: "Lens...",
+    soundPlaceholder: "Sound...",
     dialoguePlaceholder: "Dialogue...",
     notePlaceholder: "Note...",
     equipmentPlaceholder: "Equipment...",

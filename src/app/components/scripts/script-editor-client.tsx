@@ -178,6 +178,22 @@ function SelectCell({ value, opts, onChange }: { value: string; opts: string[]; 
   );
 }
 
+function LensInput({ value, onChange, placeholder }: { value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      onBlur={(e) => {
+        const v = e.target.value.trim();
+        if (v && /^\d+$/.test(v)) onChange(v + "mm");
+        if (v && /^\d+-\d+$/.test(v)) onChange(v + "mm");
+      }}
+      placeholder={placeholder ?? "—"}
+      className={inputCls}
+    />
+  );
+}
+
 function InputCell({ value, onChange, placeholder, type = "text" }: {
   value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
 }) {
@@ -260,7 +276,7 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
 
       {cell("content", <InputCell value={shot.content} onChange={upd("content")} placeholder={he.scriptEditor.action} />)}
       {cell("shotSize", <SelectCell value={shot.shotSize} opts={SHOT_SIZE_OPTS} onChange={upd("shotSize")} />)}
-      {cell("lens", <ComboCell value={shot.lens} opts={LENS_OPTS} onChange={upd("lens")} placeholder={he.scriptEditor.lensPlaceholder} />)}
+      {cell("lens", <LensInput value={shot.lens} onChange={upd("lens")} placeholder={he.scriptEditor.lensPlaceholder} />)}
       {cell("movement", <SelectCell value={shot.movement} opts={MOVEMENT_OPTS} onChange={upd("movement")} />)}
       {cell("startTime", <InputCell type="time" value={shot.startTime} onChange={upd("startTime")} />)}
       {cell("endTime", <InputCell type="time" value={shot.endTime} onChange={upd("endTime")} />)}
