@@ -146,6 +146,25 @@ export async function updateProject(id: string, formData: FormData) {
   }
 }
 
+export async function updateProjectClient(projectId: string, clientId: string | null) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  const existing = await prisma.project.findFirst({ where: { id: projectId, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  if (clientId) {
+    const client = await prisma.client.findFirst({ where: { id: clientId, userId } });
+    if (!client) return { success: false, error: "Invalid client" };
+  }
+
+  await prisma.project.update({ where: { id: projectId }, data: { clientId } });
+  revalidatePath("/projects");
+  revalidatePath(`/projects/${projectId}`);
+  return { success: true };
+}
+
 export async function linkItemToProject(type: "script" | "moodboard" | "contact" | "content", itemId: string, projectId: string | null) {
   const session = await auth();
   const userId = session?.user?.id;

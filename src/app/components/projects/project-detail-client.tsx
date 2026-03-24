@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
-  CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X,
+  CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X, Users,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/proje
 import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { useT, useLocale } from "@/lib/i18n";
-import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject } from "@/lib/actions/project-actions";
+import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject, updateProjectClient } from "@/lib/actions/project-actions";
 import { Input } from "@/components/ui/input";
 
 type ProjectDetail = {
@@ -82,6 +82,55 @@ function LinkItemDropdown({ items, onSelect }: { items: { id: string; title?: st
   );
 }
 
+function ClientPicker({
+  clients,
+  currentClientId,
+  currentClientName,
+  onSelect,
+}: {
+  clients: { id: string; name: string }[];
+  currentClientId: string | null;
+  currentClientName: string | null;
+  onSelect: (clientId: string | null) => void;
+}) {
+  const he = useT();
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative mt-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <Users className="h-3.5 w-3.5" />
+        {currentClientName ?? (he.calendar?.noClient ?? "ללא לקוח — לחץ לשייך")}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[200px] max-h-56 overflow-y-auto">
+            <button
+              onClick={() => { onSelect(null); setOpen(false); }}
+              className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors ${!currentClientId ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+            >
+              {he.calendar?.noClient ?? "ללא לקוח"}
+            </button>
+            {clients.map(c => (
+              <button
+                key={c.id}
+                onClick={() => { onSelect(c.id); setOpen(false); }}
+                className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors ${currentClientId === c.id ? "bg-muted text-foreground font-medium" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+              >
+                {c.name}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export function ProjectDetailClient({
   project,
   clients,
@@ -134,7 +183,12 @@ export function ProjectDetailClient({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-foreground">{project.title}</h1>
-            {project.client && <p className="text-sm text-muted-foreground mt-1">{project.client.name}</p>}
+            <ClientPicker
+              clients={clients}
+              currentClientId={project.clientId}
+              currentClientName={project.client?.name ?? null}
+              onSelect={(clientId) => { startTransition(async () => { await updateProjectClient(project.id, clientId); router.refresh(); }); }}
+            />
           </div>
           <Button size="sm" variant="outline" onClick={() => setEditOpen(true)} className="shrink-0">
             <Pencil className="h-3.5 w-3.5 me-1.5" />
