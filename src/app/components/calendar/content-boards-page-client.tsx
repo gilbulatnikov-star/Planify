@@ -33,7 +33,7 @@ export function ContentBoardsPageClient({
 }: {
   boards: Board[];
   clients: { id: string; name: string }[];
-  projects: { id: string; title: string }[];
+  projects: { id: string; title: string; clientId: string | null }[];
 }) {
   const he = useT();
   const router = useRouter();
@@ -62,7 +62,7 @@ export function ContentBoardsPageClient({
 
   // Filter projects by selected client
   const filteredProjects = newClientId
-    ? projects
+    ? projects.filter(p => p.clientId === newClientId)
     : projects;
 
   return (
@@ -87,7 +87,7 @@ export function ContentBoardsPageClient({
             autoFocus
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select value={newClientId} onValueChange={setNewClientId}>
+            <Select value={newClientId} onValueChange={(v) => { setNewClientId(v); setNewProjectId(""); }}>
               <SelectTrigger className="w-full">
                 <span className="truncate">{newClientId ? clients.find(c => c.id === newClientId)?.name : (he.calendar.noClient ?? "ללא לקוח")}</span>
               </SelectTrigger>
