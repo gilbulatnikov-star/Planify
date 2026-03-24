@@ -998,17 +998,19 @@ export function ScriptEditorClient({
                 <p className="text-xs text-muted-foreground">{shotList.length} {he.scriptEditor.shotsCount}</p>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="relative" data-menu>
-                  <button onClick={() => { setShowColMenu((v) => !v); setShowViewMenu(false); }}
-                    className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
-                      showColMenu ? "border-gray-900 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
-                    }`}>
-                    <SlidersHorizontal className="h-3.5 w-3.5" /><span className="hidden sm:inline">{he.scriptEditor.filter}</span>
-                  </button>
-                  {showColMenu && (
-                    <ColumnMenu visibleCols={visibleCols} onToggle={toggleCol} onClose={() => setShowColMenu(false)} />
-                  )}
-                </div>
+                {displayMode === "image_text" && (
+                  <div className="relative" data-menu>
+                    <button onClick={() => { setShowColMenu((v) => !v); setShowViewMenu(false); }}
+                      className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                        showColMenu ? "border-gray-900 bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
+                      }`}>
+                      <SlidersHorizontal className="h-3.5 w-3.5" /><span className="hidden sm:inline">{he.scriptEditor.filter}</span>
+                    </button>
+                    {showColMenu && (
+                      <ColumnMenu visibleCols={visibleCols} onToggle={toggleCol} onClose={() => setShowColMenu(false)} />
+                    )}
+                  </div>
+                )}
                 <div className="relative" data-menu>
                   <button onClick={() => { setShowViewMenu((v) => !v); setShowColMenu(false); }}
                     className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
