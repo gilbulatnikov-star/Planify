@@ -1,4 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
+
+const MAX_CONTENT_LEN = 50_000;
+const MAX_INSTRUCTION_LEN = 5_000;
+const MAX_MESSAGES = 50;
 
 const SYSTEM_PROMPT = `אתה עוזר כתיבת תסריטי וידאו ברמה עולמית. אתה עוזר למשתמש לכתוב, לשפר ולייעץ על תסריטים לYouTube, TikTok, Instagram Reels, פודקאסטים ווידאו מסחרי.
 
@@ -26,7 +31,7 @@ async function callOpenRouter(messages: { role: string; content: string }[]) {
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000",
+      "HTTP-Referer": process.env.NEXTAUTH_URL ?? "https://planify.app",
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-001",
@@ -37,8 +42,7 @@ async function callOpenRouter(messages: { role: string; content: string }[]) {
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`OpenRouter error ${res.status}: ${err}`);
+    throw new Error("AI service unavailable");
   }
 
   const data = await res.json();
@@ -47,13 +51,29 @@ async function callOpenRouter(messages: { role: string; content: string }[]) {
 
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { mode, content, instruction, platform, duration, messages } = await req.json();
 
     if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json(
-        { error: "מפתח AI לא מוגדר — הוסף OPENROUTER_API_KEY ל-.env" },
+        { error: "AI not configured" },
         { status: 500 }
       );
+    }
+
+    // Input length validation
+    if (content && typeof content === "string" && content.length > MAX_CONTENT_LEN) {
+      return NextResponse.json({ error: "Content too long" }, { status: 400 });
+    }
+    if (instruction && typeof instruction === "string" && instruction.length > MAX_INSTRUCTION_LEN) {
+      return NextResponse.json({ error: "Instruction too long" }, { status: 400 });
+    }
+    if (messages && Array.isArray(messages) && messages.length > MAX_MESSAGES) {
+      return NextResponse.json({ error: "Too many messages" }, { status: 400 });
     }
 
     if (mode === "chat") {
@@ -61,7 +81,7 @@ export async function POST(req: NextRequest) {
         ? `[התסריט הנוכחי של המשתמש:\n${content}\n---]\n`
         : "";
 
-      const history = (messages as ChatMessage[]).map((m, i) => ({
+      const history = (messages as ChatMessage[]).slice(-MAX_MESSAGES).map((m, i) => ({
         role: m.role,
         content:
           i === messages.length - 1 && m.role === "user"
@@ -74,7 +94,6 @@ export async function POST(req: NextRequest) {
         ...history,
       ]);
 
-      // Parse structured update response
       const scriptMatch = raw.match(/SCRIPT_UPDATE\n([\s\S]*?)\nEND_SCRIPT\n?([\s\S]*)/);
       if (scriptMatch) {
         return NextResponse.json({
@@ -89,17 +108,20 @@ export async function POST(req: NextRequest) {
     let userMessage = "";
 
     if (mode === "generate") {
-      userMessage = `כתוב לי תסריט וידאו על הנושא הבא: "${instruction}"
-פלטפורמה: ${platform || "YouTube"}
-${duration ? `אורך: ${duration}` : ""}
+      const safeInstruction = (instruction ?? "").slice(0, MAX_INSTRUCTION_LEN);
+      const safePlatform = (platform ?? "YouTube").slice(0, 50);
+      userMessage = `כתוב לי תסריט וידאו על הנושא הבא: "${safeInstruction}"
+פלטפורמה: ${safePlatform}
+${duration ? `אורך: ${String(duration).slice(0, 20)}` : ""}
 
 תן לי תסריט מלא עם: ✦ הוק פותח חזק ✦ גוף עניין ✦ סיום עם קריאה לפעולה.
 פרמט: כתוב את התסריט ישר, ללא הסברים מיותרים.`;
     } else if (mode === "upgrade") {
+      const safeContent = (content ?? "").slice(0, MAX_CONTENT_LEN);
       userMessage = `שדרג לי את התסריט הזה. שפר: ✦ ההוק (10 השניות הראשונות) ✦ הפייסינג ✦ הנוסח — שיהיה יותר טבעי ואנושי.
 
 התסריט הנוכחי:
-${content}
+${safeContent}
 
 החזר לי רק את התסריט המשודרג, ללא הסברים.`;
     } else {
@@ -111,7 +133,6 @@ ${content}
       { role: "user", content: userMessage },
     ]);
 
-    // Strip any SCRIPT_UPDATE/END_SCRIPT markers the AI may have included
     const upgradeMatch = result.match(/SCRIPT_UPDATE\n([\s\S]*?)\nEND_SCRIPT/);
     if (upgradeMatch) result = upgradeMatch[1].trim();
 

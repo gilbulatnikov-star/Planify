@@ -23,8 +23,8 @@ export async function createInvoice(formData: FormData) {
     const session = await auth();
     const userId = session?.user?.id;
 
-    // Auto-generate invoice number
-    const count = await prisma.invoice.count();
+    // Auto-generate invoice number scoped to user
+    const count = await prisma.invoice.count({ where: { userId: userId ?? undefined } });
     const invoiceNumber = `INV-${String(count + 1).padStart(4, "0")}`;
 
     const tax = amount * 0.17;

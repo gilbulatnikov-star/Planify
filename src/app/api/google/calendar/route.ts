@@ -19,6 +19,7 @@
  */
 
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 
 // ── Quick-add URL builder (no auth required) ──────────────────────────────
 // Used by the frontend buttons. Generates a Google Calendar "add event" URL.
@@ -52,6 +53,11 @@ export function buildGoogleCalendarUrl({
 // ── POST /api/google/calendar ─────────────────────────────────────────────
 // Full API sync endpoint — requires OAuth2 setup (see above).
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { title, startDate, endDate, description, calendarId = "primary" } = await req.json();
 
   // Check for required Google credentials

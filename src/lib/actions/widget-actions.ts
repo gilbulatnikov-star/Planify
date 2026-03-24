@@ -125,7 +125,7 @@ export async function toggleTodo(id: string) {
     }
     const newCompleted = !todo.completed;
     await prisma.todo.update({
-      where: { id },
+      where: { id, userId },
       data: {
         completed: newCompleted,
         completedAt: newCompleted ? new Date() : null,

@@ -209,7 +209,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error("Document upload error:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "שגיאה בהעלאת הקובץ" },
+      { error: "Document processing failed" },
       { status: 500 }
     );
   }

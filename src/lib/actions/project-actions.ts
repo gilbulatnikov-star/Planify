@@ -60,11 +60,18 @@ export async function createProject(formData: FormData) {
     const shootDateStr = formData.get("shootDate") as string;
     const deadlineStr = formData.get("deadline") as string;
 
+    // Verify client ownership
+    const clientId = (formData.get("clientId") as string) || null;
+    if (clientId) {
+      const client = await prisma.client.findFirst({ where: { id: clientId, userId } });
+      if (!client) return { success: false, error: "Invalid client" };
+    }
+
     await prisma.project.create({
       data: {
         title,
         description: (formData.get("description") as string) || null,
-        clientId: (formData.get("clientId") as string) || null,
+        clientId,
         phase: (formData.get("phase") as string) || "pre_production",
         status: (formData.get("status") as string) || "pitching",
         projectType: (formData.get("projectType") as string) || null,
@@ -103,12 +110,19 @@ export async function updateProject(id: string, formData: FormData) {
     const shootDateStr = formData.get("shootDate") as string;
     const deadlineStr = formData.get("deadline") as string;
 
+    // Verify client ownership
+    const clientId = (formData.get("clientId") as string) || null;
+    if (clientId) {
+      const client = await prisma.client.findFirst({ where: { id: clientId, userId } });
+      if (!client) return { success: false, error: "Invalid client" };
+    }
+
     await prisma.project.update({
       where: { id, userId },
       data: {
         title,
         description: (formData.get("description") as string) || null,
-        clientId: (formData.get("clientId") as string) || null,
+        clientId,
         phase: (formData.get("phase") as string) || "pre_production",
         status: (formData.get("status") as string) || "pitching",
         projectType: (formData.get("projectType") as string) || null,
