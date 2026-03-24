@@ -144,7 +144,7 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
       </motion.div>
 
       {/* Contact List */}
-      <motion.div variants={fadeUp} className="space-y-2">
+      <motion.div variants={fadeUp} className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {filtered.map((contact) => (
           <div
             key={contact.id}
@@ -160,9 +160,6 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
                 <Badge className={`${categoryColors[contact.category] ?? "bg-muted text-muted-foreground"} border-0 text-[10px]`}>
                   {he.contacts.categories[contact.category as keyof typeof he.contacts.categories] ?? contact.category}
                 </Badge>
-                {contact.project && (
-                  <span className="text-[10px] bg-muted rounded-full px-2 py-0.5 text-muted-foreground">📁 {contact.project.title}</span>
-                )}
               </div>
               <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
                 {contact.phone && <span dir="ltr">{contact.phone}</span>}
