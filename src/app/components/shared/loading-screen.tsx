@@ -2,7 +2,7 @@
 
 export function LoadingScreen() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-card dark:bg-background">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
       <svg
         viewBox="0 0 32 32"
         width="48"
