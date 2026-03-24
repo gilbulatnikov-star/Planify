@@ -267,10 +267,10 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
       {cell("duration", <InputCell value={shot.duration} onChange={upd("duration")} placeholder="00:30" />)}
       {cell("dialogues", <InputCell value={shot.dialogues} onChange={upd("dialogues")} placeholder={he.scriptEditor.dialoguePlaceholder} />)}
       {cell("note", <InputCell value={shot.note} onChange={upd("note")} placeholder={he.scriptEditor.notePlaceholder} />)}
-      {cell("sound", <SelectCell value={shot.sound} opts={SOUND_OPTS} onChange={upd("sound")} />)}
+      {cell("sound", <InputCell value={shot.sound} onChange={upd("sound")} placeholder={he.scriptEditor.soundPlaceholder ?? "סאונד..."} />)}
       {cell("shotType", <SelectCell value={shot.shotType} opts={SHOT_TYPE_OPTS} onChange={upd("shotType")} />)}
       {cell("equipment", <InputCell value={shot.equipment} onChange={upd("equipment")} placeholder={he.scriptEditor.equipmentPlaceholder} />)}
-      {cell("frameRate", <ComboCell value={shot.frameRate} opts={FPS_OPTS} onChange={upd("frameRate")} placeholder="FPS..." />)}
+      {cell("frameRate", <SelectCell value={shot.frameRate} opts={FPS_OPTS} onChange={upd("frameRate")} />)}
       {cell("lighting", <InputCell value={shot.lighting} onChange={upd("lighting")} placeholder={he.scriptEditor.lightingPlaceholder} />)}
       {cell("castId", <InputCell value={shot.castId} onChange={upd("castId")} placeholder={he.scriptEditor.actorPlaceholder} />)}
       {cell("prop", <InputCell value={shot.prop} onChange={upd("prop")} placeholder={he.scriptEditor.propPlaceholder} />)}
