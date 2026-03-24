@@ -19,7 +19,7 @@ export async function getMoodboard(id: string) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return null;
-  return prisma.moodboard.findUnique({
+  return prisma.moodboard.findFirst({
     where: { id, userId },
     include: { project: { select: { id: true, title: true } } },
   });
@@ -43,7 +43,10 @@ export async function updateMoodboard(
   const userId = session?.user?.id;
   if (!userId) return { success: false, error: "Not authenticated" };
 
-  await prisma.moodboard.update({ where: { id, userId }, data });
+  const existing = await prisma.moodboard.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.moodboard.update({ where: { id }, data });
   revalidatePath("/moodboard");
   revalidatePath(`/moodboard/${id}`);
   revalidatePath("/projects");
@@ -54,6 +57,9 @@ export async function deleteMoodboard(id: string) {
   const userId = session?.user?.id;
   if (!userId) return { success: false, error: "Not authenticated" };
 
-  await prisma.moodboard.delete({ where: { id, userId } });
+  const existing = await prisma.moodboard.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.moodboard.delete({ where: { id } });
   revalidatePath("/moodboard");
 }

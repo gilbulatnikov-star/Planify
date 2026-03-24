@@ -66,8 +66,11 @@ export async function updateEquipment(id: string, formData: FormData) {
     const purchasePriceStr = formData.get("purchasePrice") as string;
     const purchasePrice = purchasePriceStr ? parseFloat(purchasePriceStr) : null;
 
+    const existing = await prisma.equipment.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.equipment.update({
-      where: { id, userId },
+      where: { id },
       data: {
         name,
         category,
@@ -97,8 +100,11 @@ export async function deleteEquipment(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.equipment.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.equipment.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/equipment");

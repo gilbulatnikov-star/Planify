@@ -75,8 +75,11 @@ export async function updateSubscription(id: string, formData: FormData) {
     const nextBillingDateStr = formData.get("nextBillingDate") as string;
     const notes = (formData.get("notes") as string) || null;
 
+    const existing = await prisma.subscription.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.subscription.update({
-      where: { id, userId },
+      where: { id },
       data: {
         serviceName,
         billingCycle,
@@ -109,8 +112,11 @@ export async function deleteSubscription(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.subscription.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.subscription.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/subscriptions");

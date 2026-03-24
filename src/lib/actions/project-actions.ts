@@ -117,8 +117,11 @@ export async function updateProject(id: string, formData: FormData) {
       if (!client) return { success: false, error: "Invalid client" };
     }
 
+    const existing = await prisma.project.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.project.update({
-      where: { id, userId },
+      where: { id },
       data: {
         title,
         description: (formData.get("description") as string) || null,
@@ -155,9 +158,13 @@ export async function linkItemToProject(type: "script" | "moodboard" | "contact"
   }
 
   const model = { script: prisma.script, moodboard: prisma.moodboard, contact: prisma.contact, content: prisma.scheduledContent }[type];
-  // Verify user owns the item by including userId in the where clause
+  // Verify user owns the item first
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  await (model as any).update({ where: { id: itemId, userId }, data: { projectId } });
+  const existingItem = await (model as any).findFirst({ where: { id: itemId, userId } });
+  if (!existingItem) return { success: false, error: "Item not found" };
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await (model as any).update({ where: { id: itemId }, data: { projectId } });
   revalidatePath("/projects");
   if (projectId) revalidatePath(`/projects/${projectId}`);
   revalidatePath("/calendar");
@@ -233,8 +240,11 @@ export async function deleteProject(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.project.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.project.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/projects");

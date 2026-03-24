@@ -80,8 +80,11 @@ export async function updateContact(id: string, formData: FormData) {
 
     const projectId = (formData.get("projectId") as string) || null;
 
+    const existing = await prisma.contact.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.contact.update({
-      where: { id, userId },
+      where: { id },
       data: {
         name,
         category,
@@ -110,8 +113,11 @@ export async function deleteContact(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.contact.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.contact.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/contacts");

@@ -80,8 +80,11 @@ export async function updateInvoice(id: string, formData: FormData) {
     const tax = amount * 0.17;
     const total = amount + tax;
 
+    const existing = await prisma.invoice.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.invoice.update({
-      where: { id, userId },
+      where: { id },
       data: {
         clientId,
         projectId: projectId || null,
@@ -113,9 +116,12 @@ export async function deleteInvoice(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.invoice.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     // Delete related items first
     await prisma.invoiceItem.deleteMany({ where: { invoiceId: id } });
-    await prisma.invoice.delete({ where: { id, userId } });
+    await prisma.invoice.delete({ where: { id } });
 
     revalidatePath("/financials");
     revalidatePath("/");
@@ -134,8 +140,11 @@ export async function updateInvoiceStatus(id: string, status: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.invoice.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.invoice.update({
-      where: { id, userId },
+      where: { id },
       data: {
         status,
         paidAt: status === "paid" ? new Date() : null,
@@ -161,8 +170,11 @@ export async function updateQuoteStatus(id: string, status: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.quote.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.quote.update({
-      where: { id, userId },
+      where: { id },
       data: { status },
     });
 
@@ -183,8 +195,11 @@ export async function deleteQuote(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.quote.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.quoteItem.deleteMany({ where: { quoteId: id } });
-    await prisma.quote.delete({ where: { id, userId } });
+    await prisma.quote.delete({ where: { id } });
 
     revalidatePath("/financials");
     revalidatePath("/");
@@ -276,8 +291,11 @@ export async function updateExpense(id: string, formData: FormData) {
       return { success: false, error: "Date is required" };
     }
 
+    const existing = await prisma.expense.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.expense.update({
-      where: { id, userId },
+      where: { id },
       data: {
         description,
         category,
@@ -305,8 +323,11 @@ export async function deleteExpense(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.expense.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.expense.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/financials");

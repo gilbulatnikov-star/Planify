@@ -107,8 +107,11 @@ export async function updateClient(id: string, formData: FormData) {
     const tagsRaw = (formData.get("tags") as string) || "";
     const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
 
+    const existing = await prisma.client.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.client.update({
-      where: { id, userId },
+      where: { id },
       data: {
         name,
         email: (formData.get("email") as string) || null,
@@ -146,8 +149,11 @@ export async function deleteClient(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.client.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.client.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/clients");

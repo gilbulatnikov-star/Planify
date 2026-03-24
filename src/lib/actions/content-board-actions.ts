@@ -48,8 +48,11 @@ export async function updateContentBoard(id: string, formData: FormData) {
   const title = formData.get("title") as string;
   if (!title) return { success: false, error: "Title required" };
 
+  const existing = await prisma.contentBoard.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
   await prisma.contentBoard.update({
-    where: { id, userId },
+    where: { id },
     data: {
       title,
       clientId: (formData.get("clientId") as string) || null,
@@ -66,12 +69,15 @@ export async function deleteContentBoard(id: string) {
   const userId = session?.user?.id;
   if (!userId) return { success: false, error: "Not authenticated" };
 
+  const existing = await prisma.contentBoard.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
   // Unlink items first (don't delete them)
   await prisma.scheduledContent.updateMany({
     where: { boardId: id },
     data: { boardId: null },
   });
-  await prisma.contentBoard.delete({ where: { id, userId } });
+  await prisma.contentBoard.delete({ where: { id } });
   revalidatePath("/calendar");
   return { success: true };
 }

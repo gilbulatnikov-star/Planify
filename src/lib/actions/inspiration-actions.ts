@@ -22,7 +22,7 @@ export async function createInspiration(formData: FormData) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "לא מחובר" };
 
-    const cat = await prisma.inspirationCategory.findUnique({ where: { id: categoryId, userId } });
+    const cat = await prisma.inspirationCategory.findFirst({ where: { id: categoryId, userId } });
     if (!cat) {
       return { success: false, error: "Category not found" };
     }
@@ -65,13 +65,16 @@ export async function updateInspiration(id: string, formData: FormData) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "לא מחובר" };
 
-    const cat = await prisma.inspirationCategory.findUnique({ where: { id: categoryId, userId } });
+    const cat = await prisma.inspirationCategory.findFirst({ where: { id: categoryId, userId } });
     if (!cat) {
       return { success: false, error: "Category not found" };
     }
 
+    const existing = await prisma.inspiration.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.inspiration.update({
-      where: { id, userId },
+      where: { id },
       data: {
         title,
         category: cat.name,
@@ -98,7 +101,10 @@ export async function deleteInspiration(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "לא מחובר" };
 
-    await prisma.inspiration.delete({ where: { id, userId } });
+    const existing = await prisma.inspiration.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
+    await prisma.inspiration.delete({ where: { id } });
 
     revalidatePath("/inspiration");
     revalidatePath("/");
@@ -168,8 +174,11 @@ export async function updateInspirationCategory(id: string, formData: FormData) 
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "לא מחובר" };
 
+    const existing = await prisma.inspirationCategory.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.inspirationCategory.update({
-      where: { id, userId },
+      where: { id },
       data: { label, color },
     });
 
@@ -194,7 +203,10 @@ export async function deleteInspirationCategory(id: string) {
       return { success: false, error: `לא ניתן למחוק קטגוריה עם ${count} פריטי השראה. העבר אותם קודם לקטגוריה אחרת.` };
     }
 
-    await prisma.inspirationCategory.delete({ where: { id, userId } });
+    const existingCat = await prisma.inspirationCategory.findFirst({ where: { id, userId } });
+    if (!existingCat) return { success: false, error: "Not found" };
+
+    await prisma.inspirationCategory.delete({ where: { id } });
 
     revalidatePath("/inspiration");
     return { success: true };

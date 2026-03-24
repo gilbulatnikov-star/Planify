@@ -92,8 +92,11 @@ export async function updateTravelEntry(id: string, formData: FormData) {
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
 
+    const existing = await prisma.travelLog.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.travelLog.update({
-      where: { id, userId },
+      where: { id },
       data: {
         date: new Date(dateStr),
         origin,
@@ -125,8 +128,11 @@ export async function deleteTravelEntry(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.travelLog.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.travelLog.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/travel-log");

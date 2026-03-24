@@ -64,8 +64,11 @@ export async function updateCheatSheet(id: string, formData: FormData) {
       return { success: false, error: "Category is required" };
     }
 
+    const existing = await prisma.cheatSheet.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.cheatSheet.update({
-      where: { id, userId },
+      where: { id },
       data: {
         title,
         category,
@@ -90,8 +93,11 @@ export async function deleteCheatSheet(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.cheatSheet.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.cheatSheet.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/cheat-sheets");

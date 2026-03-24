@@ -22,7 +22,7 @@ export async function getScript(id: string) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return null;
-  return prisma.script.findUnique({
+  return prisma.script.findFirst({
     where: { id, userId },
     include: {
       project: { select: { id: true, title: true } },
@@ -80,7 +80,10 @@ export async function updateScript(
   const userId = session?.user?.id;
   if (!userId) return { success: false, error: "Not authenticated" };
 
-  const script = await prisma.script.update({ where: { id, userId }, data });
+  const existing = await prisma.script.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  const script = await prisma.script.update({ where: { id }, data });
   revalidatePath("/scripts");
   revalidatePath(`/scripts/${id}`);
   return script;
@@ -91,6 +94,9 @@ export async function deleteScript(id: string) {
   const userId = session?.user?.id;
   if (!userId) return { success: false, error: "Not authenticated" };
 
-  await prisma.script.delete({ where: { id, userId } });
+  const existing = await prisma.script.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.script.delete({ where: { id } });
   revalidatePath("/scripts");
 }

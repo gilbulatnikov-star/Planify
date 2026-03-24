@@ -57,8 +57,11 @@ export async function updateAsset(id: string, formData: FormData) {
       return { success: false, error: "Type is required" };
     }
 
+    const existing = await prisma.asset.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.asset.update({
-      where: { id, userId },
+      where: { id },
       data: {
         name,
         type,
@@ -85,8 +88,11 @@ export async function deleteAsset(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    const existing = await prisma.asset.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.asset.delete({
-      where: { id, userId },
+      where: { id },
     });
 
     revalidatePath("/assets");

@@ -70,8 +70,11 @@ export async function updateScheduledContent(id: string, formData: FormData) {
     const notes = (formData.get("notes") as string) || null;
     const color = (formData.get("color") as string) || "gray";
 
+    const existing = await prisma.scheduledContent.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
     await prisma.scheduledContent.update({
-      where: { id, userId },
+      where: { id },
       data: {
         title,
         date: new Date(dateStr),
@@ -101,7 +104,10 @@ export async function deleteScheduledContent(id: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
-    await prisma.scheduledContent.delete({ where: { id, userId } });
+    const existing = await prisma.scheduledContent.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
+    await prisma.scheduledContent.delete({ where: { id } });
 
     revalidatePath("/calendar");
     revalidatePath("/");
