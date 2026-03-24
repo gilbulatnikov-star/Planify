@@ -8,7 +8,7 @@ import {
   MessageSquare, Film, AlignLeft, FileText, Plus, Trash2,
   Eye, EyeOff, Image, Type, LayoutGrid, X,
   ChevronsUpDown, ChevronUp, ChevronDown as ChevronDn,
-  SlidersHorizontal,
+  SlidersHorizontal, Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateScript } from "@/lib/actions/script-actions";
@@ -236,7 +236,7 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
   const showFrame = showFrames && visibleCols.has("frameUrl");
 
   return (
-    <tr className={`border-b border-border hover:bg-blue-50/20 transition-colors group ${rowBg} ${rowH} relative`}
+    <tr className={`border-b border-border hover:bg-blue-50/20 transition-colors group ${rowBg} ${rowH}`}
       style={rowHeight ? { height: rowHeight } : undefined}
     >
       {/* Shot # */}
@@ -297,30 +297,32 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
       {cell("clothing", <InputCell value={shot.clothing} onChange={upd("clothing")} placeholder={he.scriptEditor.costumePlaceholder} />)}
       {cell("makeup", <InputCell value={shot.makeup} onChange={upd("makeup")} placeholder={he.scriptEditor.makeupPlaceholder} />)}
 
-      {/* Delete */}
-      <td className={`${cellPad} w-10 text-center relative`}>
-        <button onClick={() => onDelete(shot.id)}
-          className="p-1 text-gray-200 hover:text-red-500 transition-colors opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
-        {/* Row resize handle */}
-        {onRowResize && (
-          <div
-            className="absolute bottom-0 left-0 right-0 h-1 cursor-row-resize hover:bg-blue-400/40 active:bg-blue-500/50 z-20"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              const tr = e.currentTarget.closest("tr")!;
-              const startY = e.clientY;
-              const startH = tr.offsetHeight;
-              const onMove = (ev: MouseEvent) => {
-                onRowResize(shot.id, Math.max(32, startH + (ev.clientY - startY)));
-              };
-              const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
-              document.addEventListener("mousemove", onMove);
-              document.addEventListener("mouseup", onUp);
-            }}
-          />
-        )}
+      {/* Delete + Row resize */}
+      <td className={`${cellPad} w-10 text-center`}>
+        <div className="flex flex-col items-center gap-1">
+          <button onClick={() => onDelete(shot.id)}
+            className="p-1 text-gray-200 hover:text-red-500 transition-colors opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+          {onRowResize && (
+            <div
+              className="w-6 h-1.5 rounded-full bg-muted-foreground/20 hover:bg-blue-400 cursor-row-resize transition-colors opacity-0 group-hover:opacity-100"
+              title="גרור למתיחה"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                const tr = e.currentTarget.closest("tr")!;
+                const startY = e.clientY;
+                const startH = tr.offsetHeight;
+                const onMove = (ev: MouseEvent) => {
+                  onRowResize(shot.id, Math.max(32, startH + (ev.clientY - startY)));
+                };
+                const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+                document.addEventListener("mousemove", onMove);
+                document.addEventListener("mouseup", onUp);
+              }}
+            />
+          )}
+        </div>
       </td>
     </tr>
   );
@@ -704,6 +706,49 @@ export function ScriptEditorClient({
     setScriptCtxMenu(null);
   }
 
+  async function exportShotListPDF() {
+    const { default: jsPDF } = await import("jspdf");
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+    const cols = COLUMNS.filter(c => visibleCols.has(c.id));
+    const pageW = 287;
+    const margin = 8;
+    const colW = (pageW - margin * 2) / (cols.length + 1);
+    let y = 15;
+
+    // Title
+    doc.setFontSize(14);
+    doc.text(title || "Shot List", pageW / 2, y, { align: "center" });
+    y += 10;
+
+    // Header row
+    doc.setFontSize(7);
+    doc.setFillColor(240, 240, 240);
+    doc.rect(margin, y - 3, pageW - margin * 2, 6, "F");
+    doc.text("#", margin + 2, y);
+    cols.forEach((col, i) => {
+      doc.text(col.label, margin + colW * (i + 1), y);
+    });
+    y += 8;
+
+    // Rows
+    doc.setFontSize(6.5);
+    orderedShots.forEach((shot, idx) => {
+      if (y > 195) { doc.addPage(); y = 15; }
+      if (idx % 2 === 0) {
+        doc.setFillColor(248, 248, 248);
+        doc.rect(margin, y - 3, pageW - margin * 2, 6, "F");
+      }
+      doc.text(String(shot.shotNum), margin + 2, y);
+      cols.forEach((col, i) => {
+        const val = String((shot as Record<string, unknown>)[col.id] ?? "");
+        doc.text(val.slice(0, 30), margin + colW * (i + 1), y);
+      });
+      y += 6;
+    });
+
+    doc.save(`shot-list-${(title || "export").replace(/\s+/g, "-")}.pdf`);
+  }
+
   const STORYBOARD_FREE_LIMIT = 5;
   const storyboardAtLimit = !isPro && displayMode === "storyboard" && shotList.length >= STORYBOARD_FREE_LIMIT;
 
@@ -1074,6 +1119,10 @@ export function ScriptEditorClient({
                     />
                   )}
                 </div>
+                <button onClick={exportShotListPDF}
+                  className="flex items-center gap-1 rounded-lg border border-border bg-card text-muted-foreground px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors">
+                  <Download className="h-3.5 w-3.5" /><span className="hidden sm:inline">PDF</span>
+                </button>
                 {storyboardAtLimit ? (
                   <button onClick={() => setStoryboardUpgradeOpen(true)}
                     className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-background px-2.5 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
