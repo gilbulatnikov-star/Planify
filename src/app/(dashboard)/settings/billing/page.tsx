@@ -278,7 +278,7 @@ export default function BillingPage() {
                     <div className="flex-1 min-w-0">
                       <p className="text-[11px] text-muted-foreground">{label}</p>
                       <p className={`text-sm font-bold ${isUnlimited(value) ? "text-emerald-600" : "text-foreground"}`}>
-                        {isUnlimited(value) ? "{he.billing.unlimited}" : formatLimit(value)}
+                        {isUnlimited(value) ? he.billing.unlimited : formatLimit(value)}
                       </p>
                     </div>
                   </div>
