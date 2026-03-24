@@ -97,13 +97,14 @@ function ClientPicker({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="relative mt-1">
+    <div className="relative mt-1.5">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
       >
         <Users className="h-3.5 w-3.5" />
-        {currentClientName ?? (he.calendar?.noClient ?? "ללא לקוח — לחץ לשייך")}
+        {currentClientName ?? (he.calendar?.noClient ?? "ללא לקוח")}
+        <svg className="h-3 w-3 opacity-50" viewBox="0 0 12 12" fill="none"><path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
       </button>
       {open && (
         <>
