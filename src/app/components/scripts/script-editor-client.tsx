@@ -161,13 +161,14 @@ function ComboCell({ value, opts, onChange, placeholder }: {
   }
   return (
     <select
-      value={opts.includes(value) ? value : "__custom__"}
+      value={opts.includes(value) ? value : (value ? "__custom__" : "")}
       onChange={(e) => { if (e.target.value === "__custom__") { setEditing(true); } else { onChange(e.target.value); } }}
+      onDoubleClick={() => setEditing(true)}
       className={selectCls}
     >
       <option value="">{placeholder ?? "—"}</option>
       {opts.map((o) => <option key={o} value={o}>{o}</option>)}
-      <option value="__custom__">{value && !opts.includes(value) ? value : "אחר..."}</option>
+      {value && !opts.includes(value) && <option value="__custom__">{value}</option>}
     </select>
   );
 }
