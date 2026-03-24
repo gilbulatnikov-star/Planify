@@ -1,7 +1,13 @@
 "use client";
 
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
+
 export function LoadingScreen() {
-  return (
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const content = (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
       <svg
         viewBox="0 0 32 32"
@@ -23,4 +29,7 @@ export function LoadingScreen() {
       `}</style>
     </div>
   );
+
+  if (!mounted) return content;
+  return createPortal(content, document.body);
 }
