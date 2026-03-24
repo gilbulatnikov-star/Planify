@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, CalendarPlus, FolderPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarPlus } from "lucide-react";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -130,26 +130,6 @@ export function ProjectsPageClient({
                           <CalendarPlus className="h-3 w-3" />
                         </Button>
                       )}
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        title={he.projectsPage.createDriveFolder}
-                        className="h-6 w-6 hover:bg-green-50 hover:text-green-700"
-                        onClick={async () => {
-                          const folderName = `${project.shootDate ? new Date(project.shootDate).getFullYear() + " - " : ""}${project.client?.name ?? he.projectsPage.noClientLabel} - ${project.title}`;
-                          const res = await fetch("/api/google/drive", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ action: "create_folder", folderName }),
-                          });
-                          const data = await res.json();
-                          if (data.folderUrl) window.open(data.folderUrl, "_blank", "noopener");
-                          else if (data.setupRequired) alert(he.projectsPage.driveSetupRequired);
-                          else alert(data.error ?? he.projectsPage.driveFolderError);
-                        }}
-                      >
-                        <FolderPlus className="h-3 w-3" />
-                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
