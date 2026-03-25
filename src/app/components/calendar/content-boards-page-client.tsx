@@ -87,7 +87,7 @@ export function ContentBoardsPageClient({
             autoFocus
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <Select value={newClientId} onValueChange={(v) => { setNewClientId(v); setNewProjectId(""); }}>
+            <Select value={newClientId} onValueChange={(v) => { setNewClientId(v ?? ""); setNewProjectId(""); }}>
               <SelectTrigger className="w-full">
                 <span className="truncate">{newClientId ? clients.find(c => c.id === newClientId)?.name : (he.calendar.noClient ?? "ללא לקוח")}</span>
               </SelectTrigger>
@@ -98,7 +98,7 @@ export function ContentBoardsPageClient({
                 ))}
               </SelectContent>
             </Select>
-            <Select value={newProjectId} onValueChange={setNewProjectId}>
+            <Select value={newProjectId} onValueChange={(v) => setNewProjectId(v ?? "")}>
               <SelectTrigger className="w-full">
                 <span className="truncate">{newProjectId ? filteredProjects.find(p => p.id === newProjectId)?.title : (he.calendar.noProject ?? "ללא פרויקט")}</span>
               </SelectTrigger>

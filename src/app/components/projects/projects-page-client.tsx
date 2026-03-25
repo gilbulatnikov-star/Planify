@@ -63,6 +63,11 @@ export function ProjectsPageClient({
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [filterClientId, setFilterClientId] = useState<string | null>(null);
+
+  const filteredProjects = filterClientId
+    ? projects.filter(p => p.clientId === filterClientId)
+    : projects;
 
   function handleCreate() {
     if (planLimit !== -1 && projects.length >= planLimit) {
@@ -94,10 +99,34 @@ export function ProjectsPageClient({
         </Button>
       </motion.div>
 
+      {/* Client filter */}
+      {clients.length > 0 && (
+        <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterClientId(null)}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${!filterClientId ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            {he.common.all} ({projects.length})
+          </button>
+          {clients.filter(c => projects.some(p => p.clientId === c.id)).map(c => {
+            const count = projects.filter(p => p.clientId === c.id).length;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setFilterClientId(filterClientId === c.id ? null : c.id)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterClientId === c.id ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+              >
+                {c.name} ({count})
+              </button>
+            );
+          })}
+        </motion.div>
+      )}
+
       {/* Project cards grid */}
-      {projects.length > 0 ? (
+      {filteredProjects.length > 0 ? (
         <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => {
+          {filteredProjects.map((project) => {
             const completedTasks = project.tasks.filter((t) => t.completed).length;
             const totalTasks = project.tasks.length;
             const currentPhaseLabel = getPhaseLabel(project.phase, he);
