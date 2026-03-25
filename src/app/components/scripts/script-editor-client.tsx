@@ -4,7 +4,7 @@ import { useState, useRef, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight, Wand2, Send, Sparkles, Save, ChevronDown,
-  Youtube, Instagram, Tv, Podcast, Megaphone, Loader2, Check,
+  Youtube, Instagram, Tv, Podcast, Megaphone, Facebook, Loader2, Check,
   MessageSquare, Film, AlignLeft, FileText, Plus, Trash2,
   Eye, EyeOff, Image, Type, LayoutGrid, X,
   ChevronsUpDown, ChevronUp, ChevronDown as ChevronDn,
@@ -103,6 +103,7 @@ function getPlatforms(t: ReturnType<typeof useT>) {
     { value: "instagram",  label: "Instagram",        icon: Instagram, color: "text-pink-500" },
     { value: "podcast",    label: t.scriptEditor.podcast,    icon: Podcast,   color: "text-purple-500" },
     { value: "commercial", label: t.scriptEditor.commercial, icon: Megaphone, color: "text-blue-500" },
+    { value: "facebook",   label: "Facebook",         icon: Facebook,  color: "text-blue-600" },
   ];
 }
 
@@ -562,7 +563,9 @@ export function ScriptEditorClient({
   const [content, setContent] = useState(script.content);
   const [platform, setPlatform] = useState(script.platform);
   const [linkedProjectId, setLinkedProjectId] = useState(script.project?.id ?? "");
+  const [linkedClientId, setLinkedClientId] = useState(script.client?.id ?? "");
   const [showProjectMenu, setShowProjectMenu] = useState(false);
+  const [showClientMenu, setShowClientMenu] = useState(false);
   const [duration] = useState(script.duration); // kept for save compatibility, no UI
   const isPredefinedPlatform = PLATFORMS.some((p: { value: string }) => p.value === platform);
   const [customPlatformMode, setCustomPlatformMode] = useState(!isPredefinedPlatform && !!platform);
@@ -634,13 +637,14 @@ export function ScriptEditorClient({
         title, content, platform, duration,
         shotListData: JSON.stringify(shotList),
         projectId: linkedProjectId || undefined,
+        clientId: linkedClientId || undefined,
       });
       setSaving(false);
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
     }, 1500);
     return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
-  }, [title, content, platform, duration, shotList, linkedProjectId, script.id]);
+  }, [title, content, platform, duration, shotList, linkedProjectId, linkedClientId, script.id]);
 
   // Scroll chat
   useEffect(() => {
@@ -868,7 +872,40 @@ export function ScriptEditorClient({
               )}
             </div>
           )}
-          {/* Project link — hidden on small mobile */}
+          {/* Client link */}
+          {clients.length > 0 && (
+            <div className="relative hidden sm:block">
+              {showClientMenu && <div className="fixed inset-0 z-40" onClick={() => setShowClientMenu(false)} />}
+              <button
+                onClick={() => setShowClientMenu((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors max-w-[140px]"
+              >
+                <span className="truncate">{linkedClientId ? (clients.find(c => c.id === linkedClientId)?.name ?? he.common.client) : `👤 ${he.common.client}`}</span>
+                <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
+              </button>
+              {showClientMenu && (
+                <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-card py-1 shadow-lg max-h-48 overflow-y-auto">
+                  <button
+                    onClick={() => { setLinkedClientId(""); setShowClientMenu(false); }}
+                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedClientId ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                  >
+                    {he.calendar?.noClient ?? "ללא לקוח"}
+                  </button>
+                  <div className="mx-2 my-1 border-t border-border" />
+                  {clients.map(c => (
+                    <button
+                      key={c.id}
+                      onClick={() => { setLinkedClientId(c.id); setShowClientMenu(false); }}
+                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedClientId === c.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}
+                    >
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {/* Project link */}
           {projects.length > 0 && (
             <div className="relative hidden sm:block">
               {showProjectMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProjectMenu(false)} />}
