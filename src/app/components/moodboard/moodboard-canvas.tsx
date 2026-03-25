@@ -1267,27 +1267,55 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, nodes, drawMode]);
 
-  // Auto-save
+  // Track latest title in ref for beforeunload
+  const titleRef = useRef(title);
+  titleRef.current = title;
+  const pendingSave = useRef(false);
+
+  // Direct save function (no debounce)
+  const doSave = useCallback(async (ns: BoardNode[], t: string) => {
+    setSave("saving");
+    pendingSave.current = false;
+    try { await updateMoodboard(id, { title: t, nodesData: JSON.stringify(ns), edgesData: "[]" }); setSave("saved"); }
+    catch { setSave("unsaved"); }
+  }, [id]);
+
+  // Auto-save with 800ms debounce
   const scheduleSave = useCallback((ns: BoardNode[], t: string) => {
     setSave("unsaved");
+    pendingSave.current = true;
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(async () => {
-      setSave("saving");
-      try { await updateMoodboard(id, { title: t, nodesData: JSON.stringify(ns), edgesData: "[]" }); setSave("saved"); }
-      catch { setSave("unsaved"); }
-    }, 1500);
-  }, [id]);
+    saveTimer.current = setTimeout(() => doSave(ns, t), 800);
+  }, [doSave]);
 
   // Manual save
   const forceSave = useCallback(async () => {
     if (saveTimer.current) clearTimeout(saveTimer.current);
-    setSave("saving");
-    try { await updateMoodboard(id, { title, nodesData: JSON.stringify(nodesRef.current), edgesData: "[]" }); setSave("saved"); }
-    catch { setSave("unsaved"); }
-  }, [id, title]);
+    await doSave(nodesRef.current, titleRef.current);
+  }, [doSave]);
 
   useEffect(() => { scheduleSave(nodes, title); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [nodes, title]);
-  useEffect(() => () => { if (saveTimer.current) clearTimeout(saveTimer.current); }, []);
+
+  // Save on page close/navigate — flush pending changes
+  useEffect(() => {
+    const onBeforeUnload = () => {
+      if (pendingSave.current) {
+        // Use sendBeacon for reliable save on tab close
+        const payload = JSON.stringify({ title: titleRef.current, nodesData: JSON.stringify(nodesRef.current), edgesData: "[]" });
+        navigator.sendBeacon?.(`/api/moodboard-save/${id}`, payload);
+      }
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      // Also flush on component unmount (navigation within app)
+      if (pendingSave.current && saveTimer.current) {
+        clearTimeout(saveTimer.current);
+        doSave(nodesRef.current, titleRef.current);
+      }
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Add node
   function addNode(type: NodeType) {
