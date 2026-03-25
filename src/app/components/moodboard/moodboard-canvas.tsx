@@ -1278,6 +1278,14 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
     }, 1500);
   }, [id]);
 
+  // Manual save
+  const forceSave = useCallback(async () => {
+    if (saveTimer.current) clearTimeout(saveTimer.current);
+    setSave("saving");
+    try { await updateMoodboard(id, { title, nodesData: JSON.stringify(nodesRef.current), edgesData: "[]" }); setSave("saved"); }
+    catch { setSave("unsaved"); }
+  }, [id, title]);
+
   useEffect(() => { scheduleSave(nodes, title); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [nodes, title]);
   useEffect(() => () => { if (saveTimer.current) clearTimeout(saveTimer.current); }, []);
 
@@ -1416,6 +1424,13 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
           {saveState === "saving"  && <><Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" /><span className="text-muted-foreground">{he.moodboard.saving}</span></>}
           {saveState === "saved"   && <><Check   className="h-3.5 w-3.5 text-emerald-500" /><span className="text-muted-foreground">{he.moodboard.saved}</span></>}
           {saveState === "unsaved" && <span className="text-orange-500">{he.moodboard.unsaved}</span>}
+          <button
+            onClick={forceSave}
+            disabled={saveState === "saving"}
+            className="ms-1 rounded-lg border border-border bg-card px-2.5 py-1 text-xs font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            {he.moodboard.save}
+          </button>
         </div>
       </div>
 

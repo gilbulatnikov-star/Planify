@@ -64,7 +64,7 @@ export async function updateScheduledContent(id: string, formData: FormData) {
     if (!dateStr) return { success: false, error: "Date is required" };
 
     const contentType = (formData.get("contentType") as string) || "general";
-    const status = "planned";
+    const status = (formData.get("status") as string) || "planned";
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
     const notes = (formData.get("notes") as string) || null;

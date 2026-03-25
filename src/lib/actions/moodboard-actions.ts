@@ -50,6 +50,7 @@ export async function updateMoodboard(
   revalidatePath("/moodboard");
   revalidatePath(`/moodboard/${id}`);
   revalidatePath("/projects");
+  return { success: true };
 }
 
 export async function deleteMoodboard(id: string) {

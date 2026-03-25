@@ -69,6 +69,7 @@ model Client {
   youtube    String?
   linkedin   String?
   tiktok     String?
+  facebook   String?
   notes      String?
 
   type       String @default("lead") // lead | client

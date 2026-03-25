@@ -105,8 +105,10 @@ export function ContentDialog({
   const [clientId, setClientId]           = useState(content?.clientId ?? defaultClientId ?? "");
   const [projectId, setProjectId]         = useState(content?.projectId ?? "");
   const [selectedColor, setSelectedColor] = useState(content?.color ?? "gray");
+  const [statusValue, setStatusValue]     = useState(content?.status ?? "planned");
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
+  const [error, setError]                 = useState<string | null>(null);
   const [localClients, setLocalClients]   = useState(clients);
   const [dateValue, setDateValue]         = useState(
     content?.date ? formatDateForInput(content.date) : defaultDate ?? ""
@@ -117,6 +119,8 @@ export function ContentDialog({
       setClientId(content?.clientId ?? defaultClientId ?? "");
       setProjectId(content?.projectId ?? "");
       setSelectedColor(content?.color ?? "gray");
+      setStatusValue(content?.status ?? "planned");
+      setError(null);
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
@@ -145,6 +149,7 @@ export function ContentDialog({
       formData.set("clientId",  resolvedClientId);
       formData.set("projectId", projectId);
       formData.set("color",     selectedColor);
+      formData.set("status",    statusValue);
       if (boardId) formData.set("boardId", boardId);
 
       const result = isEditing
@@ -152,8 +157,11 @@ export function ContentDialog({
         : await createScheduledContent(formData);
 
       if (result.success) {
+        setError(null);
         onOpenChange(false);
         router.refresh();
+      } else {
+        setError(result.error ?? "שגיאה בשמירה");
       }
     });
   }
@@ -213,10 +221,10 @@ export function ContentDialog({
             {/* סטטוס */}
             <div className="col-span-2 space-y-2">
               <Label>{he.common.status}</Label>
-              <Select name="status" defaultValue={content?.status ?? "planned"}>
+              <Select value={statusValue} onValueChange={setStatusValue}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">
-                    {STATUS_OPTIONS.find(s => s.key === (content?.status ?? "planned"))?.label ?? he.calendar.statuses.planned}
+                    {STATUS_OPTIONS.find(s => s.key === statusValue)?.label ?? he.calendar.statuses.planned}
                   </span>
                 </SelectTrigger>
                 <SelectContent>
@@ -305,6 +313,7 @@ export function ContentDialog({
             </div>
           </div>
 
+          {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg px-3 py-2">{error}</p>}
           <DialogFooter className="flex-row-reverse sm:flex-row gap-2">
             {isEditing && onRequestDelete && (
               <Button

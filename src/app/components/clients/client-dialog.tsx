@@ -53,6 +53,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
     { key: "youtube" as const, label: "YouTube", placeholder: "YouTube" },
     { key: "linkedin" as const, label: "LinkedIn", placeholder: "LinkedIn" },
     { key: "tiktok" as const, label: "TikTok", placeholder: "@username" },
+    { key: "facebook" as const, label: "Facebook", placeholder: "Facebook" },
   ];
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
