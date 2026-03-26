@@ -88,6 +88,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
     const form = e.currentTarget;
     const formData = new FormData(form);
     formData.set("isActive", String(isActive));
+    formData.set("type", "client");
 
     // Clear hidden social fields
     for (const key of SOCIAL_KEYS) {

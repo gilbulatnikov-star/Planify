@@ -67,6 +67,7 @@ const STAGE_COLORS: Record<Stage, string> = {
 const SOURCE_KEYS = [
   "instagram",
   "tiktok",
+  "facebook",
   "referral",
   "website",
   "linkedin",
@@ -176,7 +177,7 @@ export function LeadsPipelineClient({
     <div className="flex flex-col gap-4 p-4 sm:p-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{t.leads.pipeline}</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t.leads.title}</h1>
         <Button onClick={openNewLead} size="sm" className="shrink-0">
           <Plus className="h-4 w-4 me-1.5" />
           {t.leads.newLead}
@@ -306,8 +307,22 @@ export function LeadsPipelineClient({
                         </span>
                       </div>
 
-                      {/* Action buttons row */}
-                      <div className="flex items-center gap-1.5 mt-2">
+                      {/* Status selector + actions */}
+                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                        <select
+                          value={lead.leadStatus}
+                          onClick={(e) => e.stopPropagation()}
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            startTransition(async () => { await updateLeadStatus(lead.id, e.target.value); });
+                          }}
+                          className="h-6 rounded border border-border bg-muted/50 px-1.5 text-[10px] text-muted-foreground outline-none cursor-pointer hover:border-foreground/30 transition-colors"
+                        >
+                          {STAGES.map(s => (
+                            <option key={s} value={s}>{t.leads.stages[s]}</option>
+                          ))}
+                        </select>
+
                         <button
                           type="button"
                           onClick={(e) => {
