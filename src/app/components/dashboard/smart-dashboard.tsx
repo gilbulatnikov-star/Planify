@@ -85,6 +85,7 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       icon: Users,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
+      href: "/leads",
     },
     {
       label: he.dashboard.pendingResponse,
@@ -92,6 +93,7 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       icon: Clock,
       color: "text-yellow-500",
       bg: "bg-yellow-500/10",
+      href: "/leads",
     },
     {
       label: he.dashboard.activeProjects,
@@ -99,6 +101,7 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       icon: FolderKanban,
       color: "text-green-500",
       bg: "bg-green-500/10",
+      href: "/projects",
     },
     {
       label: he.dashboard.tasks,
@@ -106,6 +109,7 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       icon: CheckSquare,
       color: "text-emerald-500",
       bg: "bg-emerald-500/10",
+      href: "/tasks",
     },
     {
       label: he.dashboard.monthlyRevenue,
@@ -113,6 +117,7 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       icon: DollarSign,
       color: "text-amber-500",
       bg: "bg-amber-500/10",
+      href: "/financials",
     },
     {
       label: he.dashboard.openInvoices,
@@ -120,6 +125,7 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       icon: FileText,
       color: "text-orange-500",
       bg: "bg-orange-500/10",
+      href: "/financials",
     },
   ];
 
@@ -138,21 +144,23 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
       >
         {kpiCards.map((kpi) => (
           <motion.div key={kpi.label} variants={fadeUp}>
-            <Card className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-default">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div className={`rounded-lg ${kpi.bg} p-2`}>
-                    <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
+            <Link href={kpi.href}>
+              <Card className="glass-card group transition-all duration-300 hover:scale-[1.03] hover:shadow-md cursor-pointer">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className={`rounded-lg ${kpi.bg} p-2`}>
+                      <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
+                    </div>
                   </div>
-                </div>
-                <div className="text-2xl font-bold tracking-tight">
-                  {kpi.value}
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {kpi.label}
-                </p>
-              </CardContent>
-            </Card>
+                  <div className="text-2xl font-bold tracking-tight">
+                    {kpi.value}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {kpi.label}
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
           </motion.div>
         ))}
       </motion.div>
