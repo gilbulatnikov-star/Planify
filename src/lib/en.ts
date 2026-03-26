@@ -171,6 +171,7 @@ export const en = {
     title: "Equipment",
     newItem: "New Item",
     name: "Name",
+    type: "Type",
     category: "Category",
     brand: "Brand",
     model: "Model",
@@ -387,6 +388,7 @@ export const en = {
 
   // Common
   common: {
+    type: "Type",
     save: "Save",
     saving: "Saving...",
     cancel: "Cancel",

@@ -171,6 +171,7 @@ export const he = {
     title: "ציוד",
     newItem: "פריט חדש",
     name: "שם",
+    type: "סוג",
     category: "קטגוריה",
     brand: "מותג",
     model: "דגם",
@@ -387,6 +388,7 @@ export const he = {
 
   // Common
   common: {
+    type: "סוג",
     save: "שמור",
     saving: "שומר...",
     cancel: "ביטול",

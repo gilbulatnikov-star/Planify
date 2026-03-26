@@ -16,6 +16,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { createClient, updateClient } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
 
+const STAGE_KEYS = ["new", "contacted", "qualified", "proposal_sent", "won", "lost"] as const;
+
 const SOURCE_KEYS = [
   "instagram",
   "tiktok",
@@ -35,6 +37,7 @@ interface LeadDialogProps {
     phone: string | null;
     notes: string | null;
     leadSource: string | null;
+    leadStatus: string;
     tags: string[];
   } | null;
   open: boolean;
@@ -142,6 +145,25 @@ export function LeadDialog({ lead, open, onOpenChange, onQuotaExceeded }: LeadDi
                 ))}
               </select>
             </div>
+
+            {/* Status (only when editing) */}
+            {isEditing && (
+              <div className="grid gap-2">
+                <Label htmlFor="lead-status">{t.common.status}</Label>
+                <select
+                  id="lead-status"
+                  name="leadStatus"
+                  defaultValue={lead?.leadStatus ?? "new"}
+                  className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  {STAGE_KEYS.map((key) => (
+                    <option key={key} value={key}>
+                      {t.leads.stages[key]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Service Type */}

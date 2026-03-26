@@ -307,22 +307,8 @@ export function LeadsPipelineClient({
                         </span>
                       </div>
 
-                      {/* Status selector + actions */}
+                      {/* Action buttons */}
                       <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                        <select
-                          value={lead.leadStatus}
-                          onClick={(e) => e.stopPropagation()}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            startTransition(async () => { await updateLeadStatus(lead.id, e.target.value); });
-                          }}
-                          className="h-6 rounded border border-border bg-muted/50 px-1.5 text-[10px] text-muted-foreground outline-none cursor-pointer hover:border-foreground/30 transition-colors"
-                        >
-                          {STAGES.map(s => (
-                            <option key={s} value={s}>{t.leads.stages[s]}</option>
-                          ))}
-                        </select>
-
                         <button
                           type="button"
                           onClick={(e) => {
