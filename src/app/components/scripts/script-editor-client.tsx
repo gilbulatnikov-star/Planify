@@ -711,46 +711,69 @@ export function ScriptEditorClient({
   }
 
   async function exportShotListPDF() {
+    const { default: html2canvas } = await import("html2canvas");
     const { default: jsPDF } = await import("jspdf");
-    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
     const cols = COLUMNS.filter(c => visibleCols.has(c.id));
-    const pageW = 287;
-    const margin = 8;
-    const colW = (pageW - margin * 2) / (cols.length + 1);
-    let y = 15;
 
-    // Title
-    doc.setFontSize(14);
-    doc.text(title || "Shot List", pageW / 2, y, { align: "center" });
-    y += 10;
+    // Build a standalone RTL table in a hidden container
+    const wrapper = document.createElement("div");
+    const tableW = 1100;
+    wrapper.style.cssText = `position:fixed;top:0;left:-9999px;width:${tableW}px;z-index:-1;background:#fff;`;
 
-    // Header row
-    doc.setFontSize(7);
-    doc.setFillColor(240, 240, 240);
-    doc.rect(margin, y - 3, pageW - margin * 2, 6, "F");
-    doc.text("#", margin + 2, y);
-    cols.forEach((col, i) => {
-      doc.text(col.label, margin + colW * (i + 1), y);
-    });
-    y += 8;
+    const thStyle = "padding:8px 10px;text-align:right;font-size:11px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;white-space:nowrap;background:#f8fafc;";
+    const tdStyleBase = "padding:7px 10px;font-size:11px;border-bottom:1px solid #e5e7eb;color:#111827;white-space:nowrap;text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;";
 
-    // Rows
-    doc.setFontSize(6.5);
+    let headerHtml = `<th style="${thStyle}">#</th>`;
+    cols.forEach(col => { headerHtml += `<th style="${thStyle}">${col.label}</th>`; });
+
+    let bodyHtml = "";
     orderedShots.forEach((shot, idx) => {
-      if (y > 195) { doc.addPage(); y = 15; }
-      if (idx % 2 === 0) {
-        doc.setFillColor(248, 248, 248);
-        doc.rect(margin, y - 3, pageW - margin * 2, 6, "F");
-      }
-      doc.text(String(shot.shotNum), margin + 2, y);
-      cols.forEach((col, i) => {
-        const val = String((shot as Record<string, unknown>)[col.id] ?? "");
-        doc.text(val.slice(0, 30), margin + colW * (i + 1), y);
+      const bg = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
+      let row = `<td style="${tdStyleBase}background:${bg};font-weight:700;color:#6366f1;">${customShotNo ? shot.customShotNum : shot.shotNum}</td>`;
+      cols.forEach(col => {
+        const val = String((shot as Record<string, unknown>)[col.id] ?? "") || "\u2014";
+        const style = col.id === "content"
+          ? tdStyleBase.replace("max-width:200px", "max-width:300px").replace("white-space:nowrap", "white-space:normal") + `background:${bg};`
+          : `${tdStyleBase}background:${bg};`;
+        row += `<td style="${style}">${val}</td>`;
       });
-      y += 6;
+      bodyHtml += `<tr>${row}</tr>`;
     });
 
-    doc.save(`shot-list-${(title || "export").replace(/\s+/g, "-")}.pdf`);
+    wrapper.innerHTML = `
+      <div style="font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;direction:rtl;padding:32px 40px;background:#fff;color:#111827;">
+        <div style="border-bottom:3px solid #6366f1;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;">
+          <div style="font-size:22px;font-weight:800;color:#111827;">${title || "Shot List"}</div>
+          <div style="font-size:12px;color:#6b7280;">${orderedShots.length} shots</div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead><tr>${headerHtml}</tr></thead>
+          <tbody>${bodyHtml}</tbody>
+        </table>
+      </div>`;
+
+    document.body.appendChild(wrapper);
+
+    // Temporarily disable stylesheets to avoid html2canvas oklch() crash
+    const sheets = [...document.styleSheets];
+    sheets.forEach(s => { try { s.disabled = true; } catch { /* cross-origin */ } });
+
+    let canvas;
+    try {
+      canvas = await html2canvas(wrapper.firstElementChild as HTMLElement, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: "#ffffff", logging: false, width: tableW,
+      });
+    } finally {
+      document.body.removeChild(wrapper);
+      sheets.forEach(s => { try { s.disabled = false; } catch { /* cross-origin */ } });
+    }
+
+    const w = tableW;
+    const h = (canvas.height / canvas.width) * w;
+    const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [w, h], hotfixes: ["px_scaling"] });
+    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, w, h);
+    pdf.save(`shot-list-${(title || "export").replace(/\s+/g, "-")}.pdf`);
   }
 
   const STORYBOARD_FREE_LIMIT = 5;
@@ -1227,9 +1250,8 @@ export function ScriptEditorClient({
                               const th = e.currentTarget.parentElement!;
                               const startX = e.clientX;
                               const startW = th.offsetWidth;
-                              const isRtl = getComputedStyle(th).direction === "rtl";
                               const onMove = (ev: MouseEvent) => {
-                                const diff = isRtl ? (ev.clientX - startX) : (startX - ev.clientX);
+                                const diff = startX - ev.clientX;
                                 setColWidths(prev => ({ ...prev, [col.id]: Math.max(60, startW + diff) }));
                               };
                               const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
