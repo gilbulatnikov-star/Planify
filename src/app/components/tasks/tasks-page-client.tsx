@@ -129,7 +129,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
       </div>
 
       {/* Filter tabs */}
-      <div className="flex gap-1 rounded-xl bg-muted p-1 w-fit">
+      <div className="flex gap-2 rounded-xl bg-muted p-1 w-fit">
         {(["all", "active", "done"] as const).map((f) => (
           <button
             key={f}
@@ -164,7 +164,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
               <button
                 onClick={() => handleToggle(todo.id)}
                 disabled={isPending}
-                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                   todo.completed
                     ? "border-[#38b6ff] bg-[#38b6ff]"
                     : "border-border hover:border-[#38b6ff]/60"

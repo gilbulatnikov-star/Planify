@@ -174,11 +174,11 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
               </div>
             </div>
             <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-              <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted hover:text-foreground"
+              <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-muted hover:text-foreground"
                 onClick={(e) => { e.stopPropagation(); handleEdit(contact); }}>
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
                 onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: contact.id, name: contact.name }); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>

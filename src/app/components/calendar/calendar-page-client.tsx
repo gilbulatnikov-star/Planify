@@ -372,7 +372,7 @@ export function CalendarPageClient({
                                   className={`flex items-start gap-1 rounded px-1 py-0.5 cursor-pointer hover:brightness-95 transition-all ${c.bg}`}
                                 >
                                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-[3px] ${c.dot}`} />
-                                  <span className={`text-[10px] font-medium leading-tight break-words min-w-0 line-clamp-2 ${c.text}`}>{item.title}</span>
+                                  <span className={`text-[11px] sm:text-xs font-medium leading-tight break-words min-w-0 line-clamp-2 ${c.text}`}>{item.title}</span>
                                 </div>
                               );
                             })}

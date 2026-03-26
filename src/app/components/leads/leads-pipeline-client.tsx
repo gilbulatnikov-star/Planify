@@ -335,14 +335,14 @@ export function LeadsPipelineClient({
                       </div>
 
                       {/* Action buttons */}
-                      <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                      <div className="flex items-center gap-2 mt-2 flex-wrap">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             openInteraction(lead.id);
                           }}
-                          className="text-[11px] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+                          className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
                         >
                           <Plus className="h-3 w-3" />
                           {t.leads.addInteraction}
@@ -356,7 +356,7 @@ export function LeadsPipelineClient({
                               handleConvert(lead.id);
                             }}
                             disabled={isPending}
-                            className="ms-auto flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-[11px] font-medium text-emerald-600 hover:bg-emerald-500/20 transition-colors dark:text-emerald-400"
+                            className="ms-auto flex items-center gap-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-600 hover:bg-emerald-500/20 transition-colors dark:text-emerald-400"
                           >
                             <UserCheck className="h-3 w-3" />
                             {t.leads.convertToClient}

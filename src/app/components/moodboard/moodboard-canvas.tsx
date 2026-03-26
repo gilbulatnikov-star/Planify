@@ -357,12 +357,12 @@ function TextCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
           <button onClick={() => { setAlign("left"); emit({ align: "left" }); }} className={btnCls(align === "left")}><AlignLeft className="h-3 w-3" /></button>
           <div className="h-4 w-px bg-gray-200 mx-0.5" />
           <label className="flex flex-col items-center gap-0.5 cursor-pointer" title={he.moodboard.textColorTitle}>
-            <input type="color" value={color} onChange={e => { setColor(e.target.value); emit({ color: e.target.value }); }} className="w-5 h-5 rounded border border-border cursor-pointer p-0" />
+            <input type="color" value={color} onChange={e => { setColor(e.target.value); emit({ color: e.target.value }); }} className="w-7 h-7 rounded border border-border cursor-pointer p-0" />
             <span className="text-[8px] text-muted-foreground leading-none">{he.moodboard.textColor}</span>
           </label>
           <label className="flex flex-col items-center gap-0.5 cursor-pointer" title={he.moodboard.bgColorTitle}>
             <input type="color" value={bgColor === "transparent" ? "#ffffff" : bgColor}
-              onChange={e => { setBg(e.target.value); emit({ bgColor: e.target.value }); }} className="w-5 h-5 rounded border border-border cursor-pointer p-0" />
+              onChange={e => { setBg(e.target.value); emit({ bgColor: e.target.value }); }} className="w-7 h-7 rounded border border-border cursor-pointer p-0" />
             <span className="text-[8px] text-muted-foreground leading-none">{he.moodboard.bgColor}</span>
           </label>
           <button onClick={() => { setBg("transparent"); emit({ bgColor: "transparent" }); }}
@@ -919,7 +919,7 @@ function DrawCard({ node, onChange, selected }: { node: BoardNode; onChange: (d:
           <button onClick={() => setTool("pen")}    className={btnCls(tool === "pen")}><Pencil  className="h-3.5 w-3.5" /></button>
           <button onClick={() => setTool("eraser")} className={btnCls(tool === "eraser")}><Eraser className="h-3.5 w-3.5" /></button>
           <div className="h-4 w-px bg-gray-200" />
-          <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-5 h-5 rounded border-none cursor-pointer" title={he.moodboard.color} />
+          <input type="color" value={color} onChange={e => setColor(e.target.value)} className="w-7 h-7 rounded border-none cursor-pointer" title={he.moodboard.color} />
           <div className="h-4 w-px bg-gray-200" />
           {[2, 4, 8, 14].map(w => (
             <button key={w} onClick={() => setWidth(w)}

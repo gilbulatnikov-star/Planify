@@ -222,7 +222,7 @@ export function ProjectDetailClient({
           <a key={s.key} href={`#${s.key}`} className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
             <s.icon className="h-3.5 w-3.5" />
             {s.label}
-            <span className="text-[10px] opacity-60">({s.count})</span>
+            <span className="text-xs opacity-60">({s.count})</span>
           </a>
         ))}
       </motion.div>
@@ -330,7 +330,7 @@ export function ProjectDetailClient({
             <div key={c.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 group/item">
               <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-medium">{c.name}</span>
-                <Badge className="text-[10px] bg-muted border-0 text-muted-foreground">
+                <Badge className="text-xs bg-muted border-0 text-muted-foreground">
                   {he.contacts.categories[c.category as keyof typeof he.contacts.categories] ?? c.category}
                 </Badge>
                 {c.phone && <span className="flex items-center gap-1 text-xs text-muted-foreground"><Phone className="h-3 w-3" /><span dir="ltr">{c.phone}</span></span>}
@@ -354,7 +354,7 @@ export function ProjectDetailClient({
             <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 group/item">
               <div className={`h-2.5 w-2.5 rounded-full bg-${sc.color ?? "gray"}-400 shrink-0`} />
               <span className="text-sm flex-1">{sc.title}</span>
-              <Badge className={`text-[10px] border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>
+              <Badge className={`text-xs border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>
               <span className="text-xs text-muted-foreground">{formatDate(sc.date)}</span>
               <button onClick={() => handleUnlink("content", sc.id)} title={he.common.removeFromProject} className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all">
                 <X className="h-3.5 w-3.5" />

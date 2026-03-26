@@ -227,7 +227,7 @@ export function InspirationPageClient({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-muted hover:text-foreground transition-colors duration-200"
+                        className="h-8 w-8 hover:bg-muted hover:text-foreground transition-colors duration-200"
                         onClick={() => handleEdit(item)}
                       >
                         <Pencil className="h-3.5 w-3.5" />
@@ -235,7 +235,7 @@ export function InspirationPageClient({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 hover:bg-red-50 text-destructive transition-colors duration-200"
+                        className="h-8 w-8 hover:bg-red-50 text-destructive transition-colors duration-200"
                         onClick={() => setDeleteTarget({ id: item.id, title: item.title })}
                       >
                         <Trash2 className="h-3.5 w-3.5" />

@@ -127,7 +127,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 hover:bg-muted hover:text-foreground"
+                className="h-8 w-8 hover:bg-muted hover:text-foreground"
                 onClick={(e) => { e.stopPropagation(); handleEdit(client); }}
               >
                 <Pencil className="h-3.5 w-3.5" />
@@ -135,7 +135,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+                className="h-8 w-8 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
                 onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: client.id, name: client.name }); }}
               >
                 <Trash2 className="h-3.5 w-3.5" />
