@@ -1313,6 +1313,23 @@ export const he = {
     noLeadsDesc: "הוסף ליד חדש כדי להתחיל",
     filterBySource: "סינון לפי מקור",
     allSources: "כל המקורות",
+    analytics: {
+      title: "ניתוח לידים",
+      totalLeads: "סך לידים",
+      newLeads: "לידים חדשים",
+      closedWon: "נסגרו",
+      lostLeads: "אבדו",
+      conversionRate: "יחס המרה",
+      pending: "ממתינים",
+      trend: "לעומת החודש הקודם",
+      leadsOverTime: "לידים לאורך זמן",
+      byStage: "לפי שלב",
+      bySource: "לפי מקור",
+      closingsBySource: "סגירות לפי מקור",
+      funnel: "משפך המרה",
+      showAnalytics: "הצג ניתוח",
+      hideAnalytics: "הסתר ניתוח",
+    },
   },
 
   // Layout / meta

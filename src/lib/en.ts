@@ -1310,6 +1310,23 @@ export const en = {
     noLeadsDesc: "Add a new lead to get started",
     filterBySource: "Filter by source",
     allSources: "All sources",
+    analytics: {
+      title: "Lead Analytics",
+      totalLeads: "Total Leads",
+      newLeads: "New Leads",
+      closedWon: "Closed Won",
+      lostLeads: "Lost",
+      conversionRate: "Conversion Rate",
+      pending: "Pending",
+      trend: "vs. last month",
+      leadsOverTime: "Leads Over Time",
+      byStage: "By Stage",
+      bySource: "By Source",
+      closingsBySource: "Closings by Source",
+      funnel: "Conversion Funnel",
+      showAnalytics: "Show Analytics",
+      hideAnalytics: "Hide Analytics",
+    },
   },
 
   // Layout / meta

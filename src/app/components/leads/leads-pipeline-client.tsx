@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Phone, MessageSquare, Clock, Search, UserCheck } from "lucide-react";
+import { Plus, Phone, MessageSquare, Clock, Search, UserCheck, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -13,6 +13,8 @@ import {
 } from "@/lib/actions/client-actions";
 import { LeadDialog } from "./lead-dialog";
 import { InteractionDialog } from "./interaction-dialog";
+import { LeadsAnalytics } from "./leads-analytics";
+import type { LeadAnalyticsData } from "@/lib/actions/lead-analytics";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -82,11 +84,13 @@ type SourceKey = (typeof SOURCE_KEYS)[number];
 interface LeadsPipelineClientProps {
   leads: Lead[];
   planLimit: number;
+  analytics?: LeadAnalyticsData | null;
 }
 
 export function LeadsPipelineClient({
   leads,
   planLimit,
+  analytics,
 }: LeadsPipelineClientProps) {
   const t = useT();
   const [isPending, startTransition] = useTransition();
@@ -96,6 +100,9 @@ export function LeadsPipelineClient({
   const [editingLead, setEditingLead] = useState<Lead | null>(null);
   const [interactionDialogOpen, setInteractionDialogOpen] = useState(false);
   const [interactionClientId, setInteractionClientId] = useState("");
+
+  // Analytics
+  const [showAnalytics, setShowAnalytics] = useState(false);
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,11 +185,31 @@ export function LeadsPipelineClient({
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-2xl font-bold text-foreground">{t.leads.title}</h1>
-        <Button onClick={openNewLead} size="sm" className="shrink-0">
-          <Plus className="h-4 w-4 me-1.5" />
-          {t.leads.newLead}
-        </Button>
+        <div className="flex items-center gap-2">
+          {analytics && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAnalytics((v) => !v)}
+              className="shrink-0"
+            >
+              <BarChart3 className="h-4 w-4 me-1.5" />
+              {showAnalytics
+                ? t.leads.analytics.hideAnalytics
+                : t.leads.analytics.showAnalytics}
+            </Button>
+          )}
+          <Button onClick={openNewLead} size="sm" className="shrink-0">
+            <Plus className="h-4 w-4 me-1.5" />
+            {t.leads.newLead}
+          </Button>
+        </div>
       </div>
+
+      {/* Analytics Dashboard */}
+      <AnimatePresence>
+        {showAnalytics && analytics && <LeadsAnalytics data={analytics} />}
+      </AnimatePresence>
 
       {/* Filters */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
