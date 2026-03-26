@@ -33,6 +33,7 @@ export async function createInspiration(formData: FormData) {
         category: cat.name,
         categoryId: cat.id,
         url: (formData.get("url") as string) || null,
+        imageUrl: (formData.get("imageUrl") as string) || null,
         notes: (formData.get("notes") as string) || null,
         userId,
       },
@@ -80,6 +81,7 @@ export async function updateInspiration(id: string, formData: FormData) {
         category: cat.name,
         categoryId: cat.id,
         url: (formData.get("url") as string) || null,
+        imageUrl: (formData.get("imageUrl") as string) || null,
         notes: (formData.get("notes") as string) || null,
       },
     });

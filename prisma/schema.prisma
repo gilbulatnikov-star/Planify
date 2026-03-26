@@ -448,6 +448,7 @@ model Inspiration {
   id         String               @id @default(cuid())
   title      String
   url        String?
+  imageUrl   String?              @db.Text
   category   String
   categoryId String?
   categoryRel InspirationCategory? @relation(fields: [categoryId], references: [id])

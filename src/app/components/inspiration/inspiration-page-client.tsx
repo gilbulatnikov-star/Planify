@@ -17,6 +17,7 @@ type InspirationData = {
   id: string;
   title: string;
   url: string | null;
+  imageUrl: string | null;
   category: string;
   categoryId: string | null;
   notes: string | null;
@@ -197,8 +198,14 @@ export function InspirationPageClient({
             <motion.div key={item.id} variants={fadeUp} className="break-inside-avoid">
               <Card className="glass-card group transition-all duration-300 hover:scale-[1.02] hover:shadow-sm">
                 <CardContent className="p-5">
+                  {/* Image */}
+                  {item.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={item.imageUrl} alt={item.title} className="w-full rounded-lg object-cover max-h-48 mb-3" />
+                  )}
+
                   {/* YouTube play overlay hint */}
-                  {item.url && isYouTubeUrl(item.url) && (
+                  {item.url && !item.imageUrl && isYouTubeUrl(item.url) && (
                     <a
                       href={item.url}
                       target="_blank"
