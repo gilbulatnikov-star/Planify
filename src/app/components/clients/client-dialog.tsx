@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createClient, updateClient } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
 
-const SOCIAL_KEYS = ["website", "instagram", "youtube", "linkedin", "tiktok"] as const;
+const SOCIAL_KEYS = ["website", "instagram", "youtube", "linkedin", "tiktok", "facebook"] as const;
 
 type SocialKey = typeof SOCIAL_KEYS[number];
 
@@ -66,7 +66,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
       setIsActive(client?.isActive ?? true);
       // Show socials that already have values
       const existing = SOCIAL_KEYS
-        .filter(key => client?.[key]);
+        .filter(key => (client as Record<string, unknown>)?.[key]);
       setVisibleSocials(existing);
       setPickerOpen(false);
     }
@@ -175,7 +175,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
                 return (
                   <div key={key} className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground w-20 shrink-0 text-left">{opt.label}</span>
-                    <Input name={key} placeholder={opt.placeholder} defaultValue={client?.[key] ?? ""} className="flex-1 h-8 text-sm" />
+                    <Input name={key} placeholder={opt.placeholder} defaultValue={(client as Record<string, unknown>)?.[key] as string ?? ""} className="flex-1 h-8 text-sm" />
                     <button type="button" onClick={() => removeSocial(key)} className="p-1 rounded text-muted-foreground hover:text-red-500 transition-colors">
                       <X className="h-3.5 w-3.5" />
                     </button>

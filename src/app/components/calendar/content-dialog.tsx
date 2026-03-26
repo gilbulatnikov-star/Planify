@@ -221,7 +221,7 @@ export function ContentDialog({
             {/* סטטוס */}
             <div className="col-span-2 space-y-2">
               <Label>{he.common.status}</Label>
-              <Select value={statusValue} onValueChange={setStatusValue}>
+              <Select value={statusValue} onValueChange={(v) => { if (v) setStatusValue(v); }}>
                 <SelectTrigger className="w-full">
                   <span className="flex flex-1">
                     {STATUS_OPTIONS.find(s => s.key === statusValue)?.label ?? he.calendar.statuses.planned}

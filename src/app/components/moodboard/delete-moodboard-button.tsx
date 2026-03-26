@@ -13,7 +13,7 @@ export function DeleteMoodboardButton({ id }: { id: string }) {
     e.preventDefault();
     e.stopPropagation();
     if (!confirm(he.moodboard.deleteConfirm)) return;
-    startTransition(() => deleteMoodboard(id));
+    startTransition(async () => { await deleteMoodboard(id); });
   }
 
   return (

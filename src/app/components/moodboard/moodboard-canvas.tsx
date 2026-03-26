@@ -104,17 +104,31 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
   const fileRef = useRef<HTMLInputElement>(null);
   const camRef = useRef<HTMLInputElement>(null);
 
+  function compressImage(file: File, maxWidth = 1600, quality = 0.8): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { reject(new Error("Canvas not supported")); return; }
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
   function handleFile(file: File | null) {
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) { alert(he.moodboard.maxSizeAlert); return; }
     setUploading(true);
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const dataUrl = ev.target?.result as string;
+    compressImage(file).then(dataUrl => {
       setUrl(dataUrl); onChange({ ...node.data, url: dataUrl, caption });
       setEditing(false); setUploading(false);
-    };
-    reader.readAsDataURL(file);
+    }).catch(() => { setUploading(false); alert("שגיאה בעיבוד התמונה"); });
   }
 
   return (
