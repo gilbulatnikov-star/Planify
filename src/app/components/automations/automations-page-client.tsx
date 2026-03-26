@@ -54,10 +54,16 @@ export function AutomationsPageClient({
   const [isPending, startTransition] = useTransition();
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  const handleToggle = (rule: AutomationRule) => {
-    setTogglingId(rule.id);
+  const handleToggle = (rule: AutomationRule | null, templateId: string, currentEnabled: boolean) => {
+    setTogglingId(rule?.id ?? templateId);
     startTransition(async () => {
-      await toggleAutomation(rule.id, !rule.enabled);
+      if (rule) {
+        await toggleAutomation(rule.id, !currentEnabled);
+      } else {
+        // No DB rule yet — initialize automations first, then toggle
+        const { initializeAutomations } = await import("@/lib/actions/automation-actions");
+        await initializeAutomations();
+      }
       setTogglingId(null);
       router.refresh();
     });
@@ -148,23 +154,21 @@ export function AutomationsPageClient({
                       </div>
 
                       {/* Toggle switch */}
-                      {rule && (
-                        <button
-                          onClick={() => handleToggle(rule)}
-                          disabled={isPending && togglingId === rule.id}
-                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
-                            isEnabled ? "bg-emerald-500" : "bg-muted-foreground/30"
-                          } ${isPending && togglingId === rule.id ? "opacity-50" : ""}`}
-                          role="switch"
-                          aria-checked={isEnabled}
-                        >
-                          <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
-                              isEnabled ? "translate-x-6" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleToggle(rule, template.id, isEnabled)}
+                        disabled={isPending && togglingId === ruleKey}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
+                          isEnabled ? "bg-emerald-500" : "bg-muted-foreground/30"
+                        } ${isPending && togglingId === ruleKey ? "opacity-50" : ""}`}
+                        role="switch"
+                        aria-checked={isEnabled}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
+                            isEnabled ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
                     </div>
 
                     <div className="mt-2">
