@@ -63,20 +63,18 @@ export function AutomationsPageClient({
     });
   };
 
-  // Group rules by category
+  // Group templates by category — use DB rules if available, otherwise show defaults
   const grouped = CATEGORY_ORDER.reduce<
-    Record<string, { rule: AutomationRule; template: (typeof AUTOMATION_TEMPLATES)[number] }[]>
+    Record<string, { rule: AutomationRule | null; template: (typeof AUTOMATION_TEMPLATES)[number] }[]>
   >((acc, cat) => {
     acc[cat] = [];
     return acc;
   }, {});
 
-  for (const rule of initialRules) {
-    const cat = CATEGORY_MAP[rule.templateId] ?? "tasks";
-    const template = AUTOMATION_TEMPLATES.find((t) => t.id === rule.templateId);
-    if (template) {
-      grouped[cat].push({ rule, template });
-    }
+  for (const template of AUTOMATION_TEMPLATES) {
+    const cat = CATEGORY_MAP[template.id] ?? "tasks";
+    const rule = initialRules.find((r) => r.templateId === template.id) ?? null;
+    grouped[cat].push({ rule, template });
   }
 
   return (
@@ -115,15 +113,17 @@ export function AutomationsPageClient({
               {items.map(({ rule, template }, idx) => {
                 const templateKey = template.id as keyof typeof t.automations.templates;
                 const templateT = t.automations.templates[templateKey];
+                const isEnabled = rule?.enabled ?? true;
+                const ruleKey = rule?.id ?? template.id;
 
                 return (
                   <motion.div
-                    key={rule.id}
+                    key={ruleKey}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: idx * 0.05 }}
                     className={`relative rounded-xl border p-4 transition-all duration-200 ${
-                      rule.enabled
+                      isEnabled
                         ? "border-border bg-card shadow-sm"
                         : "border-border/50 bg-muted/30"
                     }`}
@@ -131,12 +131,12 @@ export function AutomationsPageClient({
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
-                          {rule.enabled && (
+                          {isEnabled && (
                             <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
                           )}
                           <h3
                             className={`text-sm font-medium truncate ${
-                              rule.enabled ? "text-foreground" : "text-muted-foreground"
+                              isEnabled ? "text-foreground" : "text-muted-foreground"
                             }`}
                           >
                             {templateT?.title ?? template.id}
@@ -148,32 +148,34 @@ export function AutomationsPageClient({
                       </div>
 
                       {/* Toggle switch */}
-                      <button
-                        onClick={() => handleToggle(rule)}
-                        disabled={isPending && togglingId === rule.id}
-                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
-                          rule.enabled ? "bg-emerald-500" : "bg-muted-foreground/30"
-                        } ${isPending && togglingId === rule.id ? "opacity-50" : ""}`}
-                        role="switch"
-                        aria-checked={rule.enabled}
-                      >
-                        <span
-                          className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
-                            rule.enabled ? "translate-x-6" : "translate-x-1"
-                          }`}
-                        />
-                      </button>
+                      {rule && (
+                        <button
+                          onClick={() => handleToggle(rule)}
+                          disabled={isPending && togglingId === rule.id}
+                          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ${
+                            isEnabled ? "bg-emerald-500" : "bg-muted-foreground/30"
+                          } ${isPending && togglingId === rule.id ? "opacity-50" : ""}`}
+                          role="switch"
+                          aria-checked={isEnabled}
+                        >
+                          <span
+                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-sm ring-0 transition-transform duration-200 ${
+                              isEnabled ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      )}
                     </div>
 
                     <div className="mt-2">
                       <span
                         className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                          rule.enabled
+                          isEnabled
                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                             : "bg-muted text-muted-foreground"
                         }`}
                       >
-                        {rule.enabled ? t.automations.enabled : t.automations.disabled}
+                        {isEnabled ? t.automations.enabled : t.automations.disabled}
                       </span>
                     </div>
                   </motion.div>
