@@ -27,6 +27,7 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   const isAuthPage = pathname === "/sign-in" || pathname === "/sign-up";
+  const isMarketingPage = pathname === "/landing";
   const isOnboarding = pathname.startsWith("/onboarding");
   const isApiAuth = pathname.startsWith("/api/auth");
   const isApiOnboarding = pathname.startsWith("/api/onboarding");
@@ -39,9 +40,18 @@ export default auth((req) => {
     pathname.startsWith("/api/checkout") ||
     pathname.startsWith("/api/user/me");
 
+  // Marketing page is always public
+  if (isMarketingPage) {
+    return NextResponse.next();
+  }
+
   if (!isLoggedIn && !isAuthPage && !isPublicApi) {
     if (isInternalApi) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    // Redirect unauthenticated users from root to landing page
+    if (pathname === "/") {
+      return NextResponse.redirect(new URL("/landing", req.nextUrl));
     }
     return NextResponse.redirect(new URL("/sign-in", req.nextUrl));
   }
