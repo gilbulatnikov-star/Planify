@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useT } from "@/lib/i18n";
-import { toggleAutomation, AUTOMATION_TEMPLATES } from "@/lib/actions/automation-actions";
+import { toggleAutomation } from "@/lib/actions/automation-actions";
+import { AUTOMATION_TEMPLATES } from "@/lib/automation-templates";
 
 interface AutomationRule {
   id: string;
