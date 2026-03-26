@@ -27,7 +27,7 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
 
   const isAuthPage = pathname === "/sign-in" || pathname === "/sign-up";
-  const isMarketingPage = pathname === "/landing";
+  const isMarketingPage = pathname === "/landing" || pathname === "/demo";
   const isOnboarding = pathname.startsWith("/onboarding");
   const isApiAuth = pathname.startsWith("/api/auth");
   const isApiOnboarding = pathname.startsWith("/api/onboarding");
