@@ -705,6 +705,7 @@ export const en = {
     cameraTab: "Camera",
     showImage: "Show image",
     clickToSelectImage: "Click to select image",
+    dragOrClick: "Drag an image here or click to select",
     openCamera: "Open camera",
     maxSize: "Max 8MB",
     addImage: "Add image",

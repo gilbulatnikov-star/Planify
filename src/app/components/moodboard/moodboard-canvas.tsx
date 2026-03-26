@@ -175,13 +175,15 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
           {tab === "upload" && (
             <>
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                className="flex flex-col items-center justify-center gap-2 h-20 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 transition-colors">
+                onDragOver={e => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add("border-blue-400", "bg-blue-50", "dark:bg-blue-950"); }}
+                onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove("border-blue-400", "bg-blue-50", "dark:bg-blue-950"); }}
+                onDrop={e => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove("border-blue-400", "bg-blue-50", "dark:bg-blue-950"); const file = e.dataTransfer.files?.[0]; if (file?.type.startsWith("image/")) handleFile(file); }}
+                className="flex flex-col items-center justify-center gap-2 h-24 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
                 {uploading ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
-                  : <><ImageIcon className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">{he.moodboard.clickToSelectImage}</span></>}
+                  : <><ImageIcon className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">{he.moodboard.dragOrClick ?? "גרור תמונה או לחץ לבחירה"}</span></>}
               </button>
               <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden"
                 onChange={e => handleFile(e.target.files?.[0] ?? null)} />
-              <p className="text-[10px] text-muted-foreground text-center">{he.moodboard.maxSizeNote}</p>
             </>
           )}
 

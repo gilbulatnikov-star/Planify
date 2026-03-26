@@ -708,6 +708,7 @@ export const he = {
     cameraTab: "מצלמה",
     showImage: "הצג תמונה",
     clickToSelectImage: "לחץ לבחירת תמונה",
+    dragOrClick: "גרור תמונה לכאן או לחץ לבחירה",
     openCamera: "פתח מצלמה",
     maxSize: "מקסימום 8MB",
     addImage: "הוסף תמונה",
