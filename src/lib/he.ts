@@ -1288,6 +1288,7 @@ export const he = {
     sources: {
       instagram: "אינסטגרם",
       tiktok: "טיקטוק",
+      facebook: "פייסבוק",
       referral: "הפניה",
       website: "אתר",
       linkedin: "לינקדאין",

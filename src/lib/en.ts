@@ -1285,6 +1285,7 @@ export const en = {
     sources: {
       instagram: "Instagram",
       tiktok: "TikTok",
+      facebook: "Facebook",
       referral: "Referral",
       website: "Website",
       linkedin: "LinkedIn",

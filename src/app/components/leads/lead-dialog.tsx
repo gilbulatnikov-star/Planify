@@ -19,6 +19,7 @@ import { useT } from "@/lib/i18n";
 const SOURCE_KEYS = [
   "instagram",
   "tiktok",
+  "facebook",
   "referral",
   "website",
   "linkedin",
