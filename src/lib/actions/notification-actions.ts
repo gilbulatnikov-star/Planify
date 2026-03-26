@@ -4,21 +4,29 @@ import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 
 export async function getNotifications() {
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) return [];
-  return prisma.notification.findMany({
-    where: { userId },
-    orderBy: { createdAt: "desc" },
-    take: 20,
-  });
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return [];
+    return await prisma.notification.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    });
+  } catch {
+    return [];
+  }
 }
 
 export async function getUnreadCount() {
-  const session = await auth();
-  const userId = session?.user?.id;
-  if (!userId) return 0;
-  return prisma.notification.count({ where: { userId, read: false } });
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return 0;
+    return await prisma.notification.count({ where: { userId, read: false } });
+  } catch {
+    return 0;
+  }
 }
 
 export async function markAsRead(id: string) {
