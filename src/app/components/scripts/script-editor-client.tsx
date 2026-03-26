@@ -307,7 +307,7 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
           </button>
           {onRowResize && (
             <div
-              className="w-6 h-1.5 rounded-full bg-muted-foreground/20 hover:bg-blue-400 cursor-row-resize transition-colors opacity-0 group-hover:opacity-100"
+              className="w-8 h-1 rounded-full bg-border hover:bg-blue-400 cursor-row-resize transition-colors"
               title="גרור למתיחה"
               onMouseDown={(e) => {
                 e.preventDefault();
@@ -711,69 +711,51 @@ export function ScriptEditorClient({
   }
 
   async function exportShotListPDF() {
-    const { default: html2canvas } = await import("html2canvas");
-    const { default: jsPDF } = await import("jspdf");
-    const cols = COLUMNS.filter(c => visibleCols.has(c.id));
-
-    // Build a standalone RTL table in a hidden container
-    const wrapper = document.createElement("div");
-    const tableW = 1100;
-    wrapper.style.cssText = `position:fixed;top:0;left:-9999px;width:${tableW}px;z-index:-1;background:#fff;`;
-
-    const thStyle = "padding:8px 10px;text-align:right;font-size:11px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;white-space:nowrap;background:#f8fafc;";
-    const tdStyleBase = "padding:7px 10px;font-size:11px;border-bottom:1px solid #e5e7eb;color:#111827;white-space:nowrap;text-align:right;max-width:200px;overflow:hidden;text-overflow:ellipsis;";
-
-    let headerHtml = `<th style="${thStyle}">#</th>`;
-    cols.forEach(col => { headerHtml += `<th style="${thStyle}">${col.label}</th>`; });
-
-    let bodyHtml = "";
-    orderedShots.forEach((shot, idx) => {
-      const bg = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
-      let row = `<td style="${tdStyleBase}background:${bg};font-weight:700;color:#6366f1;">${customShotNo ? shot.customShotNum : shot.shotNum}</td>`;
-      cols.forEach(col => {
-        const val = String((shot as Record<string, unknown>)[col.id] ?? "") || "\u2014";
-        const style = col.id === "content"
-          ? tdStyleBase.replace("max-width:200px", "max-width:300px").replace("white-space:nowrap", "white-space:normal") + `background:${bg};`
-          : `${tdStyleBase}background:${bg};`;
-        row += `<td style="${style}">${val}</td>`;
-      });
-      bodyHtml += `<tr>${row}</tr>`;
-    });
-
-    wrapper.innerHTML = `
-      <div style="font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;direction:rtl;padding:32px 40px;background:#fff;color:#111827;">
-        <div style="border-bottom:3px solid #6366f1;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;">
-          <div style="font-size:22px;font-weight:800;color:#111827;">${title || "Shot List"}</div>
-          <div style="font-size:12px;color:#6b7280;">${orderedShots.length} shots</div>
-        </div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead><tr>${headerHtml}</tr></thead>
-          <tbody>${bodyHtml}</tbody>
-        </table>
-      </div>`;
-
-    document.body.appendChild(wrapper);
-
-    // Temporarily disable stylesheets to avoid html2canvas oklch() crash
-    const sheets = [...document.styleSheets];
-    sheets.forEach(s => { try { s.disabled = true; } catch { /* cross-origin */ } });
-
-    let canvas;
     try {
-      canvas = await html2canvas(wrapper.firstElementChild as HTMLElement, {
-        scale: 2, useCORS: true, allowTaint: true,
-        backgroundColor: "#ffffff", logging: false, width: tableW,
-      });
-    } finally {
-      document.body.removeChild(wrapper);
-      sheets.forEach(s => { try { s.disabled = false; } catch { /* cross-origin */ } });
-    }
+      const { default: jsPDF } = await import("jspdf");
+      const cols = COLUMNS.filter(c => visibleCols.has(c.id));
+      const shots = shotOrdering === "desc" ? [...shotList].reverse() : shotList;
 
-    const w = tableW;
-    const h = (canvas.height / canvas.width) * w;
-    const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [w, h], hotfixes: ["px_scaling"] });
-    pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", 0, 0, w, h);
-    pdf.save(`shot-list-${(title || "export").replace(/\s+/g, "-")}.pdf`);
+      // Use print-based approach: open a new window with styled HTML table
+      const thStyle = "padding:8px 10px;text-align:right;font-size:11px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;white-space:nowrap;background:#f8fafc;";
+      const tdStyleBase = "padding:7px 10px;font-size:11px;border-bottom:1px solid #e5e7eb;color:#111827;text-align:right;";
+
+      let headerHtml = `<th style="${thStyle}">#</th>`;
+      cols.forEach(col => { headerHtml += `<th style="${thStyle}">${col.label}</th>`; });
+
+      let bodyHtml = "";
+      shots.forEach((shot, idx) => {
+        const bg = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
+        let row = `<td style="${tdStyleBase}background:${bg};font-weight:700;color:#6366f1;">${customShotNo ? shot.customShotNum : shot.shotNum}</td>`;
+        cols.forEach(col => {
+          const val = String((shot as Record<string, unknown>)[col.id] ?? "") || "\u2014";
+          row += `<td style="${tdStyleBase}background:${bg};">${val}</td>`;
+        });
+        bodyHtml += `<tr>${row}</tr>`;
+      });
+
+      const html = `<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>Shot List</title>
+        <style>@page{size:landscape;margin:20mm;}body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;padding:0;margin:0;color:#111827;}table{width:100%;border-collapse:collapse;}</style>
+        </head><body>
+        <div style="padding:32px 40px;">
+          <div style="border-bottom:3px solid #6366f1;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;">
+            <div style="font-size:22px;font-weight:800;">${title || "Shot List"}</div>
+            <div style="font-size:12px;color:#6b7280;">${shots.length} shots</div>
+          </div>
+          <table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>
+          <div style="margin-top:20px;text-align:center;font-size:10px;color:#9ca3af;">Planify</div>
+        </div></body></html>`;
+
+      const printWin = window.open("", "_blank");
+      if (printWin) {
+        printWin.document.write(html);
+        printWin.document.close();
+        setTimeout(() => { printWin.print(); }, 300);
+      }
+    } catch (err) {
+      console.error("PDF export error:", err);
+      alert("שגיאה בייצוא. נסה שוב.");
+    }
   }
 
   const STORYBOARD_FREE_LIMIT = 5;
@@ -1244,7 +1226,7 @@ export function ScriptEditorClient({
                         >
                           {col.label}
                           <div
-                            className="absolute top-0 left-0 h-full w-1.5 cursor-col-resize hover:bg-blue-400/40 active:bg-blue-500/50 z-20"
+                            className="absolute top-0 left-0 h-full w-1 cursor-col-resize bg-border/50 hover:bg-blue-400 active:bg-blue-500 z-20 transition-colors"
                             onMouseDown={(e) => {
                               e.preventDefault();
                               const th = e.currentTarget.parentElement!;
