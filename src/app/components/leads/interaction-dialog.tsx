@@ -56,7 +56,7 @@ export function InteractionDialog({
         <form onSubmit={handleSubmit} className="grid gap-4">
           {/* Interaction Type */}
           <div className="grid gap-2">
-            <Label htmlFor="interaction-type">{t.common.category}</Label>
+            <Label htmlFor="interaction-type">{t.common.type ?? "סוג"}</Label>
             <select
               id="interaction-type"
               name="type"
