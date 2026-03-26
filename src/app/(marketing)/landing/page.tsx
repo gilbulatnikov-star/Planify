@@ -504,9 +504,9 @@ export default function LandingPage() {
 
           {/* Links */}
           <div className="flex gap-6 text-sm text-gray-500">
-            <a href="#" className="transition-colors hover:text-[#38b6ff]">\u05EA\u05E0\u05D0\u05D9 \u05E9\u05D9\u05DE\u05D5\u05E9</a>
-            <a href="#" className="transition-colors hover:text-[#38b6ff]">\u05DE\u05D3\u05D9\u05E0\u05D9\u05D5\u05EA \u05E4\u05E8\u05D8\u05D9\u05D5\u05EA</a>
-            <a href="#" className="transition-colors hover:text-[#38b6ff]">\u05D9\u05E6\u05D9\u05E8\u05EA \u05E7\u05E9\u05E8</a>
+            <Link href="/terms" className="transition-colors hover:text-[#38b6ff]">תנאי שימוש</Link>
+            <Link href="/privacy" className="transition-colors hover:text-[#38b6ff]">מדיניות פרטיות</Link>
+            <Link href="/contact" className="transition-colors hover:text-[#38b6ff]">יצירת קשר</Link>
           </div>
 
           {/* Social placeholder + copyright */}

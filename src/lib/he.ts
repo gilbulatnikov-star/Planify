@@ -17,6 +17,7 @@ export const he = {
     scripts: "תסריטים",
     moodboard: "Moodboard",
     billing: "מנוי ותמחור",
+    more: "עוד",
   },
 
   // Dashboard

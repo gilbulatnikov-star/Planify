@@ -17,6 +17,7 @@ export const en = {
     scripts: "Scripts",
     moodboard: "Moodboard",
     billing: "Billing",
+    more: "More",
   },
 
   // Dashboard

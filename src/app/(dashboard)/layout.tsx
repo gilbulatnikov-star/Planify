@@ -6,6 +6,7 @@ import { UserMenu } from "@/app/components/layout/user-menu";
 import { ThemeToggle } from "@/app/components/layout/theme-toggle";
 import { WelcomeTour } from "@/app/components/layout/welcome-tour";
 import { NotificationBell } from "@/app/components/layout/notification-bell";
+import { MobileBottomNav } from "@/app/components/layout/mobile-bottom-nav";
 
 import { LocaleSync } from "@/app/components/layout/locale-sync";
 import { auth } from "@/auth";
@@ -43,9 +44,10 @@ export default async function DashboardLayout({
               <UserMenu />
             </div>
           </header>
-          <main className="relative z-10 flex-1 overflow-auto p-6 md:p-8">{children}</main>
+          <main className="relative z-10 flex-1 overflow-auto p-6 pb-20 md:p-8 md:pb-8">{children}</main>
         </SidebarInset>
         <WelcomeTour />
+        <MobileBottomNav />
       </SidebarProvider>
     </LocaleProvider>
   );
