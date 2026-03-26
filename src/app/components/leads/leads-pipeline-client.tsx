@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Phone, MessageSquare, Clock, Search, UserCheck, BarChart3 } from "lucide-react";
+import { Plus, Phone, MessageSquare, Clock, Search, UserCheck, BarChart3, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -10,6 +10,7 @@ import { useT } from "@/lib/i18n";
 import {
   updateLeadStatus,
   convertLeadToClient,
+  deleteClient,
 } from "@/lib/actions/client-actions";
 import { LeadDialog } from "./lead-dialog";
 import { InteractionDialog } from "./interaction-dialog";
@@ -346,6 +347,19 @@ export function LeadsPipelineClient({
                         >
                           <Plus className="h-3 w-3" />
                           {t.leads.addInteraction}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (confirm(t.common.delete + "?")) {
+                              startTransition(async () => { await deleteClient(lead.id); });
+                            }
+                          }}
+                          className="text-xs text-muted-foreground hover:text-red-500 transition-colors flex items-center gap-1"
+                        >
+                          <Trash2 className="h-3 w-3" />
                         </button>
 
                         {stage === "won" && (
