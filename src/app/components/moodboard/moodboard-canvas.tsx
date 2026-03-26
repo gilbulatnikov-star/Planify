@@ -131,8 +131,20 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
     }).catch(() => { setUploading(false); alert("שגיאה בעיבוד התמונה"); });
   }
 
+  const [dragOver, setDragOver] = useState(false);
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault(); e.stopPropagation(); setDragOver(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file?.type.startsWith("image/")) { handleFile(file); }
+  }
+
   return (
-    <div className="w-64 rounded-2xl shadow-md bg-card flex flex-col overflow-hidden">
+    <div className="w-64 rounded-2xl shadow-md bg-card flex flex-col overflow-hidden"
+      onDragOver={e => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+      onDragLeave={e => { e.preventDefault(); setDragOver(false); }}
+      onDrop={handleDrop}
+    >
       <DragHandle />
       {url && !editing ? (
         <>
@@ -149,7 +161,13 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
           </div>
         </>
       ) : (
-        <div className="p-3 flex flex-col gap-2">
+        <div className="p-3 flex flex-col gap-2 relative">
+          {/* Drop overlay */}
+          {dragOver && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-blue-500/20 border-2 border-dashed border-blue-400 backdrop-blur-sm">
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-300">שחרר כאן</span>
+            </div>
+          )}
           {/* Tabs */}
           <div className="flex rounded-lg border border-border p-0.5 gap-0.5 bg-muted text-[11px]">
             {(["url", "upload", "camera"] as const).map(t => (
@@ -175,9 +193,6 @@ function ImageCard({ node, onChange }: { node: BoardNode; onChange: (d: Record<s
           {tab === "upload" && (
             <>
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                onDragOver={e => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.add("border-blue-400", "bg-blue-50", "dark:bg-blue-950"); }}
-                onDragLeave={e => { e.preventDefault(); e.currentTarget.classList.remove("border-blue-400", "bg-blue-50", "dark:bg-blue-950"); }}
-                onDrop={e => { e.preventDefault(); e.stopPropagation(); e.currentTarget.classList.remove("border-blue-400", "bg-blue-50", "dark:bg-blue-950"); const file = e.dataTransfer.files?.[0]; if (file?.type.startsWith("image/")) handleFile(file); }}
                 className="flex flex-col items-center justify-center gap-2 h-24 bg-muted rounded-xl border-2 border-dashed border-border hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors">
                 {uploading ? <Loader2 className="h-5 w-5 text-muted-foreground animate-spin" />
                   : <><ImageIcon className="h-5 w-5 text-muted-foreground" /><span className="text-[11px] text-muted-foreground">{he.moodboard.dragOrClick ?? "גרור תמונה או לחץ לבחירה"}</span></>}
