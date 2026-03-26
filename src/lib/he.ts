@@ -1350,6 +1350,32 @@ export const he = {
     },
   },
 
+  // Automations
+  automations: {
+    title: "אוטומציות",
+    description: "הגדר תזכורות והתראות אוטומטיות",
+    templates: {
+      stale_lead_24h: { title: "ליד ללא מענה (24 שעות)", desc: "תזכורת כשליד לא קיבל מענה 24 שעות" },
+      stale_lead_72h: { title: "ליד קר (3 ימים)", desc: "התראה כשליד לא קיבל מענה 3 ימים" },
+      proposal_followup_3d: { title: "Follow-up הצעת מחיר (3 ימים)", desc: "תזכורת אם הצעת מחיר לא נענתה 3 ימים" },
+      proposal_followup_7d: { title: "Follow-up הצעת מחיר (שבוע)", desc: "תזכורת נוספת אחרי שבוע" },
+      deadline_24h: { title: "דדליין מתקרב", desc: "התראה 24 שעות לפני דדליין פרויקט" },
+      overdue_invoice: { title: "חשבונית באיחור", desc: "התראה על חשבונית שלא שולמה" },
+      task_reminder: { title: "משימות יומיות", desc: "תזכורת יומית על משימות פתוחות" },
+    },
+    enabled: "פעיל",
+    disabled: "כבוי",
+    categories: { leads: "לידים", proposals: "הצעות מחיר", projects: "פרויקטים", payments: "תשלומים", tasks: "משימות" },
+  },
+
+  // Notifications
+  notifications: {
+    title: "התראות",
+    markAllRead: "סמן הכל כנקרא",
+    noNotifications: "אין התראות",
+    timeAgo: { now: "עכשיו", minutes: "דקות", hours: "שעות", days: "ימים" },
+  },
+
   // Layout / meta
   meta: {
     description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",

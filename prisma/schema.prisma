@@ -55,6 +55,33 @@ model User {
   quickLinks           QuickLink[]
   gearStatuses         GearStatus[]
   feedbacks            Feedback[]
+  notifications        Notification[]
+  automationRules      AutomationRule[]
+}
+
+// ---------- NOTIFICATIONS ----------
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  link      String?
+  read      Boolean  @default(false)
+  type      String   @default("info") // info, warning, urgent
+  createdAt DateTime @default(now())
+}
+
+// ---------- AUTOMATION RULES ----------
+model AutomationRule {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  templateId  String   // stale_lead, proposal_followup, deadline_reminder, overdue_invoice, etc.
+  enabled     Boolean  @default(true)
+  config      Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 // ---------- CLIENTS & LEADS ----------

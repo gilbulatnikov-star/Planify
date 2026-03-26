@@ -1347,6 +1347,32 @@ export const en = {
     },
   },
 
+  // Automations
+  automations: {
+    title: "Automations",
+    description: "Set up automatic reminders and alerts",
+    templates: {
+      stale_lead_24h: { title: "Stale Lead (24 hours)", desc: "Reminder when a lead has no response for 24 hours" },
+      stale_lead_72h: { title: "Cold Lead (3 days)", desc: "Alert when a lead has no response for 3 days" },
+      proposal_followup_3d: { title: "Quote Follow-up (3 days)", desc: "Reminder if a quote wasn't answered in 3 days" },
+      proposal_followup_7d: { title: "Quote Follow-up (1 week)", desc: "Additional reminder after a week" },
+      deadline_24h: { title: "Upcoming Deadline", desc: "Alert 24 hours before project deadline" },
+      overdue_invoice: { title: "Overdue Invoice", desc: "Alert for unpaid invoices" },
+      task_reminder: { title: "Daily Tasks", desc: "Daily reminder for open tasks" },
+    },
+    enabled: "Active",
+    disabled: "Disabled",
+    categories: { leads: "Leads", proposals: "Quotes", projects: "Projects", payments: "Payments", tasks: "Tasks" },
+  },
+
+  // Notifications
+  notifications: {
+    title: "Notifications",
+    markAllRead: "Mark all as read",
+    noNotifications: "No notifications",
+    timeAgo: { now: "now", minutes: "minutes", hours: "hours", days: "days" },
+  },
+
   // Layout / meta
   meta: {
     description: "The smart tool for managing your productions — clients, projects, scripts, and content calendars in one place.",

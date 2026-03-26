@@ -18,6 +18,7 @@ import {
   FileBarChart2,
   Crown,
   ListTodo,
+  Zap,
   LogOut,
 } from "lucide-react";
 import { useState } from "react";
@@ -64,6 +65,7 @@ export function AppSidebar() {
     { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
     { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
     { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
+    { href: "/automations", label: he.automations.title, icon: Zap, tourId: "nav-automations" },
   ];
 
   const financialsSubItems = [
