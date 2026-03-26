@@ -145,6 +145,50 @@ export async function updateClient(id: string, formData: FormData) {
   }
 }
 
+export async function getLeads() {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return [];
+  return prisma.client.findMany({
+    where: { userId, type: "lead" },
+    include: {
+      interactions: { orderBy: { date: "desc" }, take: 1 },
+      _count: { select: { interactions: true } },
+    },
+    orderBy: { updatedAt: "desc" },
+  });
+}
+
+export async function updateLeadStatus(id: string, leadStatus: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  const existing = await prisma.client.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.client.update({ where: { id }, data: { leadStatus } });
+  revalidatePath("/leads");
+  return { success: true };
+}
+
+export async function convertLeadToClient(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  const existing = await prisma.client.findFirst({ where: { id, userId, type: "lead" } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.client.update({
+    where: { id },
+    data: { type: "client", isActive: true, leadStatus: "won" },
+  });
+  revalidatePath("/leads");
+  revalidatePath("/clients");
+  return { success: true };
+}
+
 export async function deleteClient(id: string) {
   try {
     const session = await auth();

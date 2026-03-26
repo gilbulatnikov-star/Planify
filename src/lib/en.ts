@@ -1266,6 +1266,49 @@ export const en = {
     limitReached: "Limit of {limit} tasks — press Enter to upgrade",
   },
 
+  // Leads Pipeline
+  leads: {
+    title: "Leads",
+    newLead: "New Lead",
+    editLead: "Edit Lead",
+    pipeline: "Sales Pipeline",
+    convertToClient: "Convert to Client",
+    converted: "Successfully converted to client",
+    stages: {
+      new: "New Lead",
+      contacted: "Contacted",
+      qualified: "Meeting",
+      proposal_sent: "Proposal Sent",
+      won: "Closed",
+      lost: "Lost",
+    },
+    sources: {
+      instagram: "Instagram",
+      tiktok: "TikTok",
+      referral: "Referral",
+      website: "Website",
+      linkedin: "LinkedIn",
+      organic: "Organic",
+      other: "Other",
+    },
+    serviceType: "Service Type",
+    serviceTypePlaceholder: "e.g. Photography, Social Media...",
+    source: "Source",
+    daysAgo: "days",
+    addInteraction: "Add Interaction",
+    interactionTypes: {
+      call: "Call",
+      email: "Email",
+      meeting: "Meeting",
+      note: "Note",
+    },
+    interactionSummary: "Summary",
+    noLeads: "No leads yet",
+    noLeadsDesc: "Add a new lead to get started",
+    filterBySource: "Filter by source",
+    allSources: "All sources",
+  },
+
   // Layout / meta
   meta: {
     description: "The smart tool for managing your productions — clients, projects, scripts, and content calendars in one place.",

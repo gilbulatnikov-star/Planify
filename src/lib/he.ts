@@ -1269,6 +1269,49 @@ export const he = {
     limitReached: "מגבלת {limit} משימות — לחץ Enter לשדרוג",
   },
 
+  // Leads Pipeline
+  leads: {
+    title: "לידים",
+    newLead: "ליד חדש",
+    editLead: "עריכת ליד",
+    pipeline: "צינור מכירות",
+    convertToClient: "הפוך ללקוח",
+    converted: "הומר ללקוח בהצלחה",
+    stages: {
+      new: "ליד חדש",
+      contacted: "נוצר קשר",
+      qualified: "שיחה/פגישה",
+      proposal_sent: "הצעת מחיר",
+      won: "סגירה",
+      lost: "אבוד",
+    },
+    sources: {
+      instagram: "אינסטגרם",
+      tiktok: "טיקטוק",
+      referral: "הפניה",
+      website: "אתר",
+      linkedin: "לינקדאין",
+      organic: "אורגני",
+      other: "אחר",
+    },
+    serviceType: "סוג שירות",
+    serviceTypePlaceholder: "לדוגמה: צילום, ניהול סושיאל...",
+    source: "מקור",
+    daysAgo: "ימים",
+    addInteraction: "הוסף אינטראקציה",
+    interactionTypes: {
+      call: "שיחה",
+      email: "אימייל",
+      meeting: "פגישה",
+      note: "הערה",
+    },
+    interactionSummary: "סיכום",
+    noLeads: "אין לידים",
+    noLeadsDesc: "הוסף ליד חדש כדי להתחיל",
+    filterBySource: "סינון לפי מקור",
+    allSources: "כל המקורות",
+  },
+
   // Layout / meta
   meta: {
     description: "הכלי החכם לניהול ההפקות שלך — לקוחות, פרויקטים, תסריטים ולוחות תוכן במקום אחד.",
