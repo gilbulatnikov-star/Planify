@@ -2,7 +2,7 @@
 
 import { useState, useTransition, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { ImageIcon, Loader2, X } from "lucide-react";
+import { ImageIcon, Loader2, Plus, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +22,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { createInspiration, updateInspiration } from "@/lib/actions/inspiration-actions";
+import { createInspiration, updateInspiration, createInspirationCategory } from "@/lib/actions/inspiration-actions";
 import { useT } from "@/lib/i18n";
 import type { CategoryData } from "./inspiration-page-client";
 
@@ -71,14 +71,52 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
   const [imageUrl, setImageUrl] = useState<string | null>(inspiration?.imageUrl ?? null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [newCatLabel, setNewCatLabel] = useState("");
+  const [catCreating, setCatCreating] = useState(false);
+  const [catError, setCatError] = useState<string | null>(null);
+  const [localCategories, setLocalCategories] = useState<CategoryData[]>(categories);
+
+  // Keep localCategories in sync when the parent re-renders with new categories
+  if (categories !== localCategories && categories.length !== localCategories.length) {
+    setLocalCategories(categories);
+  }
 
   function handleOpenChange(open: boolean) {
     if (open) {
       setCategoryId(inspiration?.categoryId ?? categories[0]?.id ?? "");
       setImageUrl(inspiration?.imageUrl ?? null);
       setSaveError(null);
+      setNewCatLabel("");
+      setCatError(null);
+      setLocalCategories(categories);
     }
     onOpenChange(open);
+  }
+
+  async function handleInlineCreateCategory() {
+    const label = newCatLabel.trim();
+    if (!label) return;
+    setCatError(null);
+    setCatCreating(true);
+    try {
+      const formData = new FormData();
+      formData.set("label", label);
+      formData.set("color", "gray");
+      const result = await createInspirationCategory(formData);
+      if (result.success && result.id) {
+        setNewCatLabel("");
+        const newCat: CategoryData = { id: result.id, label, name: label.toLowerCase().replace(/[^a-zA-Z0-9\u0590-\u05FF]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, ""), color: "gray", sortOrder: localCategories.length };
+        setLocalCategories((prev) => [...prev, newCat]);
+        setCategoryId(result.id);
+        router.refresh();
+      } else {
+        setCatError(result.error ?? he.inspirationExtra.createError);
+      }
+    } catch {
+      setCatError(he.inspirationExtra.createError);
+    } finally {
+      setCatCreating(false);
+    }
   }
 
   function handleFile(file: File | null) {
@@ -186,23 +224,42 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
             {/* Category */}
             <div className="col-span-2 space-y-2">
               <Label>{he.inspirationExtra.categoryRequired}</Label>
-              {categories.length === 0 ? (
-                <p className="text-sm text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400 rounded-lg px-3 py-2">
-                  {he.inspirationExtra.noCategoriesYet}
-                </p>
-              ) : (
+              {localCategories.length > 0 && (
                 <Select value={categoryId} onValueChange={(v) => v && setCategoryId(v)}>
                   <SelectTrigger className="w-full">
-                    <span className="flex flex-1">{categoryId ? (categories.find(cat => cat.id === categoryId)?.label ?? categoryId) : he.inspirationExtra.selectCategory}</span>
+                    <span className="flex flex-1">{categoryId ? (localCategories.find(cat => cat.id === categoryId)?.label ?? categoryId) : he.inspirationExtra.selectCategory}</span>
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((cat) => (
+                    {localCategories.map((cat) => (
                       <SelectItem key={cat.id} value={cat.id}>
                         {cat.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+              )}
+              {/* Inline category creation */}
+              <div className="flex items-center gap-2">
+                <Input
+                  placeholder={he.inspirationExtra.categoryNamePlaceholder}
+                  value={newCatLabel}
+                  onChange={(e) => setNewCatLabel(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleInlineCreateCategory(); } }}
+                  className="flex-1 h-8 text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 shrink-0"
+                  onClick={handleInlineCreateCategory}
+                  disabled={catCreating || !newCatLabel.trim()}
+                >
+                  {catCreating ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                </Button>
+              </div>
+              {catError && (
+                <p className="text-xs text-red-500">{catError}</p>
               )}
             </div>
 
@@ -224,7 +281,7 @@ export function InspirationDialog({ inspiration, categories, open, onOpenChange 
             <DialogClose render={<Button variant="outline" />}>
               {he.common.cancel}
             </DialogClose>
-            <Button type="submit" disabled={isPending || categories.length === 0}>
+            <Button type="submit" disabled={isPending || localCategories.length === 0}>
               {isPending ? he.common.saving : he.common.save}
             </Button>
           </DialogFooter>

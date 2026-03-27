@@ -6,6 +6,7 @@ import { UserMenu } from "@/app/components/layout/user-menu";
 import { ThemeToggle } from "@/app/components/layout/theme-toggle";
 import { WelcomeTour } from "@/app/components/layout/welcome-tour";
 import { NotificationBell } from "@/app/components/layout/notification-bell";
+import { HeaderSearch } from "@/app/components/layout/header-search";
 import { MobileBottomNav } from "@/app/components/layout/mobile-bottom-nav";
 
 import { LocaleSync } from "@/app/components/layout/locale-sync";
@@ -35,7 +36,8 @@ export default async function DashboardLayout({
         <SidebarInset>
           <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-border/50 px-6 bg-background/85 backdrop-blur-md">
             <SidebarTrigger className="-me-2 text-muted-foreground hover:text-foreground transition-colors duration-200" />
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <HeaderSearch />
               <NotificationBell
                 initialNotifications={notifications}
                 initialUnreadCount={unreadCount}

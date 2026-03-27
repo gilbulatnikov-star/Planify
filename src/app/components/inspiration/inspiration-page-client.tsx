@@ -147,13 +147,13 @@ export function InspirationPageClient({
 
       {/* Search + Category Filters */}
       <motion.div variants={fadeUp} className="space-y-3">
-        <div className="relative w-full max-w-sm">
-          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative w-full max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder={he.common.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="ps-10 bg-background border-border"
+            className="pl-10 bg-background border-border"
           />
         </div>
         <div className="flex items-center gap-2 flex-wrap">

@@ -16,9 +16,10 @@ export default async function MoodboardListPage() {
   const dateFnsLocale = locale === "en" ? enUS : heLocale;
   const canCreate = limits.moodboards === -1 || boards.length < limits.moodboards;
 
-  async function handleCreate() {
+  async function handleCreate(formData: FormData) {
     "use server";
-    const board = await createMoodboard();
+    const title = (formData.get("title") as string)?.trim() || "Moodboard חדש";
+    const board = await createMoodboard(title);
     redirect(`/moodboard/${board.id}`);
   }
 

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import {
@@ -59,14 +59,31 @@ export function ScriptsPageClient({
   const [creating, setCreating] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleCreate() {
+  useEffect(() => {
+    if (dialogOpen) {
+      setTimeout(() => titleInputRef.current?.focus(), 0);
+    }
+  }, [dialogOpen]);
+
+  function openCreateDialog() {
     if (planLimit !== -1 && scripts.length >= planLimit) {
       setUpgradeOpen(true);
       return;
     }
+    setNewTitle("");
+    setDialogOpen(true);
+  }
+
+  async function handleCreate() {
+    const trimmed = newTitle.trim();
+    if (!trimmed) return;
     setCreating(true);
-    const result = await createScript({});
+    setDialogOpen(false);
+    const result = await createScript({ title: trimmed });
     if (!("id" in result)) {
       setUpgradeOpen(true);
       setCreating(false);
@@ -90,22 +107,65 @@ export function ScriptsPageClient({
       feature={he.scripts.title}
       limit={planLimit}
     />
+
+    {/* Create script dialog */}
+    {dialogOpen && (
+      <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDialogOpen(false)} />
+        <div
+          className="relative z-10 w-full max-w-sm rounded-[14px] border border-border/40 bg-card p-6 shadow-xl"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setDialogOpen(false);
+            if (e.key === "Enter" && newTitle.trim()) handleCreate();
+          }}
+        >
+          <h2 className="text-[15px] font-bold text-foreground mb-4">שם התסריט</h2>
+          <input
+            ref={titleInputRef}
+            type="text"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="הזן שם לתסריט..."
+            className="w-full rounded-[10px] border border-border/40 bg-background px-4 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          />
+          {newTitle.length > 0 && !newTitle.trim() && (
+            <p className="mt-1.5 text-[11px] text-red-500">יש להזין שם תקין</p>
+          )}
+          <div className="mt-4 flex gap-2 justify-end">
+            <button
+              onClick={() => setDialogOpen(false)}
+              className="rounded-[10px] px-4 py-2 text-[13px] font-medium text-foreground/60 hover:bg-muted transition-colors"
+            >
+              ביטול
+            </button>
+            <button
+              onClick={handleCreate}
+              disabled={!newTitle.trim()}
+              className="rounded-[10px] bg-foreground px-4 py-2 text-[13px] font-semibold text-background hover:bg-foreground/90 transition-colors disabled:opacity-40 disabled:pointer-events-none"
+            >
+              יצירה
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.scripts.title}</h1>
-        <Button onClick={handleCreate} disabled={creating} className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0 gap-2">
+        <Button onClick={openCreateDialog} disabled={creating} className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0 gap-2">
           <Plus className="h-4 w-4" />
           {he.scripts.newScript}
         </Button>
       </div>
 
       <div className="relative">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
         <input
           placeholder="חיפוש תסריטים..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-sm rounded-[10px] border border-border/40 bg-card px-4 py-2.5 ps-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          className="w-full max-w-xs rounded-[10px] border border-border/40 bg-card pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
         />
       </div>
 
@@ -121,7 +181,7 @@ export function ScriptsPageClient({
             {he.scriptEditor.createFirstScriptDesc}
           </p>
           <Button
-            onClick={handleCreate}
+            onClick={openCreateDialog}
             disabled={creating}
             className="mt-6 gap-2"
           >

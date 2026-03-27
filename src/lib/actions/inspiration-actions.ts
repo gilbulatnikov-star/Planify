@@ -146,12 +146,12 @@ export async function createInspirationCategory(formData: FormData) {
     });
     const sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
 
-    await prisma.inspirationCategory.create({
+    const created = await prisma.inspirationCategory.create({
       data: { name: name || `cat_${Date.now()}`, label, color, sortOrder, userId },
     });
 
     revalidatePath("/inspiration");
-    return { success: true };
+    return { success: true, id: created.id };
   } catch (error) {
     if (error instanceof Error && error.message.includes("Unique constraint")) {
       return { success: false, error: "קטגוריה עם שם זה כבר קיימת" };

@@ -29,7 +29,7 @@ export function MoodboardPageClient({
   projects: Project[];
   canCreate: boolean;
   planLimit: number;
-  handleCreate: () => void;
+  handleCreate: (formData: FormData) => Promise<void>;
   t: { subtitle: string; noMoodboards: string; noMoodboardsDesc: string; createFirst: string; updated: string };
   dateMap: Record<string, string>;
 }) {
@@ -51,13 +51,13 @@ export function MoodboardPageClient({
       </div>
 
       {/* Search bar */}
-      <div className="relative w-full max-w-sm">
-        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+      <div className="relative w-full max-w-xs">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
         <input
           placeholder="חיפוש מוד בורד..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-[10px] border border-border/40 bg-card px-4 py-2.5 ps-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          className="w-full rounded-[10px] border border-border/40 bg-card pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
         />
       </div>
 
