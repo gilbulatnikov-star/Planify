@@ -39,10 +39,10 @@ export function AppSidebar() {
   const locale = useLocale();
   const isRTL = locale === "he";
 
-  // Shared className for all menu buttons — premium treatment
-  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-150 rounded-md`;
-  const btnActive = `${btnBase} bg-foreground/[0.06] text-foreground font-medium ${isRTL ? "border-r-2 border-r-foreground" : "border-l-2 border-l-foreground"}`;
-  const btnIdle   = `${btnBase} text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]`;
+  // Shared className for all menu buttons — premium charcoal sidebar
+  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200 rounded-[9px] text-[13px] tracking-[-0.01em]`;
+  const btnActive = `${btnBase} bg-white/[0.08] text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.15)]`;
+  const btnIdle   = `${btnBase} text-sidebar-foreground hover:text-white/85 hover:bg-white/[0.05]`;
   const pathname = usePathname();
   const { data: session } = useSession();
   const { state } = useSidebar();
@@ -72,16 +72,16 @@ export function AppSidebar() {
   return (
     <Sidebar side={isRTL ? "right" : "left"} collapsible="icon" dir={isRTL ? "rtl" : "ltr"}>
       {/* ── Logo header ── */}
-      <SidebarHeader className="border-b border-border px-3 py-3">
-        <div className="flex w-full items-center gap-2">
+      <SidebarHeader className="border-b border-sidebar-border/60 px-3 py-4">
+        <div className="flex w-full items-center gap-2.5">
           {/* Logo — expanded */}
-          <Link href="/" className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden select-none">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0">
-              <rect width="32" height="32" rx="8" fill="#2563eb"/>
+          <Link href="/" className="flex items-center gap-2 group-data-[collapsible=icon]:hidden select-none">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 shrink-0">
+              <rect width="32" height="32" rx="8" fill="#3b82f6"/>
               <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
               <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
             </svg>
-            <span className="text-base font-bold tracking-tight text-foreground">Planify</span>
+            <span className="text-[15px] font-extrabold tracking-[-0.03em] text-white/90">Planify</span>
           </Link>
           {/* Logo — collapsed */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">
@@ -136,7 +136,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* ── Footer: billing + sign out ── */}
-      <SidebarFooter className="border-t border-border p-3 space-y-1">
+      <SidebarFooter className="border-t border-sidebar-border/60 p-3 space-y-0.5">
         <SidebarMenuButton
           render={<Link href="/billing" />}
           isActive={pathname.startsWith("/billing")}

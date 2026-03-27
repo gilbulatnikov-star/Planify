@@ -66,7 +66,8 @@ export function MobileBottomNav() {
       <AnimatePresence>
         {moreOpen && (
           <motion.div
-            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl border-t border-border bg-card/95 backdrop-blur-lg pb-[env(safe-area-inset-bottom)] md:hidden max-h-[70vh] flex flex-col"
+            className="fixed left-0 right-0 z-50 rounded-t-2xl border-t border-border bg-card/95 backdrop-blur-lg md:hidden max-h-[60vh] flex flex-col"
+            style={{ bottom: "calc(3rem + env(safe-area-inset-bottom, 0px))" }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -84,7 +85,7 @@ export function MobileBottomNav() {
             </div>
 
             {/* Grid of items */}
-            <div className="grid grid-cols-3 gap-1 p-3 overflow-y-auto flex-1 min-h-0">
+            <div className="grid grid-cols-3 gap-1 p-3 overflow-y-auto flex-1 min-h-0 overscroll-contain">
               {moreItems.map((item) => {
                 const active = isActive(item.href);
                 return (

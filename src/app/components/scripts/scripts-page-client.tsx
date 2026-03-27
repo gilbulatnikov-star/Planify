@@ -90,8 +90,8 @@ export function ScriptsPageClient({
     />
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{he.scripts.title}</h1>
-        <Button onClick={handleCreate} disabled={creating} className="gap-2">
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.scripts.title}</h1>
+        <Button onClick={handleCreate} disabled={creating} className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0 gap-2">
           <Plus className="h-4 w-4" />
           {he.scripts.newScript}
         </Button>
@@ -99,13 +99,13 @@ export function ScriptsPageClient({
 
       {scripts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
-          <div className="mb-4 rounded-full bg-muted p-6">
-            <FileText className="h-10 w-10 text-muted-foreground" />
+          <div className="mb-4 rounded-[14px] bg-foreground/[0.03] p-5 ring-1 ring-border/20">
+            <FileText className="h-8 w-8 text-foreground/30" />
           </div>
-          <h2 className="text-lg font-semibold text-foreground">
+          <h2 className="text-[12.5px] font-semibold text-foreground/40">
             {he.scripts.noScripts}
           </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
+          <p className="mt-1 text-[11px] text-foreground/30">
             {he.scriptEditor.createFirstScriptDesc}
           </p>
           <Button
@@ -123,7 +123,7 @@ export function ScriptsPageClient({
             <div
               key={script.id}
               onClick={() => router.push(`/scripts/${script.id}`)}
-              className="glass-card cursor-pointer rounded-xl border border-border bg-card p-5 transition-all hover:shadow-md"
+              className="glass-card cursor-pointer rounded-[14px] border border-border/40 bg-card p-5 transition-all duration-300 hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)]"
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
@@ -136,7 +136,7 @@ export function ScriptsPageClient({
                 </div>
                 <button
                   onClick={(e) => handleDelete(script.id, e)}
-                  className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
+                  className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -147,12 +147,12 @@ export function ScriptsPageClient({
                   {platformLabels[script.platform] ?? script.platform}
                 </span>
                 {script.client && (
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-600">
+                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-600 dark:bg-blue-950 dark:text-blue-300">
                     {script.client.name}
                   </span>
                 )}
                 {script.project && (
-                  <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs text-purple-600">
+                  <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs text-purple-600 dark:bg-purple-950 dark:text-purple-300">
                     {script.project.title}
                   </span>
                 )}

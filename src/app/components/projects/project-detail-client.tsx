@@ -63,11 +63,11 @@ function LinkItemDropdown({ items, onSelect }: { items: { id: string; title?: st
   const [open, setOpen] = useState(false);
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} className="flex items-center justify-center w-full min-h-[72px] rounded-xl border border-dashed border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground hover:border-muted-foreground/30 transition-colors">
+      <button onClick={() => setOpen(!open)} className="flex items-center justify-center w-full min-h-[72px] rounded-[14px] border border-dashed border-border/40 text-foreground/25 hover:bg-foreground/[0.02] hover:text-foreground/40 hover:border-border/60 transition-colors duration-200">
         <Plus className="h-5 w-5" />
       </button>
       {open && (
-        <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
+        <div className="absolute top-full mt-1 right-0 z-50 rounded-[12px] border border-border/40 bg-card shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] p-1.5 min-w-[180px] max-h-48 overflow-y-auto">
           {items.length === 0 ? (
             <p className="text-xs text-muted-foreground px-2.5 py-2 text-center">{he.common.allLinked}</p>
           ) : (
@@ -185,7 +185,7 @@ export function ProjectDetailClient({
         </button>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{project.title}</h1>
+            <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{project.title}</h1>
             <ClientPicker
               clients={clients}
               currentClientId={project.clientId}
@@ -237,21 +237,21 @@ export function ProjectDetailClient({
 
       {/* ── Tasks ── */}
       <motion.div variants={fadeUp} id="tasks" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <ListTodo className="h-4 w-4" /> {he.common.tasks}
-          {totalTasks > 0 && <span className="text-xs opacity-60">({completedTasks}/{totalTasks})</span>}
+        <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
+          <ListTodo className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} /> {he.common.tasks}
+          {totalTasks > 0 && <span className="text-[9.5px] font-bold text-foreground/30 tabular-nums">({completedTasks}/{totalTasks})</span>}
         </h2>
         {project.tasks.length > 0 && (
           <div className="space-y-1.5">
             {project.tasks.map(task => (
-              <div key={task.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 group/task">
+              <div key={task.id} className="flex items-center gap-3 rounded-[10px] border border-border/40 bg-card px-3.5 py-2.5 group/task hover:bg-foreground/[0.02] transition-colors duration-200">
                 <input
                   type="checkbox"
                   checked={task.completed}
                   onChange={() => { startTransition(async () => { await toggleProjectTask(task.id, !task.completed); router.refresh(); }); }}
-                  className="h-4 w-4 rounded accent-foreground"
+                  className="h-4 w-4 rounded accent-accent"
                 />
-                <span className={`text-sm flex-1 ${task.completed ? "line-through text-muted-foreground" : "text-foreground"}`}>{task.title}</span>
+                <span className={`text-[13px] flex-1 ${task.completed ? "line-through text-foreground/35" : "text-foreground/85 font-medium"}`}>{task.title}</span>
                 <button
                   onClick={() => { startTransition(async () => { await deleteProjectTask(task.id); router.refresh(); }); }}
                   className="opacity-0 group-hover/task:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all"
@@ -284,12 +284,12 @@ export function ProjectDetailClient({
 
       {/* ── Scripts ── */}
       <motion.div variants={fadeUp} id="scripts" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <FileText className="h-4 w-4" /> {he.nav.scripts}
+        <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
+          <FileText className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} /> {he.nav.scripts}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {project.scripts.map(s => (
-            <Card key={s.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
+            <Card key={s.id} className="glass-card hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] transition-all duration-300 group/item">
               <CardContent className="p-4 flex items-start justify-between">
                 <Link href={`/scripts/${s.id}`} className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{s.title}</p>
@@ -307,12 +307,12 @@ export function ProjectDetailClient({
 
       {/* ── Moodboards ── */}
       <motion.div variants={fadeUp} id="moodboards" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <LayoutTemplate className="h-4 w-4" /> Moodboards
+        <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
+          <LayoutTemplate className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} /> Moodboards
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {project.moodboards.map(m => (
-            <Card key={m.id} className="glass-card hover:scale-[1.02] transition-all duration-200 group/item">
+            <Card key={m.id} className="glass-card hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] transition-all duration-300 group/item">
               <CardContent className="p-4 flex items-start justify-between">
                 <Link href={`/moodboard/${m.id}`} className="flex-1 min-w-0">
                   <p className="text-sm font-medium">{m.title}</p>
@@ -330,12 +330,12 @@ export function ProjectDetailClient({
 
       {/* ── Contacts ── */}
       <motion.div variants={fadeUp} id="contacts" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <Contact className="h-4 w-4" /> {he.contacts.title}
+        <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
+          <Contact className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} /> {he.contacts.title}
         </h2>
         <div className="space-y-1.5">
           {project.contacts.map(c => (
-            <div key={c.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2 group/item">
+            <div key={c.id} className="flex items-center gap-3 rounded-[10px] border border-border/40 bg-card px-3.5 py-2.5 group/item hover:bg-foreground/[0.02] transition-colors duration-200">
               <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
                 <span className="text-sm font-medium">{c.name}</span>
                 <Badge className="text-xs bg-muted border-0 text-muted-foreground">
@@ -354,12 +354,12 @@ export function ProjectDetailClient({
 
       {/* ── Calendar ── */}
       <motion.div variants={fadeUp} id="calendar" className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-          <CalendarDays className="h-4 w-4" /> {he.nav.calendar}
+        <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
+          <CalendarDays className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} /> {he.nav.calendar}
         </h2>
         <div className="space-y-2">
           {project.scheduledContent.map(sc => (
-            <div key={sc.id} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-2.5 group/item">
+            <div key={sc.id} className="flex items-center gap-3 rounded-[10px] border border-border/40 bg-card px-3.5 py-2.5 group/item hover:bg-foreground/[0.02] transition-colors duration-200">
               <div className={`h-2.5 w-2.5 rounded-full bg-${sc.color ?? "gray"}-400 shrink-0`} />
               <span className="text-sm flex-1">{sc.title}</span>
               <Badge className={`text-xs border-0 ${statusColors[sc.status] ?? "bg-muted text-muted-foreground"}`}>{he.calendar.statuses[sc.status as keyof typeof he.calendar.statuses] ?? sc.status}</Badge>

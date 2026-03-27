@@ -26,11 +26,11 @@ export default async function DashboardPage() {
   if (!dashboardData) redirect("/login");
 
   return (
-    <div className="space-y-6">
-      <SmartDashboard data={dashboardData} />
+    <div className="space-y-6 max-w-[1100px]">
+      <SmartDashboard data={dashboardData} userName={session.user.name} />
 
       {/* Dashboard Widgets */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         <QuickNotesWidget initialContent={quickNote?.content ?? ""} />
         <TodoWidget initialTodos={todos} todosLimit={todosLimit} />
       </div>

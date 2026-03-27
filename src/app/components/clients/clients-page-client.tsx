@@ -80,8 +80,8 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
   function renderList(filtered: ClientData[]) {
     if (filtered.length === 0) {
       return (
-        <div className="text-center text-muted-foreground py-12 bg-muted/20 rounded-xl border border-dashed border-border">
-          {he.common.noResults}
+        <div className="text-center py-12 rounded-[14px] border border-dashed border-border/40 p-10">
+          <p className="text-[12.5px] font-semibold text-foreground/40">{he.common.noResults}</p>
         </div>
       );
     }
@@ -90,7 +90,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
         {filtered.map((client) => (
           <div
             key={client.id}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 group hover:bg-muted/30 transition-colors cursor-pointer"
+            className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-4 py-3 group hover:bg-foreground/[0.02] transition-colors cursor-pointer"
             onClick={() => handleEdit(client)}
           >
             {/* Avatar circle */}
@@ -155,7 +155,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
       className="space-y-6"
     >
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">
           {he.client.title}
         </h1>
         <Button
@@ -170,9 +170,9 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
 
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {statCards.map((stat) => (
-          <Card key={stat.label} className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-default">
+          <Card key={stat.label} className="glass-card group border-border/40 transition-all duration-300 hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] cursor-default">
             <CardContent className="p-4 flex items-center gap-4">
-              <div className={`rounded-xl bg-gradient-to-br ${stat.color} p-2.5 shadow-lg transition-transform duration-300 group-hover:scale-110`}>
+              <div className={`rounded-xl bg-gradient-to-br ${stat.color} p-2.5 shadow-sm`}>
                 <stat.icon className="h-5 w-5 text-white" />
               </div>
               <div>

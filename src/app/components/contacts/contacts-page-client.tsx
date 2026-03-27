@@ -102,7 +102,7 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
     >
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">
           {he.contacts.title}
         </h1>
         <Button
@@ -148,7 +148,7 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
         {filtered.map((contact) => (
           <div
             key={contact.id}
-            className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 group hover:bg-muted/30 transition-colors cursor-pointer"
+            className="flex items-center gap-3 rounded-xl border border-border/40 bg-card px-4 py-3 group hover:bg-foreground/[0.02] transition-colors cursor-pointer"
             onClick={() => handleEdit(contact)}
           >
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
@@ -178,7 +178,7 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
                 onClick={(e) => { e.stopPropagation(); handleEdit(contact); }}>
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950"
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400"
                 onClick={(e) => { e.stopPropagation(); setDeleteTarget({ id: contact.id, name: contact.name }); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -186,8 +186,8 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
           </div>
         ))}
         {filtered.length === 0 && (
-          <div className="text-center text-muted-foreground py-12 bg-muted/20 rounded-xl border border-dashed border-border">
-            {he.common.noResults}
+          <div className="rounded-[14px] border border-dashed border-border/40 p-10 text-center">
+            <span className="text-[12.5px] font-semibold text-foreground/40">{he.common.noResults}</span>
           </div>
         )}
       </motion.div>

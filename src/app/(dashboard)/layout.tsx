@@ -33,7 +33,7 @@ export default async function DashboardLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-border px-6 bg-background/80 backdrop-blur-sm">
+          <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-border/50 px-6 bg-background/85 backdrop-blur-md">
             <SidebarTrigger className="-me-2 text-muted-foreground hover:text-foreground transition-colors duration-200" />
             <div className="flex items-center gap-2">
               <NotificationBell

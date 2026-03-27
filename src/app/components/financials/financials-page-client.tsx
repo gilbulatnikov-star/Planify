@@ -59,17 +59,17 @@ import { DatePicker } from "@/components/ui/date-picker";
 
 const invoiceStatusStyles: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-0",
-  sent: "bg-cyan-50 text-cyan-700 border-0",
-  paid: "bg-emerald-50 text-emerald-700 border-0",
-  overdue: "bg-red-50 text-red-700 border-0",
+  sent: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300 border-0",
+  paid: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0",
+  overdue: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border-0",
   cancelled: "bg-muted text-muted-foreground border-0",
 };
 
 const quoteStatusStyles: Record<string, string> = {
   draft: "bg-muted text-muted-foreground border-0",
-  sent: "bg-cyan-50 text-cyan-700 border-0",
-  accepted: "bg-emerald-50 text-emerald-700 border-0",
-  declined: "bg-red-50 text-red-700 border-0",
+  sent: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300 border-0",
+  accepted: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0",
+  declined: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border-0",
 };
 
 type ExpenseData = {
@@ -349,7 +349,7 @@ export function FinancialsPageClient({
         variants={fadeUp}
         className="flex items-center justify-between"
       >
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">
           {he.financial.title}
         </h1>
         <Button
@@ -367,7 +367,7 @@ export function FinancialsPageClient({
         <div className="flex items-center gap-2 justify-center flex-wrap">
 
           {/* Month nav bar */}
-          <div className="relative flex items-center gap-1 bg-background border border-border rounded-2xl px-3 py-2 shadow-sm" dir="rtl">
+          <div className="relative flex items-center gap-1 bg-background border border-border/40 rounded-2xl px-3 py-2 shadow-sm" dir="rtl">
             {/* RTL: right = older, left = newer */}
             <button
               onClick={goPrev}
@@ -379,7 +379,7 @@ export function FinancialsPageClient({
 
             <div className="text-sm font-bold text-foreground min-w-[130px] text-center select-none">
               {hasDateFilter ? (
-                <span className="text-violet-700">{he.financialPage.dateFilter}</span>
+                <span className="text-foreground">{he.financialPage.dateFilter}</span>
               ) : (
                 `${MONTH_NAMES[selectedMonth]} ${selectedYear}`
               )}
@@ -394,7 +394,7 @@ export function FinancialsPageClient({
             </button>
 
             {/* Calendar picker button */}
-            <div className="w-px h-5 bg-gray-200 mx-1" />
+            <div className="w-px h-5 bg-border/40 mx-1" />
             <button
               onClick={() => { setPickerOpen(v => !v); setPickerYear(selectedYear); }}
               className="flex h-8 w-8 items-center justify-center rounded-xl hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -447,7 +447,7 @@ export function FinancialsPageClient({
             onClick={() => setDateFilterOpen(v => !v)}
             className={`flex items-center gap-2 h-[44px] px-4 rounded-2xl border text-sm font-medium transition-all shadow-sm ${
               hasDateFilter
-                ? "bg-violet-600 text-white border-violet-600"
+                ? "bg-foreground text-background border-foreground"
                 : "bg-background border-border text-muted-foreground hover:text-foreground hover:bg-muted"
             }`}
           >
@@ -499,11 +499,11 @@ export function FinancialsPageClient({
         {statCards.map((stat) => (
           <Card
             key={stat.label}
-            className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-default"
+            className="glass-card group transition-all duration-300 cursor-default"
           >
             <CardContent className="p-4 flex items-center gap-4">
               <div
-                className={`rounded-xl bg-gradient-to-br ${stat.color} p-2.5 shadow-lg transition-transform duration-300 group-hover:scale-110`}
+                className={`rounded-xl bg-gradient-to-br ${stat.color} p-2.5 shadow-sm transition-transform duration-300`}
               >
                 <stat.icon className="h-5 w-5 text-white" />
               </div>
@@ -991,7 +991,7 @@ export function FinancialsPageClient({
                             {formatDate(sub.nextBillingDate)}
                           </TableCell>
                           <TableCell>
-                            <Badge className={sub.status === "active" ? "bg-emerald-50 text-emerald-700 border-0" : "bg-muted text-muted-foreground border-0"}>
+                            <Badge className={sub.status === "active" ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0" : "bg-muted text-muted-foreground border-0"}>
                               {sub.status === "active" ? he.subscriptions.statuses.active : he.subscriptions.statuses.cancelled}
                             </Badge>
                           </TableCell>
@@ -1000,7 +1000,7 @@ export function FinancialsPageClient({
                     })}
                     {subscriptions.length === 0 && (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                        <TableCell colSpan={5} className="text-center text-foreground/40 py-8">
                           {he.financialPage.noFixedExpenses}
                         </TableCell>
                       </TableRow>

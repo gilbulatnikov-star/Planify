@@ -210,7 +210,7 @@ export function CalendarPageClient({
         </motion.div>
       )}
       <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2 justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{boardTitle ?? he.calendar.title}</h1>
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{boardTitle ?? he.calendar.title}</h1>
 
         <div className="flex flex-wrap items-center gap-2">
           {/* Client selector */}
@@ -218,7 +218,7 @@ export function CalendarPageClient({
             {clientMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setClientMenuOpen(false)} />}
             <button
               onClick={() => setClientMenuOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg border border-border/40 bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
             >
               {isIsolated
                 ? <><User className="h-3.5 w-3.5 text-muted-foreground" /><span className="hidden sm:inline">{selectedClientName}</span></>
@@ -227,14 +227,14 @@ export function CalendarPageClient({
               <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
             {clientMenuOpen && (
-              <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-border bg-popover py-1.5 shadow-xl">
+              <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border border-border/40 bg-popover py-1.5 shadow-xl">
                 <button
                   onClick={() => { handleClientSwitch(null); setClientMenuOpen(false); }}
                   className={`flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted ${!isIsolated ? "font-semibold text-foreground" : "text-muted-foreground"}`}
                 >
                   <Globe className="h-3.5 w-3.5 text-muted-foreground" />{he.common.allClients}
                 </button>
-                {clients.length > 0 && <div className="mx-3 my-1 border-t border-border" />}
+                {clients.length > 0 && <div className="mx-3 my-1 border-t border-border/40" />}
                 {clients.map((client) => (
                   <button
                     key={client.id}
@@ -252,7 +252,7 @@ export function CalendarPageClient({
           <div className="relative">
             <button
               onClick={() => setCalendarPopoverOpen((v) => !v)}
-              className="flex items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
+              className="flex items-center gap-1.5 rounded-lg border border-border/40 bg-background px-3 py-2 text-sm text-foreground hover:bg-muted transition-colors shadow-sm"
             >
               <CalendarPlus className="h-4 w-4 text-blue-500" />
               <span className="hidden sm:inline">{he.calendarPage.addToGCal}</span>
@@ -261,12 +261,12 @@ export function CalendarPageClient({
             {calendarPopoverOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setCalendarPopoverOpen(false)} />
-                <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-border bg-popover shadow-lg overflow-hidden">
-                  <div className="px-3 py-2 border-b border-border">
+                <div className="absolute left-0 top-full z-50 mt-1 w-72 rounded-xl border border-border/40 bg-popover shadow-lg overflow-hidden">
+                  <div className="px-3 py-2 border-b border-border/40">
                     <p className="text-xs font-semibold text-muted-foreground">{he.calendarPage.selectEventForGCal}</p>
                   </div>
                   {visibleItems.length === 0 ? (
-                    <p className="px-3 py-3 text-xs text-muted-foreground">{he.calendarPage.noEventsInView}</p>
+                    <p className="px-3 py-3 text-xs text-foreground/40">{he.calendarPage.noEventsInView}</p>
                   ) : (
                     <div className="max-h-64 overflow-y-auto py-1">
                       {visibleItems.map((item) => (
@@ -331,7 +331,7 @@ export function CalendarPageClient({
             <div className="overflow-x-auto">
               <div className="min-w-[700px]">
                 {/* Day headers */}
-                <div className="grid grid-cols-7 border-b border-border">
+                <div className="grid grid-cols-7 border-b border-border/40">
                   {dayNames.map((name) => (
                     <div key={name} className="py-2.5 text-center text-xs font-semibold text-muted-foreground">
                       {name}
@@ -341,7 +341,7 @@ export function CalendarPageClient({
 
                 {/* Weeks */}
                 {weeks.map((week, wi) => (
-                  <div key={wi} className="grid grid-cols-7 border-b border-border last:border-0">
+                  <div key={wi} className="grid grid-cols-7 border-b border-border/40 last:border-0">
                     {week.map((day, di) => {
                       const dayContent = getContentForDay(day);
                       const inMonth = isSameMonth(day, currentMonth);
@@ -351,7 +351,7 @@ export function CalendarPageClient({
                         <div
                           key={di}
                           onClick={() => handleDayClick(day)}
-                          className={`min-h-[90px] p-1.5 border-l border-border first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${!inMonth ? "opacity-30" : ""}`}
+                          className={`min-h-[90px] p-1.5 border-l border-border/40 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${!inMonth ? "opacity-30" : ""}`}
                         >
                           {/* Day number */}
                           <div className="flex items-center justify-between mb-1">

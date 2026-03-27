@@ -88,7 +88,7 @@ export function ProjectsPageClient({
 
       {/* Header */}
       <motion.div variants={fadeUp} className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">{he.project.title}</h1>
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.project.title}</h1>
         <Button
           size="sm"
           onClick={handleCreate}
@@ -133,7 +133,7 @@ export function ProjectsPageClient({
 
             return (
               <Link key={project.id} href={`/projects/${project.id}`} className="block">
-              <Card className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+              <Card className="glass-card group border-border/40 transition-all duration-300 hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] cursor-pointer">
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
                     <div className="flex-1 min-w-0">
@@ -206,14 +206,14 @@ export function ProjectsPageClient({
 
                   {/* Task progress bar */}
                   {totalTasks > 0 && (
-                    <div className="space-y-1">
-                      <div className="h-1.5 rounded-full bg-muted">
+                    <div className="space-y-1.5">
+                      <div className="h-[3px] rounded-full bg-foreground/[0.06]">
                         <div
-                          className="h-full rounded-full bg-[#2563eb] transition-all duration-500"
+                          className="h-full rounded-full bg-accent/70 transition-all duration-500"
                           style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
                         />
                       </div>
-                      <p className="text-xs text-muted-foreground text-end">
+                      <p className="text-[10px] text-foreground/35 font-medium text-end tabular-nums">
                         {completedTasks}/{totalTasks} {(he.common as Record<string, string>).tasksCompleted ?? "משימות הושלמו"}
                       </p>
                     </div>
@@ -225,9 +225,9 @@ export function ProjectsPageClient({
           })}
         </motion.div>
       ) : (
-        <motion.div variants={fadeUp} className="rounded-xl border border-dashed border-border p-12 text-center">
-          <p className="text-sm text-muted-foreground">{he.common.noProjectsYet}</p>
-          <p className="text-xs text-muted-foreground mt-1">{he.common.clickNewProject}</p>
+        <motion.div variants={fadeUp} className="rounded-[14px] border border-dashed border-border/40 p-10 text-center">
+          <p className="text-[12.5px] font-semibold text-foreground/40">{he.common.noProjectsYet}</p>
+          <p className="text-[11px] text-foreground/30 mt-1">{he.common.clickNewProject}</p>
         </motion.div>
       )}
 

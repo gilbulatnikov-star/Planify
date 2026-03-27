@@ -41,23 +41,23 @@ export default function SignInPage() {
     <div className="w-full max-w-md">
       {/* Logo */}
       <div className="text-center mb-8">
-        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0a0a0a] shadow-lg mb-4">
+        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground shadow-lg mb-4">
           <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-10">
             <rect x="3" y="3" width="30" height="30" rx="9" fill="#0a0a0a"/>
             <rect x="9" y="8" width="18" height="12" rx="5" fill="white"/>
             <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#2563eb" transform="rotate(-15 24 25)"/>
           </svg>
         </div>
-        <h1 className="text-2xl font-bold text-foreground">{he.auth.welcomeBack}</h1>
+        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.auth.welcomeBack}</h1>
         <p className="text-sm text-muted-foreground mt-1">{he.auth.signInSubtitle}</p>
       </div>
 
       {/* Card */}
-      <div className="bg-card rounded-2xl shadow-sm border border-border p-6 sm:p-8">
+      <div className="bg-card rounded-[16px] shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] border border-border/40 p-6 sm:p-8">
         <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
           {/* Error */}
           {error && (
-            <div className="flex items-center gap-2.5 rounded-xl bg-red-50 border border-red-100 px-4 py-3 text-sm text-red-600">
+            <div className="flex items-center gap-2.5 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/30 px-4 py-3 text-sm text-red-600 dark:text-red-400">
               <AlertCircle className="h-4 w-4 shrink-0" />
               {error}
             </div>
@@ -73,7 +73,7 @@ export default function SignInPage() {
               placeholder="you@example.com"
               required
               dir="ltr"
-              className="w-full h-11 rounded-xl border border-border bg-muted px-4 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
+              className="w-full h-11 rounded-[10px] border border-border bg-muted px-4 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
             />
           </div>
 
@@ -88,7 +88,7 @@ export default function SignInPage() {
                 placeholder="••••••••"
                 required
                 dir="ltr"
-                className="w-full h-11 rounded-xl border border-border bg-muted px-4 pl-11 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
+                className="w-full h-11 rounded-[10px] border border-border bg-muted px-4 pl-11 text-sm outline-none transition-all focus:border-foreground focus:bg-background focus:ring-2 focus:ring-ring placeholder:text-muted-foreground"
               />
               <button
                 type="button"
@@ -104,7 +104,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-11 rounded-xl bg-foreground text-background text-sm font-semibold transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full h-11 rounded-[10px] bg-foreground text-background text-sm font-semibold transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {loading ? (
               <>
@@ -130,7 +130,7 @@ export default function SignInPage() {
           <button
             type="button"
             onClick={() => signIn("google", { callbackUrl: "/" })}
-            className="w-full h-11 rounded-xl border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-muted transition-colors flex items-center justify-center gap-2"
+            className="w-full h-11 rounded-[10px] border border-border bg-card text-sm font-medium text-muted-foreground hover:bg-muted transition-colors flex items-center justify-center gap-2"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
