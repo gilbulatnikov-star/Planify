@@ -28,6 +28,7 @@ import {
   Download,
   CalendarPlus,
   ChevronDown,
+  Search,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -112,6 +113,7 @@ export function CalendarPageClient({
   const [exportStudioOpen, setExportStudioOpen] = useState(false);
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
   const [clientMenuOpen, setClientMenuOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const isIsolated = !!selectedClientId;
   const selectedClientName = selectedClientId
@@ -169,7 +171,11 @@ export function CalendarPageClient({
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${fmt(d)}/${fmt(end)}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
   }
 
-  const visibleItems = content.filter((item) => !selectedClientId || item.clientId === selectedClientId);
+  const visibleItems = content.filter((item) => {
+    if (selectedClientId && item.clientId !== selectedClientId) return false;
+    if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
 
   // Calendar grid
   const monthStart = startOfMonth(currentMonth);
@@ -188,6 +194,7 @@ export function CalendarPageClient({
     return content.filter((item) => {
       if (!isSameDay(new Date(item.date), day)) return false;
       if (selectedClientId && item.clientId !== selectedClientId) return false;
+      if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
       return true;
     });
   }
@@ -308,6 +315,18 @@ export function CalendarPageClient({
             <span className="hidden sm:inline">{he.calendar.newContent}</span>
             <span className="sm:hidden">{he.calendarPage.newShort}</span>
           </Button>
+        </div>
+      </motion.div>
+
+      <motion.div variants={fadeUp}>
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <input
+            placeholder="חיפוש אירועים..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-[10px] border border-border/40 bg-card px-4 py-2.5 pe-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          />
         </div>
       </motion.div>
 

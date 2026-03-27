@@ -5,8 +5,10 @@ import Link from "next/link";
 import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
   AlertTriangle, CalendarDays, Plus, Clock, ChevronLeft,
-  ArrowUpRight, Sparkles, TrendingUp,
+  ArrowUpRight, Sparkles, TrendingUp, Search,
 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { getPhaseLabel } from "@/lib/project-config";
@@ -97,8 +99,33 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
     { label: "פרויקט חדש", href: "/projects", icon: FolderKanban },
     { label: "לקוח חדש", href: "/clients", icon: Users },
     { label: "משימה חדשה", href: "/tasks", icon: CheckSquare },
-    { label: "חשבונית חדשה", href: "/financials", icon: FileText },
+    { label: "מסמך חדש", href: "/financials", icon: FileText },
   ];
+
+  // ── Global search ──
+  const router = useRouter();
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  const searchTargets = [
+    ...recentProjects.map(p => ({ label: p.title, sub: p.clientName || "פרויקט", href: `/projects/${p.id}`, icon: FolderKanban })),
+    ...todayContent.map(c => ({ label: c.title, sub: "לוח תוכן", href: "/calendar", icon: CalendarDays })),
+    ...(thisWeek.deadlines ?? []).map(d => ({ label: d.title, sub: "דדליין", href: `/projects/${d.id}`, icon: Clock })),
+  ];
+
+  const filteredSearch = globalSearch.trim()
+    ? searchTargets.filter(s => s.label.toLowerCase().includes(globalSearch.toLowerCase()))
+    : [];
+
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchFocused(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   return (
     <motion.div className="space-y-6 max-w-[1100px]" variants={stagger} initial="hidden" animate="show">
@@ -111,6 +138,45 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
           {getGreeting()}{firstName ? `, ${firstName}` : ""}
         </h1>
         <p className="text-[12.5px] text-muted-foreground/55 mt-1.5 tracking-[-0.005em] font-medium">הנה סיכום יום העבודה שלך</p>
+      </motion.div>
+
+      {/* ══════════════════════════════════════════════════════
+         GLOBAL SEARCH
+         ══════════════════════════════════════════════════════ */}
+      <motion.div variants={fade} ref={searchRef} className="relative">
+        <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30 pointer-events-none z-10" />
+        <input
+          placeholder="חיפוש בכל המערכת — פרויקטים, לקוחות, משימות..."
+          value={globalSearch}
+          onChange={(e) => { setGlobalSearch(e.target.value); setSearchFocused(true); }}
+          onFocus={() => setSearchFocused(true)}
+          className="w-full rounded-[12px] border border-border/40 bg-card px-4 py-3 pe-12 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200"
+        />
+        {searchFocused && filteredSearch.length > 0 && (
+          <div className="absolute inset-x-0 top-full mt-1.5 rounded-[12px] border border-border/40 bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)] z-50 overflow-hidden max-h-[280px] overflow-y-auto">
+            {filteredSearch.map((item, i) => (
+              <Link
+                key={`${item.href}-${i}`}
+                href={item.href}
+                onClick={() => { setGlobalSearch(""); setSearchFocused(false); }}
+                className="flex items-center gap-3 px-4 py-2.5 hover:bg-foreground/[0.03] transition-colors duration-150 group"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-foreground/[0.04] group-hover:bg-accent/10 transition-colors shrink-0">
+                  <item.icon className="h-3.5 w-3.5 text-foreground/30 group-hover:text-accent transition-colors" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-[12.5px] font-semibold text-foreground/85 block truncate">{item.label}</span>
+                  <span className="text-[10px] text-foreground/35">{item.sub}</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+        {searchFocused && globalSearch.trim() && filteredSearch.length === 0 && (
+          <div className="absolute inset-x-0 top-full mt-1.5 rounded-[12px] border border-border/40 bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)] z-50 p-6 text-center">
+            <p className="text-[12px] text-foreground/35 font-medium">לא נמצאו תוצאות</p>
+          </div>
+        )}
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════

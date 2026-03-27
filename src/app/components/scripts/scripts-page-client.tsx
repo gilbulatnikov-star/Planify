@@ -12,6 +12,7 @@ import {
   Podcast,
   Tv,
   Megaphone,
+  Search,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createScript, deleteScript } from "@/lib/actions/script-actions";
@@ -57,6 +58,7 @@ export function ScriptsPageClient({
   const he = useT();
   const [creating, setCreating] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   async function handleCreate() {
     if (planLimit !== -1 && scripts.length >= planLimit) {
@@ -97,6 +99,16 @@ export function ScriptsPageClient({
         </Button>
       </div>
 
+      <div className="relative">
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+        <input
+          placeholder="חיפוש תסריטים..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-[10px] border border-border/40 bg-card px-4 py-2.5 pe-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+        />
+      </div>
+
       {scripts.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <div className="mb-4 rounded-[14px] bg-foreground/[0.03] p-5 ring-1 ring-border/20">
@@ -119,7 +131,7 @@ export function ScriptsPageClient({
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {scripts.map((script) => (
+          {scripts.filter((script) => script.title.toLowerCase().includes(search.toLowerCase())).map((script) => (
             <div
               key={script.id}
               onClick={() => router.push(`/scripts/${script.id}`)}

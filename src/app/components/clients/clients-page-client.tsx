@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, Users, UserPlus } from "lucide-react";
+import { Plus, Pencil, Trash2, Users, UserPlus, Search } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,9 +54,21 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
   const [editingClient, setEditingClient] = useState<ClientData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
-  const activeClients = clients.filter((c) => c.isActive);
-  const inactiveClients = clients.filter((c) => !c.isActive);
+  const searchLower = search.toLowerCase();
+  const filtered = clients.filter((c) => {
+    if (!search) return true;
+    return (
+      c.name.toLowerCase().includes(searchLower) ||
+      (c.email && c.email.toLowerCase().includes(searchLower)) ||
+      (c.phone && c.phone.toLowerCase().includes(searchLower)) ||
+      (c.company && c.company.toLowerCase().includes(searchLower))
+    );
+  });
+
+  const activeClients = filtered.filter((c) => c.isActive);
+  const inactiveClients = filtered.filter((c) => !c.isActive);
 
   function handleEdit(client: ClientData) {
     setEditingClient(client);
@@ -168,6 +180,18 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
         </Button>
       </motion.div>
 
+      <motion.div variants={fadeUp}>
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <input
+            placeholder="חיפוש לקוחות..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-[10px] border border-border/40 bg-card px-4 py-2.5 pe-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          />
+        </div>
+      </motion.div>
+
       <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {statCards.map((stat) => (
           <Card key={stat.label} className="glass-card group border-border/40 transition-all duration-300 hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] cursor-default">
@@ -188,7 +212,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
         <Tabs defaultValue="all" dir="rtl">
           <TabsList className="bg-muted border border-border">
             <TabsTrigger value="all" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
-              {he.common.all} ({clients.length})
+              {he.common.all} ({filtered.length})
             </TabsTrigger>
             <TabsTrigger value="active" className="data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200">
               {he.common.active} ({activeClients.length})
@@ -197,7 +221,7 @@ export function ClientsPageClient({ clients, planLimit }: { clients: ClientData[
               {he.common.inactive} ({inactiveClients.length})
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="all">{renderList(clients)}</TabsContent>
+          <TabsContent value="all">{renderList(filtered)}</TabsContent>
           <TabsContent value="active">{renderList(activeClients)}</TabsContent>
           <TabsContent value="inactive">{renderList(inactiveClients)}</TabsContent>
         </Tabs>

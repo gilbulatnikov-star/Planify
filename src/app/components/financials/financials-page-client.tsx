@@ -20,6 +20,7 @@ import {
   CalendarDays,
   SlidersHorizontal,
   X,
+  Search,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -188,6 +189,9 @@ export function FinancialsPageClient({
   const [pickerYear, setPickerYear]       = useState(now.getFullYear());
   const pickerRef = useRef<HTMLDivElement>(null);
 
+  // Search
+  const [search, setSearch] = useState("");
+
   // Date range filter
   const [dateFilterOpen, setDateFilterOpen] = useState(false);
   const [dateFrom, setDateFrom] = useState("");
@@ -263,9 +267,36 @@ export function FinancialsPageClient({
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
 
   // Filter all data
-  const filteredInvoices = invoices.filter((i) => matchesFilter(i.dueDate));
-  const filteredQuotes   = quotes.filter((q)   => matchesFilter(q.validUntil));
-  const filteredExpenses = expenses.filter((e)  => matchesFilter(e.date));
+  const searchLower = search.toLowerCase();
+  const filteredInvoices = invoices.filter((i) => {
+    if (!matchesFilter(i.dueDate)) return false;
+    if (!search) return true;
+    return (
+      (i.client?.name ?? "").toLowerCase().includes(searchLower) ||
+      (i.notes ?? "").toLowerCase().includes(searchLower) ||
+      i.invoiceNumber.toLowerCase().includes(searchLower) ||
+      String(i.total).includes(search)
+    );
+  });
+  const filteredQuotes = quotes.filter((q) => {
+    if (!matchesFilter(q.validUntil)) return false;
+    if (!search) return true;
+    return (
+      q.client.name.toLowerCase().includes(searchLower) ||
+      (q.notes ?? "").toLowerCase().includes(searchLower) ||
+      q.quoteNumber.toLowerCase().includes(searchLower) ||
+      String(q.total).includes(search)
+    );
+  });
+  const filteredExpenses = expenses.filter((e) => {
+    if (!matchesFilter(e.date)) return false;
+    if (!search) return true;
+    return (
+      e.description.toLowerCase().includes(searchLower) ||
+      (e.vendor ?? "").toLowerCase().includes(searchLower) ||
+      String(e.amount).includes(search)
+    );
+  });
 
   const totalRevenue = filteredInvoices
     .filter((i) => i.status === "paid")
@@ -349,9 +380,12 @@ export function FinancialsPageClient({
         variants={fadeUp}
         className="flex items-center justify-between"
       >
-        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">
-          {he.financial.title}
-        </h1>
+        <div>
+          <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">
+            {he.financial.title}
+          </h1>
+          <p className="text-[11.5px] text-foreground/40 mt-0.5">סריקה ומעקב מסמכים פיננסיים — לא ליצירת חשבוניות</p>
+        </div>
         <Button
           size="sm"
           onClick={() => setUploadDialogOpen(true)}
@@ -360,6 +394,19 @@ export function FinancialsPageClient({
           <Upload className="h-4 w-4 me-2" />
           {he.financialPage.uploadDocument}
         </Button>
+      </motion.div>
+
+      {/* Search bar */}
+      <motion.div variants={fadeUp}>
+        <div className="relative">
+          <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <input
+            placeholder="חיפוש מסמכים..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-[10px] border border-border/40 bg-card px-4 py-2.5 pe-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          />
+        </div>
       </motion.div>
 
       {/* Month navigator + filters */}

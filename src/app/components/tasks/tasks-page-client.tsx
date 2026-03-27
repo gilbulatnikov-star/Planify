@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CheckSquare, Trash2, Plus, ListTodo, Lock, Crown, Sparkles } from "lucide-react";
+import { CheckSquare, Trash2, Plus, ListTodo, Lock, Crown, Sparkles, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
@@ -35,6 +35,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
   const [newTask, setNewTask] = useState("");
   const [filter, setFilter] = useState<"all" | "active" | "done">("all");
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [search, setSearch] = useState("");
 
   const isFree = todosLimit !== -1;
   const atLimit = isFree && initialTodos.length >= todosLimit;
@@ -45,8 +46,9 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
   });
 
   const filtered = sortedTodos.filter((t) => {
-    if (filter === "active") return !t.completed;
-    if (filter === "done") return t.completed;
+    if (filter === "active" && t.completed) return false;
+    if (filter === "done" && !t.completed) return false;
+    if (search && !t.text.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -102,6 +104,16 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
             {activeCount} {he.tasks.activeCount} · {doneCount} {he.tasks.doneCount}
           </p>
         </div>
+      </div>
+
+      <div className="relative">
+        <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+        <input
+          placeholder="חיפוש משימות..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-[10px] border border-border/40 bg-card px-4 py-2.5 pe-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+        />
       </div>
 
       {/* Add task */}
