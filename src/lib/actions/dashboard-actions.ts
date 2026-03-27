@@ -27,10 +27,17 @@ export type SmartDashboardData = {
     status: string;
     color: string;
   }[];
-  charts: {
-    timeline: { week: string; count: number }[];
-    bySource: { source: string; count: number }[];
+  thisWeek: {
+    deadlines: { id: string; title: string; deadline: Date }[];
+    tasks: { id: string; title: string; completed: boolean; projectTitle: string | null }[];
   };
+  recentProjects: {
+    id: string;
+    title: string;
+    phase: string;
+    clientName: string | null;
+    updatedAt: Date;
+  }[];
 };
 
 export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
@@ -42,6 +49,8 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today.getTime() + 86400000);
 
+  const weekEnd = new Date(today.getTime() + 7 * 86400000);
+
   const [
     activeClients,
     activeProjects,
@@ -50,111 +59,62 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     monthRevenue,
     openInvoices,
     openQuotes,
-    urgentItems,
+    approachingDeadlines,
+    overdueInvoices,
     todayContent,
-    recentLeadTimeline,
+    weekDeadlines,
+    weekTasks,
+    recentProjects,
   ] = await Promise.all([
-    // Active clients
-    prisma.client.count({
-      where: { userId, isActive: true },
-    }),
-    // Active projects
-    prisma.project.count({
-      where: { userId, phase: { notIn: ["done", "delivered"] } },
-    }),
-    // Completed tasks
-    prisma.task.count({
-      where: { project: { userId }, completed: true },
-    }),
-    // Total tasks
-    prisma.task.count({
-      where: { project: { userId } },
-    }),
-    // This month's revenue (paid invoices)
+    prisma.client.count({ where: { userId, isActive: true } }),
+    prisma.project.count({ where: { userId, phase: { notIn: ["done", "delivered"] } } }),
+    prisma.task.count({ where: { project: { userId }, completed: true } }),
+    prisma.task.count({ where: { project: { userId } } }),
     prisma.invoice.aggregate({
-      where: {
-        userId,
-        status: "paid",
-        paidAt: {
-          gte: new Date(now.getFullYear(), now.getMonth(), 1),
-        },
-      },
+      where: { userId, status: "paid", paidAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) } },
       _sum: { total: true },
     }),
-    // Open invoices count
-    prisma.invoice.count({
-      where: { userId, status: { in: ["sent", "overdue"] } },
+    prisma.invoice.count({ where: { userId, status: { in: ["sent", "overdue"] } } }),
+    prisma.quote.count({ where: { userId, status: { in: ["draft", "sent"] } } }),
+    // Approaching deadlines (next 48h)
+    prisma.project.findMany({
+      where: { userId, deadline: { gte: today, lte: new Date(now.getTime() + 48 * 3600000) }, phase: { notIn: ["done", "delivered"] } },
+      select: { id: true, title: true, deadline: true },
+      take: 5,
     }),
-    // Open quotes
-    prisma.quote.count({
-      where: { userId, status: { in: ["draft", "sent"] } },
+    // Overdue invoices
+    prisma.invoice.findMany({
+      where: { userId, status: "overdue" },
+      select: { id: true, invoiceNumber: true, total: true, dueDate: true },
+      take: 5,
     }),
-    // Urgent items
-    Promise.all([
-      // (placeholder for index alignment)
-      Promise.resolve([]),
-      // Projects with deadline in next 48 hours
-      prisma.project.findMany({
-        where: {
-          userId,
-          deadline: {
-            gte: today,
-            lte: new Date(now.getTime() + 48 * 3600000),
-          },
-          phase: { notIn: ["done", "delivered"] },
-        },
-        select: { id: true, title: true, deadline: true },
-        take: 5,
-      }),
-      // Overdue invoices
-      prisma.invoice.findMany({
-        where: { userId, status: "overdue" },
-        select: { id: true, invoiceNumber: true, total: true, dueDate: true },
-        take: 5,
-      }),
-    ]),
-    // Today's scheduled content
+    // Today's content
     prisma.scheduledContent.findMany({
       where: { userId, date: { gte: today, lt: tomorrow } },
       select: { id: true, title: true, status: true, color: true },
     }),
-    // Project timeline (last 12 weeks for chart)
+    // This week's deadlines
     prisma.project.findMany({
-      where: {
-        userId,
-        createdAt: {
-          gte: new Date(now.getTime() - 12 * 7 * 86400000),
-        },
-      },
-      select: { createdAt: true, projectType: true },
+      where: { userId, deadline: { gte: today, lt: weekEnd }, phase: { notIn: ["done", "delivered"] } },
+      select: { id: true, title: true, deadline: true },
+      orderBy: { deadline: "asc" },
+      take: 8,
+    }),
+    // This week's incomplete tasks
+    prisma.task.findMany({
+      where: { project: { userId }, completed: false },
+      select: { id: true, title: true, completed: true, project: { select: { title: true } } },
+      orderBy: { createdAt: "asc" },
+      take: 8,
+    }),
+    // Recent projects
+    prisma.project.findMany({
+      where: { userId },
+      select: { id: true, title: true, phase: true, client: { select: { name: true } }, updatedAt: true },
+      orderBy: { updatedAt: "desc" },
+      take: 5,
     }),
   ]);
-
-  // Build weekly project timeline
-  const timeline: { week: string; count: number }[] = [];
-  for (let i = 11; i >= 0; i--) {
-    const weekStart = new Date(now.getTime() - (i + 1) * 7 * 86400000);
-    const weekEnd = new Date(now.getTime() - i * 7 * 86400000);
-    const count = recentLeadTimeline.filter((p) => {
-      const d = new Date(p.createdAt);
-      return d >= weekStart && d < weekEnd;
-    }).length;
-    timeline.push({
-      week: `${weekStart.getDate()}/${weekStart.getMonth() + 1}`,
-      count,
-    });
-  }
-
-  // Project type distribution
-  const sourceMap: Record<string, number> = {};
-  recentLeadTimeline.forEach((p) => {
-    const src = p.projectType || "other";
-    sourceMap[src] = (sourceMap[src] || 0) + 1;
-  });
-  const bySource = Object.entries(sourceMap).map(([source, count]) => ({
-    source,
-    count,
-  }));
 
   return {
     kpis: {
@@ -165,11 +125,14 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       openInvoices,
       openQuotes,
     },
-    urgent: {
-      approachingDeadlines: urgentItems[1],
-      overdueInvoices: urgentItems[2],
-    },
+    urgent: { approachingDeadlines, overdueInvoices },
     todayContent,
-    charts: { timeline, bySource },
+    thisWeek: {
+      deadlines: weekDeadlines.filter(p => p.deadline !== null) as { id: string; title: string; deadline: Date }[],
+      tasks: weekTasks.map(t => ({ id: t.id, title: t.title, completed: t.completed, projectTitle: t.project.title })),
+    },
+    recentProjects: recentProjects.map(p => ({
+      id: p.id, title: p.title, phase: p.phase, clientName: p.client?.name ?? null, updatedAt: p.updatedAt,
+    })),
   };
 }
