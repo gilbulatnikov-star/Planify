@@ -1625,6 +1625,8 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
           }}
           onMouseDown={onCanvasMouseDown} onWheel={onWheel}
           onTouchStart={(e) => {
+            // Only pan when touching the canvas background directly, not nodes
+            if (e.target !== e.currentTarget && (e.target as HTMLElement).closest('[data-node]')) return;
             if (e.touches.length === 1 && !drawMode) {
               const t = e.touches[0];
               (canvasRef.current as any).__touchStart = { x: t.clientX - pan.x, y: t.clientY - pan.y };
@@ -1632,6 +1634,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
           }}
           onTouchMove={(e) => {
             if (e.touches.length === 1 && !drawMode && (canvasRef.current as any).__touchStart) {
+              e.preventDefault();
               const t = e.touches[0];
               const start = (canvasRef.current as any).__touchStart;
               setPan({ x: t.clientX - start.x, y: t.clientY - start.y });
@@ -1660,7 +1663,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
 
             {/* Regular nodes — skip draw-layer node (rendered separately above) */}
             {nodes.filter(n => n.data._drawLayer !== "true").map(node => (
-              <div key={node.id} style={{ position: "absolute", left: node.x, top: node.y, pointerEvents: drawMode ? "none" : "auto" }}>
+              <div key={node.id} data-node="true" style={{ position: "absolute", left: node.x, top: node.y, pointerEvents: drawMode ? "none" : "auto" }}>
                 <DraggableNode node={node} zoom={zoom}
                   selected={selectedId === node.id || multiSel.has(node.id)}
                   onSelect={(addToSelection) => {
