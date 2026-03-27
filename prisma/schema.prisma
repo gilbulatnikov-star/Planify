@@ -58,6 +58,7 @@ model User {
   notifications        Notification[]
   automationRules      AutomationRule[]
   shareLinks           ShareLink[]
+  projectFiles         ProjectFile[]
 }
 
 // ---------- NOTIFICATIONS ----------
@@ -170,6 +171,7 @@ model Project {
   contentBoards    ContentBoard[]
   travelLogs       TravelLog[]
   shareLinks       ShareLink[]
+  files            ProjectFile[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -488,19 +490,45 @@ model Inspiration {
   updatedAt  DateTime             @updatedAt
 }
 
+// ---------- PROJECT FILES / ATTACHMENTS ----------
+model ProjectFile {
+  id         String   @id @default(cuid())
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  url        String
+  type       String   // image, video, document, link, deliverable
+  mimeType   String?
+  size       Int?     // bytes
+  isShared   Boolean  @default(false) // marked for external sharing
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
 // ---------- SHARE LINKS ----------
 model ShareLink {
-  id            String    @id @default(cuid())
-  projectId     String
-  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  userId        String
-  user          User      @relation(fields: [userId], references: [id])
-  token         String    @unique @default(cuid())
-  expiresAt     DateTime?
-  allowDownload Boolean   @default(false)
-  note          String?
-  active        Boolean   @default(true)
-  createdAt     DateTime  @default(now())
+  id              String    @id @default(cuid())
+  projectId       String
+  project         Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  token           String    @unique @default(cuid())
+  expiresAt       DateTime?
+  allowDownload   Boolean   @default(false)
+  note            String?
+  active          Boolean   @default(true)
+  // Shared fields config
+  showDescription Boolean   @default(true)
+  showStatus      Boolean   @default(true)
+  showDeadline    Boolean   @default(true)
+  showTasks       Boolean   @default(true)
+  showFiles       Boolean   @default(true)
+  showClientName  Boolean   @default(false)
+  passwordHash    String?
+  regeneratedAt   DateTime?
+  createdAt       DateTime  @default(now())
 }
 
 // ---------- CHEAT SHEETS / SOPs ----------

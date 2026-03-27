@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
   CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X, Users, Share2,
+  Paperclip, Upload, Image, Video, FileIcon, Trash2, ExternalLink, Loader2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,7 @@ import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { useT, useLocale } from "@/lib/i18n";
 import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject, updateProjectClient } from "@/lib/actions/project-actions";
+import { addProjectFile, deleteProjectFile, getProjectFiles } from "@/lib/actions/share-actions";
 import { Input } from "@/components/ui/input";
 
 type ProjectDetail = {
@@ -166,12 +168,67 @@ export function ProjectDetailClient({
   const completedTasks = project.tasks.filter(t => t.completed).length;
   const totalTasks = project.tasks.length;
 
+  // Files state
+  const [files, setFiles] = useState<{ id: string; name: string; url: string; type: string; mimeType: string | null; size: number | null; isShared: boolean }[]>([]);
+  const [filesLoaded, setFilesLoaded] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  // Load files on mount
+  useState(() => {
+    getProjectFiles(project.id).then((f) => { setFiles(f); setFilesLoaded(true); });
+  });
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const fileList = e.target.files;
+    if (!fileList || fileList.length === 0) return;
+    setUploading(true);
+    try {
+      for (const file of Array.from(fileList)) {
+        const formData = new FormData();
+        formData.append("file", file);
+        const res = await fetch("/api/upload-file", { method: "POST", body: formData });
+        if (!res.ok) continue;
+        const { url } = await res.json();
+        const fileType = file.type.startsWith("image/") ? "image" : file.type.startsWith("video/") ? "video" : "document";
+        await addProjectFile(project.id, { name: file.name, url, type: fileType, mimeType: file.type, size: file.size });
+      }
+      const updated = await getProjectFiles(project.id);
+      setFiles(updated);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  }
+
+  async function handleDeleteFile(fileId: string) {
+    await deleteProjectFile(fileId);
+    setFiles(prev => prev.filter(f => f.id !== fileId));
+  }
+
+  function formatFileSize(bytes: number | null) {
+    if (!bytes) return "";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  const fileTypeIcon = (type: string) => {
+    switch (type) {
+      case "image": return Image;
+      case "video": return Video;
+      case "link": return Link2;
+      case "deliverable": return Paperclip;
+      default: return FileIcon;
+    }
+  };
+
   const sections = [
     { key: "tasks", label: he.common.tasks, icon: ListTodo, count: project.tasks.length },
     { key: "scripts", label: he.nav.scripts, icon: FileText, count: project.scripts.length },
     { key: "moodboards", label: he.nav.moodboard, icon: LayoutTemplate, count: project.moodboards.length },
     { key: "contacts", label: he.contacts.title, icon: Contact, count: project.contacts.length },
     { key: "calendar", label: he.nav.calendar, icon: CalendarDays, count: project.scheduledContent.length },
+    { key: "files", label: he.share?.files ?? "קבצים", icon: Paperclip, count: files.length },
   ];
 
   return (
@@ -371,6 +428,57 @@ export function ProjectDetailClient({
           ))}
           <LinkItemDropdown items={unlinked.content} onSelect={(id) => handleLink("content", id)} />
         </div>
+      </motion.div>
+
+      {/* ── Files ── */}
+      <motion.div variants={fadeUp} id="files" className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
+            <Paperclip className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} /> {he.share?.files ?? "קבצים"}
+          </h2>
+          <label className="cursor-pointer">
+            <input type="file" multiple className="hidden" onChange={handleFileUpload} disabled={uploading} />
+            <span className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/80 transition-colors">
+              {uploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Upload className="h-3.5 w-3.5" />}
+              {he.share?.uploadFile ?? "העלה קובץ"}
+            </span>
+          </label>
+        </div>
+        {files.length > 0 ? (
+          <div className="space-y-1.5">
+            {files.map(file => {
+              const Icon = fileTypeIcon(file.type);
+              return (
+                <div key={file.id} className="flex items-center gap-3 rounded-[10px] border border-border/40 bg-card px-3.5 py-2.5 group/item hover:bg-foreground/[0.02] transition-colors duration-200">
+                  <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{file.name}</p>
+                    <p className="text-[10px] text-muted-foreground">{formatFileSize(file.size)}</p>
+                  </div>
+                  {file.isShared && (
+                    <Badge className="text-[9px] bg-emerald-100 text-emerald-700 border-0 dark:bg-emerald-950 dark:text-emerald-300">
+                      {he.share?.fileShared ?? "משותף"}
+                    </Badge>
+                  )}
+                  <a href={file.url} target="_blank" rel="noopener noreferrer" className="p-1 rounded text-muted-foreground hover:text-foreground transition-colors">
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                  <button
+                    onClick={() => handleDeleteFile(file.id)}
+                    className="opacity-0 group-hover/item:opacity-100 p-1 rounded text-muted-foreground hover:text-red-500 transition-all"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        ) : filesLoaded ? (
+          <div className="flex flex-col items-center justify-center py-8 rounded-[14px] border border-dashed border-border/40 text-center">
+            <Paperclip className="h-6 w-6 text-foreground/20 mb-2" />
+            <p className="text-[12px] text-foreground/40">{he.share?.noFiles ?? "אין קבצים"}</p>
+          </div>
+        ) : null}
       </motion.div>
 
       {/* Edit dialog */}
