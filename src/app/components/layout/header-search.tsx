@@ -112,7 +112,7 @@ export function HeaderSearch() {
   const hasResults = resultGroups.length > 0;
 
   return (
-    <div ref={ref} className="relative hidden md:block">
+    <div ref={ref} className="relative">
       <div className="relative">
         {loading ? (
           <Loader2 className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 pointer-events-none animate-spin" />

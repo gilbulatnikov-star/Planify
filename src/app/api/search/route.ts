@@ -66,14 +66,14 @@ export async function GET(req: NextRequest) {
   if (clients.length) {
     results["clients"] = clients.map((c) => ({
       label: c.name,
-      href: `/clients/${c.id}`,
+      href: `/clients`,
       type: "clients",
     }));
   }
   if (contacts.length) {
     results["contacts"] = contacts.map((c) => ({
       label: c.name,
-      href: `/contacts/${c.id}`,
+      href: `/contacts`,
       type: "contacts",
     }));
   }
