@@ -13,9 +13,9 @@ import {
   Select,
   SelectContent,
   SelectItem,
-  SelectSeparator,
   SelectTrigger,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -168,17 +168,14 @@ export function ProjectDialog({
                   </button>
                 </div>
               ) : (
-                <Select value={clientId} onValueChange={(v) => setClientId(v ?? "")}>
-                  <SelectTrigger className="w-full">
-                    <span className="flex flex-1">
-                      {clientId ? (localClients.find((c) => c.id === clientId)?.name ?? clientId) : he.common.selectClient}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {localClients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>
-                    ))}
-                    <SelectSeparator />
+                <SearchableSelect
+                  options={localClients.map((c) => ({ value: c.id, label: c.name }))}
+                  value={clientId}
+                  onChange={(v) => setClientId(v)}
+                  placeholder={he.common.selectClient}
+                  searchPlaceholder={he.common.searchPlaceholder}
+                  triggerClassName="w-full"
+                  createAction={
                     <button
                       type="button"
                       onClick={() => { setNewClientMode(true); setClientId(""); }}
@@ -186,8 +183,8 @@ export function ProjectDialog({
                     >
                       <Plus className="h-3.5 w-3.5" />{he.common.addNewClient}
                     </button>
-                  </SelectContent>
-                </Select>
+                  }
+                />
               )}
             </div>
 

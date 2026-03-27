@@ -15,12 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createTravelEntry,
@@ -177,43 +172,33 @@ export function TravelEntryDialog({
             {/* לקוח */}
             <div className="space-y-2">
               <Label htmlFor="clientId">{he.common.client}</Label>
-              <Select
+              <SearchableSelect
+                options={[
+                  { value: NONE_VALUE, label: he.common.none },
+                  ...clients.map((c) => ({ value: c.id, label: c.name })),
+                ]}
                 value={clientId}
-                onValueChange={(v) => v && setClientId(v)}
-              >
-                <SelectTrigger id="clientId" className="w-full">
-                  <span className="flex flex-1">{clientId === NONE_VALUE ? he.common.none : (clients.find(c => c.id === clientId)?.name ?? clientId)}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE_VALUE}>{he.common.none}</SelectItem>
-                  {clients.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setClientId(v)}
+                placeholder={he.common.none}
+                searchPlaceholder={he.common.searchPlaceholder}
+                triggerClassName="w-full"
+              />
             </div>
 
             {/* פרויקט */}
             <div className="space-y-2">
               <Label htmlFor="projectId">{he.common.project}</Label>
-              <Select
+              <SearchableSelect
+                options={[
+                  { value: NONE_VALUE, label: he.common.none },
+                  ...projects.map((p) => ({ value: p.id, label: p.title })),
+                ]}
                 value={projectId}
-                onValueChange={(v) => v && setProjectId(v)}
-              >
-                <SelectTrigger id="projectId" className="w-full">
-                  <span className="flex flex-1">{projectId === NONE_VALUE ? he.common.none : (projects.find(p => p.id === projectId)?.title ?? projectId)}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value={NONE_VALUE}>{he.common.none}</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(v) => setProjectId(v)}
+                placeholder={he.common.none}
+                searchPlaceholder={he.common.searchPlaceholder}
+                triggerClassName="w-full"
+              />
             </div>
 
             {/* מטרה */}

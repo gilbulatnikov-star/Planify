@@ -18,6 +18,9 @@ import {
   FolderKanban,
   Users,
   ArrowRight,
+  CheckSquare,
+  DollarSign,
+  PlayCircle,
 } from "lucide-react";
 import Link from "next/link";
 import type { ReportsData } from "@/lib/actions/reports-actions";
@@ -82,9 +85,62 @@ function ChartCard({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
+// ─── Monthly Summary Bar ─────────────────────────────────────────────────────
+function SummaryBar({ label, current, previous, icon: Icon, gradient, formatValue }: {
+  label: string; current: number; previous: number; icon: React.ElementType; gradient: string; formatValue?: (n: number) => string;
+}) {
+  const max = Math.max(current, previous, 1);
+  const currentPct = Math.round((current / max) * 100);
+  const previousPct = Math.round((previous / max) * 100);
+  const display = formatValue ? formatValue(current) : String(current);
+  const prevDisplay = formatValue ? formatValue(previous) : String(previous);
+  const diff = previous > 0 ? Math.round(((current - previous) / previous) * 100) : current > 0 ? 100 : 0;
+
+  return (
+    <div className="px-5 py-3.5">
+      <div className="flex items-center justify-between mb-2.5">
+        <div className="flex items-center gap-2">
+          <div className={`flex h-[26px] w-[26px] items-center justify-center rounded-[7px] bg-gradient-to-br ${gradient} text-white shadow-[0_1px_3px_rgba(0,0,0,0.1)]`}>
+            <Icon className="h-[12px] w-[12px]" strokeWidth={2.2} />
+          </div>
+          <span className="text-[12px] font-semibold text-foreground/70">{label}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[16px] font-extrabold tracking-[-0.02em] text-foreground tabular-nums">{display}</span>
+          {diff !== 0 && (
+            <span className={`text-[10px] font-bold px-1.5 py-[1px] rounded-[4px] tabular-nums ${diff > 0 ? "text-emerald-700 bg-emerald-50 dark:text-emerald-400 dark:bg-emerald-500/10" : "text-red-600 bg-red-50 dark:text-red-400 dark:bg-red-500/10"}`}>
+              {diff > 0 ? "+" : ""}{diff}%
+            </span>
+          )}
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <span className="text-[9.5px] text-foreground/35 font-bold w-[52px] shrink-0">החודש</span>
+          <div className="flex-1 h-[6px] rounded-full bg-foreground/[0.04] overflow-hidden">
+            <div className={`h-full rounded-full bg-gradient-to-r ${gradient} transition-all duration-700 ease-out`} style={{ width: `${currentPct}%` }} />
+          </div>
+          <span className="text-[9.5px] text-foreground/40 font-bold tabular-nums w-[36px] text-left">{display}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[9.5px] text-foreground/35 font-bold w-[52px] shrink-0">חודש קודם</span>
+          <div className="flex-1 h-[6px] rounded-full bg-foreground/[0.04] overflow-hidden">
+            <div className="h-full rounded-full bg-foreground/[0.08] transition-all duration-700 ease-out" style={{ width: `${previousPct}%` }} />
+          </div>
+          <span className="text-[9.5px] text-foreground/40 font-bold tabular-nums w-[36px] text-left">{prevDisplay}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 export function ReportsPageClient({ data }: { data: ReportsData }) {
   const { months, totals } = data;
+
+  // Derive current vs previous month for summary bars
+  const currentMonth = months.length > 0 ? months[months.length - 1] : null;
+  const previousMonth = months.length > 1 ? months[months.length - 2] : null;
 
   return (
     <div className="space-y-6 max-w-[1100px]">
@@ -113,6 +169,54 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </motion.div>
+
+      {/* Monthly comparison bars */}
+      {currentMonth && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.03 }}
+          className="grid gap-3 md:grid-cols-2"
+        >
+          <div className="rounded-[14px] border border-border/40 bg-card overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <SummaryBar
+              label="פרויקטים שנוצרו"
+              current={currentMonth.projectsOpened}
+              previous={previousMonth?.projectsOpened ?? 0}
+              icon={FolderKanban}
+              gradient="from-blue-500 to-blue-600"
+            />
+          </div>
+          <div className="rounded-[14px] border border-border/40 bg-card overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <SummaryBar
+              label="משימות שהושלמו"
+              current={currentMonth.tasksCompleted}
+              previous={previousMonth?.tasksCompleted ?? 0}
+              icon={CheckSquare}
+              gradient="from-emerald-500 to-emerald-600"
+            />
+          </div>
+          <div className="rounded-[14px] border border-border/40 bg-card overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <SummaryBar
+              label="הכנסות"
+              current={currentMonth.revenue}
+              previous={previousMonth?.revenue ?? 0}
+              icon={DollarSign}
+              gradient="from-violet-500 to-purple-600"
+              formatValue={(n) => `₪${n.toLocaleString("he-IL")}`}
+            />
+          </div>
+          <div className="rounded-[14px] border border-border/40 bg-card overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+            <SummaryBar
+              label="תוכן שפורסם"
+              current={currentMonth.contentPublished}
+              previous={previousMonth?.contentPublished ?? 0}
+              icon={PlayCircle}
+              gradient="from-rose-500 to-pink-600"
+            />
+          </div>
+        </motion.div>
+      )}
 
       {/* Summary KPIs */}
       <motion.div

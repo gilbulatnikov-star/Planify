@@ -14,12 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectTrigger,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { createContact, updateContact } from "@/lib/actions/contact-actions";
 import { useT } from "@/lib/i18n";
@@ -171,26 +166,23 @@ export function ContactDialog({ contact, open, onOpenChange, extraCategories = [
                   </button>
                 </div>
               ) : (
-                <Select value={category} onValueChange={(v) => v && setCategory(v)}>
-                  <SelectTrigger className="w-full">
-                    <span className="flex flex-1">{getCategoryLabel(category)}</span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRESET_CATEGORIES.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                    {customList.map(v => (
-                      <SelectItem key={v} value={v}>{v}</SelectItem>
-                    ))}
-                    <div className="mx-1 my-1 border-t border-border" />
+                <SearchableSelect
+                  options={[
+                    ...PRESET_CATEGORIES.map((o) => ({ value: o.value, label: o.label })),
+                    ...customList.map((v) => ({ value: v, label: v })),
+                  ]}
+                  value={category}
+                  onChange={(v) => setCategory(v)}
+                  placeholder={he.common.category}
+                  searchPlaceholder={he.common.searchPlaceholder}
+                  triggerClassName="w-full"
+                  createAction={
                     <button type="button" onClick={() => setCustomMode(true)}
                       className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors">
                       <Plus className="h-3.5 w-3.5" />{he.common.addNewCategory}
                     </button>
-                  </SelectContent>
-                </Select>
+                  }
+                />
               )}
             </div>
 

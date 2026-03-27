@@ -7,6 +7,7 @@ import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { ContactDialog } from "./contact-dialog";
 import { DeleteContactDialog } from "./delete-contact-dialog";
 import { useT } from "@/lib/i18n";
@@ -126,21 +127,20 @@ export function ContactsPageClient({ contacts, planLimit, projects }: { contacts
             className="pl-10 bg-background border-border"
           />
         </div>
-        <select
+        <SearchableSelect
+          options={[
+            { value: "", label: "כל הקטגוריות" },
+            ...PRESET_CATEGORIES_LIST.map((cat) => ({
+              value: cat,
+              label: he.contacts.categories[cat as keyof typeof he.contacts.categories],
+            })),
+            ...extraCategories.map((cat) => ({ value: cat, label: cat })),
+          ]}
           value={activeCategory ?? ""}
-          onChange={(e) => setActiveCategory(e.target.value || null)}
-          className="h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring w-full sm:w-auto sm:min-w-[160px]"
-        >
-          <option value="">כל הקטגוריות</option>
-          {PRESET_CATEGORIES_LIST.map((cat) => (
-            <option key={cat} value={cat}>
-              {he.contacts.categories[cat as keyof typeof he.contacts.categories]}
-            </option>
-          ))}
-          {extraCategories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+          onChange={(v) => setActiveCategory(v || null)}
+          placeholder="כל הקטגוריות"
+          className="w-full sm:w-auto sm:min-w-[160px]"
+        />
       </motion.div>
 
       {/* Contact List */}

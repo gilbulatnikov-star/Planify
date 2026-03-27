@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
+import { DONE_PHASES } from "@/lib/project-config";
 
 export type MonthlyDataPoint = {
   month: string; // "2026-03"
@@ -43,7 +44,7 @@ export async function getReportsData(monthsBack = 6): Promise<ReportsData> {
   const now = new Date();
   const months: MonthlyDataPoint[] = [];
 
-  const donePhases = ["done", "delivered", "gallery_delivery", "published", "active"];
+  const donePhases = DONE_PHASES;
 
   for (let i = monthsBack - 1; i >= 0; i--) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);

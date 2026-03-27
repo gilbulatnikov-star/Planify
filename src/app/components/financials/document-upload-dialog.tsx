@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { createExpense, createInvoice } from "@/lib/actions/financial-actions";
 import { useT } from "@/lib/i18n";
@@ -341,17 +342,17 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
               {docType === "invoice" && clients.length > 0 && (
                 <div className="space-y-1.5">
                   <Label className="text-xs">{he.docUpload.clientOptional}</Label>
-                  <Select value={clientId || "_none"} onValueChange={(v) => setClientId(v === "_none" ? "" : (v ?? ""))}>
-                    <SelectTrigger className="w-full h-9 text-sm">
-                      <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : he.docUpload.noClient}</span>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="_none">{he.docUpload.noClient}</SelectItem>
-                      {clients.map((c) => (
-                        <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <SearchableSelect
+                    options={[
+                      { value: "_none", label: he.docUpload.noClient },
+                      ...clients.map((c) => ({ value: c.id, label: c.name })),
+                    ]}
+                    value={clientId || "_none"}
+                    onChange={(v) => setClientId(v === "_none" ? "" : v)}
+                    placeholder={he.docUpload.noClient}
+                    searchPlaceholder={he.common.searchPlaceholder}
+                    triggerClassName="w-full h-9 text-sm"
+                  />
                 </div>
               )}
 

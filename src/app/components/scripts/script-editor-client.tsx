@@ -1021,13 +1021,14 @@ export function ScriptEditorClient({
               {/* AI floating button — hide when chat is open */}
               <div className={`absolute bottom-12 left-3 z-30 transition-opacity ${chatOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-foreground text-background shadow-lg hover:scale-105 active:scale-95 transition-transform">
+                  className="flex h-10 items-center gap-2 rounded-full bg-foreground text-background shadow-lg hover:scale-105 active:scale-95 transition-transform px-4">
                   <Sparkles className="h-4 w-4" />
+                  <span className="text-xs font-bold">+ תסריט חדש</span>
                 </button>
                 {aiSidebarOpen && (
                   <>
                     <div className="fixed inset-0 z-40" onClick={() => setAiSidebarOpen(false)} />
-                    <div className="absolute bottom-full mb-2 left-0 z-50 w-64 rounded-xl border border-border bg-card shadow-xl p-3 space-y-1">
+                    <div className="absolute bottom-full mb-2 left-0 z-50 w-72 rounded-xl border border-border bg-card shadow-xl p-3 space-y-2">
                       {aiMode === "generate" ? (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 mb-1">
@@ -1048,20 +1049,24 @@ export function ScriptEditorClient({
                       ) : (
                         <>
                           <button onClick={() => setAiMode("generate")}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors">
-                            <Sparkles className="h-4 w-4 text-muted-foreground shrink-0" />
+                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-right bg-gradient-to-l from-blue-50 to-indigo-50 dark:from-blue-500/10 dark:to-indigo-500/10 border border-blue-200/50 dark:border-blue-500/20 hover:border-blue-300 dark:hover:border-blue-500/40 hover:shadow-sm transition-all">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-blue-500/10 dark:bg-blue-500/20 shrink-0">
+                              <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                            </div>
                             <div>
-                              <p className="text-xs font-semibold text-foreground">{he.scriptEditor.generateScript}</p>
-                              <p className="text-[10px] text-muted-foreground">{he.scriptEditor.fromPrompt}</p>
+                              <p className="text-[13px] font-bold text-foreground">{he.scriptEditor.generateScript}</p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{he.scriptEditor.fromPrompt}</p>
                             </div>
                           </button>
                           <button onClick={() => { callAI("upgrade"); setAiSidebarOpen(false); }}
                             disabled={aiLoading || !content.trim()}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-right hover:bg-muted transition-colors disabled:opacity-40">
-                            <Wand2 className="h-4 w-4 text-muted-foreground shrink-0" />
+                            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-right bg-gradient-to-l from-purple-50 to-violet-50 dark:from-purple-500/10 dark:to-violet-500/10 border border-purple-200/50 dark:border-purple-500/20 hover:border-purple-300 dark:hover:border-purple-500/40 hover:shadow-sm transition-all disabled:opacity-40 disabled:hover:shadow-none">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-purple-500/10 dark:bg-purple-500/20 shrink-0">
+                              <Wand2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                            </div>
                             <div>
-                              <p className="text-xs font-semibold text-foreground">{he.scriptEditor.upgradeScript}</p>
-                              <p className="text-[10px] text-muted-foreground">{he.scriptEditor.upgradeScriptDesc}</p>
+                              <p className="text-[13px] font-bold text-foreground">{he.scriptEditor.upgradeScript}</p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">{he.scriptEditor.upgradeScriptDesc}</p>
                             </div>
                           </button>
                         </>

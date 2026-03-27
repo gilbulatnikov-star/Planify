@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
   AlertTriangle, CalendarDays, Plus, Clock, ChevronLeft,
-  ArrowUpRight, Sparkles, TrendingUp,
+  ArrowUpRight, Sparkles,
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -218,13 +218,15 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
           </Section>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-4 gap-2">
             {quickActions.map(a => (
-              <Link key={a.label} href={a.href} className="group flex items-center justify-center gap-2.5 rounded-[12px] border border-border/50 bg-card px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.7)] hover:border-accent/30 hover:shadow-[0_4px_12px_-3px_rgba(0,0,0,0.1)] hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer">
-                <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-accent/8 group-hover:bg-accent/15 transition-colors duration-200">
-                  <a.icon className="h-4 w-4 text-accent/60 group-hover:text-accent transition-colors duration-200" strokeWidth={2} />
+              <Link key={a.label} href={a.href} className="group flex flex-col items-center gap-2 rounded-[12px] border border-border/40 bg-card p-3 hover:border-accent/30 hover:bg-accent/[0.04] hover:shadow-[0_4px_12px_-3px_rgba(0,0,0,0.08)] hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 group-hover:bg-accent/20 transition-colors duration-200">
+                  <a.icon className="h-4 w-4 text-accent group-hover:text-accent transition-colors duration-200" strokeWidth={2} />
                 </div>
-                <span className="text-[12.5px] font-bold text-foreground/60 group-hover:text-foreground/90 transition-colors duration-200">{a.label}</span>
+                <span className="text-[11px] font-semibold text-foreground/50 group-hover:text-foreground/80 transition-colors duration-200 text-center leading-tight whitespace-nowrap">
+                  {a.label}
+                </span>
               </Link>
             ))}
           </div>

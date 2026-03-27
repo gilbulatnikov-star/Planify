@@ -21,6 +21,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import {
   createScheduledContent,
@@ -256,20 +257,17 @@ export function ContentDialog({
                   </button>
                 </div>
               ) : (
-                <Select value={clientId} onValueChange={(v) => setClientId(v ?? "")}>
-                  <SelectTrigger className="w-full">
-                    <span className="flex flex-1">
-                      {clientId
-                        ? (localClients.find((c) => c.id === clientId)?.name ?? clientId)
-                        : he.common.selectClient}
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">{he.common.noClient}</SelectItem>
-                    {localClients.map((c) => (
-                      <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                    ))}
-                    <div className="mx-1 my-1 border-t border-border" />
+                <SearchableSelect
+                  options={[
+                    { value: "", label: he.common.noClient },
+                    ...localClients.map((c) => ({ value: c.id, label: c.name })),
+                  ]}
+                  value={clientId}
+                  onChange={(v) => setClientId(v)}
+                  placeholder={he.common.selectClient}
+                  searchPlaceholder={he.common.searchPlaceholder}
+                  triggerClassName="w-full"
+                  createAction={
                     <button
                       type="button"
                       onClick={() => { setNewClientMode(true); setClientId(""); }}
@@ -277,29 +275,25 @@ export function ContentDialog({
                     >
                       <Plus className="h-3.5 w-3.5" />{he.common.addNewClient}
                     </button>
-                  </SelectContent>
-                </Select>
+                  }
+                />
               )}
             </div>
 
             {/* פרויקט */}
             <div className="col-span-2 space-y-2">
               <Label>{`${he.common.project} (${he.common.optional})`}</Label>
-              <Select value={projectId} onValueChange={(v) => setProjectId(v ?? "")}>
-                <SelectTrigger className="w-full">
-                  <span className="flex flex-1">
-                    {projectId
-                      ? (projects.find((p) => p.id === projectId)?.title ?? projectId)
-                      : he.common.selectProject}
-                  </span>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">{he.common.noProject}</SelectItem>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={[
+                  { value: "", label: he.common.noProject },
+                  ...projects.map((p) => ({ value: p.id, label: p.title })),
+                ]}
+                value={projectId}
+                onChange={(v) => setProjectId(v)}
+                placeholder={he.common.selectProject}
+                searchPlaceholder={he.common.searchPlaceholder}
+                triggerClassName="w-full"
+              />
             </div>
 
             {/* הערות */}

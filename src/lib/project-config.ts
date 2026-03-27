@@ -362,6 +362,14 @@ export function getTypeKeyByLabel(label: string): string | null {
   return null;
 }
 
+/** All phase values (including the universal "done" key) that represent a completed project. */
+export const DONE_PHASES: string[] = [
+  "done", // universal column key used by the project dialog
+  ...Object.entries(UNIVERSAL_PHASE_MAP)
+    .filter(([, col]) => col === "done")
+    .map(([phase]) => phase),
+];
+
 /** Default phases for each top-level category (used when type = category key). */
 export const CATEGORY_PHASES: Record<ProjectCategory, PhaseOption[]> = {
   photography: [

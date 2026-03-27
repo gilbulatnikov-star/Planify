@@ -46,7 +46,7 @@ export default async function DashboardLayout({
               <UserMenu />
             </div>
           </header>
-          <main className="relative z-10 flex-1 overflow-auto p-6 pb-20 md:p-8 md:pb-8">{children}</main>
+          <main className="relative flex-1 overflow-auto p-6 pb-20 md:p-8 md:pb-8">{children}</main>
         </SidebarInset>
         <WelcomeTour />
         <MobileBottomNav />

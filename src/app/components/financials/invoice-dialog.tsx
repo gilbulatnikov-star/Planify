@@ -20,6 +20,7 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { createInvoice, updateInvoice } from "@/lib/actions/financial-actions";
 import { useT } from "@/lib/i18n";
@@ -126,35 +127,27 @@ export function InvoiceDialog({
             {/* לקוח */}
             <div className="space-y-2">
               <Label htmlFor="clientId">{he.common.client}</Label>
-              <Select value={clientId} onValueChange={(v) => v && setClientId(v)}>
-                <SelectTrigger id="clientId" className="w-full">
-                  <span className="flex flex-1">{clientId ? (clients.find(c => c.id === clientId)?.name ?? clientId) : he.financialExtra.selectClient}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {clients.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={clients.map((c) => ({ value: c.id, label: c.name }))}
+                value={clientId}
+                onChange={(v) => setClientId(v)}
+                placeholder={he.financialExtra.selectClient}
+                searchPlaceholder={he.common.searchPlaceholder}
+                triggerClassName="w-full"
+              />
             </div>
 
             {/* פרויקט */}
             <div className="space-y-2">
               <Label htmlFor="projectId">{he.common.project}</Label>
-              <Select value={projectId} onValueChange={(v) => v && setProjectId(v)}>
-                <SelectTrigger id="projectId" className="w-full">
-                  <span className="flex flex-1">{projectId ? (projects.find(p => p.id === projectId)?.title ?? projectId) : he.financialExtra.selectProjectOptional}</span>
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <SearchableSelect
+                options={projects.map((p) => ({ value: p.id, label: p.title }))}
+                value={projectId}
+                onChange={(v) => setProjectId(v)}
+                placeholder={he.financialExtra.selectProjectOptional}
+                searchPlaceholder={he.common.searchPlaceholder}
+                triggerClassName="w-full"
+              />
             </div>
 
             {/* סכום */}

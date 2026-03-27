@@ -1,5 +1,6 @@
 import { prisma } from "./prisma";
 import { auth } from "@/auth";
+import { DONE_PHASES } from "@/lib/project-config";
 
 export async function getDashboardStats() {
   const session = await auth();
@@ -31,7 +32,7 @@ export async function getDashboardStats() {
     wonLeads,
   ] = await Promise.all([
     prisma.project.count({
-      where: { phase: { notIn: ["done", "delivered", "gallery_delivery", "published", "active"] }, userId },
+      where: { phase: { notIn: DONE_PHASES }, userId },
     }),
     prisma.project.findMany({
       where: {
@@ -46,7 +47,7 @@ export async function getDashboardStats() {
     prisma.project.findMany({
       where: {
         deadline: { gte: now, lte: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) },
-        phase: { not: "delivered" },
+        phase: { notIn: DONE_PHASES },
         userId,
       },
       include: { client: true },

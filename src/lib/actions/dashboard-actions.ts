@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
+import { DONE_PHASES } from "@/lib/project-config";
 
 export type SmartDashboardData = {
   kpis: {
@@ -38,6 +39,16 @@ export type SmartDashboardData = {
     clientName: string | null;
     updatedAt: Date;
   }[];
+  monthlySummary: {
+    projectsThisMonth: number;
+    projectsLastMonth: number;
+    tasksCompletedThisMonth: number;
+    tasksCompletedLastMonth: number;
+    revenueThisMonth: number;
+    revenueLastMonth: number;
+    contentPublishedThisMonth: number;
+    contentPublishedLastMonth: number;
+  };
 };
 
 export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
@@ -51,6 +62,10 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
   const tomorrow = new Date(today.getTime() + 86400000);
 
   const weekEnd = new Date(today.getTime() + 7 * 86400000);
+
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const lastMonthEnd = monthStart;
 
   const [
     activeClients,
@@ -66,9 +81,17 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     weekDeadlines,
     weekTasks,
     recentProjects,
+    // Monthly summary queries
+    projectsThisMonth,
+    projectsLastMonth,
+    tasksCompletedThisMonth,
+    tasksCompletedLastMonth,
+    revenueLastMonth,
+    contentPublishedThisMonth,
+    contentPublishedLastMonth,
   ] = await Promise.all([
     prisma.client.count({ where: { userId, isActive: true } }),
-    prisma.project.count({ where: { userId, phase: { notIn: ["done", "delivered", "gallery_delivery", "published", "active"] } } }),
+    prisma.project.count({ where: { userId, phase: { notIn: DONE_PHASES } } }),
     prisma.task.count({ where: { project: { userId }, completed: true } }),
     prisma.task.count({ where: { project: { userId } } }),
     prisma.invoice.aggregate({
@@ -79,7 +102,7 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     prisma.quote.count({ where: { userId, status: { in: ["draft", "sent"] } } }),
     // Approaching deadlines (next 48h)
     prisma.project.findMany({
-      where: { userId, deadline: { gte: today, lte: new Date(now.getTime() + 48 * 3600000) }, phase: { notIn: ["done", "delivered"] } },
+      where: { userId, deadline: { gte: today, lte: new Date(now.getTime() + 48 * 3600000) }, phase: { notIn: DONE_PHASES } },
       select: { id: true, title: true, deadline: true },
       take: 5,
     }),
@@ -96,7 +119,7 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     }),
     // This week's deadlines
     prisma.project.findMany({
-      where: { userId, deadline: { gte: today, lt: weekEnd }, phase: { notIn: ["done", "delivered"] } },
+      where: { userId, deadline: { gte: today, lt: weekEnd }, phase: { notIn: DONE_PHASES } },
       select: { id: true, title: true, deadline: true },
       orderBy: { deadline: "asc" },
       take: 8,
@@ -115,6 +138,23 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       orderBy: { updatedAt: "desc" },
       take: 5,
     }),
+    // Monthly summary: projects created this month
+    prisma.project.count({ where: { userId, createdAt: { gte: monthStart } } }),
+    // Monthly summary: projects created last month
+    prisma.project.count({ where: { userId, createdAt: { gte: lastMonthStart, lt: lastMonthEnd } } }),
+    // Monthly summary: tasks completed this month (created this month & completed)
+    prisma.task.count({ where: { project: { userId }, completed: true, createdAt: { gte: monthStart } } }),
+    // Monthly summary: tasks completed last month (created last month & completed)
+    prisma.task.count({ where: { project: { userId }, completed: true, createdAt: { gte: lastMonthStart, lt: lastMonthEnd } } }),
+    // Monthly summary: revenue last month
+    prisma.invoice.aggregate({
+      where: { userId, status: "paid", paidAt: { gte: lastMonthStart, lt: lastMonthEnd } },
+      _sum: { total: true },
+    }),
+    // Monthly summary: content published this month
+    prisma.scheduledContent.count({ where: { userId, status: "published", date: { gte: monthStart } } }),
+    // Monthly summary: content published last month
+    prisma.scheduledContent.count({ where: { userId, status: "published", date: { gte: lastMonthStart, lt: lastMonthEnd } } }),
   ]);
 
   return {
@@ -135,6 +175,16 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     recentProjects: recentProjects.map(p => ({
       id: p.id, title: p.title, phase: p.phase, clientName: p.client?.name ?? null, updatedAt: p.updatedAt,
     })),
+    monthlySummary: {
+      projectsThisMonth,
+      projectsLastMonth,
+      tasksCompletedThisMonth,
+      tasksCompletedLastMonth,
+      revenueThisMonth: monthRevenue._sum.total ?? 0,
+      revenueLastMonth: revenueLastMonth._sum.total ?? 0,
+      contentPublishedThisMonth,
+      contentPublishedLastMonth,
+    },
   };
   } catch (error) {
     console.error("Dashboard query failed:", error);
@@ -144,6 +194,12 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       todayContent: [],
       thisWeek: { deadlines: [], tasks: [] },
       recentProjects: [],
+      monthlySummary: {
+        projectsThisMonth: 0, projectsLastMonth: 0,
+        tasksCompletedThisMonth: 0, tasksCompletedLastMonth: 0,
+        revenueThisMonth: 0, revenueLastMonth: 0,
+        contentPublishedThisMonth: 0, contentPublishedLastMonth: 0,
+      },
     };
   }
 }
