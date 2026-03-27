@@ -20,50 +20,50 @@ const stagger = {
 /*  Data                                                               */
 /* ------------------------------------------------------------------ */
 const audiences = [
-  { icon: "\u{1F4F8}", title: "\u05E6\u05DC\u05DE\u05D9\u05DD", desc: "\u05E0\u05D9\u05D4\u05D5\u05DC \u05D0\u05D9\u05E8\u05D5\u05E2\u05D9\u05DD, \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA, \u05E7\u05D1\u05E6\u05D9\u05DD \u05D5\u05DE\u05E1\u05D9\u05E8\u05D5\u05EA" },
-  { icon: "\u{1F3AC}", title: "\u05D9\u05D5\u05E6\u05E8\u05D9 \u05EA\u05D5\u05DB\u05DF", desc: "\u05E0\u05D9\u05D4\u05D5\u05DC \u05E9\u05EA\u05F4\u05E4\u05D9\u05DD, \u05D1\u05E8\u05D9\u05E4\u05D9\u05DD, \u05EA\u05D5\u05E6\u05E8\u05D9\u05DD \u05D5\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D5\u05EA" },
-  { icon: "\u{1F4F1}", title: "\u05DE\u05E0\u05D4\u05DC\u05D5\u05EA \u05E1\u05D5\u05E9\u05D9\u05D0\u05DC", desc: "\u05DC\u05D5\u05D7 \u05EA\u05D5\u05DB\u05DF, deliverables, \u05E1\u05D8\u05D8\u05D5\u05E1 \u05E4\u05D5\u05E1\u05D8\u05D9\u05DD" },
-  { icon: "\u{1F3AF}", title: "\u05DE\u05E4\u05D9\u05E7\u05D9\u05DD \u05D5\u05E4\u05E8\u05D9\u05DC\u05E0\u05E1\u05E8\u05D9\u05DD", desc: "\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA, \u05E6\u05D5\u05D5\u05EA, \u05DC\u05D5\u05D7\u05D5\u05EA \u05D6\u05DE\u05E0\u05D9\u05DD \u05D5\u05E1\u05E4\u05E7\u05D9\u05DD" },
+  { icon: "📸", title: "צלמים", desc: "ניהול אירועים, לקוחות, קבצים ומסירות" },
+  { icon: "🎬", title: "יוצרי תוכן", desc: "ניהול שת״פים, בריפים, תוצרים ופלטפורמות" },
+  { icon: "📱", title: "מנהלות סושיאל", desc: "לוח תוכן, deliverables, סטטוס פוסטים" },
+  { icon: "🎯", title: "מפיקים ופרילנסרים", desc: "משימות, צוות, לוחות זמנים וספקים" },
 ];
 
 const painPoints = [
-  { before: "\u05DC\u05D9\u05D3\u05D9\u05DD \u05E0\u05D5\u05E4\u05DC\u05D9\u05DD \u05D1\u05D9\u05DF \u05D4\u05DB\u05D9\u05E1\u05D0\u05D5\u05EA", after: "Pipeline \u05D7\u05DB\u05DD \u05E9\u05DC\u05D0 \u05DE\u05E4\u05E1\u05E4\u05E1 \u05D0\u05E3 \u05DC\u05D9\u05D3" },
-  { before: "\u05D0\u05D9\u05DF \u05E1\u05D3\u05E8 \u05D1\u05E4\u05E8\u05D5\u05D9\u05E7\u05D8\u05D9\u05DD", after: "\u05E0\u05D9\u05D4\u05D5\u05DC \u05E4\u05E8\u05D5\u05D9\u05E7\u05D8\u05D9\u05DD \u05E2\u05DD \u05E9\u05DC\u05D1\u05D9\u05DD \u05D5\u05DE\u05E9\u05D9\u05DE\u05D5\u05EA" },
-  { before: "\u05DC\u05D0 \u05D9\u05D5\u05D3\u05E2 \u05DB\u05DE\u05D4 \u05D4\u05E8\u05D5\u05D5\u05D7\u05EA\u05D9", after: "\u05D3\u05E9\u05D1\u05D5\u05E8\u05D3 \u05E2\u05DD \u05D2\u05E8\u05E4\u05D9\u05DD \u05D5-KPIs \u05D1\u05D6\u05DE\u05DF \u05D0\u05DE\u05EA" },
-  { before: "\u05D4\u05DB\u05DC \u05DE\u05E4\u05D5\u05D6\u05E8 \u05D1\u05D0\u05E7\u05E1\u05DC\u05D9\u05DD", after: "\u05D4\u05DB\u05DC \u05D1\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05D3 \u2014 CRM, \u05DC\u05D5\u05D7 \u05EA\u05D5\u05DB\u05DF, \u05EA\u05E1\u05E8\u05D9\u05D8\u05D9\u05DD" },
+  { before: "לידים נופלים בין הכיסאות", after: "Pipeline חכם שלא מפספס אף ליד" },
+  { before: "אין סדר בפרויקטים", after: "ניהול פרויקטים עם שלבים ומשימות" },
+  { before: "לא יודע כמה הרווחתי", after: "דשבורד עם גרפים ו-KPIs בזמן אמת" },
+  { before: "הכל מפוזר באקסלים", after: "הכל במקום אחד — CRM, לוח תוכן, תסריטים" },
 ];
 
 const features = [
-  { icon: "\u{1F504}", title: "\u05E0\u05D9\u05D4\u05D5\u05DC \u05DC\u05D9\u05D3\u05D9\u05DD", desc: "Pipeline \u05D7\u05DB\u05DD \u05DE\u05DC\u05D9\u05D3 \u05D7\u05D3\u05E9 \u05D5\u05E2\u05D3 \u05E1\u05D2\u05D9\u05E8\u05D4, \u05DB\u05D5\u05DC\u05DC \u05D0\u05E0\u05DC\u05D9\u05D8\u05D9\u05E7\u05D4" },
-  { icon: "\u{1F4CB}", title: "\u05E0\u05D9\u05D4\u05D5\u05DC \u05E4\u05E8\u05D5\u05D9\u05E7\u05D8\u05D9\u05DD", desc: "\u05E7\u05E0\u05D1\u05DF, \u05DE\u05E9\u05D9\u05DE\u05D5\u05EA, \u05E9\u05DC\u05D1\u05D9\u05DD, \u05D3\u05D3\u05DC\u05D9\u05D9\u05E0\u05D9\u05DD \u05D5\u05DE\u05E2\u05E7\u05D1 \u05D4\u05EA\u05E7\u05D3\u05DE\u05D5\u05EA" },
-  { icon: "\u{1F4C5}", title: "\u05DC\u05D5\u05D7 \u05EA\u05D5\u05DB\u05DF", desc: "\u05EA\u05DB\u05E0\u05D5\u05DF \u05EA\u05D5\u05DB\u05DF \u05D7\u05D5\u05D3\u05E9\u05D9, \u05E1\u05D8\u05D8\u05D5\u05E1 \u05E4\u05D5\u05E1\u05D8\u05D9\u05DD \u05D5\u05D9\u05D9\u05E6\u05D5\u05D0 \u05DC\u05E7\u05DC\u05E0\u05D3\u05E8" },
-  { icon: "\u{1F4DD}", title: "\u05EA\u05E1\u05E8\u05D9\u05D8\u05D9\u05DD", desc: "\u05DB\u05EA\u05D9\u05D1\u05EA \u05EA\u05E1\u05E8\u05D9\u05D8\u05D9\u05DD \u05E2\u05DD AI, \u05E9\u05D5\u05D8 \u05DC\u05D9\u05E1\u05D8 \u05D5\u05E7\u05D5\u05DC \u05E9\u05D9\u05D8" },
-  { icon: "\u{1F4B0}", title: "\u05DB\u05E1\u05E4\u05D9\u05DD", desc: "\u05D7\u05E9\u05D1\u05D5\u05E0\u05D9\u05D5\u05EA, \u05D4\u05E6\u05E2\u05D5\u05EA \u05DE\u05D7\u05D9\u05E8, \u05D4\u05D5\u05E6\u05D0\u05D5\u05EA \u05D5\u05DE\u05E2\u05E7\u05D1 \u05D4\u05DB\u05E0\u05E1\u05D5\u05EA" },
-  { icon: "\u{1F3A8}", title: "\u05DE\u05D5\u05D3 \u05D1\u05D5\u05E8\u05D3", desc: "\u05DC\u05D5\u05D7 \u05D4\u05E9\u05E8\u05D0\u05D4 \u05D5\u05D9\u05D6\u05D5\u05D0\u05DC\u05D9 \u05E2\u05DD \u05EA\u05DE\u05D5\u05E0\u05D5\u05EA, \u05E6\u05D1\u05E2\u05D9\u05DD \u05D5\u05D4\u05E2\u05E8\u05D5\u05EA" },
+  { icon: "🔄", title: "ניהול לידים", desc: "Pipeline חכם מליד חדש ועד סגירה, כולל אנליטיקה" },
+  { icon: "📋", title: "ניהול פרויקטים", desc: "קנבן, משימות, שלבים, דדליינים ומעקב התקדמות" },
+  { icon: "📅", title: "לוח תוכן", desc: "תכנון תוכן חודשי, סטטוס פוסטים וייצוא לקלנדר" },
+  { icon: "📝", title: "תסריטים", desc: "כתיבת תסריטים עם AI, שוט ליסט וקול שיט" },
+  { icon: "💰", title: "כספים", desc: "חשבוניות, הצעות מחיר, הוצאות ומעקב הכנסות" },
+  { icon: "🎨", title: "מוד בורד", desc: "לוח השראה ויזואלי עם תמונות, צבעים והערות" },
 ];
 
 const steps = [
-  { num: "1", title: "\u05E0\u05E8\u05E9\u05DE\u05D9\u05DD \u05D1\u05D7\u05D9\u05E0\u05DD", desc: "\u05D9\u05D5\u05E6\u05E8\u05D9\u05DD \u05D7\u05E9\u05D1\u05D5\u05DF \u05D1-30 \u05E9\u05E0\u05D9\u05D5\u05EA" },
-  { num: "2", title: "\u05DE\u05D2\u05D3\u05D9\u05E8\u05D9\u05DD \u05D0\u05EA \u05D4\u05E2\u05E1\u05E7", desc: "\u05D1\u05D5\u05D7\u05E8\u05D9\u05DD \u05E1\u05D5\u05D2 \u05E2\u05E1\u05E7 \u05D5\u05DE\u05EA\u05D7\u05D9\u05DC\u05D9\u05DD \u05DC\u05D4\u05D5\u05E1\u05D9\u05E3 \u05DC\u05D9\u05D3\u05D9\u05DD" },
-  { num: "3", title: "\u05DE\u05E0\u05D4\u05DC\u05D9\u05DD \u05D4\u05DB\u05DC \u05DE\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05D3", desc: "\u05DC\u05D9\u05D3\u05D9\u05DD, \u05E4\u05E8\u05D5\u05D9\u05E7\u05D8\u05D9\u05DD, \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA \u05D5\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD" },
+  { num: "1", title: "נרשמים בחינם", desc: "יוצרים חשבון ב-30 שניות" },
+  { num: "2", title: "מגדירים את העסק", desc: "בוחרים סוג עסק ומתחילים להוסיף לידים" },
+  { num: "3", title: "מנהלים הכל ממקום אחד", desc: "לידים, פרויקטים, לקוחות ותשלומים" },
 ];
 
 const faqs = [
-  { q: "\u05D4\u05D0\u05DD \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05DE\u05EA\u05D0\u05D9\u05DE\u05D4 \u05DC\u05D9?", a: "Planify \u05E0\u05D1\u05E0\u05EA\u05D4 \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 \u05DC\u05E6\u05DC\u05DE\u05D9\u05DD, \u05D9\u05D5\u05E6\u05E8\u05D9 \u05EA\u05D5\u05DB\u05DF, \u05DE\u05E0\u05D4\u05DC\u05D5\u05EA \u05E1\u05D5\u05E9\u05D9\u05D0\u05DC \u05D5\u05DE\u05E4\u05D9\u05E7\u05D9\u05DD." },
-  { q: "\u05DB\u05DE\u05D4 \u05E2\u05D5\u05DC\u05D4?", a: "\u05D9\u05E9 \u05EA\u05D5\u05DB\u05E0\u05D9\u05EA \u05D7\u05D9\u05E0\u05DE\u05D9\u05EA \u05DC-3 \u05D9\u05DE\u05D9\u05DD. Pro \u05E2\u05D5\u05DC\u05D4 \u20AA59/\u05D7\u05D5\u05D3\u05E9 \u05D0\u05D5 \u20AA590/\u05E9\u05E0\u05D4." },
-  { q: "\u05D4\u05D0\u05DD \u05D4\u05DE\u05D9\u05D3\u05E2 \u05E9\u05DC\u05D9 \u05DE\u05D0\u05D5\u05D1\u05D8\u05D7?", a: "\u05DB\u05DC \u05D4\u05DE\u05D9\u05D3\u05E2 \u05DE\u05D5\u05E6\u05E4\u05DF \u05D5\u05DE\u05D0\u05D5\u05D7\u05E1\u05DF \u05D1\u05E9\u05E8\u05EA\u05D9\u05DD \u05DE\u05D0\u05D5\u05D1\u05D8\u05D7\u05D9\u05DD." },
-  { q: "\u05D0\u05E4\u05E9\u05E8 \u05DC\u05D1\u05D8\u05DC \u05D1\u05DB\u05DC \u05E8\u05D2\u05E2?", a: "\u05DB\u05DF, \u05DC\u05DC\u05D0 \u05D4\u05EA\u05D7\u05D9\u05D9\u05D1\u05D5\u05EA \u05D5\u05DC\u05DC\u05D0 \u05E7\u05E0\u05E1\u05D5\u05EA." },
-  { q: "\u05D4\u05D0\u05DD \u05D9\u05E9 \u05EA\u05DE\u05D9\u05DB\u05D4?", a: "\u05DB\u05DF, \u05EA\u05DE\u05D9\u05DB\u05D4 \u05DE\u05DC\u05D0\u05D4 \u05D1\u05DE\u05D9\u05D9\u05DC \u05D5\u05D1\u05E6\u05F3\u05D0\u05D8." },
-  { q: "\u05D4\u05D0\u05DD \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05E2\u05D5\u05D1\u05D3\u05EA \u05D1\u05D8\u05DC\u05E4\u05D5\u05DF?", a: "\u05DB\u05DF, Planify \u05DE\u05D5\u05EA\u05D0\u05DE\u05EA \u05DC\u05D7\u05DC\u05D5\u05D8\u05D9\u05DF \u05DC\u05DE\u05D5\u05D1\u05D9\u05D9\u05DC." },
+  { q: "האם המערכת מתאימה לי?", a: "Planify נבנתה במיוחד לצלמים, יוצרי תוכן, מנהלות סושיאל ומפיקים." },
+  { q: "כמה עולה?", a: "יש תוכנית חינמית ל-3 ימים. Pro עולה ₪59/חודש או ₪590/שנה." },
+  { q: "האם המידע שלי מאובטח?", a: "כל המידע מוצפן ומאוחסן בשרתים מאובטחים." },
+  { q: "אפשר לבטל בכל רגע?", a: "כן, ללא התחייבות וללא קנסות." },
+  { q: "האם יש תמיכה?", a: "כן, תמיכה מלאה במייל ובצ׳אט." },
+  { q: "האם המערכת עובדת בטלפון?", a: "כן, Planify מותאמת לחלוטין למובייל." },
 ];
 
-const freePlanFeatures = ["3 \u05D9\u05DE\u05D9 \u05E0\u05D9\u05E1\u05D9\u05D5\u05DF", "\u05E2\u05D3 1 \u05E4\u05E8\u05D5\u05D9\u05E7\u05D8", "\u05E2\u05D3 3 \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA"];
+const freePlanFeatures = ["3 ימי ניסיון", "עד 1 פרויקט", "עד 3 לקוחות"];
 const proPlanFeatures = [
-  "\u221E \u05E4\u05E8\u05D5\u05D9\u05E7\u05D8\u05D9\u05DD",
-  "\u221E \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA",
-  "\u221E \u05EA\u05E1\u05E8\u05D9\u05D8\u05D9\u05DD",
+  "∞ פרויקטים",
+  "∞ לקוחות",
+  "∞ תסריטים",
   "AI",
-  "\u05D0\u05E0\u05DC\u05D9\u05D8\u05D9\u05E7\u05D4",
+  "אנליטיקה",
 ];
 
 /* ------------------------------------------------------------------ */
@@ -74,10 +74,10 @@ export default function LandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const navLinks = [
-    { label: "\u05E4\u05D9\u05E6\u05F3\u05E8\u05D9\u05DD", href: "#features" },
-    { label: "\u05DC\u05DE\u05D9 \u05DE\u05EA\u05D0\u05D9\u05DD", href: "#audience" },
-    { label: "\u05EA\u05DE\u05D7\u05D5\u05E8", href: "#pricing" },
-    { label: "\u05E9\u05D0\u05DC\u05D5\u05EA \u05E0\u05E4\u05D5\u05E6\u05D5\u05EA", href: "#faq" },
+    { label: "פיצ׳רים", href: "#features" },
+    { label: "למי מתאים", href: "#audience" },
+    { label: "תמחור", href: "#pricing" },
+    { label: "שאלות נפוצות", href: "#faq" },
   ];
 
   return (
@@ -112,13 +112,13 @@ export default function LandingPage() {
               href="/sign-in"
               className="text-sm font-medium text-gray-600 transition-colors hover:text-[#38b6ff] dark:text-gray-400"
             >
-              \u05DB\u05E0\u05D9\u05E1\u05D4
+              כניסה
             </Link>
             <Link
               href="/sign-up"
               className="rounded-lg bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#38b6ff]/25 transition-transform hover:scale-105"
             >
-              \u05D4\u05EA\u05D7\u05DC \u05D1\u05D7\u05D9\u05E0\u05DD
+              התחל בחינם
             </Link>
           </div>
 
@@ -161,13 +161,13 @@ export default function LandingPage() {
               ))}
               <hr className="border-gray-200 dark:border-gray-800" />
               <Link href="/sign-in" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                \u05DB\u05E0\u05D9\u05E1\u05D4
+                כניסה
               </Link>
               <Link
                 href="/sign-up"
                 className="rounded-lg bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-5 py-2 text-center text-sm font-semibold text-white"
               >
-                \u05D4\u05EA\u05D7\u05DC \u05D1\u05D7\u05D9\u05E0\u05DD
+                התחל בחינם
               </Link>
             </div>
           </motion.div>
@@ -193,9 +193,9 @@ export default function LandingPage() {
             variants={fadeUp}
             className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl"
           >
-            \u05DB\u05DC \u05DE\u05D4 \u05E9\u05E2\u05E1\u05E7 \u05E7\u05E8\u05D9\u05D0\u05D9\u05D9\u05D8\u05D9\u05D1\u05D9 \u05E6\u05E8\u05D9\u05DA.{" "}
+            כל מה שעסק קריאייטיבי צריך.{" "}
             <span className="bg-gradient-to-r from-[#38b6ff] to-[#0077cc] bg-clip-text text-transparent">
-              \u05D1\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05D3.
+              במקום אחד.
             </span>
           </motion.h1>
 
@@ -203,7 +203,7 @@ export default function LandingPage() {
             variants={fadeUp}
             className="mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400 sm:text-xl"
           >
-            \u05E0\u05D9\u05D4\u05D5\u05DC \u05DC\u05D9\u05D3\u05D9\u05DD, \u05E4\u05E8\u05D5\u05D9\u05E7\u05D8\u05D9\u05DD, \u05DC\u05E7\u05D5\u05D7\u05D5\u05EA, \u05EA\u05D5\u05DB\u05DF \u05D5\u05EA\u05E9\u05DC\u05D5\u05DE\u05D9\u05DD &mdash; \u05D1\u05E4\u05DC\u05D8\u05E4\u05D5\u05E8\u05DE\u05D4 \u05D0\u05D7\u05EA \u05E9\u05E0\u05D1\u05E0\u05EA\u05D4 \u05D1\u05DE\u05D9\u05D5\u05D7\u05D3 \u05DC\u05E6\u05DC\u05DE\u05D9\u05DD, \u05D9\u05D5\u05E6\u05E8\u05D9 \u05EA\u05D5\u05DB\u05DF \u05D5\u05DE\u05E0\u05D4\u05DC\u05D5\u05EA \u05E1\u05D5\u05E9\u05D9\u05D0\u05DC.
+            ניהול לידים, פרויקטים, לקוחות, תוכן ותשלומים &mdash; בפלטפורמה אחת שנבנתה במיוחד לצלמים, יוצרי תוכן ומנהלות סושיאל.
           </motion.p>
 
           <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
@@ -211,13 +211,13 @@ export default function LandingPage() {
               href="/sign-up"
               className="rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-8 py-3.5 text-base font-bold text-white shadow-xl shadow-[#38b6ff]/30 transition-transform hover:scale-105"
             >
-              \u05D4\u05EA\u05D7\u05DC \u05D1\u05D7\u05D9\u05E0\u05DD &larr;
+              התחל בחינם &larr;
             </Link>
             <a
               href="#features"
               className="rounded-xl border border-gray-300 bg-white/60 px-8 py-3.5 text-base font-semibold text-gray-700 backdrop-blur-sm transition-colors hover:border-[#38b6ff] hover:text-[#38b6ff] dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300"
             >
-              \u05E6\u05E4\u05D4 \u05D1\u05D3\u05DE\u05D5
+              צפה בדמו
             </a>
           </motion.div>
         </motion.div>
@@ -233,7 +233,7 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="mb-12 text-center text-3xl font-bold sm:text-4xl">
-            \u05DC\u05DE\u05D9 \u05D4\u05DE\u05E2\u05E8\u05DB\u05EA \u05DE\u05EA\u05D0\u05D9\u05DE\u05D4
+            למי המערכת מתאימה
           </motion.h2>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -262,7 +262,7 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="mb-12 text-center text-3xl font-bold sm:text-4xl">
-            \u05D1\u05E2\u05D9\u05D5\u05EA \u05E9\u05D0\u05E0\u05D7\u05E0\u05D5 \u05E4\u05D5\u05EA\u05E8\u05D9\u05DD
+            בעיות שאנחנו פותרים
           </motion.h2>
 
           <div className="grid gap-6 sm:grid-cols-2">
@@ -273,11 +273,11 @@ export default function LandingPage() {
                 className="rounded-2xl border border-white/20 bg-white/80 p-6 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/80"
               >
                 <div className="flex items-start gap-3">
-                  <span className="mt-0.5 text-red-400">\u2718</span>
+                  <span className="mt-0.5 text-red-400">✘</span>
                   <p className="text-sm text-gray-500 line-through dark:text-gray-500">{p.before}</p>
                 </div>
                 <div className="mt-3 flex items-start gap-3">
-                  <span className="mt-0.5 text-emerald-500">\u2714</span>
+                  <span className="mt-0.5 text-emerald-500">✔</span>
                   <p className="text-sm font-medium">{p.after}</p>
                 </div>
               </motion.div>
@@ -296,10 +296,10 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="mb-4 text-center text-3xl font-bold sm:text-4xl">
-            \u05D4\u05DB\u05DC\u05D9\u05DD \u05E9\u05EA\u05E7\u05D1\u05DC\u05D5
+            הכלים שתקבלו
           </motion.h2>
           <motion.p variants={fadeUp} className="mx-auto mb-12 max-w-xl text-center text-gray-600 dark:text-gray-400">
-            \u05DB\u05DC \u05DE\u05D4 \u05E9\u05E6\u05E8\u05D9\u05DA \u05DC\u05E0\u05D4\u05DC \u05D0\u05EA \u05D4\u05E2\u05E1\u05E7, \u05D1\u05DE\u05E7\u05D5\u05DD \u05D0\u05D7\u05D3.
+            כל מה שצריך לנהל את העסק, במקום אחד.
           </motion.p>
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -328,7 +328,7 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="mb-12 text-center text-3xl font-bold sm:text-4xl">
-            \u05D0\u05D9\u05DA \u05D6\u05D4 \u05E2\u05D5\u05D1\u05D3
+            איך זה עובד
           </motion.h2>
 
           <div className="grid gap-8 sm:grid-cols-3">
@@ -355,7 +355,7 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="mb-12 text-center text-3xl font-bold sm:text-4xl">
-            \u05EA\u05DE\u05D7\u05D5\u05E8
+            תמחור
           </motion.h2>
 
           <div className="grid gap-8 sm:grid-cols-2">
@@ -364,14 +364,14 @@ export default function LandingPage() {
               variants={fadeUp}
               className="flex flex-col rounded-2xl border border-white/20 bg-white/80 p-8 backdrop-blur-sm dark:border-gray-800 dark:bg-gray-900/80"
             >
-              <h3 className="text-xl font-bold">\u05D7\u05D9\u05E0\u05DE\u05D9</h3>
+              <h3 className="text-xl font-bold">חינמי</h3>
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">\u20AA0</span>
+                <span className="text-4xl font-extrabold">₪0</span>
               </div>
               <ul className="mt-6 flex flex-1 flex-col gap-3">
                 {freePlanFeatures.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="text-emerald-500">\u2713</span> {f}
+                    <span className="text-emerald-500">✓</span> {f}
                   </li>
                 ))}
               </ul>
@@ -379,7 +379,7 @@ export default function LandingPage() {
                 href="/sign-up"
                 className="mt-8 block rounded-xl border border-gray-300 py-3 text-center text-sm font-semibold transition-colors hover:border-[#38b6ff] hover:text-[#38b6ff] dark:border-gray-700"
               >
-                \u05D4\u05EA\u05D7\u05DC \u05D1\u05D7\u05D9\u05E0\u05DD
+                התחל בחינם
               </Link>
             </motion.div>
 
@@ -389,18 +389,18 @@ export default function LandingPage() {
               className="relative flex flex-col rounded-2xl border-2 border-[#38b6ff] bg-white/80 p-8 shadow-xl shadow-[#38b6ff]/10 backdrop-blur-sm dark:bg-gray-900/80"
             >
               <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-4 py-1 text-xs font-bold text-white">
-                \u05D4\u05DB\u05D9 \u05E4\u05D5\u05E4\u05D5\u05DC\u05E8\u05D9
+                הכי פופולרי
               </span>
               <h3 className="text-xl font-bold">Pro</h3>
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="text-4xl font-extrabold">\u20AA59</span>
-                <span className="text-sm text-gray-500">/\u05D7\u05D5\u05D3\u05E9</span>
+                <span className="text-4xl font-extrabold">₪59</span>
+                <span className="text-sm text-gray-500">/חודש</span>
               </div>
-              <p className="mt-1 text-xs text-gray-500">\u05D4\u05DB\u05DC \u05DC\u05DC\u05D0 \u05D4\u05D2\u05D1\u05DC\u05D4</p>
+              <p className="mt-1 text-xs text-gray-500">הכל ללא הגבלה</p>
               <ul className="mt-6 flex flex-1 flex-col gap-3">
                 {proPlanFeatures.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="text-[#38b6ff]">\u2713</span> {f}
+                    <span className="text-[#38b6ff]">✓</span> {f}
                   </li>
                 ))}
               </ul>
@@ -408,7 +408,7 @@ export default function LandingPage() {
                 href="/sign-up"
                 className="mt-8 block rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] py-3 text-center text-sm font-bold text-white shadow-lg shadow-[#38b6ff]/25 transition-transform hover:scale-105"
               >
-                \u05E9\u05D3\u05E8\u05D2 \u05DC-Pro
+                שדרג ל-Pro
               </Link>
             </motion.div>
           </div>
@@ -425,7 +425,7 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="mb-12 text-center text-3xl font-bold sm:text-4xl">
-            \u05E9\u05D0\u05DC\u05D5\u05EA \u05E0\u05E4\u05D5\u05E6\u05D5\u05EA
+            שאלות נפוצות
           </motion.h2>
 
           <div className="flex flex-col gap-3">
@@ -472,17 +472,17 @@ export default function LandingPage() {
           variants={stagger}
         >
           <motion.h2 variants={fadeUp} className="text-3xl font-bold sm:text-4xl">
-            \u05DE\u05D5\u05DB\u05E0\u05D9\u05DD \u05DC\u05D4\u05EA\u05D7\u05D9\u05DC?
+            מוכנים להתחיל?
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-lg text-gray-600 dark:text-gray-400">
-            \u05D4\u05E6\u05D8\u05E8\u05E4\u05D5 \u05DC\u05D0\u05DC\u05E4\u05D9 \u05E7\u05E8\u05D9\u05D0\u05D9\u05D9\u05D8\u05D9\u05D1\u05D9\u05DD \u05E9\u05DB\u05D1\u05E8 \u05DE\u05E0\u05D4\u05DC\u05D9\u05DD \u05D0\u05EA \u05D4\u05E2\u05E1\u05E7 \u05E9\u05DC\u05D4\u05DD \u05E2\u05DD Planify.
+            הצטרפו לאלפי קריאייטיבים שכבר מנהלים את העסק שלהם עם Planify.
           </motion.p>
           <motion.div variants={fadeUp} className="mt-8">
             <Link
               href="/sign-up"
               className="inline-block rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-10 py-4 text-base font-bold text-white shadow-xl shadow-[#38b6ff]/30 transition-transform hover:scale-105"
             >
-              \u05D4\u05EA\u05D7\u05DC \u05D1\u05D7\u05D9\u05E0\u05DD &larr;
+              התחל בחינם &larr;
             </Link>
           </motion.div>
         </motion.div>
@@ -499,7 +499,7 @@ export default function LandingPage() {
               </div>
               <span className="text-lg font-bold">Planify</span>
             </div>
-            <p className="text-xs text-gray-500">\u05D4\u05DB\u05DC\u05D9 \u05D4\u05D7\u05DB\u05DD \u05DC\u05E0\u05D9\u05D4\u05D5\u05DC \u05D4\u05E2\u05E1\u05E7 \u05D4\u05E7\u05E8\u05D9\u05D0\u05D9\u05D9\u05D8\u05D9\u05D1\u05D9 \u05E9\u05DC\u05DA</p>
+            <p className="text-xs text-gray-500">הכלי החכם לניהול העסק הקריאייטיבי שלך</p>
           </div>
 
           {/* Links */}

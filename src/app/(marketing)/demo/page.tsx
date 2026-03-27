@@ -25,23 +25,37 @@ import {
   Settings,
   FileText,
   Search,
+  CheckSquare,
+  Mail,
+  CircleDollarSign,
+  ListTodo,
 } from "lucide-react";
 import {
   DEMO_STATS,
   DEMO_LEADS,
   DEMO_PROJECTS,
   DEMO_CALENDAR,
+  DEMO_CLIENTS,
+  DEMO_SCRIPTS,
+  DEMO_TASKS,
+  DEMO_FINANCIALS,
+  DEMO_SMART_STATS,
+  DEMO_URGENT,
 } from "@/lib/demo-data";
 
 // ─── Constants ────────────────────────────────────────────────────────
 
-type Tab = "dashboard" | "leads" | "projects" | "calendar";
+type Tab = "dashboard" | "leads" | "projects" | "calendar" | "clients" | "scripts" | "financials" | "tasks";
 
 const TABS: { id: Tab; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "דשבורד", icon: LayoutDashboard },
   { id: "leads", label: "לידים", icon: UserPlus },
   { id: "projects", label: "פרויקטים", icon: FolderKanban },
   { id: "calendar", label: "לוח תוכן", icon: CalendarDays },
+  { id: "clients", label: "לקוחות", icon: Users },
+  { id: "scripts", label: "תסריטים", icon: FileText },
+  { id: "financials", label: "כספים", icon: Receipt },
+  { id: "tasks", label: "משימות", icon: CheckSquare },
 ];
 
 const LEAD_STAGES: { key: string; label: string; color: string }[] = [
@@ -67,23 +81,35 @@ const CALENDAR_COLORS: Record<string, string> = {
   violet: "bg-violet-500/20 text-violet-700 border-violet-500/30 dark:text-violet-300",
 };
 
-const SIDEBAR_ITEMS = [
-  { icon: LayoutDashboard, label: "דשבורד", tab: "dashboard" as Tab },
-  { icon: FolderKanban, label: "פרויקטים", tab: "projects" as Tab },
-  { icon: Users, label: "לקוחות", tab: null },
-  { icon: UserPlus, label: "לידים", tab: "leads" as Tab },
-  { icon: Receipt, label: "חשבוניות", tab: null },
-  { icon: CalendarDays, label: "לוח תוכן", tab: "calendar" as Tab },
-  { icon: FileText, label: "תסריטים", tab: null },
-  { icon: Settings, label: "הגדרות", tab: null },
+const SIDEBAR_ITEMS: { icon: typeof LayoutDashboard; label: string; tab: Tab }[] = [
+  { icon: LayoutDashboard, label: "דשבורד", tab: "dashboard" },
+  { icon: FolderKanban, label: "פרויקטים", tab: "projects" },
+  { icon: Users, label: "לקוחות", tab: "clients" },
+  { icon: UserPlus, label: "לידים", tab: "leads" },
+  { icon: Receipt, label: "כספים", tab: "financials" },
+  { icon: CalendarDays, label: "לוח תוכן", tab: "calendar" },
+  { icon: FileText, label: "תסריטים", tab: "scripts" },
+  { icon: CheckSquare, label: "משימות", tab: "tasks" },
 ];
+
+const INVOICE_STATUS_CONFIG: Record<string, { label: string; color: string }> = {
+  paid: { label: "שולם", color: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300" },
+  sent: { label: "נשלח", color: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300" },
+  overdue: { label: "באיחור", color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" },
+};
+
+const PLATFORM_CONFIG: Record<string, { color: string }> = {
+  Instagram: { color: "bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300" },
+  YouTube: { color: "bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300" },
+  TikTok: { color: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300" },
+};
 
 // ─── Helpers ──────────────────────────────────────────────────────────
 
 function showSignupToast() {
   toast("הירשם כדי להשתמש בפיצ'ר הזה", {
     action: {
-      label: "הירשם בחינם",
+      label: "הרשמה",
       onClick: () => {
         window.location.href = "/sign-up";
       },
@@ -157,10 +183,7 @@ function DemoSidebar({
           return (
             <button
               key={item.label}
-              onClick={() => {
-                if (item.tab) onTabChange(item.tab);
-                else showSignupToast();
-              }}
+              onClick={() => onTabChange(item.tab)}
               className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 text-right ${
                 isActive
                   ? "bg-foreground text-background font-medium shadow-sm"
@@ -177,17 +200,22 @@ function DemoSidebar({
   );
 }
 
-function StatCard({
+function KpiCard({
   title,
   value,
   icon: Icon,
+  onClick,
 }: {
   title: string;
   value: string | number;
   icon: typeof TrendingUp;
+  onClick?: () => void;
 }) {
   return (
-    <div className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-default border-r-2 border-r-[#38b6ff] rounded-xl p-4">
+    <div
+      onClick={onClick}
+      className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-pointer border-r-2 border-r-[#38b6ff] rounded-xl p-4"
+    >
       <div className="flex items-center justify-between pb-2">
         <span className="text-sm font-medium text-muted-foreground">
           {title}
@@ -201,19 +229,61 @@ function StatCard({
   );
 }
 
-function DashboardTab() {
+function DashboardTab({ onTabChange }: { onTabChange: (t: Tab) => void }) {
+  const urgentBg: Record<string, string> = {
+    lead: "bg-blue-50 dark:bg-blue-900/20",
+    deadline: "bg-red-50 dark:bg-red-900/20",
+    invoice: "bg-amber-50 dark:bg-amber-900/20",
+  };
+
+  const urgentAction: Record<string, { label: string; tab: Tab }> = {
+    lead: { label: "צור קשר", tab: "leads" },
+    deadline: { label: "צפה בפרויקט", tab: "projects" },
+    invoice: { label: "טפל עכשיו", tab: "financials" },
+  };
+
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-foreground">דשבורד</h2>
 
-      {/* Stats Grid */}
+      {/* KPI Grid */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <StatCard title="פרויקטים פעילים" value={DEMO_STATS.activeProjects} icon={FolderKanban} />
-        <StatCard title="הכנסות החודש" value={formatCurrency(DEMO_STATS.monthlyRevenue)} icon={TrendingUp} />
-        <StatCard title="חשבוניות פתוחות" value={DEMO_STATS.openInvoices} icon={Receipt} />
-        <StatCard title="אחוז המרה" value={`${DEMO_STATS.conversionRate}%`} icon={Target} />
-        <StatCard title="צילומים קרובים" value={DEMO_STATS.upcomingShoots} icon={Camera} />
-        <StatCard title="דדליינים ממתינים" value={DEMO_STATS.pendingDeadlines} icon={Clock} />
+        <KpiCard
+          title="לידים חדשים"
+          value={DEMO_SMART_STATS.newLeads}
+          icon={UserPlus}
+          onClick={() => onTabChange("leads")}
+        />
+        <KpiCard
+          title="ממתינים לטיפול"
+          value={DEMO_SMART_STATS.pendingLeads}
+          icon={Clock}
+          onClick={() => onTabChange("leads")}
+        />
+        <KpiCard
+          title="פרויקטים פעילים"
+          value={DEMO_SMART_STATS.activeProjects}
+          icon={FolderKanban}
+          onClick={() => onTabChange("projects")}
+        />
+        <KpiCard
+          title="משימות היום"
+          value={DEMO_SMART_STATS.todayTasks}
+          icon={ListTodo}
+          onClick={() => onTabChange("tasks")}
+        />
+        <KpiCard
+          title="הכנסות החודש"
+          value={formatCurrency(DEMO_SMART_STATS.monthRevenue)}
+          icon={TrendingUp}
+          onClick={() => onTabChange("financials")}
+        />
+        <KpiCard
+          title="חשבוניות פתוחות"
+          value={DEMO_SMART_STATS.openInvoices}
+          icon={Receipt}
+          onClick={() => onTabChange("financials")}
+        />
       </div>
 
       {/* Requires Attention */}
@@ -223,33 +293,23 @@ function DashboardTab() {
           דורש טיפול
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center justify-between rounded-lg bg-amber-50 dark:bg-amber-900/20 px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">מיכל אברהמי - הצעת מחיר ממתינה</p>
-              <p className="text-xs text-muted-foreground">לפני יומיים</p>
+          {DEMO_URGENT.map((item, i) => (
+            <div
+              key={i}
+              className={`flex items-center justify-between rounded-lg px-4 py-3 ${urgentBg[item.type] ?? "bg-muted/30"}`}
+            >
+              <div>
+                <p className="text-sm font-medium">{item.name}</p>
+                <p className="text-xs text-muted-foreground">{item.detail}</p>
+              </div>
+              <button
+                onClick={() => onTabChange(urgentAction[item.type]?.tab ?? "dashboard")}
+                className="text-xs text-[#38b6ff] hover:underline whitespace-nowrap"
+              >
+                {urgentAction[item.type]?.label ?? "טפל עכשיו"}
+              </button>
             </div>
-            <button onClick={showSignupToast} className="text-xs text-[#38b6ff] hover:underline">
-              טפל עכשיו
-            </button>
-          </div>
-          <div className="flex items-center justify-between rounded-lg bg-red-50 dark:bg-red-900/20 px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">סרטון תדמית - לוי - דדליין מחר</p>
-              <p className="text-xs text-muted-foreground">נותרו 24 שעות</p>
-            </div>
-            <button onClick={showSignupToast} className="text-xs text-[#38b6ff] hover:underline">
-              צפה בפרויקט
-            </button>
-          </div>
-          <div className="flex items-center justify-between rounded-lg bg-blue-50 dark:bg-blue-900/20 px-4 py-3">
-            <div>
-              <p className="text-sm font-medium">שירה כהן - ליד חדש מאינסטגרם</p>
-              <p className="text-xs text-muted-foreground">לפני יומיים</p>
-            </div>
-            <button onClick={showSignupToast} className="text-xs text-[#38b6ff] hover:underline">
-              צור קשר
-            </button>
-          </div>
+          ))}
         </div>
       </div>
     </div>
@@ -599,6 +659,315 @@ function CalendarTab() {
   );
 }
 
+function ClientsTab() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">לקוחות</h2>
+        <button
+          onClick={showSignupToast}
+          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+        >
+          <Plus className="h-4 w-4" />
+          לקוח חדש
+        </button>
+      </div>
+
+      <div className="glass-card rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">שם</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">אימייל</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">טלפון</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">סטטוס</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">פעולות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {DEMO_CLIENTS.map((client) => (
+                <tr
+                  key={client.id}
+                  className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                >
+                  <td className="px-4 py-3 font-medium">{client.name}</td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Mail className="h-3 w-3" />
+                      {client.email}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <Phone className="h-3 w-3" />
+                      {client.phone}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${
+                        client.isActive
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300"
+                          : "bg-gray-100 text-gray-600 dark:bg-gray-800/40 dark:text-gray-400"
+                      }`}
+                    >
+                      {client.isActive ? "פעיל" : "לא פעיל"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex gap-2">
+                      <button
+                        onClick={showSignupToast}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        <Pencil className="h-3 w-3" /> ערוך
+                      </button>
+                      <button
+                        onClick={showSignupToast}
+                        className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" /> מחק
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScriptsTab() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">תסריטים</h2>
+        <button
+          onClick={showSignupToast}
+          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+        >
+          <Plus className="h-4 w-4" />
+          תסריט חדש
+        </button>
+      </div>
+
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+        {DEMO_SCRIPTS.map((script) => {
+          const platform = PLATFORM_CONFIG[script.platform] ?? {
+            color: "bg-gray-100 text-gray-700 dark:bg-gray-800/40 dark:text-gray-300",
+          };
+          return (
+            <div
+              key={script.id}
+              onClick={showSignupToast}
+              className="glass-card rounded-xl p-5 cursor-pointer transition-all hover:scale-[1.02]"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-sm font-semibold">{script.title}</h3>
+                <span
+                  className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${platform.color}`}
+                >
+                  {script.platform}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                עודכן {formatShortDate(script.updatedAt)}
+              </p>
+              <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showSignupToast();
+                  }}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Pencil className="h-3 w-3" /> ערוך
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showSignupToast();
+                  }}
+                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <Trash2 className="h-3 w-3" /> מחק
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function FinancialsTab() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">כספים</h2>
+        <button
+          onClick={showSignupToast}
+          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+        >
+          <Plus className="h-4 w-4" />
+          חשבונית חדשה
+        </button>
+      </div>
+
+      {/* Financial stat cards */}
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+        <div className="glass-card rounded-xl p-4 border-r-2 border-r-green-500">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-sm font-medium text-muted-foreground">הכנסות החודש</span>
+            <div className="rounded-lg bg-green-500/10 p-2">
+              <TrendingUp className="h-4 w-4 text-green-500" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold tracking-tight">{formatCurrency(DEMO_FINANCIALS.monthlyRevenue)}</div>
+        </div>
+        <div className="glass-card rounded-xl p-4 border-r-2 border-r-amber-500">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-sm font-medium text-muted-foreground">חשבוניות ממתינות</span>
+            <div className="rounded-lg bg-amber-500/10 p-2">
+              <Receipt className="h-4 w-4 text-amber-500" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold tracking-tight">{DEMO_FINANCIALS.pendingInvoices}</div>
+        </div>
+        <div className="glass-card rounded-xl p-4 border-r-2 border-r-red-500">
+          <div className="flex items-center justify-between pb-2">
+            <span className="text-sm font-medium text-muted-foreground">הוצאות</span>
+            <div className="rounded-lg bg-red-500/10 p-2">
+              <CircleDollarSign className="h-4 w-4 text-red-500" />
+            </div>
+          </div>
+          <div className="text-2xl font-bold tracking-tight">{formatCurrency(DEMO_FINANCIALS.totalExpenses)}</div>
+        </div>
+      </div>
+
+      {/* Invoice table */}
+      <div className="glass-card rounded-xl overflow-hidden">
+        <div className="px-5 py-3 border-b border-border">
+          <h3 className="text-base font-semibold">חשבוניות</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border bg-muted/30">
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">מספר</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">לקוח</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">סכום</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">סטטוס</th>
+                <th className="text-right px-4 py-3 font-medium text-muted-foreground">פעולות</th>
+              </tr>
+            </thead>
+            <tbody>
+              {DEMO_FINANCIALS.invoices.map((inv) => {
+                const statusCfg = INVOICE_STATUS_CONFIG[inv.status] ?? {
+                  label: inv.status,
+                  color: "bg-gray-100 text-gray-700",
+                };
+                return (
+                  <tr
+                    key={inv.id}
+                    className="border-b border-border last:border-b-0 hover:bg-muted/20 transition-colors"
+                  >
+                    <td className="px-4 py-3 font-medium">{inv.number}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{inv.client}</td>
+                    <td className="px-4 py-3 font-medium">{formatCurrency(inv.total)}</td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-medium ${statusCfg.color}`}>
+                        {statusCfg.label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <button
+                        onClick={showSignupToast}
+                        className="flex items-center gap-1 text-xs text-[#38b6ff] hover:underline"
+                      >
+                        צפה
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TasksTab() {
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-foreground">משימות</h2>
+        <button
+          onClick={showSignupToast}
+          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+        >
+          <Plus className="h-4 w-4" />
+          משימה חדשה
+        </button>
+      </div>
+
+      <div className="glass-card rounded-xl p-5">
+        <div className="space-y-2">
+          {DEMO_TASKS.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center gap-3 rounded-lg px-4 py-3 hover:bg-muted/30 transition-colors"
+            >
+              <button
+                onClick={showSignupToast}
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
+                  task.completed
+                    ? "border-green-500 bg-green-500 text-white"
+                    : "border-muted-foreground/30 hover:border-[#38b6ff]"
+                }`}
+              >
+                {task.completed && (
+                  <svg
+                    className="h-3 w-3"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+              <span
+                className={`text-sm ${
+                  task.completed
+                    ? "line-through text-muted-foreground"
+                    : "text-foreground"
+                }`}
+              >
+                {task.text}
+              </span>
+              <button
+                onClick={showSignupToast}
+                className="mr-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Demo Page ───────────────────────────────────────────────────
 
 export default function DemoPage() {
@@ -643,10 +1012,14 @@ export default function DemoPage() {
                 exit={{ opacity: 0, y: -12 }}
                 transition={{ duration: 0.2 }}
               >
-                {activeTab === "dashboard" && <DashboardTab />}
+                {activeTab === "dashboard" && <DashboardTab onTabChange={setActiveTab} />}
                 {activeTab === "leads" && <LeadsTab />}
                 {activeTab === "projects" && <ProjectsTab />}
                 {activeTab === "calendar" && <CalendarTab />}
+                {activeTab === "clients" && <ClientsTab />}
+                {activeTab === "scripts" && <ScriptsTab />}
+                {activeTab === "financials" && <FinancialsTab />}
+                {activeTab === "tasks" && <TasksTab />}
               </motion.div>
             </AnimatePresence>
           </main>

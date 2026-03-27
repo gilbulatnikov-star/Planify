@@ -170,6 +170,53 @@ export const DEMO_CALENDAR = [
   },
 ];
 
+export const DEMO_CLIENTS = [
+  { id: "cl1", name: "שירה כהן", email: "shira@example.com", phone: "052-1234567", isActive: true },
+  { id: "cl2", name: "יונתן לוי", email: "yonatan@example.com", phone: "054-9876543", isActive: true },
+  { id: "cl3", name: "נועה גולן", email: "noa@example.com", phone: "058-3334567", isActive: true },
+  { id: "cl4", name: "דני שרון", email: "dani@example.com", phone: "053-7771234", isActive: false },
+];
+
+export const DEMO_SCRIPTS = [
+  { id: "sc1", title: "ריל קולקציית אביב", platform: "Instagram", updatedAt: new Date(Date.now() - 2*86400000) },
+  { id: "sc2", title: "סרטון תדמית - לוי", platform: "YouTube", updatedAt: new Date(Date.now() - 5*86400000) },
+  { id: "sc3", title: "פרסומת TikTok", platform: "TikTok", updatedAt: new Date(Date.now() - 1*86400000) },
+];
+
+export const DEMO_TASKS = [
+  { id: "t1", text: "לשלוח הצעת מחיר לשירה", completed: false },
+  { id: "t2", text: "לערוך סרטון תדמית", completed: false },
+  { id: "t3", text: "לתאם צילום עם יונתן", completed: true },
+  { id: "t4", text: "להכין לוח תוכן לחודש הבא", completed: false },
+  { id: "t5", text: "לשלוח חשבונית לנועה", completed: true },
+];
+
+export const DEMO_FINANCIALS = {
+  monthlyRevenue: 24500,
+  pendingInvoices: 3,
+  totalExpenses: 8200,
+  invoices: [
+    { id: "inv1", number: "INV-001", client: "שירה כהן", total: 15000, status: "paid" as const },
+    { id: "inv2", number: "INV-002", client: "יונתן לוי", total: 8000, status: "sent" as const },
+    { id: "inv3", number: "INV-003", client: "נועה גולן", total: 4500, status: "overdue" as const },
+  ],
+};
+
+export const DEMO_SMART_STATS = {
+  newLeads: 3,
+  pendingLeads: 2,
+  activeProjects: 8,
+  todayTasks: "3/12",
+  monthRevenue: 24500,
+  openInvoices: 3,
+};
+
+export const DEMO_URGENT = [
+  { type: "lead", name: "מיכל אברהמי", detail: "הצעת מחיר ממתינה לפני יומיים" },
+  { type: "deadline", name: "סרטון תדמית - לוי", detail: "דדליין מחר" },
+  { type: "invoice", name: "חשבונית #INV-003", detail: "₪4,500 באיחור" },
+];
+
 export type DemoLead = (typeof DEMO_LEADS)[number];
 export type DemoProject = (typeof DEMO_PROJECTS)[number];
 export type DemoCalendarEvent = (typeof DEMO_CALENDAR)[number];
