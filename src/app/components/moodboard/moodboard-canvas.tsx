@@ -1051,12 +1051,13 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
     window.addEventListener("mouseup", onUp);
   }
 
-  function onTouchStart(e: React.TouchEvent) {
+  // Touch drag only from the grip handle — long press not needed,
+  // just touch the ⠿ handle and drag
+  function onGripTouchStart(e: React.TouchEvent) {
     onSelect(false);
-    const t = e.target as HTMLElement;
-    if (isFormElement(t)) return;
     if (e.touches.length !== 1) return;
     e.stopPropagation();
+    e.preventDefault();
     const touch = e.touches[0];
     dragStart.current = { mx: touch.clientX, my: touch.clientY, nx: node.x, ny: node.y };
     function onTouchMove(ev: TouchEvent) {
@@ -1080,9 +1081,18 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
   const hasCard = (node.type !== "text" && node.type !== "table" && node.type !== "draw" && node.type !== "heading" && node.type !== "shape") || isCommittedDraw;
 
   return (
-    <div onMouseDown={onMouseDown} onTouchStart={onTouchStart} style={{ userSelect: "none", position: "relative", touchAction: "none" }}>
+    <div onMouseDown={onMouseDown} className="group/node" style={{ userSelect: "none", position: "relative" }}>
+      {/* Drag grip handle — visible on mobile, touch-only drag point */}
+      <div
+        onTouchStart={onGripTouchStart}
+        onMouseDown={(e) => { e.stopPropagation(); onMouseDown(e); }}
+        style={{ position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", zIndex: 20, touchAction: "none" }}
+        className="flex h-7 w-10 items-center justify-center rounded-full bg-card border border-border shadow-md cursor-grab active:cursor-grabbing md:opacity-0 md:group-hover/node:opacity-100 opacity-80 transition-opacity"
+      >
+        <svg width="12" height="10" viewBox="0 0 12 10" className="text-muted-foreground"><circle cx="3" cy="2" r="1.2" fill="currentColor"/><circle cx="9" cy="2" r="1.2" fill="currentColor"/><circle cx="3" cy="5" r="1.2" fill="currentColor"/><circle cx="9" cy="5" r="1.2" fill="currentColor"/><circle cx="3" cy="8" r="1.2" fill="currentColor"/><circle cx="9" cy="8" r="1.2" fill="currentColor"/></svg>
+      </div>
       {selected && (
-        <button onMouseDown={e => e.stopPropagation()} onClick={onDelete}
+        <button onMouseDown={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()} onClick={onDelete}
           style={{ position: "absolute", top: -10, right: -10, zIndex: 20 }}
           className="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-background shadow hover:bg-red-600 transition-colors">
           <X className="h-3.5 w-3.5" />
