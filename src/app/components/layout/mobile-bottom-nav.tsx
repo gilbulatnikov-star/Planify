@@ -19,6 +19,7 @@ import {
   ListTodo,
   Zap,
   FileBarChart2,
+  BarChart3,
 } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
@@ -45,6 +46,7 @@ export function MobileBottomNav() {
     { href: "/tasks", label: t.widgets?.todos ?? "משימות", icon: ListTodo },
     { href: "/automations", label: t.automations?.title ?? "אוטומציות", icon: Zap },
     { href: "/financials", label: t.nav.financials, icon: FileBarChart2 },
+    { href: "/reports", label: "דוחות", icon: BarChart3 },
   ];
 
   return (

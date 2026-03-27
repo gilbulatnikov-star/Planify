@@ -17,6 +17,7 @@ import {
   ListTodo,
   Zap,
   LogOut,
+  BarChart3,
 } from "lucide-react";
 import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -40,7 +41,7 @@ export function AppSidebar() {
   const isRTL = locale === "he";
 
   // Shared className for all menu buttons — premium charcoal sidebar
-  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200 rounded-[9px] text-[13px] tracking-[-0.01em]`;
+  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200 rounded-[9px] text-[13px] tracking-[-0.01em] md:py-2 py-3`;
   const btnActive = `${btnBase} bg-white/[0.08] text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.15)]`;
   const btnIdle   = `${btnBase} text-sidebar-foreground hover:text-white/85 hover:bg-white/[0.05]`;
   const pathname = usePathname();
@@ -60,6 +61,7 @@ export function AppSidebar() {
     { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
     { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
     { href: "/automations", label: he.automations.title, icon: Zap, tourId: "nav-automations" },
+    { href: "/reports", label: "דוחות", icon: BarChart3, tourId: "nav-reports" },
   ];
 
   const isFinancialsActive = pathname.startsWith("/financials");
@@ -98,12 +100,15 @@ export function AppSidebar() {
       <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navItems.map((item) => {
+            <SidebarMenu className="md:space-y-0 space-y-0">
+              {navItems.map((item, index) => {
                 const isActive =
                   item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                    {index > 0 && (
+                      <div className="md:hidden mx-3 border-t border-white/[0.06]" />
+                    )}
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
@@ -120,6 +125,7 @@ export function AppSidebar() {
 
               {/* ── כספים ── */}
               <SidebarMenuItem data-tour="nav-financials">
+                <div className="md:hidden mx-3 border-t border-white/[0.06]" />
                 <SidebarMenuButton
                   render={<Link href="/financials" />}
                   isActive={isFinancialsActive}

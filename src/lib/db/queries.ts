@@ -31,7 +31,7 @@ export async function getDashboardStats() {
     wonLeads,
   ] = await Promise.all([
     prisma.project.count({
-      where: { phase: { not: "delivered" }, userId },
+      where: { phase: { notIn: ["done", "delivered", "gallery_delivery", "published", "active"] }, userId },
     }),
     prisma.project.findMany({
       where: {

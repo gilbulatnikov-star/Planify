@@ -68,7 +68,7 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     recentProjects,
   ] = await Promise.all([
     prisma.client.count({ where: { userId, isActive: true } }),
-    prisma.project.count({ where: { userId, phase: { notIn: ["done", "delivered"] } } }),
+    prisma.project.count({ where: { userId, phase: { notIn: ["done", "delivered", "gallery_delivery", "published", "active"] } } }),
     prisma.task.count({ where: { project: { userId }, completed: true } }),
     prisma.task.count({ where: { project: { userId } } }),
     prisma.invoice.aggregate({
