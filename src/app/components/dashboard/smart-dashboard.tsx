@@ -23,10 +23,12 @@ export function SmartDashboard({ data }: { data: SmartDashboardData }) {
   const locale = useLocale();
   const [urgentOpen, setUrgentOpen] = useState(true);
 
-  const { kpis, urgent, todayContent, thisWeek, recentProjects } = data;
+  const { kpis, urgent, todayContent } = data;
+  const thisWeek = data.thisWeek ?? { deadlines: [], tasks: [] };
+  const recentProjects = data.recentProjects ?? [];
 
-  const hasUrgent = urgent.approachingDeadlines.length > 0 || urgent.overdueInvoices.length > 0;
-  const urgentCount = urgent.approachingDeadlines.length + urgent.overdueInvoices.length;
+  const hasUrgent = (urgent?.approachingDeadlines?.length ?? 0) > 0 || (urgent?.overdueInvoices?.length ?? 0) > 0;
+  const urgentCount = (urgent?.approachingDeadlines?.length ?? 0) + (urgent?.overdueInvoices?.length ?? 0);
   const hasThisWeek = thisWeek.deadlines.length > 0 || thisWeek.tasks.length > 0;
 
   const kpiCards = [
@@ -74,13 +76,13 @@ export function SmartDashboard({ data }: { data: SmartDashboardData }) {
             </button>
             {urgentOpen && (
               <div className="px-5 pb-4 space-y-2">
-                {urgent.approachingDeadlines.map(p => (
+                {(urgent?.approachingDeadlines ?? []).map(p => (
                   <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg border border-amber-200 dark:border-amber-500/20 bg-background/80 px-3 py-2.5 hover:bg-muted/50 transition-colors">
                     <span className="text-sm">{p.title}</span>
                     <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1"><Clock className="h-3 w-3" /> דדליין קרוב</span>
                   </Link>
                 ))}
-                {urgent.overdueInvoices.map(inv => (
+                {(urgent?.overdueInvoices ?? []).map(inv => (
                   <Link key={inv.id} href="/financials" className="flex items-center justify-between rounded-lg border border-red-200 dark:border-red-500/20 bg-background/80 px-3 py-2.5 hover:bg-muted/50 transition-colors">
                     <span className="text-sm">חשבונית #{inv.invoiceNumber}</span>
                     <span className="text-xs text-red-500">{formatCurrency(inv.total, locale)} — באיחור</span>

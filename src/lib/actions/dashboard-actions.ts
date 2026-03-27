@@ -45,6 +45,7 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
   const userId = session?.user?.id;
   if (!userId) return null;
 
+  try {
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const tomorrow = new Date(today.getTime() + 86400000);
@@ -135,4 +136,14 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       id: p.id, title: p.title, phase: p.phase, clientName: p.client?.name ?? null, updatedAt: p.updatedAt,
     })),
   };
+  } catch (error) {
+    console.error("Dashboard query failed:", error);
+    return {
+      kpis: { activeClients: 0, activeProjects: 0, todayTasks: "0", monthRevenue: 0, openInvoices: 0, openQuotes: 0 },
+      urgent: { approachingDeadlines: [], overdueInvoices: [] },
+      todayContent: [],
+      thisWeek: { deadlines: [], tasks: [] },
+      recentProjects: [],
+    };
+  }
 }
