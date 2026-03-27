@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle, Lock } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 export default function SignInPage() {
@@ -140,6 +140,28 @@ export default function SignInPage() {
             </svg>
             Google
           </button>
+
+          {/* Trust microcopy */}
+          <div className="flex flex-col items-center gap-1.5 pt-1">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Lock className="h-3 w-3" />
+              <span>{he.auth.secureLogin ?? "גישה מאובטחת"}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground/70">
+              {he.auth.dataProtected ?? "המידע שלך מוגן ומוצפן"}
+            </p>
+          </div>
+
+          {/* Terms & privacy links */}
+          <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground/60">
+            <Link href="/terms" className="hover:text-foreground transition-colors hover:underline">
+              {he.auth.termsLink ?? "תנאי השימוש"}
+            </Link>
+            <span>·</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors hover:underline">
+              {he.auth.privacyLink ?? "מדיניות הפרטיות"}
+            </Link>
+          </div>
         </form>
       </div>
 

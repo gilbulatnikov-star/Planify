@@ -57,6 +57,7 @@ model User {
   feedbacks            Feedback[]
   notifications        Notification[]
   automationRules      AutomationRule[]
+  shareLinks           ShareLink[]
 }
 
 // ---------- NOTIFICATIONS ----------
@@ -168,6 +169,7 @@ model Project {
   scheduledContent ScheduledContent[]
   contentBoards    ContentBoard[]
   travelLogs       TravelLog[]
+  shareLinks       ShareLink[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -484,6 +486,21 @@ model Inspiration {
   user       User?               @relation(fields: [userId], references: [id])
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
+}
+
+// ---------- SHARE LINKS ----------
+model ShareLink {
+  id            String    @id @default(cuid())
+  projectId     String
+  project       Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  token         String    @unique @default(cuid())
+  expiresAt     DateTime?
+  allowDownload Boolean   @default(false)
+  note          String?
+  active        Boolean   @default(true)
+  createdAt     DateTime  @default(now())
 }
 
 // ---------- CHEAT SHEETS / SOPs ----------

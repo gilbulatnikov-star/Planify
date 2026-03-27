@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
-  CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X, Users,
+  CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X, Users, Share2,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProjectDialog } from "./project-dialog";
+import { ShareDialog } from "./share-dialog";
 import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/project-config";
 import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -145,6 +146,7 @@ export function ProjectDetailClient({
   const locale = useLocale();
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const [, startTransition] = useTransition();
 
   function handleLink(type: "script" | "moodboard" | "contact" | "content", itemId: string) {
@@ -191,10 +193,16 @@ export function ProjectDetailClient({
               onSelect={(clientId) => { startTransition(async () => { await updateProjectClient(project.id, clientId); router.refresh(); }); }}
             />
           </div>
-          <Button size="sm" variant="outline" onClick={() => setEditOpen(true)} className="shrink-0">
-            <Pencil className="h-3.5 w-3.5 me-1.5" />
-            {he.common.edit}
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button size="sm" variant="outline" onClick={() => setShareOpen(true)}>
+              <Share2 className="h-3.5 w-3.5 me-1.5" />
+              {he.share?.title ?? "שתף"}
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => setEditOpen(true)}>
+              <Pencil className="h-3.5 w-3.5 me-1.5" />
+              {he.common.edit}
+            </Button>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           {typeLabel && <Badge variant="outline" className="text-xs border-border text-muted-foreground">{typeLabel}</Badge>}
@@ -371,6 +379,13 @@ export function ProjectDetailClient({
         clients={clients}
         open={editOpen}
         onOpenChange={(open) => { setEditOpen(open); if (!open) router.refresh(); }}
+      />
+
+      {/* Share dialog */}
+      <ShareDialog
+        projectId={project.id}
+        open={shareOpen}
+        onOpenChange={setShareOpen}
       />
     </motion.div>
   );

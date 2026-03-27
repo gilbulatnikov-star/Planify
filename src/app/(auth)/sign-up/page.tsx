@@ -4,7 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Eye, EyeOff, Loader2, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, Loader2, AlertCircle, Lock } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 export default function SignUpPage() {
@@ -16,6 +16,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -130,21 +131,51 @@ export default function SignUpPage() {
             </div>
           </div>
 
+          {/* Terms checkbox */}
+          <label className="flex items-start gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded accent-foreground"
+            />
+            <span className="text-xs text-muted-foreground leading-relaxed">
+              {he.auth.agreeCheckbox ?? "אני מסכים/ה לתנאי השימוש ומדיניות הפרטיות"}{" "}
+              <Link href="/terms" className="underline hover:text-foreground transition-colors">
+                {he.auth.termsLink ?? "תנאי השימוש"}
+              </Link>
+              {" "}
+              <Link href="/privacy" className="underline hover:text-foreground transition-colors">
+                {he.auth.privacyLink ?? "מדיניות הפרטיות"}
+              </Link>
+            </span>
+          </label>
+
           {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full h-11 rounded-xl bg-foreground text-background text-sm font-semibold transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>{he.auth.creatingAccount}</span>
-              </>
-            ) : (
-              he.auth.createAccountButton
-            )}
-          </button>
+          <div className="space-y-2">
+            <button
+              type="submit"
+              disabled={loading || !agreedToTerms}
+              className="w-full h-11 rounded-xl bg-foreground text-background text-sm font-semibold transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>{he.auth.creatingAccount}</span>
+                </>
+              ) : (
+                he.auth.createAccountButton
+              )}
+            </button>
+            {/* Trust microcopy near submit */}
+            <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Lock className="h-3 w-3" />
+              <span>{he.auth.secureSignUp ?? "הרשמה מאובטחת — ללא כרטיס אשראי"}</span>
+            </div>
+            <p className="text-center text-[11px] text-muted-foreground/70">
+              {he.auth.freeTrial ?? "ניסיון חינם ל-3 ימים"}
+            </p>
+          </div>
 
           {/* Divider */}
           <div className="relative">
@@ -172,9 +203,15 @@ export default function SignUpPage() {
           </button>
 
           {/* Terms */}
-          <p className="text-center text-xs text-muted-foreground">
-            {he.auth.agreeToTerms}
-          </p>
+          <div className="flex items-center justify-center gap-2 text-[11px] text-muted-foreground/60">
+            <Link href="/terms" className="hover:text-foreground transition-colors hover:underline">
+              {he.auth.termsLink ?? "תנאי השימוש"}
+            </Link>
+            <span>·</span>
+            <Link href="/privacy" className="hover:text-foreground transition-colors hover:underline">
+              {he.auth.privacyLink ?? "מדיניות הפרטיות"}
+            </Link>
+          </div>
         </form>
       </div>
 

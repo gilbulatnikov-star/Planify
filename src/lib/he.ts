@@ -556,6 +556,13 @@ export const he = {
     signUpFailed: "משהו השתבש. נסה שוב.",
     signUpSuccessSignInFailed: "ההרשמה הצליחה אך הכניסה נכשלה. נסה להיכנס ידנית.",
     minChars: "לפחות 6 תווים",
+    secureLogin: "גישה מאובטחת",
+    dataProtected: "המידע שלך מוגן ומוצפן",
+    secureSignUp: "הרשמה מאובטחת — ללא כרטיס אשראי",
+    agreeCheckbox: "אני מסכים/ה לתנאי השימוש ומדיניות הפרטיות",
+    freeTrial: "ניסיון חינם ל-3 ימים",
+    termsLink: "תנאי השימוש",
+    privacyLink: "מדיניות הפרטיות",
   },
 
   // Profile / Settings
@@ -1375,6 +1382,26 @@ export const he = {
     markAllRead: "סמן הכל כנקרא",
     noNotifications: "אין התראות",
     timeAgo: { now: "עכשיו", minutes: "דקות", hours: "שעות", days: "ימים" },
+  },
+
+  // Share
+  share: {
+    title: "שיתוף פרויקט",
+    generateLink: "צור קישור שיתוף",
+    copyLink: "העתק קישור",
+    copied: "הקישור הועתק",
+    allowDownload: "אפשר הורדה",
+    expiryDate: "תאריך תפוגה",
+    noteForClient: "הערה ללקוח",
+    notePlaceholder: "הערה שתוצג ללקוח...",
+    activeLinks: "קישורים פעילים",
+    deactivate: "בטל",
+    noExpiry: "ללא תפוגה",
+    expired: "פג תוקף",
+    poweredBy: "מופעל על ידי",
+    projectStatus: "סטטוס הפרויקט",
+    taskProgress: "התקדמות משימות",
+    sharedBy: "שותף על ידי",
   },
 
   // Layout / meta

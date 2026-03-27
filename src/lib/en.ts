@@ -556,6 +556,13 @@ export const en = {
     signUpFailed: "Something went wrong. Try again.",
     signUpSuccessSignInFailed: "Registration succeeded but sign-in failed. Try signing in manually.",
     minChars: "At least 6 characters",
+    secureLogin: "Secure Access",
+    dataProtected: "Your data is protected and encrypted",
+    secureSignUp: "Secure Sign Up — No Credit Card Required",
+    agreeCheckbox: "I agree to the Terms of Service and Privacy Policy",
+    freeTrial: "Free 3-day trial",
+    termsLink: "Terms of Service",
+    privacyLink: "Privacy Policy",
   },
 
   // Profile / Settings
@@ -1372,6 +1379,26 @@ export const en = {
     markAllRead: "Mark all as read",
     noNotifications: "No notifications",
     timeAgo: { now: "now", minutes: "minutes", hours: "hours", days: "days" },
+  },
+
+  // Share
+  share: {
+    title: "Share Project",
+    generateLink: "Generate Share Link",
+    copyLink: "Copy Link",
+    copied: "Link Copied",
+    allowDownload: "Allow Downloads",
+    expiryDate: "Expiry Date",
+    noteForClient: "Note for Client",
+    notePlaceholder: "Note visible to client...",
+    activeLinks: "Active Links",
+    deactivate: "Deactivate",
+    noExpiry: "No Expiry",
+    expired: "Expired",
+    poweredBy: "Powered by",
+    projectStatus: "Project Status",
+    taskProgress: "Task Progress",
+    sharedBy: "Shared by",
   },
 
   // Layout / meta
