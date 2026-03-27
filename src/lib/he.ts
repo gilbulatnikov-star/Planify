@@ -33,8 +33,7 @@ export const he = {
     recentClients: "לקוחות אחרונים",
     noProjects: "אין פרויקטים פעילים",
     noShoots: "אין אירועים קרובים",
-    newLeads: "לידים חדשים",
-    pendingResponse: "ממתינים למענה",
+    activeClients: "לקוחות פעילים",
     tasks: "משימות",
     openInvoices: "חשבוניות פתוחות",
     needsAttention: "דורש טיפול עכשיו",
@@ -51,8 +50,8 @@ export const he = {
     createProject: "צור פרויקט",
     addTask: "הוסף משימה",
     createQuote: "צור הצעת מחיר",
-    leadsOverTime: "לידים לאורך זמן",
-    leadSources: "מקורות לידים",
+    projectsOverTime: "פרויקטים לאורך זמן",
+    projectTypes: "סוגי פרויקטים",
   },
 
   // Projects

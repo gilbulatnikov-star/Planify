@@ -69,31 +69,21 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
   const { kpis, urgent, todayContent, charts } = data;
 
   const hasUrgent =
-    urgent.staleLeads.length > 0 ||
     urgent.approachingDeadlines.length > 0 ||
     urgent.overdueInvoices.length > 0;
 
   const urgentCount =
-    urgent.staleLeads.length +
     urgent.approachingDeadlines.length +
     urgent.overdueInvoices.length;
 
   const kpiCards = [
     {
-      label: he.dashboard.newLeads,
-      value: kpis.newLeads,
+      label: he.dashboard.activeClients,
+      value: kpis.activeClients,
       icon: Users,
       color: "text-blue-500",
       bg: "bg-blue-500/10",
-      href: "/leads",
-    },
-    {
-      label: he.dashboard.pendingResponse,
-      value: kpis.pendingLeads,
-      icon: Clock,
-      color: "text-yellow-500",
-      bg: "bg-yellow-500/10",
-      href: "/leads",
+      href: "/clients",
     },
     {
       label: he.dashboard.activeProjects,
@@ -197,19 +187,6 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
             </CardHeader>
             {urgentOpen && (
               <CardContent className="space-y-2 pt-0">
-                {urgent.staleLeads.map((lead) => (
-                  <Link
-                    key={lead.id}
-                    href="/leads"
-                    className="flex items-center justify-between rounded-lg border border-red-500/20 bg-background/60 p-3 transition-colors hover:bg-muted/50"
-                  >
-                    <span className="text-sm font-medium">{lead.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {he.dashboard.staleLeadMsg} {lead.daysSince}{" "}
-                      {he.dashboard.days}
-                    </span>
-                  </Link>
-                ))}
                 {urgent.approachingDeadlines.map((p) => (
                   <Link
                     key={p.id}
@@ -250,10 +227,10 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        {/* Line chart: Leads over time */}
+        {/* Line chart: Projects over time */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-lg">{he.dashboard.leadsOverTime}</CardTitle>
+            <CardTitle className="text-lg">{he.dashboard.projectsOverTime}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[250px] w-full">
@@ -295,10 +272,10 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
           </CardContent>
         </Card>
 
-        {/* Donut chart: Lead sources */}
+        {/* Donut chart: Project types */}
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle className="text-lg">{he.dashboard.leadSources}</CardTitle>
+            <CardTitle className="text-lg">{he.dashboard.projectTypes}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[250px] w-full">
@@ -426,13 +403,6 @@ export function SmartDashboard({ data }: SmartDashboardProps) {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-3">
-              <Link
-                href="/leads"
-                className={buttonVariants({ variant: "outline", size: "sm" })}
-              >
-                <Plus className="h-4 w-4 me-1.5" />
-                {he.dashboard.addLead}
-              </Link>
               <Link
                 href="/projects"
                 className={buttonVariants({ variant: "outline", size: "sm" })}

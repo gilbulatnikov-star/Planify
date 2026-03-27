@@ -33,8 +33,7 @@ export const en = {
     recentClients: "Recent Clients",
     noProjects: "No active projects",
     noShoots: "No upcoming events",
-    newLeads: "New Leads",
-    pendingResponse: "Awaiting Response",
+    activeClients: "Active Clients",
     tasks: "Tasks",
     openInvoices: "Open Invoices",
     needsAttention: "Needs Attention Now",
@@ -51,8 +50,8 @@ export const en = {
     createProject: "Create Project",
     addTask: "Add Task",
     createQuote: "Create Quote",
-    leadsOverTime: "Leads Over Time",
-    leadSources: "Lead Sources",
+    projectsOverTime: "Projects Over Time",
+    projectTypes: "Project Types",
   },
 
   // Projects

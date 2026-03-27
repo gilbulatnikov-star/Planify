@@ -32,13 +32,12 @@ export function MobileBottomNav() {
 
   const mainItems = [
     { href: "/", label: t.nav.dashboard, icon: LayoutDashboard },
-    { href: "/leads", label: t.leads?.title ?? "לידים", icon: UserPlus },
     { href: "/projects", label: t.nav.projects, icon: FolderKanban },
+    { href: "/clients", label: t.nav.clients, icon: Users },
     { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
   ];
 
   const moreItems = [
-    { href: "/clients", label: t.nav.clients, icon: Users },
     { href: "/scripts", label: t.nav.scripts, icon: FileText },
     { href: "/contacts", label: t.nav.contacts, icon: Contact },
     { href: "/inspiration", label: t.nav.inspiration, icon: Sparkles },

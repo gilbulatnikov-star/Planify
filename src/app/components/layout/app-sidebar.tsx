@@ -52,7 +52,7 @@ export function AppSidebar() {
     { href: "/", label: he.nav.dashboard, icon: LayoutDashboard, tourId: "nav-dashboard" },
     { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
     { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
-    { href: "/leads", label: he.leads?.title ?? "לידים", icon: UserPlus, tourId: "nav-leads" },
+    // { href: "/leads", label: he.leads?.title ?? "לידים", icon: UserPlus, tourId: "nav-leads" },
     { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
     { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
     { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },

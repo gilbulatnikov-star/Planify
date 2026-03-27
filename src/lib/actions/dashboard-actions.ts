@@ -5,8 +5,7 @@ import { auth } from "@/auth";
 
 export type SmartDashboardData = {
   kpis: {
-    newLeads: number;
-    pendingLeads: number;
+    activeClients: number;
     activeProjects: number;
     todayTasks: string;
     monthRevenue: number;
@@ -14,7 +13,6 @@ export type SmartDashboardData = {
     openQuotes: number;
   };
   urgent: {
-    staleLeads: { id: string; name: string; daysSince: number }[];
     approachingDeadlines: { id: string; title: string; deadline: Date | null }[];
     overdueInvoices: {
       id: string;
@@ -45,8 +43,7 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
   const tomorrow = new Date(today.getTime() + 86400000);
 
   const [
-    newLeads,
-    pendingLeads,
+    activeClients,
     activeProjects,
     completedTasks,
     totalTasks,
@@ -57,22 +54,9 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     todayContent,
     recentLeadTimeline,
   ] = await Promise.all([
-    // New leads (last 7 days)
+    // Active clients
     prisma.client.count({
-      where: {
-        userId,
-        type: "lead",
-        leadStatus: "new",
-        createdAt: { gte: new Date(now.getTime() - 7 * 86400000) },
-      },
-    }),
-    // Leads waiting for response (status = new or contacted)
-    prisma.client.count({
-      where: {
-        userId,
-        type: "lead",
-        leadStatus: { in: ["new", "contacted"] },
-      },
+      where: { userId, isActive: true },
     }),
     // Active projects
     prisma.project.count({
@@ -107,28 +91,8 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     }),
     // Urgent items
     Promise.all([
-      // Leads with no interaction in 3+ days
-      prisma.client
-        .findMany({
-          where: {
-            userId,
-            type: "lead",
-            leadStatus: { in: ["new", "contacted", "qualified"] },
-          },
-          include: { interactions: { orderBy: { date: "desc" }, take: 1 } },
-          take: 10,
-        })
-        .then((leads) =>
-          leads
-            .filter((l) => {
-              const lastDate = l.interactions[0]?.date ?? l.createdAt;
-              return (
-                now.getTime() - new Date(lastDate).getTime() >
-                3 * 86400000
-              );
-            })
-            .slice(0, 5)
-        ),
+      // (placeholder for index alignment)
+      Promise.resolve([]),
       // Projects with deadline in next 48 hours
       prisma.project.findMany({
         where: {
@@ -154,26 +118,25 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       where: { userId, date: { gte: today, lt: tomorrow } },
       select: { id: true, title: true, status: true, color: true },
     }),
-    // Lead timeline (last 12 weeks for chart)
-    prisma.client.findMany({
+    // Project timeline (last 12 weeks for chart)
+    prisma.project.findMany({
       where: {
         userId,
-        type: "lead",
         createdAt: {
           gte: new Date(now.getTime() - 12 * 7 * 86400000),
         },
       },
-      select: { createdAt: true, leadStatus: true, leadSource: true },
+      select: { createdAt: true, projectType: true },
     }),
   ]);
 
-  // Build weekly timeline
+  // Build weekly project timeline
   const timeline: { week: string; count: number }[] = [];
   for (let i = 11; i >= 0; i--) {
     const weekStart = new Date(now.getTime() - (i + 1) * 7 * 86400000);
     const weekEnd = new Date(now.getTime() - i * 7 * 86400000);
-    const count = recentLeadTimeline.filter((l) => {
-      const d = new Date(l.createdAt);
+    const count = recentLeadTimeline.filter((p) => {
+      const d = new Date(p.createdAt);
       return d >= weekStart && d < weekEnd;
     }).length;
     timeline.push({
@@ -182,10 +145,10 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     });
   }
 
-  // Source distribution
+  // Project type distribution
   const sourceMap: Record<string, number> = {};
-  recentLeadTimeline.forEach((l) => {
-    const src = l.leadSource || "other";
+  recentLeadTimeline.forEach((p) => {
+    const src = p.projectType || "other";
     sourceMap[src] = (sourceMap[src] || 0) + 1;
   });
   const bySource = Object.entries(sourceMap).map(([source, count]) => ({
@@ -195,8 +158,7 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
 
   return {
     kpis: {
-      newLeads,
-      pendingLeads,
+      activeClients,
       activeProjects,
       todayTasks: totalTasks > 0 ? `${completedTasks}/${totalTasks}` : "0",
       monthRevenue: monthRevenue._sum.total ?? 0,
@@ -204,15 +166,6 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       openQuotes,
     },
     urgent: {
-      staleLeads: urgentItems[0].map((l) => ({
-        id: l.id,
-        name: l.name,
-        daysSince: Math.floor(
-          (now.getTime() -
-            new Date(l.interactions[0]?.date ?? l.createdAt).getTime()) /
-            86400000
-        ),
-      })),
       approachingDeadlines: urgentItems[1],
       overdueInvoices: urgentItems[2],
     },
