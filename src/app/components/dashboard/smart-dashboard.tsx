@@ -143,14 +143,14 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       {/* ══════════════════════════════════════════════════════
          GLOBAL SEARCH
          ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fade} ref={searchRef} className="relative">
+      <motion.div variants={fade} ref={searchRef} className="relative w-full max-w-sm">
         <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30 pointer-events-none z-10" />
         <input
           placeholder="חיפוש בכל המערכת — פרויקטים, לקוחות, משימות..."
           value={globalSearch}
           onChange={(e) => { setGlobalSearch(e.target.value); setSearchFocused(true); }}
           onFocus={() => setSearchFocused(true)}
-          className="w-full rounded-[12px] border border-border/40 bg-card px-4 py-3 pe-12 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200"
+          className="w-full rounded-[12px] border border-border/40 bg-card px-4 py-3 ps-10 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-2 focus:ring-accent/10 shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all duration-200"
         />
         {searchFocused && filteredSearch.length > 0 && (
           <div className="absolute inset-x-0 top-full mt-1.5 rounded-[12px] border border-border/40 bg-card shadow-[0_8px_24px_-6px_rgba(0,0,0,0.12)] z-50 overflow-hidden max-h-[280px] overflow-y-auto">

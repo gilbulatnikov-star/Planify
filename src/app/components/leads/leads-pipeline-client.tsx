@@ -220,7 +220,7 @@ export function LeadsPipelineClient({
             placeholder={t.common.searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="ps-8 h-9"
+            className="ps-10 h-9"
           />
         </div>
         <select

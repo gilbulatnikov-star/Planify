@@ -186,14 +186,14 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
         </div>
 
         {/* Search */}
-        <div className="relative">
+        <div className="relative w-full max-w-sm">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder={he.admin.searchPlaceholder}
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-border bg-card pr-10 pl-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
+            className="w-full rounded-xl border border-border bg-card ps-10 pl-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900"
           />
         </div>
 
