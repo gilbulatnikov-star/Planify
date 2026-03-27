@@ -7,6 +7,7 @@ export type MonthlyDataPoint = {
   month: string; // "2026-03"
   label: string; // "מרץ"
   revenue: number;
+  expenses: number;
   projectsOpened: number;
   projectsCompleted: number;
   tasksCompleted: number;
@@ -52,6 +53,7 @@ export async function getReportsData(monthsBack = 6): Promise<ReportsData> {
 
     const [
       revenueAgg,
+      expensesAgg,
       projectsOpened,
       projectsCompleted,
       tasksCompleted,
@@ -63,6 +65,11 @@ export async function getReportsData(monthsBack = 6): Promise<ReportsData> {
       prisma.invoice.aggregate({
         where: { userId, status: "paid", paidAt: { gte: start, lt: end } },
         _sum: { total: true },
+      }),
+      // Expenses this month
+      prisma.expense.aggregate({
+        where: { userId, date: { gte: start, lt: end } },
+        _sum: { amount: true },
       }),
       // Projects opened this month
       prisma.project.count({
@@ -94,6 +101,7 @@ export async function getReportsData(monthsBack = 6): Promise<ReportsData> {
       month: monthKey,
       label,
       revenue: revenueAgg._sum.total ?? 0,
+      expenses: expensesAgg._sum.amount ?? 0,
       projectsOpened,
       projectsCompleted,
       tasksCompleted,

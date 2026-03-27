@@ -17,8 +17,6 @@ import {
   TrendingUp,
   FolderKanban,
   Users,
-  FileText,
-  CheckCircle2,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -27,9 +25,9 @@ import type { ReportsData } from "@/lib/actions/reports-actions";
 // ─── Chart colors ─────────────────────────────────────────────────────────────
 const BLUE = "#3b82f6";
 const EMERALD = "#10b981";
+const RED = "#ef4444";
 const VIOLET = "#8b5cf6";
 const AMBER = "#f59e0b";
-const SLATE = "#64748b";
 
 // ─── Custom tooltip ───────────────────────────────────────────────────────────
 function ChartTooltip({ active, payload, label, suffix = "" }: {
@@ -121,7 +119,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.05 }}
-        className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3"
+        className="grid grid-cols-2 md:grid-cols-4 gap-3"
       >
         <StatCard
           label="סה״כ הכנסות"
@@ -136,9 +134,9 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
           color={BLUE}
         />
         <StatCard
-          label="הושלמו"
-          value={totals.totalCompleted}
-          icon={CheckCircle2}
+          label="ממוצע חודשי"
+          value={`₪${months.length > 0 ? Math.round(totals.totalRevenue / months.length).toLocaleString("he-IL") : 0}`}
+          icon={TrendingUp}
           color={VIOLET}
         />
         <StatCard
@@ -147,12 +145,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
           icon={Users}
           color={AMBER}
         />
-        <StatCard
-          label="תוכן שפורסם"
-          value={totals.totalContent}
-          icon={FileText}
-          color={SLATE}
-        />
+{/* Content published KPI removed per user request */}
       </motion.div>
 
       {/* Charts grid */}
@@ -162,8 +155,8 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
         transition={{ delay: 0.1 }}
         className="grid md:grid-cols-2 gap-4"
       >
-        {/* Revenue chart */}
-        <ChartCard title="הכנסות חודשיות">
+        {/* Revenue & Expenses chart */}
+        <ChartCard title="הכנסות והוצאות חודשיות">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={months} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
@@ -180,7 +173,8 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
                 tickFormatter={(v: number) => `₪${(v / 1000).toFixed(0)}k`}
               />
               <Tooltip content={<ChartTooltip suffix=" ₪" />} />
-              <Bar dataKey="revenue" fill={EMERALD} radius={[6, 6, 0, 0]} maxBarSize={32} />
+              <Bar dataKey="revenue" name="הכנסות" fill={EMERALD} radius={[6, 6, 0, 0]} maxBarSize={24} />
+              <Bar dataKey="expenses" name="הוצאות" fill={RED} radius={[6, 6, 0, 0]} maxBarSize={24} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -240,28 +234,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
           </ResponsiveContainer>
         </ChartCard>
 
-        {/* Content published chart */}
-        <ChartCard title="תוכן שפורסם">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={months} margin={{ top: 5, right: 5, left: -15, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.4 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fontSize: 10, fill: "var(--foreground)", opacity: 0.3 }}
-                axisLine={false}
-                tickLine={false}
-                allowDecimals={false}
-              />
-              <Tooltip content={<ChartTooltip />} />
-              <Bar dataKey="contentPublished" name="פורסם" fill={SLATE} radius={[6, 6, 0, 0]} maxBarSize={32} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
+{/* Content published chart removed */}
       </motion.div>
 
       {/* Tasks completion chart — full width */}

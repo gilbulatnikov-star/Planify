@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
   AlertTriangle, CalendarDays, Plus, Clock, ChevronLeft,
-  ArrowUpRight, Sparkles, TrendingUp, BarChart3,
+  ArrowUpRight, Sparkles, TrendingUp,
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -120,24 +120,6 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
         {kpiData.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
-      </motion.div>
-
-      {/* ══════════════════════════════════════════════════════
-         MONTHLY REPORT LINK
-         ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fade}>
-        <Link
-          href="/reports"
-          className="group flex items-center justify-between rounded-[12px] border border-border/30 bg-card px-5 py-3 shadow-[0_1px_2px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,0.6)] hover:border-border/50 hover:shadow-[0_3px_10px_-3px_rgba(0,0,0,0.08)] hover:-translate-y-[0.5px] transition-all duration-250"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-[8px] bg-accent/10 group-hover:bg-accent/15 transition-colors">
-              <BarChart3 className="h-3.5 w-3.5 text-accent" strokeWidth={2} />
-            </div>
-            <span className="text-[12.5px] font-semibold text-foreground/60 group-hover:text-foreground/85 transition-colors">סיכום חודשי — גרפים ודוחות</span>
-          </div>
-          <ChevronLeft className="h-3.5 w-3.5 text-foreground/20 group-hover:text-foreground/40 transition-colors" />
-        </Link>
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════
