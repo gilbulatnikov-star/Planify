@@ -87,7 +87,7 @@ export function MobileBottomNav() {
             </div>
 
             {/* Grid of items */}
-            <div className="grid grid-cols-3 gap-1 p-3">
+            <div className="grid grid-cols-3 gap-1 p-3 overflow-y-auto max-h-[60vh]">
               {moreItems.map((item) => {
                 const active = isActive(item.href);
                 return (
