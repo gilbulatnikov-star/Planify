@@ -55,11 +55,8 @@ const SHAPE_TYPES = [
 // ─── Shared drag handle ───────────────────────────────────────────────────────
 
 function DragHandle() {
-  return (
-    <div data-drag-handle className="flex justify-center py-1 cursor-grab active:cursor-grabbing opacity-25 hover:opacity-50 transition-opacity select-none">
-      <GripHorizontal className="h-3.5 w-3.5" />
-    </div>
-  );
+  // Removed: the NodeWrapper already provides a floating grip handle
+  return null;
 }
 
 // ─── Sticky Note ─────────────────────────────────────────────────────────────
@@ -1167,6 +1164,7 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
 
   // ── Global draw layer ──────────────────────────────────────────────────────
   const [drawMode, setDrawMode]     = useState(false);
+  const [toolbarOpen, setToolbarOpen] = useState(true);
   const [penColor, setPenColor]     = useState("#1a1a1a");
   const [penWidth, setPenWidth]     = useState(3);
   const [penTool, setPenTool]       = useState<"pen" | "eraser">("pen");
@@ -1553,8 +1551,14 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
       {/* Canvas area */}
       <div className="flex-1 flex overflow-hidden relative">
 
-        {/* Left toolbar */}
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 bg-card border border-border rounded-2xl shadow-lg p-2">
+        {/* Left toolbar — toggle button on mobile */}
+        <button
+          onClick={() => setToolbarOpen(v => !v)}
+          className="absolute left-3 top-3 z-30 md:hidden flex h-9 w-9 items-center justify-center rounded-xl bg-card border border-border shadow-lg text-muted-foreground"
+        >
+          {toolbarOpen ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+        </button>
+        <div className={`absolute left-3 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-1 bg-card border border-border rounded-2xl shadow-lg p-2 transition-all ${toolbarOpen ? "" : "max-md:hidden"}`}>
           {!drawMode && <>
             <p className="text-[8px] font-semibold uppercase tracking-widest text-muted-foreground text-center mb-0.5">{he.moodboard.add}</p>
             {tools.map(({ type, Icon, label }) => (
