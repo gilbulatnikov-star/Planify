@@ -7,14 +7,11 @@ import {
   FolderKanban,
   Users,
   UserPlus,
-  Receipt,
   CalendarDays,
   Contact,
-  CreditCard,
   Sparkles,
   FileText,
   LayoutTemplate,
-  ChevronDown,
   FileBarChart2,
   Crown,
   ListTodo,
@@ -32,9 +29,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarFooter,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -68,15 +62,7 @@ export function AppSidebar() {
     { href: "/automations", label: he.automations.title, icon: Zap, tourId: "nav-automations" },
   ];
 
-  const financialsSubItems = [
-    { href: "/financials", label: he.financial.invoices + " " + he.financial.quotes, icon: Receipt },
-    { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard },
-  ];
-
-  const isFinancialsActive =
-    pathname.startsWith("/financials") || pathname.startsWith("/subscriptions");
-
-  const [financialsOpen, setFinancialsOpen] = useState(isFinancialsActive);
+  const isFinancialsActive = pathname.startsWith("/financials");
 
   const user = session?.user;
   const initials = user?.name
@@ -132,47 +118,17 @@ export function AppSidebar() {
                 );
               })}
 
-              {/* ── כספים (collapsible) ── */}
+              {/* ── כספים ── */}
               <SidebarMenuItem data-tour="nav-financials">
                 <SidebarMenuButton
-                  render={isCollapsed ? <Link href="/financials" /> : undefined}
-                  onClick={isCollapsed ? undefined : () => setFinancialsOpen((v) => !v)}
+                  render={<Link href="/financials" />}
                   isActive={isFinancialsActive}
                   tooltip={he.nav.financials}
                   className={isFinancialsActive ? btnActive : btnIdle}
                 >
                   <FileBarChart2 className="h-4 w-4 shrink-0" />
                   <span className="truncate">{he.nav.financials}</span>
-                  <ChevronDown
-                    className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden ${
-                      financialsOpen ? "rotate-180" : ""
-                    }`}
-                  />
                 </SidebarMenuButton>
-
-                {financialsOpen && (
-                  <SidebarMenuSub>
-                    {financialsSubItems.map((sub) => {
-                      const isSubActive = pathname.startsWith(sub.href);
-                      return (
-                        <SidebarMenuSubItem key={sub.href}>
-                          <SidebarMenuSubButton
-                            render={<Link href={sub.href} />}
-                            isActive={isSubActive}
-                            className={`!text-right transition-all duration-200 ${
-                              isSubActive
-                                ? "bg-[#38b6ff]/10 text-foreground font-medium"
-                                : "text-muted-foreground hover:bg-[#38b6ff]/5 hover:text-foreground"
-                            }`}
-                          >
-                            <sub.icon className="h-3.5 w-3.5 shrink-0" />
-                            <span className="truncate">{sub.label}</span>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      );
-                    })}
-                  </SidebarMenuSub>
-                )}
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
