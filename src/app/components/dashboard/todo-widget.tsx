@@ -79,8 +79,8 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {he.widgets.todos}
         </CardTitle>
-        <div className="rounded-lg bg-[#2563eb]/10 p-1.5">
-          <CheckSquare className="h-4 w-4 text-[#2563eb]" />
+        <div className="rounded-[8px] bg-foreground/[0.04] p-1.5">
+          <CheckSquare className="h-4 w-4 text-foreground/30" />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">

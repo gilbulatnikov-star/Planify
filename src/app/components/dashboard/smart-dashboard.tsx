@@ -47,11 +47,11 @@ function KpiCard({ label, value, icon: Icon, href, gradient }: {
 }
 
 /* ── Section Container ── */
-function Section({ title, icon: Icon, action, children }: {
-  title: string; icon: React.ElementType; action?: { label: string; href: string }; children: React.ReactNode;
+function Section({ title, icon: Icon, action, children, className }: {
+  title: string; icon: React.ElementType; action?: { label: string; href: string }; children: React.ReactNode; className?: string;
 }) {
   return (
-    <div className="rounded-[14px] border border-border/40 overflow-hidden bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)]">
+    <div className={`rounded-[14px] border border-border/40 overflow-hidden bg-card shadow-[0_1px_2px_rgba(0,0,0,0.04),0_2px_6px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_rgba(255,255,255,0.75)] dark:shadow-[0_1px_3px_rgba(0,0,0,0.3)] ${className ?? ""}`}>
       <div className="flex items-center justify-between px-5 py-3 border-b border-border/30 bg-muted/[0.12]">
         <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
           <Icon className="h-3.5 w-3.5 text-foreground/30" strokeWidth={2} />
@@ -154,8 +154,8 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       <div className="grid gap-4 lg:grid-cols-5">
 
         {/* ── This Week (wider) ── */}
-        <motion.div variants={fade} className="lg:col-span-3">
-          <Section title="מה יש השבוע" icon={CalendarDays}>
+        <motion.div variants={fade} className="lg:col-span-3 flex flex-col">
+          <Section title="מה יש השבוע" icon={CalendarDays} className="flex-1">
             {!hasThisWeek ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
                 <div className="flex h-10 w-10 items-center justify-center rounded-[10px] bg-muted/30 mb-3 ring-1 ring-border/20">
@@ -219,11 +219,11 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
           {/* Quick Actions */}
           <div className="grid grid-cols-2 gap-2">
             {quickActions.map(a => (
-              <Link key={a.label} href={a.href} className="group flex items-center gap-2 rounded-[10px] border border-border/30 bg-card px-3 py-2.5 shadow-[0_1px_2px_rgba(0,0,0,0.03),inset_0_1px_0_rgba(255,255,255,0.6)] hover:border-border/50 hover:shadow-[0_3px_10px_-3px_rgba(0,0,0,0.08)] hover:-translate-y-[0.5px] transition-all duration-250">
-                <div className="flex h-6 w-6 items-center justify-center rounded-[7px] bg-foreground/[0.04] group-hover:bg-accent/10 transition-colors duration-200">
-                  <a.icon className="h-3 w-3 text-foreground/30 group-hover:text-accent transition-colors duration-200" strokeWidth={2} />
+              <Link key={a.label} href={a.href} className="group flex items-center justify-center gap-2.5 rounded-[12px] border border-border/50 bg-card px-4 py-3.5 shadow-[0_1px_3px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,0.7)] hover:border-accent/30 hover:shadow-[0_4px_12px_-3px_rgba(0,0,0,0.1)] hover:-translate-y-[1px] active:translate-y-0 transition-all duration-200 cursor-pointer">
+                <div className="flex h-8 w-8 items-center justify-center rounded-[9px] bg-accent/8 group-hover:bg-accent/15 transition-colors duration-200">
+                  <a.icon className="h-4 w-4 text-accent/60 group-hover:text-accent transition-colors duration-200" strokeWidth={2} />
                 </div>
-                <span className="text-[11px] font-semibold text-foreground/45 group-hover:text-foreground/80 transition-colors duration-200">{a.label}</span>
+                <span className="text-[12.5px] font-bold text-foreground/60 group-hover:text-foreground/90 transition-colors duration-200">{a.label}</span>
               </Link>
             ))}
           </div>

@@ -38,8 +38,8 @@ export function QuickNotesWidget({ initialContent }: QuickNotesWidgetProps) {
               נשמר
             </span>
           )}
-          <div className="rounded-lg bg-[#2563eb]/10 p-1.5">
-            <StickyNote className="h-4 w-4 text-[#2563eb]" />
+          <div className="rounded-[8px] bg-foreground/[0.04] p-1.5">
+            <StickyNote className="h-4 w-4 text-foreground/30" />
           </div>
         </div>
       </CardHeader>
