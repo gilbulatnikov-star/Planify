@@ -41,7 +41,7 @@ export function AppSidebar() {
   const isRTL = locale === "he";
 
   // Shared className for all menu buttons — premium charcoal sidebar
-  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200 rounded-[9px] text-[14.5px] tracking-[-0.01em] md:py-2.5 py-3.5`;
+  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200 rounded-[9px] md:text-[14.5px] text-[16px] tracking-[-0.01em] md:py-2.5 py-4`;
   const btnActive = `${btnBase} bg-white/[0.08] text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.15)]`;
   const btnIdle   = `${btnBase} text-sidebar-foreground hover:text-white/85 hover:bg-white/[0.05]`;
   const pathname = usePathname();
@@ -116,7 +116,7 @@ export function AppSidebar() {
                       className={isActive ? btnActive : btnIdle}
                     >
                       {/* icon first → rightmost in RTL flex → icon on far right */}
-                      <item.icon className="h-5 w-5 shrink-0" />
+                      <item.icon className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
                       <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -132,7 +132,7 @@ export function AppSidebar() {
                   tooltip={he.nav.financials}
                   className={isFinancialsActive ? btnActive : btnIdle}
                 >
-                  <FileBarChart2 className="h-5 w-5 shrink-0" />
+                  <FileBarChart2 className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
                   <span className="truncate">{he.nav.financials}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
