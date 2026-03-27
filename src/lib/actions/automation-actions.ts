@@ -9,9 +9,7 @@ export async function getAutomationRules() {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return [];
-    if (!("automationRule" in prisma)) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return await (prisma as any).automationRule.findMany({ where: { userId }, orderBy: { createdAt: "asc" } });
+    return await prisma.automationRule.findMany({ where: { userId }, orderBy: { createdAt: "asc" } });
   } catch {
     return [];
   }
@@ -22,24 +20,16 @@ export async function initializeAutomations() {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return;
-    if (!("automationRule" in prisma)) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const existing = await (prisma as any).automationRule.count({ where: { userId } });
+    const existing = await prisma.automationRule.count({ where: { userId } });
     if (existing > 0) return;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (prisma as any).automationRule.createMany({
+    await prisma.automationRule.createMany({
       data: AUTOMATION_TEMPLATES.map((t) => ({
         userId,
         templateId: t.id,
         enabled: true,
-        config: JSON.parse(
-          JSON.stringify({
-            delayHours: t.delayHours,
-            delayDays: t.delayDays,
-          })
-        ),
+        config: JSON.parse(JSON.stringify({ delayHours: t.delayHours, delayDays: t.delayDays })),
       })),
     });
     revalidatePath("/automations");
@@ -50,8 +40,11 @@ export async function toggleAutomation(id: string, enabled: boolean) {
   try {
     const session = await auth();
     const userId = session?.user?.id;
-    if (!userId) return;
+    if (!userId) return { success: false };
     await prisma.automationRule.updateMany({ where: { id, userId }, data: { enabled } });
     revalidatePath("/automations");
-  } catch { /* ignore */ }
+    return { success: true };
+  } catch {
+    return { success: false };
+  }
 }

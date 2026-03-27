@@ -8,10 +8,7 @@ export async function getNotifications() {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return [];
-    // Check if notification model exists on prisma client
-    if (!("notification" in prisma)) return [];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return await (prisma as any).notification.findMany({
+    return await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 20,
@@ -26,9 +23,7 @@ export async function getUnreadCount() {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return 0;
-    if (!("notification" in prisma)) return 0;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return await (prisma as any).notification.count({ where: { userId, read: false } });
+    return await prisma.notification.count({ where: { userId, read: false } });
   } catch {
     return 0;
   }

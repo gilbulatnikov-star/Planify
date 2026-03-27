@@ -5,7 +5,7 @@ const globalForPrisma = globalThis as unknown as {
   prismaVersion: string | undefined;
 };
 
-const SCHEMA_VERSION = "v3"; // Bump when schema changes to force new client
+const SCHEMA_VERSION = "v4"; // Bump when schema changes to force new client
 
 function buildUrl() {
   const base = process.env.DATABASE_URL ?? "";
