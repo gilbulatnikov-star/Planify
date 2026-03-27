@@ -146,7 +146,7 @@ function daysFromNow(date: Date) {
 
 function DemoBanner() {
   return (
-    <div className="sticky top-0 z-50 bg-gradient-to-r from-[#38b6ff] to-[#0077cc] text-white shadow-lg">
+    <div className="sticky top-0 z-50 bg-gradient-to-r from-[#2563eb] to-[#0077cc] text-white shadow-lg">
       <div className="mx-auto flex items-center justify-between px-4 py-2.5 max-w-screen-2xl">
         <div className="flex items-center gap-2 text-sm font-medium">
           <Search className="h-4 w-4" />
@@ -173,7 +173,7 @@ function DemoSidebar({
   return (
     <aside className="hidden md:flex w-56 shrink-0 flex-col border-l border-border bg-background/50">
       <div className="p-4 border-b border-border">
-        <span className="text-xl font-bold bg-gradient-to-l from-[#38b6ff] to-[#0077cc] bg-clip-text text-transparent">
+        <span className="text-xl font-bold bg-gradient-to-l from-[#2563eb] to-[#0077cc] bg-clip-text text-transparent">
           Planify
         </span>
       </div>
@@ -214,14 +214,14 @@ function KpiCard({
   return (
     <div
       onClick={onClick}
-      className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-pointer border-r-2 border-r-[#38b6ff] rounded-xl p-4"
+      className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-pointer border-r-2 border-r-[#2563eb] rounded-xl p-4"
     >
       <div className="flex items-center justify-between pb-2">
         <span className="text-sm font-medium text-muted-foreground">
           {title}
         </span>
-        <div className="rounded-lg bg-[#38b6ff]/10 p-2 transition-colors duration-300 group-hover:bg-[#38b6ff]/20">
-          <Icon className="h-4 w-4 text-[#38b6ff]" />
+        <div className="rounded-lg bg-[#2563eb]/10 p-2 transition-colors duration-300 group-hover:bg-[#2563eb]/20">
+          <Icon className="h-4 w-4 text-[#2563eb]" />
         </div>
       </div>
       <div className="text-2xl font-bold tracking-tight">{value}</div>
@@ -304,7 +304,7 @@ function DashboardTab({ onTabChange }: { onTabChange: (t: Tab) => void }) {
               </div>
               <button
                 onClick={() => onTabChange(urgentAction[item.type]?.tab ?? "dashboard")}
-                className="text-xs text-[#38b6ff] hover:underline whitespace-nowrap"
+                className="text-xs text-[#2563eb] hover:underline whitespace-nowrap"
               >
                 {urgentAction[item.type]?.label ?? "טפל עכשיו"}
               </button>
@@ -323,7 +323,7 @@ function LeadsTab() {
         <h2 className="text-2xl font-bold text-foreground">לידים</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           ליד חדש
@@ -362,7 +362,7 @@ function LeadsTab() {
                       {lead.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full bg-[#38b6ff]/10 px-2 py-0.5 text-[10px] text-[#38b6ff] font-medium"
+                          className="rounded-full bg-[#2563eb]/10 px-2 py-0.5 text-[10px] text-[#2563eb] font-medium"
                         >
                           {tag}
                         </span>
@@ -396,7 +396,7 @@ function ProjectsTab() {
         <h2 className="text-2xl font-bold text-foreground">פרויקטים</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           פרויקט חדש
@@ -446,7 +446,7 @@ function ProjectsTab() {
               {/* Progress bar */}
               <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-[#38b6ff] transition-all"
+                  className="h-full rounded-full bg-[#2563eb] transition-all"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -544,7 +544,7 @@ function CalendarTab() {
         <h2 className="text-2xl font-bold text-foreground">לוח תוכן</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           אירוע חדש
@@ -597,7 +597,7 @@ function CalendarTab() {
                     <span
                       className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${
                         isToday(day)
-                          ? "bg-[#38b6ff] text-white"
+                          ? "bg-[#2563eb] text-white"
                           : "text-foreground"
                       }`}
                     >
@@ -666,7 +666,7 @@ function ClientsTab() {
         <h2 className="text-2xl font-bold text-foreground">לקוחות</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           לקוח חדש
@@ -748,7 +748,7 @@ function ScriptsTab() {
         <h2 className="text-2xl font-bold text-foreground">תסריטים</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           תסריט חדש
@@ -812,7 +812,7 @@ function FinancialsTab() {
         <h2 className="text-2xl font-bold text-foreground">כספים</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           חשבונית חדשה
@@ -888,7 +888,7 @@ function FinancialsTab() {
                     <td className="px-4 py-3">
                       <button
                         onClick={showSignupToast}
-                        className="flex items-center gap-1 text-xs text-[#38b6ff] hover:underline"
+                        className="flex items-center gap-1 text-xs text-[#2563eb] hover:underline"
                       >
                         צפה
                       </button>
@@ -911,7 +911,7 @@ function TasksTab() {
         <h2 className="text-2xl font-bold text-foreground">משימות</h2>
         <button
           onClick={showSignupToast}
-          className="flex items-center gap-1.5 rounded-lg bg-[#38b6ff] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
+          className="flex items-center gap-1.5 rounded-lg bg-[#2563eb] px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-[#0077cc]"
         >
           <Plus className="h-4 w-4" />
           משימה חדשה
@@ -930,7 +930,7 @@ function TasksTab() {
                 className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
                   task.completed
                     ? "border-green-500 bg-green-500 text-white"
-                    : "border-muted-foreground/30 hover:border-[#38b6ff]"
+                    : "border-muted-foreground/30 hover:border-[#2563eb]"
                 }`}
               >
                 {task.completed && (
@@ -992,7 +992,7 @@ export default function DemoPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-1.5 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
                   activeTab === tab.id
-                    ? "border-[#38b6ff] text-[#38b6ff]"
+                    ? "border-[#2563eb] text-[#2563eb]"
                     : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
@@ -1028,7 +1028,7 @@ export default function DemoPage() {
           <div className="md:hidden sticky bottom-0 z-40 border-t border-border bg-background/80 backdrop-blur-sm p-3">
             <Link
               href="/sign-up"
-              className="block w-full rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] py-3 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="block w-full rounded-xl bg-gradient-to-r from-[#2563eb] to-[#0077cc] py-3 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               הירשם בחינם ונסה את Planify
             </Link>

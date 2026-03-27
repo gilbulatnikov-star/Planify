@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { useT } from "@/lib/i18n";
 
 function Cell({ value, unlimitedLabel }: { value: boolean | string; unlimitedLabel?: string }) {
-  if (value === true)  return <Check className="h-4 w-4 text-[#38b6ff] mx-auto" />;
+  if (value === true)  return <Check className="h-4 w-4 text-[#2563eb] mx-auto" />;
   if (value === false) return <Minus className="h-4 w-4 text-gray-200 mx-auto" />;
   return (
-    <span className={`text-sm font-semibold ${value === unlimitedLabel ? "text-[#38b6ff]" : "text-foreground"}`}>
+    <span className={`text-sm font-semibold ${value === unlimitedLabel ? "text-[#2563eb]" : "text-foreground"}`}>
       {value}
     </span>
   );
@@ -64,7 +64,7 @@ export default function BillingPricingPage() {
 
       {/* Header */}
       <div className="text-center mb-6 sm:mb-8 space-y-2 sm:space-y-3">
-        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#38b6ff]/10 px-3 py-1 text-xs font-semibold text-[#38b6ff]">
+        <p className="inline-flex items-center gap-1.5 rounded-full bg-[#2563eb]/10 px-3 py-1 text-xs font-semibold text-[#2563eb]">
           <Crown className="h-3.5 w-3.5" /> {he.billing.transparentPricing}
         </p>
         <h1 className="text-2xl sm:text-4xl font-black text-foreground leading-tight">
@@ -82,7 +82,7 @@ export default function BillingPricingPage() {
           <button
             dir="ltr"
             onClick={() => setBilling(b => b === "annual" ? "monthly" : "annual")}
-            className={`relative inline-flex h-7 w-14 shrink-0 rounded-full transition-colors duration-300 ${isAnnual ? "bg-[#38b6ff]" : "bg-muted-foreground/30"}`}
+            className={`relative inline-flex h-7 w-14 shrink-0 rounded-full transition-colors duration-300 ${isAnnual ? "bg-[#2563eb]" : "bg-muted-foreground/30"}`}
           >
             <span
               className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-card shadow-sm ring-0 transition-transform duration-300 mt-1 ${
@@ -132,7 +132,7 @@ export default function BillingPricingPage() {
         </div>
 
         {/* Pro */}
-        <div className="relative flex flex-col rounded-2xl p-5 sm:p-8 shadow-2xl" style={{ background: "linear-gradient(145deg, #0284c7 0%, #38b6ff 55%, #7dd3fc 100%)" }}>
+        <div className="relative flex flex-col rounded-2xl p-5 sm:p-8 shadow-2xl" style={{ background: "linear-gradient(145deg, #0284c7 0%, #2563eb 55%, #7dd3fc 100%)" }}>
           {isAnnual && (
             <div className="absolute -top-4 right-6">
               <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-400 to-orange-400 px-4 py-1.5 text-xs font-black text-white shadow-lg whitespace-nowrap">
@@ -194,7 +194,7 @@ export default function BillingPricingPage() {
               <tr className="border-b border-border">
                 <th className="px-6 py-4 text-sm font-semibold text-muted-foreground text-right bg-muted">פיצ&#39;ר</th>
                 <th className="px-4 py-4 text-sm font-bold text-muted-foreground text-center bg-muted">{he.billing.freePlan}</th>
-                <th className="px-4 py-4 text-sm font-black text-foreground text-center bg-[#38b6ff]/5">
+                <th className="px-4 py-4 text-sm font-black text-foreground text-center bg-[#2563eb]/5">
                   Pro {isAnnual ? he.billing.annual : he.billing.monthly}
                 </th>
               </tr>
@@ -204,7 +204,7 @@ export default function BillingPricingPage() {
                 <tr key={row.label} className={`border-b border-gray-50 last:border-0 ${i % 2 === 0 ? "bg-card" : "bg-muted/40"}`}>
                   <td className="px-6 py-3.5 text-sm text-foreground font-medium">{row.label}</td>
                   <td className="px-4 py-3.5 text-center"><Cell value={row.free} unlimitedLabel={he.billing.unlimited} /></td>
-                  <td className="px-4 py-3.5 text-center bg-[#38b6ff]/5"><Cell value={row.pro} unlimitedLabel={he.billing.unlimited} /></td>
+                  <td className="px-4 py-3.5 text-center bg-[#2563eb]/5"><Cell value={row.pro} unlimitedLabel={he.billing.unlimited} /></td>
                 </tr>
               ))}
             </tbody>
@@ -219,7 +219,7 @@ export default function BillingPricingPage() {
           { title: he.billing.trustUpgrade, desc: he.billing.trustUpgradeDesc },
           { title: he.billing.trustData, desc: he.billing.trustDataDesc },
         ].map((item) => (
-          <div key={item.title} className="rounded-2xl border border-[#38b6ff]/15 bg-[#38b6ff]/5 px-5 py-5">
+          <div key={item.title} className="rounded-2xl border border-[#2563eb]/15 bg-[#2563eb]/5 px-5 py-5">
             <p className="text-sm font-bold text-foreground mb-1">{item.title}</p>
             <p className="text-xs text-muted-foreground">{item.desc}</p>
           </div>
@@ -228,7 +228,7 @@ export default function BillingPricingPage() {
 
       <p className="text-center text-xs text-muted-foreground pb-6">
         {he.billing.manageSubscription}{" "}
-        <a href="/settings/billing" className="font-medium text-[#38b6ff] hover:underline">
+        <a href="/settings/billing" className="font-medium text-[#2563eb] hover:underline">
           {he.billing.clickHere}
         </a>
       </p>

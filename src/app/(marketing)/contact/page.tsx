@@ -12,14 +12,14 @@ export default function ContactPage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#38b6ff] to-[#0077cc] text-sm font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
               P
             </div>
             <span className="text-lg font-bold text-gray-900 dark:text-white">Planify</span>
           </Link>
           <Link
             href="/landing"
-            className="text-sm text-gray-500 transition-colors hover:text-[#38b6ff]"
+            className="text-sm text-gray-500 transition-colors hover:text-[#2563eb]"
           >
             &rarr; חזרה לדף הבית
           </Link>
@@ -65,7 +65,7 @@ export default function ContactPage() {
                     id="name"
                     type="text"
                     required
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#38b6ff] focus:outline-none focus:ring-1 focus:ring-[#38b6ff] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     placeholder="השם שלך"
                   />
                 </div>
@@ -80,7 +80,7 @@ export default function ContactPage() {
                     id="email"
                     type="email"
                     required
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#38b6ff] focus:outline-none focus:ring-1 focus:ring-[#38b6ff] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     placeholder="your@email.com"
                     dir="ltr"
                   />
@@ -96,7 +96,7 @@ export default function ContactPage() {
                     id="subject"
                     type="text"
                     required
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#38b6ff] focus:outline-none focus:ring-1 focus:ring-[#38b6ff] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     placeholder="במה נוכל לעזור?"
                   />
                 </div>
@@ -111,13 +111,13 @@ export default function ContactPage() {
                     id="message"
                     required
                     rows={5}
-                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#38b6ff] focus:outline-none focus:ring-1 focus:ring-[#38b6ff] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+                    className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm transition-colors focus:border-[#2563eb] focus:outline-none focus:ring-1 focus:ring-[#2563eb] dark:border-gray-700 dark:bg-gray-900 dark:text-white"
                     placeholder="ספר לנו..."
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] py-3 text-sm font-bold text-white shadow-lg shadow-[#38b6ff]/25 transition-transform hover:scale-[1.02]"
+                  className="w-full rounded-xl bg-gradient-to-r from-[#2563eb] to-[#0077cc] py-3 text-sm font-bold text-white shadow-lg shadow-[#2563eb]/25 transition-transform hover:scale-[1.02]"
                 >
                   שלח הודעה
                 </button>
@@ -136,7 +136,7 @@ export default function ContactPage() {
                   <span className="text-base">&#9993;</span>
                   <a
                     href="mailto:support@planify.app"
-                    className="transition-colors hover:text-[#38b6ff]"
+                    className="transition-colors hover:text-[#2563eb]"
                     dir="ltr"
                   >
                     support@planify.app
@@ -164,7 +164,7 @@ export default function ContactPage() {
                     key={social.letter}
                     href="#"
                     aria-label={social.label}
-                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-500 transition-colors hover:bg-[#38b6ff] hover:text-white dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#38b6ff]"
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-bold text-gray-500 transition-colors hover:bg-[#2563eb] hover:text-white dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-[#2563eb]"
                   >
                     {social.letter}
                   </a>
@@ -178,7 +178,7 @@ export default function ContactPage() {
               </h3>
               <p className="text-sm text-gray-500">
                 בדקו את{" "}
-                <Link href="/landing#faq" className="text-[#38b6ff] hover:underline">
+                <Link href="/landing#faq" className="text-[#2563eb] hover:underline">
                   עמוד השאלות הנפוצות
                 </Link>{" "}
                 שלנו לתשובות מהירות.

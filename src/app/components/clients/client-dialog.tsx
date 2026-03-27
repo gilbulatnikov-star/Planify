@@ -156,7 +156,7 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
               aria-checked={isActive}
               onClick={() => setIsActive(!isActive)}
               className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
-                isActive ? "bg-[#38b6ff]" : "bg-muted-foreground/30"
+                isActive ? "bg-[#2563eb]" : "bg-muted-foreground/30"
               }`}
             >
               <span

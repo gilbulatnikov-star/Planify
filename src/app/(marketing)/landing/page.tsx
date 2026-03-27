@@ -87,7 +87,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo */}
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#38b6ff] to-[#0077cc] text-lg font-bold text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-lg font-bold text-white">
               P
             </div>
             <span className="text-xl font-bold">Planify</span>
@@ -99,7 +99,7 @@ export default function LandingPage() {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm font-medium text-gray-600 transition-colors hover:text-[#38b6ff] dark:text-gray-400 dark:hover:text-[#38b6ff]"
+                className="text-sm font-medium text-gray-600 transition-colors hover:text-[#2563eb] dark:text-gray-400 dark:hover:text-[#2563eb]"
               >
                 {l.label}
               </a>
@@ -110,13 +110,13 @@ export default function LandingPage() {
           <div className="hidden items-center gap-3 md:flex">
             <Link
               href="/sign-in"
-              className="text-sm font-medium text-gray-600 transition-colors hover:text-[#38b6ff] dark:text-gray-400"
+              className="text-sm font-medium text-gray-600 transition-colors hover:text-[#2563eb] dark:text-gray-400"
             >
               כניסה
             </Link>
             <Link
               href="/sign-up"
-              className="rounded-lg bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#38b6ff]/25 transition-transform hover:scale-105"
+              className="rounded-lg bg-gradient-to-r from-[#2563eb] to-[#0077cc] px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-[#2563eb]/25 transition-transform hover:scale-105"
             >
               התחל בחינם
             </Link>
@@ -165,7 +165,7 @@ export default function LandingPage() {
               </Link>
               <Link
                 href="/sign-up"
-                className="rounded-lg bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-5 py-2 text-center text-sm font-semibold text-white"
+                className="rounded-lg bg-gradient-to-r from-[#2563eb] to-[#0077cc] px-5 py-2 text-center text-sm font-semibold text-white"
               >
                 התחל בחינם
               </Link>
@@ -178,9 +178,9 @@ export default function LandingPage() {
       <section className="relative flex min-h-[85vh] items-center justify-center overflow-hidden px-4 py-20 sm:px-6">
         {/* Animated blobs */}
         <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] animate-pulse rounded-full bg-[#38b6ff]/20 blur-[120px]" />
+          <div className="absolute -right-40 -top-40 h-[500px] w-[500px] animate-pulse rounded-full bg-[#2563eb]/20 blur-[120px]" />
           <div className="absolute -bottom-40 -left-40 h-[400px] w-[400px] animate-pulse rounded-full bg-[#0077cc]/15 blur-[120px] [animation-delay:2s]" />
-          <div className="absolute left-1/2 top-1/3 h-[300px] w-[300px] animate-pulse rounded-full bg-[#38b6ff]/10 blur-[100px] [animation-delay:4s]" />
+          <div className="absolute left-1/2 top-1/3 h-[300px] w-[300px] animate-pulse rounded-full bg-[#2563eb]/10 blur-[100px] [animation-delay:4s]" />
         </div>
 
         <motion.div
@@ -194,7 +194,7 @@ export default function LandingPage() {
             className="text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl"
           >
             כל מה שעסק קריאייטיבי צריך.{" "}
-            <span className="bg-gradient-to-r from-[#38b6ff] to-[#0077cc] bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-[#2563eb] to-[#0077cc] bg-clip-text text-transparent">
               במקום אחד.
             </span>
           </motion.h1>
@@ -209,13 +209,13 @@ export default function LandingPage() {
           <motion.div variants={fadeUp} className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
             <Link
               href="/sign-up"
-              className="rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-8 py-3.5 text-base font-bold text-white shadow-xl shadow-[#38b6ff]/30 transition-transform hover:scale-105"
+              className="rounded-xl bg-gradient-to-r from-[#2563eb] to-[#0077cc] px-8 py-3.5 text-base font-bold text-white shadow-xl shadow-[#2563eb]/30 transition-transform hover:scale-105"
             >
               התחל בחינם &larr;
             </Link>
             <a
               href="#features"
-              className="rounded-xl border border-gray-300 bg-white/60 px-8 py-3.5 text-base font-semibold text-gray-700 backdrop-blur-sm transition-colors hover:border-[#38b6ff] hover:text-[#38b6ff] dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300"
+              className="rounded-xl border border-gray-300 bg-white/60 px-8 py-3.5 text-base font-semibold text-gray-700 backdrop-blur-sm transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-gray-700 dark:bg-gray-900/60 dark:text-gray-300"
             >
               צפה בדמו
             </a>
@@ -334,7 +334,7 @@ export default function LandingPage() {
           <div className="grid gap-8 sm:grid-cols-3">
             {steps.map((s) => (
               <motion.div key={s.num} variants={fadeUp} className="text-center">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#38b6ff] to-[#0077cc] text-xl font-bold text-white">
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-xl font-bold text-white">
                   {s.num}
                 </div>
                 <h3 className="mt-4 text-lg font-bold">{s.title}</h3>
@@ -377,7 +377,7 @@ export default function LandingPage() {
               </ul>
               <Link
                 href="/sign-up"
-                className="mt-8 block rounded-xl border border-gray-300 py-3 text-center text-sm font-semibold transition-colors hover:border-[#38b6ff] hover:text-[#38b6ff] dark:border-gray-700"
+                className="mt-8 block rounded-xl border border-gray-300 py-3 text-center text-sm font-semibold transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-gray-700"
               >
                 התחל בחינם
               </Link>
@@ -386,9 +386,9 @@ export default function LandingPage() {
             {/* Pro */}
             <motion.div
               variants={fadeUp}
-              className="relative flex flex-col rounded-2xl border-2 border-[#38b6ff] bg-white/80 p-8 shadow-xl shadow-[#38b6ff]/10 backdrop-blur-sm dark:bg-gray-900/80"
+              className="relative flex flex-col rounded-2xl border-2 border-[#2563eb] bg-white/80 p-8 shadow-xl shadow-[#2563eb]/10 backdrop-blur-sm dark:bg-gray-900/80"
             >
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-4 py-1 text-xs font-bold text-white">
+              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#2563eb] to-[#0077cc] px-4 py-1 text-xs font-bold text-white">
                 הכי פופולרי
               </span>
               <h3 className="text-xl font-bold">Pro</h3>
@@ -400,13 +400,13 @@ export default function LandingPage() {
               <ul className="mt-6 flex flex-1 flex-col gap-3">
                 {proPlanFeatures.map((f) => (
                   <li key={f} className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                    <span className="text-[#38b6ff]">✓</span> {f}
+                    <span className="text-[#2563eb]">✓</span> {f}
                   </li>
                 ))}
               </ul>
               <Link
                 href="/sign-up"
-                className="mt-8 block rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] py-3 text-center text-sm font-bold text-white shadow-lg shadow-[#38b6ff]/25 transition-transform hover:scale-105"
+                className="mt-8 block rounded-xl bg-gradient-to-r from-[#2563eb] to-[#0077cc] py-3 text-center text-sm font-bold text-white shadow-lg shadow-[#2563eb]/25 transition-transform hover:scale-105"
               >
                 שדרג ל-Pro
               </Link>
@@ -480,7 +480,7 @@ export default function LandingPage() {
           <motion.div variants={fadeUp} className="mt-8">
             <Link
               href="/sign-up"
-              className="inline-block rounded-xl bg-gradient-to-r from-[#38b6ff] to-[#0077cc] px-10 py-4 text-base font-bold text-white shadow-xl shadow-[#38b6ff]/30 transition-transform hover:scale-105"
+              className="inline-block rounded-xl bg-gradient-to-r from-[#2563eb] to-[#0077cc] px-10 py-4 text-base font-bold text-white shadow-xl shadow-[#2563eb]/30 transition-transform hover:scale-105"
             >
               התחל בחינם &larr;
             </Link>
@@ -494,7 +494,7 @@ export default function LandingPage() {
           {/* Logo + tagline */}
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#38b6ff] to-[#0077cc] text-sm font-bold text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
                 P
               </div>
               <span className="text-lg font-bold">Planify</span>
@@ -504,9 +504,9 @@ export default function LandingPage() {
 
           {/* Links */}
           <div className="flex gap-6 text-sm text-gray-500">
-            <Link href="/terms" className="transition-colors hover:text-[#38b6ff]">תנאי שימוש</Link>
-            <Link href="/privacy" className="transition-colors hover:text-[#38b6ff]">מדיניות פרטיות</Link>
-            <Link href="/contact" className="transition-colors hover:text-[#38b6ff]">יצירת קשר</Link>
+            <Link href="/terms" className="transition-colors hover:text-[#2563eb]">תנאי שימוש</Link>
+            <Link href="/privacy" className="transition-colors hover:text-[#2563eb]">מדיניות פרטיות</Link>
+            <Link href="/contact" className="transition-colors hover:text-[#2563eb]">יצירת קשר</Link>
           </div>
 
           {/* Social placeholder + copyright */}

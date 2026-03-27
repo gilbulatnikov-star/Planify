@@ -93,8 +93,8 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
 
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#38b6ff]/10">
-          <ListTodo className="h-5 w-5 text-[#38b6ff]" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#2563eb]/10">
+          <ListTodo className="h-5 w-5 text-[#2563eb]" />
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">{he.tasks.title}</h1>
@@ -121,7 +121,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           disabled={isPending || (!atLimit && !newTask.trim())}
           size="icon"
           className={atLimit
-            ? "bg-[#38b6ff] text-white hover:bg-[#38b6ff]/90"
+            ? "bg-[#2563eb] text-white hover:bg-[#2563eb]/90"
             : "bg-[#0a0a0a] text-white hover:bg-[#0a0a0a]/80"}
         >
           {atLimit ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
@@ -158,7 +158,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           filtered.map((todo) => (
             <div
               key={todo.id}
-              className="group flex items-center gap-3 px-4 py-3 hover:bg-[#38b6ff]/5 transition-colors"
+              className="group flex items-center gap-3 px-4 py-3 hover:bg-[#2563eb]/5 transition-colors"
             >
               {/* Checkbox */}
               <button
@@ -166,8 +166,8 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
                 disabled={isPending}
                 className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
                   todo.completed
-                    ? "border-[#38b6ff] bg-[#38b6ff]"
-                    : "border-border hover:border-[#38b6ff]/60"
+                    ? "border-[#2563eb] bg-[#2563eb]"
+                    : "border-border hover:border-[#2563eb]/60"
                 }`}
               >
                 {todo.completed && (
@@ -220,14 +220,14 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
       {/* Pro upgrade banner for free users */}
       {isFree && (
         <div
-          className="rounded-2xl border border-[#38b6ff]/20 bg-gradient-to-l from-[#38b6ff]/5 to-white p-5 flex items-start gap-4 cursor-pointer group"
+          className="rounded-2xl border border-[#2563eb]/20 bg-gradient-to-l from-[#2563eb]/5 to-white p-5 flex items-start gap-4 cursor-pointer group"
           onClick={() => setUpgradeOpen(true)}
         >
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#38b6ff] shadow-sm">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#2563eb] shadow-sm">
             <Crown className="h-5 w-5 text-white" />
           </div>
           <div className="flex-1">
-            <p className="text-sm font-bold text-foreground group-hover:text-[#38b6ff] transition-colors">
+            <p className="text-sm font-bold text-foreground group-hover:text-[#2563eb] transition-colors">
               {he.tasks.upgradeUnlimited}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -236,7 +236,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
             <div className="flex flex-wrap gap-3 mt-3">
               {[he.tasks.upgradeFeature1, he.tasks.upgradeFeature2, he.tasks.upgradeFeature3].map((f) => (
                 <div key={f} className="flex items-center gap-1.5">
-                  <Sparkles className="h-3 w-3 text-[#38b6ff]" />
+                  <Sparkles className="h-3 w-3 text-[#2563eb]" />
                   <span className="text-xs text-muted-foreground">{f}</span>
                 </div>
               ))}

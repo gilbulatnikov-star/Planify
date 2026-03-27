@@ -17,7 +17,7 @@ import {
   isToday,
 } from "date-fns";
 
-import { he as heLocale } from "date-fns/locale";
+import { he as heLocale } from "date-fns/locale/he";
 import {
   ChevronRight,
   ChevronLeft,

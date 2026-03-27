@@ -45,7 +45,7 @@ export default function SignInPage() {
           <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-10">
             <rect x="3" y="3" width="30" height="30" rx="9" fill="#0a0a0a"/>
             <rect x="9" y="8" width="18" height="12" rx="5" fill="white"/>
-            <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#38b6ff" transform="rotate(-15 24 25)"/>
+            <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#2563eb" transform="rotate(-15 24 25)"/>
           </svg>
         </div>
         <h1 className="text-2xl font-bold text-foreground">{he.auth.welcomeBack}</h1>

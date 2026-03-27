@@ -50,14 +50,14 @@ export default function TermsPage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#38b6ff] to-[#0077cc] text-sm font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
               P
             </div>
             <span className="text-lg font-bold text-gray-900 dark:text-white">Planify</span>
           </Link>
           <Link
             href="/landing"
-            className="text-sm text-gray-500 transition-colors hover:text-[#38b6ff]"
+            className="text-sm text-gray-500 transition-colors hover:text-[#2563eb]"
           >
             &rarr; חזרה לדף הבית
           </Link>

@@ -118,11 +118,11 @@ export function MobileBottomNav() {
               href={item.href}
               className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] transition-colors ${
                 active
-                  ? "font-semibold text-[#38b6ff]"
+                  ? "font-semibold text-[#2563eb]"
                   : "text-muted-foreground"
               }`}
             >
-              <item.icon className={`h-5 w-5 ${active ? "text-[#38b6ff]" : ""}`} />
+              <item.icon className={`h-5 w-5 ${active ? "text-[#2563eb]" : ""}`} />
               <span>{item.label}</span>
             </Link>
           );
@@ -133,11 +133,11 @@ export function MobileBottomNav() {
           onClick={() => setMoreOpen((v) => !v)}
           className={`flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] transition-colors ${
             moreOpen
-              ? "font-semibold text-[#38b6ff]"
+              ? "font-semibold text-[#2563eb]"
               : "text-muted-foreground"
           }`}
         >
-          <MoreHorizontal className={`h-5 w-5 ${moreOpen ? "text-[#38b6ff]" : ""}`} />
+          <MoreHorizontal className={`h-5 w-5 ${moreOpen ? "text-[#2563eb]" : ""}`} />
           <span>{t.nav.more}</span>
         </button>
       </nav>

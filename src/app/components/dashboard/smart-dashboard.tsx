@@ -132,10 +132,10 @@ export function SmartDashboard({ data }: { data: SmartDashboardData }) {
         <Card className="border-border">
           <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-[#38b6ff]" />
+              <CalendarDays className="h-4 w-4 text-[#2563eb]" />
               {he.dashboard.todaySchedule}
             </h2>
-            <Link href="/calendar" className="text-xs text-[#38b6ff] hover:underline">הכל &larr;</Link>
+            <Link href="/calendar" className="text-xs text-[#2563eb] hover:underline">הכל &larr;</Link>
           </div>
           <CardContent className="p-4">
             {todayContent.length === 0 ? (
@@ -168,7 +168,7 @@ export function SmartDashboard({ data }: { data: SmartDashboardData }) {
                 <FolderKanban className="h-4 w-4 text-blue-500" />
                 פרויקטים אחרונים
               </h2>
-              <Link href="/projects" className="text-xs text-[#38b6ff] hover:underline">הכל &larr;</Link>
+              <Link href="/projects" className="text-xs text-[#2563eb] hover:underline">הכל &larr;</Link>
             </div>
             <CardContent className="p-4 space-y-1">
               {recentProjects.map(p => (

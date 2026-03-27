@@ -34,14 +34,14 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 left-4 p-1.5 rounded-full hover:bg-[#38b6ff]/10 text-muted-foreground hover:text-[#38b6ff] transition-colors"
+          className="absolute top-4 left-4 p-1.5 rounded-full hover:bg-[#2563eb]/10 text-muted-foreground hover:text-[#2563eb] transition-colors"
         >
           <X className="h-4 w-4" />
         </button>
 
         {/* Crown icon */}
         <div className="flex justify-center mb-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#38b6ff] shadow-lg">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#2563eb] shadow-lg">
             <Crown className="h-8 w-8 text-white" />
           </div>
         </div>
@@ -75,7 +75,7 @@ export function UpgradeDialog({ open, onClose, feature, limit }: UpgradeDialogPr
             onClose();
             router.push("/billing");
           }}
-          className="w-full bg-[#38b6ff] text-white hover:bg-[#38b6ff]/90 rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2"
+          className="w-full bg-[#2563eb] text-white hover:bg-[#2563eb]/90 rounded-xl py-3 text-sm font-bold flex items-center justify-center gap-2"
         >
           <Crown className="h-4 w-4" />
           {he.upgrade.upgradeNow}

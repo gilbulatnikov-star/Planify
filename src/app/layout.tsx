@@ -40,7 +40,7 @@ export default function RootLayout({
     <html lang="he" dir="rtl" suppressHydrationWarning>
       <body className={`${notoSansHebrew.variable} font-sans antialiased`}>
         <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
-          <NextTopLoader color="#38b6ff" height={3} showSpinner={false} shadow="0 0 10px #38b6ff,0 0 5px #38b6ff" />
+          <NextTopLoader color="#2563eb" height={3} showSpinner={false} shadow="0 0 10px #2563eb,0 0 5px #2563eb" />
           <SessionProvider>
             <TooltipProvider>{children}</TooltipProvider>
           </SessionProvider>

@@ -11,7 +11,7 @@ import {
   isSameMonth,
   isSameDay,
 } from "date-fns";
-import { he as heLocale } from "date-fns/locale";
+import { he as heLocale } from "date-fns/locale/he";
 import { X, Download, Image as ImageIcon, Grid3X3, List, Paintbrush, Sun, Moon, ZoomIn, ZoomOut } from "lucide-react";
 import { useT } from "@/lib/i18n";
 

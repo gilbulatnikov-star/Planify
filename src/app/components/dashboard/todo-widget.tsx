@@ -79,8 +79,8 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
         <CardTitle className="text-sm font-medium text-muted-foreground">
           {he.widgets.todos}
         </CardTitle>
-        <div className="rounded-lg bg-[#38b6ff]/10 p-1.5">
-          <CheckSquare className="h-4 w-4 text-[#38b6ff]" />
+        <div className="rounded-lg bg-[#2563eb]/10 p-1.5">
+          <CheckSquare className="h-4 w-4 text-[#2563eb]" />
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -97,15 +97,15 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
           {sortedTodos.map((todo) => (
             <div
               key={todo.id}
-              className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-[#38b6ff]/5"
+              className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-[#2563eb]/5"
             >
               <button
                 onClick={() => handleToggle(todo.id)}
                 disabled={isPending}
                 className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
                   todo.completed
-                    ? "border-[#38b6ff] bg-[#38b6ff]/10 text-[#38b6ff]"
-                    : "border-muted-foreground/30 hover:border-[#38b6ff]/50"
+                    ? "border-[#2563eb] bg-[#2563eb]/10 text-[#2563eb]"
+                    : "border-muted-foreground/30 hover:border-[#2563eb]/50"
                 }`}
               >
                 {todo.completed && (
@@ -114,7 +114,7 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
                     height="10"
                     viewBox="0 0 10 10"
                     fill="none"
-                    className="text-[#38b6ff]"
+                    className="text-[#2563eb]"
                   >
                     <path
                       d="M2 5L4 7L8 3"

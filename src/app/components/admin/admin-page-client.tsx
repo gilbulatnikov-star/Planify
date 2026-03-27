@@ -6,7 +6,7 @@ import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionEx
 import { DatePicker } from "@/components/ui/date-picker";
 import { deleteFeedback } from "@/lib/actions/feedback-actions";
 import { format } from "date-fns";
-import { he as heLocale } from "date-fns/locale";
+import { he as heLocale } from "date-fns/locale/he";
 import { useT } from "@/lib/i18n";
 
 type UserRow = {

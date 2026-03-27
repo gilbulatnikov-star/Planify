@@ -36,7 +36,7 @@ export function ProjectLinker({
         onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true); }}
         className={`flex items-center gap-2 rounded-lg border px-3 py-1.5 text-xs transition-colors ${
           currentProjectTitle
-            ? "border-[#38b6ff]/30 bg-[#38b6ff]/5 text-[#38b6ff] hover:bg-[#38b6ff]/10"
+            ? "border-[#2563eb]/30 bg-[#2563eb]/5 text-[#2563eb] hover:bg-[#2563eb]/10"
             : "border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground"
         }`}
       >
@@ -84,7 +84,7 @@ export function ProjectLinker({
             disabled={isPending}
             className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors ${
               p.id === currentProjectId
-                ? "bg-[#38b6ff]/10 font-medium text-[#38b6ff]"
+                ? "bg-[#2563eb]/10 font-medium text-[#2563eb]"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >

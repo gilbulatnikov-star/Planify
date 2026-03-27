@@ -77,7 +77,7 @@ export function AppSidebar() {
           {/* Logo — expanded */}
           <Link href="/" className="flex items-center gap-1.5 group-data-[collapsible=icon]:hidden select-none">
             <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0">
-              <rect width="32" height="32" rx="8" fill="#38b6ff"/>
+              <rect width="32" height="32" rx="8" fill="#2563eb"/>
               <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
               <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
             </svg>
@@ -86,7 +86,7 @@ export function AppSidebar() {
           {/* Logo — collapsed */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">
             <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7">
-              <rect width="32" height="32" rx="8" fill="#38b6ff"/>
+              <rect width="32" height="32" rx="8" fill="#2563eb"/>
               <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
               <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
             </svg>

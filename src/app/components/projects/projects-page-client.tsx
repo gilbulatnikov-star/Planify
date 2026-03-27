@@ -209,7 +209,7 @@ export function ProjectsPageClient({
                     <div className="space-y-1">
                       <div className="h-1.5 rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-[#38b6ff] transition-all duration-500"
+                          className="h-full rounded-full bg-[#2563eb] transition-all duration-500"
                           style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
                         />
                       </div>

@@ -182,7 +182,7 @@ export function ProjectDialog({
                     <button
                       type="button"
                       onClick={() => { setNewClientMode(true); setClientId(""); }}
-                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-[#38b6ff] hover:bg-[#38b6ff]/10 rounded transition-colors"
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-[#2563eb] hover:bg-[#2563eb]/10 rounded transition-colors"
                     >
                       <Plus className="h-3.5 w-3.5" />{he.common.addNewClient}
                     </button>
