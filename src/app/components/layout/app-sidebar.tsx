@@ -19,13 +19,14 @@ import {
   LogOut,
   BarChart3,
 } from "lucide-react";
-import { useState } from "react";
+// import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -49,22 +50,32 @@ export function AppSidebar() {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
 
-  const navItems = [
+  // Grouped navigation
+  const mainItems = [
     { href: "/", label: he.nav.dashboard, icon: LayoutDashboard, tourId: "nav-dashboard" },
-    { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
-    { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
-    // { href: "/leads", label: he.leads?.title ?? "לידים", icon: UserPlus, tourId: "nav-leads" },
-    { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
-    { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
-    { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
-    { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
-    { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
-    { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
-    { href: "/automations", label: he.automations.title, icon: Zap, tourId: "nav-automations" },
-    { href: "/reports", label: "דוחות", icon: BarChart3, tourId: "nav-reports" },
   ];
 
-  const isFinancialsActive = pathname.startsWith("/financials");
+  const workItems = [
+    { href: "/projects", label: he.nav.projects, icon: FolderKanban, tourId: "nav-projects" },
+    { href: "/clients", label: he.nav.clients, icon: Users, tourId: "nav-clients" },
+    { href: "/contacts", label: he.nav.contacts, icon: Contact, tourId: "nav-contacts" },
+  ];
+
+  const contentItems = [
+    { href: "/calendar", label: he.nav.calendar, icon: CalendarDays, tourId: "nav-calendar" },
+    { href: "/scripts", label: he.nav.scripts, icon: FileText, tourId: "nav-scripts" },
+    { href: "/inspiration", label: he.nav.inspiration, icon: Sparkles, tourId: "nav-inspiration" },
+    { href: "/moodboard", label: he.nav.moodboard, icon: LayoutTemplate, tourId: "nav-moodboard" },
+  ];
+
+  const managementItems = [
+    { href: "/financials", label: he.nav.financials, icon: FileBarChart2, tourId: "nav-financials" },
+    { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
+    { href: "/reports", label: "דוחות", icon: BarChart3, tourId: "nav-reports" },
+    { href: "/automations", label: he.automations.title, icon: Zap, tourId: "nav-automations" },
+  ];
+
+  const groupLabelClass = "text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30 px-3 mb-1 group-data-[collapsible=icon]:hidden";
 
   const user = session?.user;
   const initials = user?.name
@@ -98,44 +109,101 @@ export function AppSidebar() {
 
       {/* ── Main nav ── */}
       <SidebarContent className="pt-2">
-        <SidebarGroup>
+        {/* ── ראשי ── */}
+        <SidebarGroup className="pb-1">
           <SidebarGroupContent>
-            <SidebarMenu className="md:space-y-0 space-y-0">
-              {navItems.map((item, index) => {
-                const isActive =
-                  item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
+            <SidebarMenu>
+              {mainItems.map((item) => {
+                const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.href} data-tour={item.tourId}>
-                    {index > 0 && (
-                      <div className="md:hidden mx-3 border-t border-white/[0.06]" />
-                    )}
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
                       tooltip={item.label}
                       className={isActive ? btnActive : btnIdle}
                     >
-                      {/* icon first → rightmost in RTL flex → icon on far right */}
                       <item.icon className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
                       <span className="truncate">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
               })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-              {/* ── כספים ── */}
-              <SidebarMenuItem data-tour="nav-financials">
-                <div className="md:hidden mx-3 border-t border-white/[0.06]" />
-                <SidebarMenuButton
-                  render={<Link href="/financials" />}
-                  isActive={isFinancialsActive}
-                  tooltip={he.nav.financials}
-                  className={isFinancialsActive ? btnActive : btnIdle}
-                >
-                  <FileBarChart2 className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
-                  <span className="truncate">{he.nav.financials}</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+        {/* ── עבודה ── */}
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className={groupLabelClass}>עבודה</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {workItems.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                    <SidebarMenuButton
+                      render={<Link href={item.href} />}
+                      isActive={isActive}
+                      tooltip={item.label}
+                      className={isActive ? btnActive : btnIdle}
+                    >
+                      <item.icon className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* ── תוכן ── */}
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className={groupLabelClass}>תוכן</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {contentItems.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                    <SidebarMenuButton
+                      render={<Link href={item.href} />}
+                      isActive={isActive}
+                      tooltip={item.label}
+                      className={isActive ? btnActive : btnIdle}
+                    >
+                      <item.icon className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* ── ניהול ── */}
+        <SidebarGroup className="py-1">
+          <SidebarGroupLabel className={groupLabelClass}>ניהול</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {managementItems.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+                return (
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                    <SidebarMenuButton
+                      render={<Link href={item.href} />}
+                      isActive={isActive}
+                      tooltip={item.label}
+                      className={isActive ? btnActive : btnIdle}
+                    >
+                      <item.icon className="md:h-5 md:w-5 h-6 w-6 shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
