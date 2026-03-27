@@ -927,7 +927,7 @@ export const he = {
   // Welcome tour
   tour: {
     welcome: "ברוכים הבאים ל-Planify!",
-    welcomeDesc: "זהו ה-CRM שבנוי במיוחד לאנשי תוכן, מצלמים ומפיקים. בואו נסביר לך מה יש כאן בכמה שניות.",
+    welcomeDesc: "המערכת שבנויה במיוחד לאנשי תוכן, מצלמים ומפיקים. בואו נסביר לך מה יש כאן בכמה שניות.",
     dashboardTitle: "לוח בקרה",
     dashboardDesc: "מבט מהיר על הפרויקטים הפעילים, הכנסות, צילומים קרובים ומשימות פתוחות — הכל במקום אחד.",
     projectsTitle: "פרויקטים",
@@ -1302,7 +1302,7 @@ export const he = {
     title: "לידים",
     newLead: "ליד חדש",
     editLead: "עריכת ליד",
-    pipeline: "צינור מכירות",
+    pipeline: "מעקב פניות",
     convertToClient: "הפוך ללקוח",
     converted: "הומר ללקוח בהצלחה",
     stages: {

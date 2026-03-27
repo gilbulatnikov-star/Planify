@@ -924,7 +924,7 @@ export const en = {
   // Welcome tour
   tour: {
     welcome: "Welcome to Planify!",
-    welcomeDesc: "This is the CRM built especially for content creators, photographers, and producers. Let us show you what's here in a few seconds.",
+    welcomeDesc: "The platform built especially for content creators, photographers, and producers. Let us show you what's here in a few seconds.",
     dashboardTitle: "Dashboard",
     dashboardDesc: "A quick overview of active projects, revenue, upcoming shoots, and open tasks — all in one place.",
     projectsTitle: "Projects",
@@ -1299,7 +1299,7 @@ export const en = {
     title: "Leads",
     newLead: "New Lead",
     editLead: "Edit Lead",
-    pipeline: "Sales Pipeline",
+    pipeline: "Lead Tracking",
     convertToClient: "Convert to Client",
     converted: "Successfully converted to client",
     stages: {
