@@ -944,10 +944,27 @@ export function ScriptEditorClient({
             </div>
           )}
 
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <button
+            onClick={async () => {
+              if (saving) return;
+              if (saveTimeout.current) clearTimeout(saveTimeout.current);
+              setSaving(true);
+              await updateScript(script.id, {
+                title, content, platform, duration,
+                shotListData: JSON.stringify(shotList),
+                projectId: linkedProjectId || undefined,
+                clientId: linkedClientId || undefined,
+              });
+              setSaving(false);
+              setSaved(true);
+              setTimeout(() => setSaved(false), 2000);
+            }}
+            disabled={saving}
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg px-2.5 py-1.5 transition-colors"
+          >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Save className="h-3.5 w-3.5" />}
-            <span className="hidden sm:inline">{saving ? he.scriptEditor.saving : saved ? he.scriptEditor.saved : he.scriptEditor.autoSave}</span>
-          </div>
+            <span>{saving ? he.scriptEditor.saving : saved ? he.scriptEditor.saved : "שמור"}</span>
+          </button>
         </div>
       </div>
 
