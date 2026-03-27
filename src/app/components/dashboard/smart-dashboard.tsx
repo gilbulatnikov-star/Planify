@@ -4,195 +4,188 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
-  AlertTriangle, CalendarDays, Plus, ChevronDown, ChevronUp,
-  Clock, ArrowLeft,
+  AlertTriangle, CalendarDays, Plus, Clock, ChevronRight,
 } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { getPhaseLabel } from "@/lib/project-config";
 import type { SmartDashboardData } from "@/lib/actions/dashboard-actions";
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.06 } } };
-const fadeUp = { hidden: { opacity: 0, y: 16 }, show: { opacity: 1, y: 0, transition: { duration: 0.35 } } };
+const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
+const fade = { hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0, transition: { duration: 0.3 } } };
 
 export function SmartDashboard({ data }: { data: SmartDashboardData }) {
   const he = useT();
   const locale = useLocale();
-  const [urgentOpen, setUrgentOpen] = useState(true);
 
-  const { kpis, urgent, todayContent } = data;
+  const { kpis, todayContent } = data;
+  const urgent = data.urgent ?? { approachingDeadlines: [], overdueInvoices: [] };
   const thisWeek = data.thisWeek ?? { deadlines: [], tasks: [] };
   const recentProjects = data.recentProjects ?? [];
 
-  const hasUrgent = (urgent?.approachingDeadlines?.length ?? 0) > 0 || (urgent?.overdueInvoices?.length ?? 0) > 0;
-  const urgentCount = (urgent?.approachingDeadlines?.length ?? 0) + (urgent?.overdueInvoices?.length ?? 0);
+  const hasUrgent = (urgent.approachingDeadlines?.length ?? 0) > 0 || (urgent.overdueInvoices?.length ?? 0) > 0;
+  const urgentCount = (urgent.approachingDeadlines?.length ?? 0) + (urgent.overdueInvoices?.length ?? 0);
   const hasThisWeek = thisWeek.deadlines.length > 0 || thisWeek.tasks.length > 0;
 
   const kpiCards = [
-    { label: he.dashboard.activeProjects, value: kpis.activeProjects, icon: FolderKanban, color: "text-blue-500", bg: "bg-blue-500/10", href: "/projects" },
-    { label: he.dashboard.tasks, value: kpis.todayTasks, icon: CheckSquare, color: "text-emerald-500", bg: "bg-emerald-500/10", href: "/tasks" },
-    { label: he.dashboard.openInvoices, value: kpis.openInvoices, icon: FileText, color: "text-orange-500", bg: "bg-orange-500/10", href: "/financials" },
-    { label: he.dashboard.monthlyRevenue, value: formatCurrency(kpis.monthRevenue, locale), icon: DollarSign, color: "text-amber-500", bg: "bg-amber-500/10", href: "/financials" },
-    { label: he.dashboard.activeClients, value: kpis.activeClients, icon: Users, color: "text-violet-500", bg: "bg-violet-500/10", href: "/clients" },
+    { label: he.dashboard.activeProjects, value: kpis.activeProjects, icon: FolderKanban, href: "/projects" },
+    { label: he.dashboard.tasks, value: kpis.todayTasks, icon: CheckSquare, href: "/tasks" },
+    { label: he.dashboard.openInvoices, value: kpis.openInvoices, icon: FileText, href: "/financials" },
+    { label: he.dashboard.monthlyRevenue, value: formatCurrency(kpis.monthRevenue, locale), icon: DollarSign, href: "/financials" },
+    { label: he.dashboard.activeClients, value: kpis.activeClients, icon: Users, href: "/clients" },
   ];
 
   return (
-    <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-foreground">{he.dashboard.title}</h1>
+    <div className="space-y-8 max-w-5xl">
+      {/* Title */}
+      <motion.h1
+        className="text-3xl font-bold tracking-tight text-foreground"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
+        {he.dashboard.title}
+      </motion.h1>
 
-      {/* ── KPI Cards ── */}
-      <motion.div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5" variants={stagger} initial="hidden" animate="show">
+      {/* ── KPI Strip ── */}
+      <motion.div className="grid gap-px grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 rounded-xl border border-border bg-border overflow-hidden" variants={stagger} initial="hidden" animate="show">
         {kpiCards.map((kpi) => (
-          <motion.div key={kpi.label} variants={fadeUp}>
-            <Link href={kpi.href}>
-              <Card className="group transition-all duration-200 hover:shadow-md hover:scale-[1.02] cursor-pointer border-border">
-                <CardContent className="p-4">
-                  <div className={`rounded-lg ${kpi.bg} p-2 w-fit mb-2`}>
-                    <kpi.icon className={`h-4 w-4 ${kpi.color}`} />
-                  </div>
-                  <div className="text-2xl font-bold tracking-tight">{kpi.value}</div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{kpi.label}</p>
-                </CardContent>
-              </Card>
+          <motion.div key={kpi.label} variants={fade}>
+            <Link href={kpi.href} className="flex flex-col justify-between bg-card p-5 hover:bg-muted/40 transition-colors duration-150 h-full group">
+              <div className="flex items-center justify-between mb-3">
+                <kpi.icon className="h-4 w-4 text-muted-foreground" />
+                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/0 group-hover:text-muted-foreground/60 transition-all duration-150 -translate-x-1 group-hover:translate-x-0 rtl:rotate-180 rtl:translate-x-1 rtl:group-hover:translate-x-0" />
+              </div>
+              <div className="text-2xl font-bold tracking-tight leading-none">{kpi.value}</div>
+              <p className="text-[11px] text-muted-foreground mt-1.5 leading-tight">{kpi.label}</p>
             </Link>
           </motion.div>
         ))}
       </motion.div>
 
-      {/* ── Urgent / Needs Attention ── */}
+      {/* ── Urgent ── */}
       {hasUrgent && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <Card className="border-red-500/20 bg-red-50/50 dark:bg-red-500/5">
-            <button onClick={() => setUrgentOpen(o => !o)} className="flex items-center justify-between w-full px-5 py-3.5">
-              <span className="text-sm font-semibold flex items-center gap-2 text-red-600 dark:text-red-400">
-                <AlertTriangle className="h-4 w-4" />
-                דורש טיפול עכשיו
-                <Badge variant="destructive" className="text-[10px] px-1.5">{urgentCount}</Badge>
-              </span>
-              {urgentOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
-            </button>
-            {urgentOpen && (
-              <div className="px-5 pb-4 space-y-2">
-                {(urgent?.approachingDeadlines ?? []).map(p => (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg border border-amber-200 dark:border-amber-500/20 bg-background/80 px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                    <span className="text-sm">{p.title}</span>
-                    <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1"><Clock className="h-3 w-3" /> דדליין קרוב</span>
-                  </Link>
-                ))}
-                {(urgent?.overdueInvoices ?? []).map(inv => (
-                  <Link key={inv.id} href="/financials" className="flex items-center justify-between rounded-lg border border-red-200 dark:border-red-500/20 bg-background/80 px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                    <span className="text-sm">חשבונית #{inv.invoiceNumber}</span>
-                    <span className="text-xs text-red-500">{formatCurrency(inv.total, locale)} — באיחור</span>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </Card>
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.3 }}>
+          <div className="rounded-xl border border-red-200 dark:border-red-500/15 bg-red-50/60 dark:bg-red-500/5 overflow-hidden">
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-red-200/60 dark:border-red-500/10">
+              <AlertTriangle className="h-4 w-4 text-red-500" />
+              <span className="text-sm font-semibold text-red-700 dark:text-red-400">דורש טיפול</span>
+              <span className="text-[10px] font-medium bg-red-500 text-white rounded px-1.5 py-0.5">{urgentCount}</span>
+            </div>
+            <div className="divide-y divide-red-100 dark:divide-red-500/10">
+              {(urgent.approachingDeadlines ?? []).map(p => (
+                <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-red-50 dark:hover:bg-red-500/5 transition-colors">
+                  <span className="text-sm">{p.title}</span>
+                  <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1"><Clock className="h-3 w-3" /> דדליין קרוב</span>
+                </Link>
+              ))}
+              {(urgent.overdueInvoices ?? []).map(inv => (
+                <Link key={inv.id} href="/financials" className="flex items-center justify-between px-5 py-3 hover:bg-red-50 dark:hover:bg-red-500/5 transition-colors">
+                  <span className="text-sm">חשבונית #{inv.invoiceNumber}</span>
+                  <span className="text-xs text-red-500">{formatCurrency(inv.total, locale)} — באיחור</span>
+                </Link>
+              ))}
+            </div>
+          </div>
         </motion.div>
       )}
 
-      {/* ── Two-column layout: This Week + Today ── */}
-      <motion.div className="grid gap-5 lg:grid-cols-2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
-
+      {/* ── Two columns: This Week + Today ── */}
+      <motion.div className="grid gap-5 lg:grid-cols-2" initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
         {/* This Week */}
-        <Card className="border-border">
-          <div className="px-5 py-3.5 border-b border-border">
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 bg-muted/30 border-b border-border">
             <h2 className="text-sm font-semibold flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-blue-500" />
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
               מה יש השבוע
             </h2>
           </div>
-          <CardContent className="p-4 space-y-1.5">
+          <div className="bg-card">
             {!hasThisWeek ? (
-              <p className="text-sm text-muted-foreground text-center py-4">אין אירועים השבוע</p>
+              <p className="text-sm text-muted-foreground text-center py-8">אין אירועים השבוע</p>
             ) : (
-              <>
+              <div className="divide-y divide-border">
                 {thisWeek.deadlines.map(d => (
-                  <Link key={d.id} href={`/projects/${d.id}`} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors">
+                  <Link key={d.id} href={`/projects/${d.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-muted/30 transition-colors">
                     <span className="text-sm">{d.title}</span>
                     <span className="text-xs text-muted-foreground">{formatDate(d.deadline, locale)}</span>
                   </Link>
                 ))}
                 {thisWeek.tasks.map(t => (
-                  <div key={t.id} className="flex items-center gap-2.5 rounded-lg px-3 py-2">
-                    <div className="h-2 w-2 rounded-full bg-emerald-400 shrink-0" />
+                  <div key={t.id} className="flex items-center gap-3 px-5 py-3">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
                     <span className="text-sm flex-1">{t.title}</span>
-                    {t.projectTitle && <span className="text-[10px] text-muted-foreground bg-muted rounded px-1.5 py-0.5">{t.projectTitle}</span>}
-                  </div>
-                ))}
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Today's Content */}
-        <Card className="border-border">
-          <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
-            <h2 className="text-sm font-semibold flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-[#2563eb]" />
-              {he.dashboard.todaySchedule}
-            </h2>
-            <Link href="/calendar" className="text-xs text-[#2563eb] hover:underline">הכל &larr;</Link>
-          </div>
-          <CardContent className="p-4">
-            {todayContent.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">{he.dashboard.noContentToday}</p>
-            ) : (
-              <div className="space-y-1.5">
-                {todayContent.map(item => (
-                  <div key={item.id} className="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-muted/50 transition-colors">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color || "#9ca3af" }} />
-                      <span className="text-sm">{item.title}</span>
-                    </div>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {he.calendar.statuses[item.status as keyof typeof he.calendar.statuses] ?? item.status}
-                    </Badge>
+                    {t.projectTitle && <span className="text-[10px] text-muted-foreground">{t.projectTitle}</span>}
                   </div>
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+
+        {/* Today */}
+        <div className="rounded-xl border border-border overflow-hidden">
+          <div className="flex items-center justify-between px-5 py-3.5 bg-muted/30 border-b border-border">
+            <h2 className="text-sm font-semibold flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+              {he.dashboard.todaySchedule}
+            </h2>
+            <Link href="/calendar" className="text-xs text-muted-foreground hover:text-foreground transition-colors">הכל &larr;</Link>
+          </div>
+          <div className="bg-card">
+            {todayContent.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">{he.dashboard.noContentToday}</p>
+            ) : (
+              <div className="divide-y divide-border">
+                {todayContent.map(item => (
+                  <div key={item.id} className="flex items-center justify-between px-5 py-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: item.color || "#9ca3af" }} />
+                      <span className="text-sm">{item.title}</span>
+                    </div>
+                    <span className="text-[10px] text-muted-foreground bg-muted rounded px-2 py-0.5">
+                      {he.calendar.statuses[item.status as keyof typeof he.calendar.statuses] ?? item.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </motion.div>
 
       {/* ── Recent Projects ── */}
       {recentProjects.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
-          <Card className="border-border">
-            <div className="px-5 py-3.5 border-b border-border flex items-center justify-between">
-              <h2 className="text-sm font-semibold flex items-center gap-2">
-                <FolderKanban className="h-4 w-4 text-blue-500" />
-                פרויקטים אחרונים
-              </h2>
-              <Link href="/projects" className="text-xs text-[#2563eb] hover:underline">הכל &larr;</Link>
+        <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <div className="rounded-xl border border-border overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-3.5 bg-muted/30 border-b border-border">
+              <h2 className="text-sm font-semibold">פרויקטים אחרונים</h2>
+              <Link href="/projects" className="text-xs text-muted-foreground hover:text-foreground transition-colors">הכל &larr;</Link>
             </div>
-            <CardContent className="p-4 space-y-1">
+            <div className="bg-card divide-y divide-border">
               {recentProjects.map(p => (
-                <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between rounded-lg px-3 py-2.5 hover:bg-muted/50 transition-colors">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <span className="text-sm font-medium truncate">{p.title}</span>
+                <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between px-5 py-3.5 hover:bg-muted/30 transition-colors group">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="text-sm font-medium">{p.title}</span>
                     {p.clientName && <span className="text-xs text-muted-foreground hidden sm:inline">{p.clientName}</span>}
                   </div>
-                  <Badge variant="secondary" className="text-[10px] shrink-0">{getPhaseLabel(p.phase)}</Badge>
+                  <span className="text-[10px] text-muted-foreground bg-muted rounded px-2 py-0.5 shrink-0">{getPhaseLabel(p.phase)}</span>
                 </Link>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </motion.div>
       )}
 
       {/* ── Quick Actions ── */}
-      <motion.div className="flex flex-wrap gap-2" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+      <motion.div className="flex flex-wrap gap-2" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
         {[
-          { label: "פרויקט חדש", href: "/projects", icon: FolderKanban },
-          { label: "לקוח חדש", href: "/clients", icon: Users },
-          { label: "חשבונית חדשה", href: "/financials", icon: FileText },
+          { label: "פרויקט חדש", href: "/projects" },
+          { label: "לקוח חדש", href: "/clients" },
+          { label: "חשבונית חדשה", href: "/financials" },
         ].map(a => (
-          <Link key={a.label} href={a.href} className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+          <Link key={a.label} href={a.href} className="flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground hover:border-foreground/20 transition-all duration-150">
             <Plus className="h-3 w-3" />
             {a.label}
           </Link>

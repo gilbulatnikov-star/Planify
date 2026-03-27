@@ -39,10 +39,10 @@ export function AppSidebar() {
   const locale = useLocale();
   const isRTL = locale === "he";
 
-  // Shared className for all menu buttons
-  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-200`;
-  const btnActive = `${btnBase} bg-foreground text-background font-medium shadow-sm`;
-  const btnIdle   = `${btnBase} text-muted-foreground hover:bg-muted hover:text-foreground`;
+  // Shared className for all menu buttons — premium treatment
+  const btnBase = `${isRTL ? "!text-right" : "!text-left"} transition-all duration-150 rounded-md`;
+  const btnActive = `${btnBase} bg-foreground/[0.06] text-foreground font-medium ${isRTL ? "border-r-2 border-r-foreground" : "border-l-2 border-l-foreground"}`;
+  const btnIdle   = `${btnBase} text-muted-foreground hover:text-foreground hover:bg-foreground/[0.04]`;
   const pathname = usePathname();
   const { data: session } = useSession();
   const { state } = useSidebar();
