@@ -1146,6 +1146,25 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
   const panStart       = useRef({ mx: 0, my: 0, px: 0, py: 0 });
   const spaceHeld      = useRef(false);
 
+  // Block browser pinch-zoom and pull-to-refresh inside moodboard
+  useEffect(() => {
+    const el = canvasRef.current?.parentElement;
+    if (!el) return;
+    function preventZoom(e: TouchEvent) {
+      if (e.touches.length >= 2) e.preventDefault();
+    }
+    el.addEventListener("touchmove", preventZoom, { passive: false });
+    // Also block gesturestart (Safari pinch zoom)
+    function preventGesture(e: Event) { e.preventDefault(); }
+    el.addEventListener("gesturestart", preventGesture);
+    el.addEventListener("gesturechange", preventGesture);
+    return () => {
+      el.removeEventListener("touchmove", preventZoom);
+      el.removeEventListener("gesturestart", preventGesture);
+      el.removeEventListener("gesturechange", preventGesture);
+    };
+  }, []);
+
   // ── Global draw layer ──────────────────────────────────────────────────────
   const [drawMode, setDrawMode]     = useState(false);
   const [penColor, setPenColor]     = useState("#1a1a1a");
@@ -1625,22 +1644,35 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
           }}
           onMouseDown={onCanvasMouseDown} onWheel={onWheel}
           onTouchStart={(e) => {
-            // Only pan when touching the canvas background directly, not nodes
-            if (e.target !== e.currentTarget && (e.target as HTMLElement).closest('[data-node]')) return;
-            if (e.touches.length === 1 && !drawMode) {
+            // Only pan when touching the canvas background, not nodes
+            if ((e.target as HTMLElement).closest('[data-node]')) return;
+            if (drawMode) return;
+            if (e.touches.length === 1) {
               const t = e.touches[0];
-              (canvasRef.current as any).__touchStart = { x: t.clientX - pan.x, y: t.clientY - pan.y };
+              (canvasRef.current as any).__touchState = { x: t.clientX - pan.x, y: t.clientY - pan.y, mode: "pan" };
+            } else if (e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX;
+              const dy = e.touches[0].clientY - e.touches[1].clientY;
+              (canvasRef.current as any).__touchState = { dist: Math.hypot(dx, dy), zoom, mode: "pinch" };
             }
           }}
           onTouchMove={(e) => {
-            if (e.touches.length === 1 && !drawMode && (canvasRef.current as any).__touchStart) {
-              e.preventDefault();
+            if (drawMode) return;
+            const state = (canvasRef.current as any)?.__touchState;
+            if (!state) return;
+            e.preventDefault();
+            if (state.mode === "pan" && e.touches.length === 1) {
               const t = e.touches[0];
-              const start = (canvasRef.current as any).__touchStart;
-              setPan({ x: t.clientX - start.x, y: t.clientY - start.y });
+              setPan({ x: t.clientX - state.x, y: t.clientY - state.y });
+            } else if (state.mode === "pinch" && e.touches.length === 2) {
+              const dx = e.touches[0].clientX - e.touches[1].clientX;
+              const dy = e.touches[0].clientY - e.touches[1].clientY;
+              const newDist = Math.hypot(dx, dy);
+              const scale = newDist / state.dist;
+              setZoom(Math.max(0.2, Math.min(3, state.zoom * scale)));
             }
           }}
-          onTouchEnd={() => { if (canvasRef.current) (canvasRef.current as any).__touchStart = null; }}>
+          onTouchEnd={() => { if (canvasRef.current) (canvasRef.current as any).__touchState = null; }}>
 
           {/* Nodes layer — pointer-events: none on wrapper so background gets clicks */}
           <div style={{ position: "absolute", top: 0, left: 0, transformOrigin: "0 0", transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: "100%", height: "100%", pointerEvents: "none" }}>
