@@ -1583,8 +1583,23 @@ export function MoodboardCanvas({ id, title: initialTitle, initialNodes, planLim
             backgroundSize: `${24 * zoom}px ${24 * zoom}px`,
             backgroundPosition: `${pan.x % (24 * zoom)}px ${pan.y % (24 * zoom)}px`,
             cursor: drawMode ? (penTool === "eraser" ? "cell" : "crosshair") : "default",
+            touchAction: "none",
           }}
-          onMouseDown={onCanvasMouseDown} onWheel={onWheel}>
+          onMouseDown={onCanvasMouseDown} onWheel={onWheel}
+          onTouchStart={(e) => {
+            if (e.touches.length === 1 && !drawMode) {
+              const t = e.touches[0];
+              (canvasRef.current as any).__touchStart = { x: t.clientX - pan.x, y: t.clientY - pan.y };
+            }
+          }}
+          onTouchMove={(e) => {
+            if (e.touches.length === 1 && !drawMode && (canvasRef.current as any).__touchStart) {
+              const t = e.touches[0];
+              const start = (canvasRef.current as any).__touchStart;
+              setPan({ x: t.clientX - start.x, y: t.clientY - start.y });
+            }
+          }}
+          onTouchEnd={() => { if (canvasRef.current) (canvasRef.current as any).__touchStart = null; }}>
 
           {/* Nodes layer — pointer-events: none on wrapper so background gets clicks */}
           <div style={{ position: "absolute", top: 0, left: 0, transformOrigin: "0 0", transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, width: "100%", height: "100%", pointerEvents: "none" }}>
