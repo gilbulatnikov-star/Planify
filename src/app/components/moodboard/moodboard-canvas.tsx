@@ -1015,12 +1015,8 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
 }) {
   const dragStart = useRef<{ mx: number; my: number; nx: number; ny: number } | null>(null);
 
-  function onMouseDown(e: React.MouseEvent) {
-    const addToSelection = e.ctrlKey || e.metaKey;
-    onSelect(addToSelection);
-    const t = e.target as HTMLElement;
-    // Don't start drag when clicking on form elements, buttons, or links
-    if (
+  function isFormElement(t: HTMLElement) {
+    return (
       t.tagName === "INPUT" ||
       t.tagName === "TEXTAREA" ||
       t.tagName === "SELECT" ||
@@ -1029,7 +1025,14 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
       t.closest("button") ||
       t.closest("a") ||
       (t as HTMLInputElement).type === "color"
-    ) return;
+    );
+  }
+
+  function onMouseDown(e: React.MouseEvent) {
+    const addToSelection = e.ctrlKey || e.metaKey;
+    onSelect(addToSelection);
+    const t = e.target as HTMLElement;
+    if (isFormElement(t)) return;
     e.preventDefault();
     e.stopPropagation();
     dragStart.current = { mx: e.clientX, my: e.clientY, nx: node.x, ny: node.y };
@@ -1048,11 +1051,36 @@ function DraggableNode({ node, zoom, selected, onSelect, onMove, onChange, onDel
     window.addEventListener("mouseup", onUp);
   }
 
+  function onTouchStart(e: React.TouchEvent) {
+    onSelect(false);
+    const t = e.target as HTMLElement;
+    if (isFormElement(t)) return;
+    if (e.touches.length !== 1) return;
+    e.stopPropagation();
+    const touch = e.touches[0];
+    dragStart.current = { mx: touch.clientX, my: touch.clientY, nx: node.x, ny: node.y };
+    function onTouchMove(ev: TouchEvent) {
+      if (!dragStart.current || ev.touches.length !== 1) return;
+      ev.preventDefault();
+      const t2 = ev.touches[0];
+      const dx = (t2.clientX - dragStart.current.mx) / zoom;
+      const dy = (t2.clientY - dragStart.current.my) / zoom;
+      onMove(dragStart.current.nx + dx, dragStart.current.ny + dy);
+    }
+    function onTouchEnd() {
+      dragStart.current = null;
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+    }
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onTouchEnd);
+  }
+
   const isCommittedDraw = node.type === "draw" && node.data.committed === "true";
   const hasCard = (node.type !== "text" && node.type !== "table" && node.type !== "draw" && node.type !== "heading" && node.type !== "shape") || isCommittedDraw;
 
   return (
-    <div onMouseDown={onMouseDown} style={{ userSelect: "none", position: "relative" }}>
+    <div onMouseDown={onMouseDown} onTouchStart={onTouchStart} style={{ userSelect: "none", position: "relative", touchAction: "none" }}>
       {selected && (
         <button onMouseDown={e => e.stopPropagation()} onClick={onDelete}
           style={{ position: "absolute", top: -10, right: -10, zIndex: 20 }}
