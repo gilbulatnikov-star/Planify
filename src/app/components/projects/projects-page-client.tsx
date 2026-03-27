@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ProjectDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
 import { useT, useLocale } from "@/lib/i18n";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatCurrency, formatDate, daysUntil } from "@/lib/utils/format";
 import { getPhaseLabel, toUniversalColumn } from "@/lib/project-config";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -184,30 +184,38 @@ export function ProjectsPageClient({
                     {currentPhaseLabel}
                   </Badge>
 
-                  {project.budget && (
-                    <p className="text-xs text-muted-foreground">
-                      {he.project.budget}: {formatCurrency(project.budget, locale)}
-                    </p>
+                  {/* Budget + deadline row */}
+                  {(project.budget || project.deadline || project.shootDate) && (
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      {project.budget != null && (
+                        <span className="font-semibold text-foreground">{formatCurrency(project.budget, locale)}</span>
+                      )}
+                      {(() => {
+                        const targetDate = project.deadline ?? project.shootDate;
+                        if (!targetDate) return null;
+                        const days = daysUntil(targetDate);
+                        if (days === null) return null;
+                        return (
+                          <span className={days < 0 ? "text-red-500" : ""}>
+                            {days < 0 ? `לפני ${Math.abs(days)} ${he.common.days}` : `${(he.common as Record<string, string>).inDays ?? "בעוד"} ${days} ${he.common.days}`}
+                          </span>
+                        );
+                      })()}
+                    </div>
                   )}
 
-                  {project.shootDate && (
-                    <p className="text-xs text-muted-foreground">
-                      {he.project.shootDate}: {formatDate(project.shootDate, locale)}
-                    </p>
-                  )}
-
+                  {/* Task progress bar */}
                   {totalTasks > 0 && (
                     <div className="space-y-1">
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>{he.common.tasksLabel}</span>
-                        <span>{completedTasks}/{totalTasks}</span>
-                      </div>
                       <div className="h-1.5 rounded-full bg-muted">
                         <div
-                          className="h-full rounded-full bg-foreground transition-all duration-500"
+                          className="h-full rounded-full bg-[#38b6ff] transition-all duration-500"
                           style={{ width: `${(completedTasks / totalTasks) * 100}%` }}
                         />
                       </div>
+                      <p className="text-xs text-muted-foreground text-end">
+                        {completedTasks}/{totalTasks} {(he.common as Record<string, string>).tasksCompleted ?? "משימות הושלמו"}
+                      </p>
                     </div>
                   )}
                 </CardContent>

@@ -40,6 +40,8 @@ export const en = {
     needsAttention: "Needs Attention Now",
     staleLeadMsg: "No response for",
     days: "days",
+    inDays: "in",
+    tasksCompleted: "tasks completed",
     deadlineTomorrow: "Deadline tomorrow",
     overdueInvoice: "Overdue",
     todaySchedule: "Today",

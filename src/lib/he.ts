@@ -40,6 +40,8 @@ export const he = {
     needsAttention: "דורש טיפול עכשיו",
     staleLeadMsg: "לא היה מענה",
     days: "ימים",
+    inDays: "בעוד",
+    tasksCompleted: "משימות הושלמו",
     deadlineTomorrow: "דדליין מחר",
     overdueInvoice: "באיחור",
     todaySchedule: "היום",
