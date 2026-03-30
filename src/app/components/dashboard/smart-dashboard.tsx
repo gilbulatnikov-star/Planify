@@ -6,7 +6,6 @@ import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
   AlertTriangle, CalendarDays, Plus, Clock, ChevronLeft,
   ArrowUpRight, Sparkles, UserPlus, Scan, Receipt,
-  Contact, BarChart3, FileBarChart2, LayoutTemplate, Zap,
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -68,42 +67,31 @@ function Section({ title, icon: Icon, action, children, className }: {
   );
 }
 
-/* ── Primary Action Card — 2×2 banking grid ── */
-function PrimaryAction({ label, href, icon: Icon }: {
-  label: string; href: string; icon: React.ElementType;
+/* ── Quick Action Button — banking-app style ── */
+function QuickAction({ label, href, icon: Icon, primary }: {
+  label: string; href: string; icon: React.ElementType; primary?: boolean;
 }) {
   return (
     <Link
       href={href}
-      className="group flex flex-col items-center justify-center gap-3 bg-card px-4 py-6 hover:bg-[#2563eb]/[0.025] dark:hover:bg-[#2563eb]/[0.06] transition-colors"
+      className={`group flex flex-col items-center gap-2.5 rounded-2xl p-4 min-w-[72px] shrink-0 sm:min-w-0 sm:shrink transition-all duration-200 cursor-pointer ${
+        primary
+          ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md shadow-blue-500/20 hover:shadow-lg hover:shadow-blue-500/30 hover:-translate-y-0.5 active:translate-y-0"
+          : "bg-card border border-border/40 hover:border-border/60 hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)] hover:-translate-y-0.5 active:translate-y-0"
+      }`}
     >
-      <div className="flex h-12 w-12 items-center justify-center rounded-[14px] bg-[#2563eb]/[0.07] dark:bg-[#2563eb]/[0.12] group-hover:bg-[#2563eb]/[0.13] dark:group-hover:bg-[#2563eb]/[0.20] transition-colors">
-        <Icon className="h-[22px] w-[22px] text-[#2563eb]/75 dark:text-blue-400/80 group-hover:text-[#2563eb] dark:group-hover:text-blue-400 transition-colors" strokeWidth={1.7} />
+      <div className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+        primary
+          ? "bg-white/20"
+          : "bg-foreground/[0.04] group-hover:bg-accent/10"
+      }`}>
+        <Icon className={`h-5 w-5 ${primary ? "text-white" : "text-foreground/50 group-hover:text-accent"} transition-colors`} strokeWidth={1.8} />
       </div>
-      <span className="text-[13px] font-semibold text-foreground/60 group-hover:text-foreground/85 transition-colors text-center leading-tight">
+      <span className={`text-[11.5px] font-semibold text-center leading-tight ${
+        primary ? "text-white/90" : "text-foreground/55 group-hover:text-foreground/80"
+      } transition-colors`}>
         {label}
       </span>
-    </Link>
-  );
-}
-
-/* ── All Actions Row ── */
-function ActionRow({ label, href, icon: Icon, sub }: {
-  label: string; href: string; icon: React.ElementType; sub?: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group flex items-center gap-4 px-5 py-3.5 hover:bg-foreground/[0.025] transition-colors"
-    >
-      <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-foreground/[0.04] group-hover:bg-[#2563eb]/[0.07] transition-colors shrink-0">
-        <Icon className="h-[18px] w-[18px] text-foreground/35 group-hover:text-[#2563eb]/80 transition-colors" strokeWidth={1.8} />
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-[13.5px] font-semibold text-foreground/75 group-hover:text-foreground/90 transition-colors">{label}</p>
-        {sub && <p className="text-[11px] text-foreground/30 mt-px leading-tight">{sub}</p>}
-      </div>
-      <ChevronLeft className="h-4 w-4 text-foreground/20 group-hover:text-[#2563eb]/50 transition-colors shrink-0" />
     </Link>
   );
 }
@@ -147,48 +135,20 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════
-         2. PRIMARY ACTIONS — 2×2 banking-app grid
+         2. QUICK ACTIONS — banking-app style, priority-ordered
          ══════════════════════════════════════════════════════ */}
       <motion.div variants={fade}>
-        <div className="rounded-2xl border border-border/40 overflow-hidden bg-card shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          {/* Section header */}
-          <div className="flex items-center gap-2 px-5 py-3 border-b border-border/30">
-            <Zap className="h-3.5 w-3.5 text-foreground/20" strokeWidth={2} />
-            <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/40">פעולות מהירות</h2>
-          </div>
-          {/* 2×2 grid with separator lines */}
-          <div className="grid grid-cols-2 divide-x divide-y divide-border/30 rtl:divide-x-reverse">
-            <PrimaryAction label="פרויקט חדש" href="/projects" icon={FolderKanban} />
-            <PrimaryAction label="חשבונית חדשה" href="/financials" icon={Receipt} />
-            <PrimaryAction label="לקוח חדש" href="/clients" icon={UserPlus} />
-            <PrimaryAction label="סריקת מסמך" href="/financials" icon={Scan} />
-          </div>
+        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-5 sm:overflow-visible sm:pb-0">
+          <QuickAction label="פרויקט חדש" href="/projects" icon={Plus} primary />
+          <QuickAction label="לקוח חדש" href="/clients" icon={UserPlus} />
+          <QuickAction label="משימה חדשה" href="/tasks" icon={CheckSquare} />
+          <QuickAction label="חשבונית" href="/financials" icon={Receipt} />
+          <QuickAction label="סריקת מסמך" href="/financials" icon={Scan} />
         </div>
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════
-         3. ALL ACTIONS — structured navigation list
-         ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fade}>
-        <div className="rounded-2xl border border-border/40 overflow-hidden bg-card shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center gap-2 px-5 py-3 border-b border-border/30">
-            <Plus className="h-3.5 w-3.5 text-foreground/20" strokeWidth={2} />
-            <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/40">כל הפעולות</h2>
-          </div>
-          <div className="divide-y divide-border/25">
-            <ActionRow label="פרויקטים" href="/projects" icon={FolderKanban} sub="ניהול פרויקטים ולוחות זמנים" />
-            <ActionRow label="לקוחות" href="/clients" icon={Users} sub="ספר לקוחות ואנשי קשר" />
-            <ActionRow label="ניהול פיננסי" href="/financials" icon={FileBarChart2} sub="חשבוניות, הצעות מחיר ותשלומים" />
-            <ActionRow label="לוח שנה" href="/calendar" icon={CalendarDays} sub="תכנון תוכן ולוח זמנים" />
-            <ActionRow label="משימות" href="/tasks" icon={CheckSquare} sub="מעקב משימות ותזכורות" />
-            <ActionRow label="תסריטים" href="/scripts" icon={FileText} sub="כתיבה ועריכת תסריטים" />
-            <ActionRow label="דוחות" href="/reports" icon={BarChart3} sub="נתונים עסקיים וסיכומים חודשיים" />
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ══════════════════════════════════════════════════════
-         4. KPI SUMMARY — uniform cards, financial-first order
+         3. KPI SUMMARY — uniform cards, financial-first order
          ══════════════════════════════════════════════════════ */}
       <motion.div variants={fade} className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
         {kpiData.map((kpi) => (
@@ -197,7 +157,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════
-         5. ALERTS — urgent items (if any)
+         4. ALERTS — urgent items (if any)
          ══════════════════════════════════════════════════════ */}
       {urgentItems.length > 0 && (
         <motion.div variants={fade}>
@@ -223,7 +183,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       )}
 
       {/* ══════════════════════════════════════════════════════
-         6. MAIN CONTENT — two-column layout
+         5. MAIN CONTENT — two-column layout
          ══════════════════════════════════════════════════════ */}
       <div className="grid gap-4 lg:grid-cols-5">
 
@@ -288,7 +248,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       </div>
 
       {/* ══════════════════════════════════════════════════════
-         7. RECENT PROJECTS
+         6. RECENT PROJECTS
          ══════════════════════════════════════════════════════ */}
       {recentProjects.length > 0 && (
         <motion.div variants={fade}>
