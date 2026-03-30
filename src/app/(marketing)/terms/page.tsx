@@ -4,7 +4,7 @@ const sections = [
   {
     title: "הקדמה",
     content:
-      "ברוכים הבאים ל-Planify. תנאי שימוש אלה מסדירים את השימוש שלך באתר, באפליקציה ובשירותים שלנו. השימוש בשירות מהווה הסכמה לתנאים אלו. אם אינך מסכים לתנאים, אנא הימנע משימוש בשירות.",
+      "ברוכים הבאים ל-Qlipy. תנאי שימוש אלה מסדירים את השימוש שלך באתר, באפליקציה ובשירותים שלנו. השימוש בשירות מהווה הסכמה לתנאים אלו. אם אינך מסכים לתנאים, אנא הימנע משימוש בשירות.",
   },
   {
     title: "רישום וחשבון",
@@ -19,12 +19,12 @@ const sections = [
   {
     title: "קניין רוחני",
     content:
-      "כל הזכויות בשירות, לרבות סימני מסחר, זכויות יוצרים, פטנטים וסודות מסחריים, שייכות ל-Planify. המידע שאתה מעלה לשירות נשאר בבעלותך, אך אתה מעניק לנו רישיון מוגבל לשימוש בו לצורך הפעלת השירות.",
+      "כל הזכויות בשירות, לרבות סימני מסחר, זכויות יוצרים, פטנטים וסודות מסחריים, שייכות ל-Qlipy. המידע שאתה מעלה לשירות נשאר בבעלותך, אך אתה מעניק לנו רישיון מוגבל לשימוש בו לצורך הפעלת השירות.",
   },
   {
     title: "אחריות",
     content:
-      "השירות ניתן \"כפי שהוא\" (AS IS) ללא אחריות מכל סוג. Planify אינה אחראית לכל נזק ישיר, עקיף, מקרי או תוצאתי הנובע מהשימוש בשירות. אנו עושים מאמצים סבירים לשמור על זמינות ואמינות השירות.",
+      "השירות ניתן \"כפי שהוא\" (AS IS) ללא אחריות מכל סוג. Qlipy אינה אחראית לכל נזק ישיר, עקיף, מקרי או תוצאתי הנובע מהשימוש בשירות. אנו עושים מאמצים סבירים לשמור על זמינות ואמינות השירות.",
   },
   {
     title: "ביטול",
@@ -39,7 +39,7 @@ const sections = [
   {
     title: "יצירת קשר",
     content:
-      "לשאלות בנוגע לתנאי שימוש אלה, ניתן לפנות אלינו בכתובת support@planify.app. נשתדל לחזור אליך תוך 3 ימי עסקים.",
+      "לשאלות בנוגע לתנאי שימוש אלה, ניתן לפנות אלינו בכתובת support@qlipy.com. נשתדל לחזור אליך תוך 3 ימי עסקים.",
   },
 ];
 
@@ -50,10 +50,8 @@ export default function TermsPage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
-              P
-            </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">Planify</span>
+            <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-6 w-auto dark:hidden" />
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-6 w-auto hidden dark:block" />
           </Link>
           <Link
             href="/landing"

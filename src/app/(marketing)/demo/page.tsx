@@ -174,7 +174,7 @@ function DemoSidebar({
     <aside className="hidden md:flex w-56 shrink-0 flex-col border-l border-border bg-background/50">
       <div className="p-4 border-b border-border">
         <span className="text-xl font-bold bg-gradient-to-l from-[#2563eb] to-[#0077cc] bg-clip-text text-transparent">
-          Planify
+          Qlipy
         </span>
       </div>
       <nav className="flex-1 p-2 space-y-1">
@@ -1030,7 +1030,7 @@ export default function DemoPage() {
               href="/sign-up"
               className="block w-full rounded-xl bg-gradient-to-r from-[#2563eb] to-[#0077cc] py-3 text-center text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
-              הירשם בחינם ונסה את Planify
+              הירשם בחינם ונסה את Qlipy
             </Link>
           </div>
         </div>

@@ -109,44 +109,15 @@ function formatDateHebrew(date: string | Date | null | undefined): string {
   });
 }
 
-// ── Planify Logo ───────────────────────────────────────────────────────────────
+// ── Qlipy Logo ───────────────────────────────────────────────────────────────
 
-function PlanifyLogo({ size = 36 }: { size?: number }) {
+function QlipyLogo({ height = 28 }: { height?: number }) {
   return (
-    <svg
-      viewBox="0 0 36 36"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-    >
-      <rect
-        x="3"
-        y="3"
-        width="30"
-        height="30"
-        rx="9"
-        fill="#0a0a0a"
-        className="dark:fill-white"
-      />
-      <rect
-        x="9"
-        y="8"
-        width="18"
-        height="12"
-        rx="5"
-        fill="white"
-        className="dark:fill-[#0a0a0a]"
-      />
-      <ellipse
-        cx="24"
-        cy="25"
-        rx="5"
-        ry="6.5"
-        fill="#2563eb"
-        transform="rotate(-15 24 25)"
-      />
-    </svg>
+    <>
+      <img src="/qlipy-new-logo.png" alt="Qlipy" style={{ height }} className="w-auto dark:hidden" />
+      <img src="/qlipy-inverse-logo.png" alt="Qlipy" style={{ height }} className="w-auto hidden dark:block" />
+    </>
+
   );
 }
 
@@ -193,10 +164,7 @@ function PasswordGate({
       <div className="w-full max-w-sm space-y-8">
         {/* Logo */}
         <div className="flex flex-col items-center gap-3">
-          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-foreground shadow-lg">
-            <PlanifyLogo size={32} />
-          </div>
-          <span className="text-lg font-bold text-foreground">Planify</span>
+          <QlipyLogo height={32} />
         </div>
 
         {/* Card */}
@@ -278,7 +246,7 @@ function PasswordGate({
 
         <p className="text-center text-xs text-muted-foreground">
           הקישור שותף באמצעות{" "}
-          <span className="font-medium text-foreground">Planify</span>
+          <span className="font-medium text-foreground">Qlipy</span>
         </p>
       </div>
     </div>
@@ -505,10 +473,7 @@ function ShareContent({ data }: { data: ShareData }) {
       {/* ── Header ──────────────────────────────────────────────────────── */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-3">
-          <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-foreground shadow-sm">
-            <PlanifyLogo size={24} />
-          </div>
-          <span className="text-lg font-bold text-foreground">Planify</span>
+          <QlipyLogo height={26} />
         </div>
       </header>
 
@@ -689,7 +654,7 @@ function ShareContent({ data }: { data: ShareData }) {
         <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10 flex flex-col items-center gap-4 text-center">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>מופעל באמצעות</span>
-            <span className="font-bold text-foreground">Planify</span>
+            <span className="font-bold text-foreground">Qlipy</span>
           </div>
           <p className="text-xs text-muted-foreground max-w-xs leading-relaxed">
             כלי הניהול החכם לצלמים, מפיקים ויוצרי תוכן.
@@ -698,7 +663,7 @@ function ShareContent({ data }: { data: ShareData }) {
             href="/landing"
             className="inline-flex items-center justify-center rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
           >
-            נסו את Planify בחינם
+            נסו את Qlipy בחינם
           </Link>
         </div>
       </footer>

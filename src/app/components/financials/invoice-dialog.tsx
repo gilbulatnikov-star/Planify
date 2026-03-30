@@ -23,7 +23,9 @@ import {
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { createInvoice, updateInvoice } from "@/lib/actions/financial-actions";
+import { createClientQuick } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
+import { UserPlus } from "lucide-react";
 
 interface InvoiceDialogProps {
   invoice?: {
@@ -78,6 +80,10 @@ export function InvoiceDialog({
   const [dateValue, setDateValue] = useState(
     invoice?.dueDate ? formatDateForInput(invoice.dueDate) : ""
   );
+  const [localClients, setLocalClients] = useState(clients);
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClientName, setNewClientName] = useState("");
+  const [creatingClient, setCreatingClient] = useState(false);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -97,6 +103,19 @@ export function InvoiceDialog({
     });
   }
 
+  async function handleAddClient() {
+    if (!newClientName.trim()) return;
+    setCreatingClient(true);
+    const result = await createClientQuick(newClientName.trim());
+    if (result.success && result.client) {
+      setLocalClients((prev) => [...prev, { id: result.client!.id, name: result.client!.name }]);
+      setClientId(result.client!.id);
+      setNewClientName("");
+      setShowNewClient(false);
+    }
+    setCreatingClient(false);
+  }
+
   // Reset state when dialog opens with different invoice
   function handleOpenChange(open: boolean) {
     if (open) {
@@ -104,6 +123,9 @@ export function InvoiceDialog({
       setProjectId(invoice?.projectId ?? "");
       setStatus(invoice?.status ?? "draft");
       setDateValue(invoice?.dueDate ? formatDateForInput(invoice.dueDate) : "");
+      setLocalClients(clients);
+      setShowNewClient(false);
+      setNewClientName("");
     }
     onOpenChange(open);
   }
@@ -126,15 +148,41 @@ export function InvoiceDialog({
           <div className="grid grid-cols-2 gap-4 py-4">
             {/* לקוח */}
             <div className="space-y-2">
-              <Label htmlFor="clientId">{he.common.client}</Label>
-              <SearchableSelect
-                options={clients.map((c) => ({ value: c.id, label: c.name }))}
-                value={clientId}
-                onChange={(v) => setClientId(v)}
-                placeholder={he.financialExtra.selectClient}
-                searchPlaceholder={he.common.searchPlaceholder}
-                triggerClassName="w-full"
-              />
+              <div className="flex items-center justify-between">
+                <Label htmlFor="clientId">{he.common.client}</Label>
+                <button
+                  type="button"
+                  onClick={() => setShowNewClient(!showNewClient)}
+                  className="flex items-center gap-1 text-[11px] text-accent hover:text-accent/80 transition-colors"
+                >
+                  <UserPlus className="h-3.5 w-3.5" />
+                  הוסף לקוח
+                </button>
+              </div>
+              {showNewClient ? (
+                <div className="flex gap-2">
+                  <Input
+                    value={newClientName}
+                    onChange={(e) => setNewClientName(e.target.value)}
+                    placeholder="שם הלקוח..."
+                    className="flex-1"
+                    onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddClient())}
+                    autoFocus
+                  />
+                  <Button type="button" size="sm" onClick={handleAddClient} disabled={creatingClient || !newClientName.trim()}>
+                    {creatingClient ? "..." : "הוסף"}
+                  </Button>
+                </div>
+              ) : (
+                <SearchableSelect
+                  options={localClients.map((c) => ({ value: c.id, label: c.name }))}
+                  value={clientId}
+                  onChange={(v) => setClientId(v)}
+                  placeholder={he.financialExtra.selectClient}
+                  searchPlaceholder={he.common.searchPlaceholder}
+                  triggerClassName="w-full"
+                />
+              )}
             </div>
 
             {/* פרויקט */}

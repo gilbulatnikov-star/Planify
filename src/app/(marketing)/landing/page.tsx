@@ -49,12 +49,12 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "האם המערכת מתאימה לי?", a: "Planify נבנתה במיוחד לצלמים, יוצרי תוכן, מנהלות סושיאל ומפיקים." },
+  { q: "האם המערכת מתאימה לי?", a: "Qlipy נבנתה במיוחד לצלמים, יוצרי תוכן, מנהלות סושיאל ומפיקים." },
   { q: "כמה עולה?", a: "יש תוכנית חינמית ל-3 ימים. Pro עולה ₪59/חודש או ₪590/שנה." },
   { q: "האם המידע שלי מאובטח?", a: "כל המידע מוצפן ומאוחסן בשרתים מאובטחים." },
   { q: "אפשר לבטל בכל רגע?", a: "כן, ללא התחייבות וללא קנסות." },
   { q: "האם יש תמיכה?", a: "כן, תמיכה מלאה במייל ובצ׳אט." },
-  { q: "האם המערכת עובדת בטלפון?", a: "כן, Planify מותאמת לחלוטין למובייל." },
+  { q: "האם המערכת עובדת בטלפון?", a: "כן, Qlipy מותאמת לחלוטין למובייל." },
 ];
 
 const freePlanFeatures = ["3 ימי ניסיון", "עד 1 פרויקט", "עד 3 לקוחות"];
@@ -87,10 +87,7 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo */}
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-lg font-bold text-white">
-              P
-            </div>
-            <span className="text-xl font-bold">Planify</span>
+            <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-7 w-auto" />
           </Link>
 
           {/* Desktop nav */}
@@ -475,7 +472,7 @@ export default function LandingPage() {
             מוכנים להתחיל?
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-lg text-muted-foreground dark:text-muted-foreground">
-            הצטרפו לאלפי קריאייטיבים שכבר מנהלים את העסק שלהם עם Planify.
+            הצטרפו לאלפי קריאייטיבים שכבר מנהלים את העסק שלהם עם Qlipy.
           </motion.p>
           <motion.div variants={fadeUp} className="mt-8">
             <Link
@@ -494,10 +491,7 @@ export default function LandingPage() {
           {/* Logo + tagline */}
           <div className="flex flex-col items-center gap-2 sm:items-start">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
-                P
-              </div>
-              <span className="text-lg font-bold">Planify</span>
+              <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-6 w-auto" />
             </div>
             <p className="text-xs text-muted-foreground">הכלי החכם לניהול העסק הקריאייטיבי שלך</p>
           </div>
@@ -522,7 +516,7 @@ export default function LandingPage() {
                 </span>
               ))}
             </div>
-            <p className="text-xs text-muted-foreground">&copy; 2026 Planify</p>
+            <p className="text-xs text-muted-foreground">&copy; 2026 Qlipy</p>
           </div>
         </div>
       </footer>

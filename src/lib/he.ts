@@ -536,7 +536,7 @@ export const he = {
 
   // Auth
   auth: {
-    welcomeBack: "ברוך שובך ל-Planify",
+    welcomeBack: "ברוך שובך ל-Qlipy",
     signInSubtitle: "היכנס לחשבון שלך להמשיך",
     email: "אימייל",
     password: "סיסמה",
@@ -546,7 +546,7 @@ export const he = {
     noAccount: "אין לך חשבון?",
     freeSignUp: "הרשמה חינם",
     invalidCredentials: "כתובת האימייל או הסיסמה שגויים",
-    createAccount: "צור חשבון ב-Planify",
+    createAccount: "צור חשבון ב-Qlipy",
     createAccountSubtitle: "מערכת הניהול לצלמים ומפיקים",
     fullName: "שם מלא",
     createAccountButton: "יצירת חשבון חינם",
@@ -599,7 +599,7 @@ export const he = {
     monthly: "חודשי",
     annual: "שנתי",
     savings: "חיסכון ₪118",
-    freePlan: "Planify חינמי",
+    freePlan: "Qlipy חינמי",
     trialDays: "ניסיון של 3 ימים",
     forTrialDays: "ל-3 ימי ניסיון",
     currentPlan: "התוכנית הנוכחית",
@@ -607,8 +607,8 @@ export const he = {
     freeFeature2: "3 לקוחות",
     freeFeature3: "גישה מלאה ל-3 ימים",
     freeFeature4: "ללא כרטיס אשראי",
-    proAnnual: "Planify Pro שנתי",
-    proMonthly: "Planify Pro חודשי",
+    proAnnual: "Qlipy Pro שנתי",
+    proMonthly: "Qlipy Pro חודשי",
     annualBilling: "חיוב שנתי",
     monthlyBilling: "חיוב חודשי, ביטול בכל עת",
     perMonth: "/ חודש",
@@ -927,7 +927,7 @@ export const he = {
 
   // Welcome tour
   tour: {
-    welcome: "ברוכים הבאים ל-Planify!",
+    welcome: "ברוכים הבאים ל-Qlipy!",
     welcomeDesc: "המערכת שבנויה במיוחד לאנשי תוכן, מצלמים ומפיקים. בואו נסביר לך מה יש כאן בכמה שניות.",
     dashboardTitle: "לוח בקרה",
     dashboardDesc: "מבט מהיר על הפרויקטים הפעילים, הכנסות, צילומים קרובים ומשימות פתוחות — הכל במקום אחד.",
@@ -971,7 +971,7 @@ export const he = {
     zoomLabel: "זום תצוגה",
     exporting: "מייצא...",
     footerNote: "הלוגו, הצבעים והתוכן הם לצורך תצוגת לקוח בלבד",
-    producedBy: "הופק ע\"י Planify",
+    producedBy: "הופק ע\"י Qlipy",
     noContentThisMonth: "אין ימי תוכן בחודש זה",
     dateCol: "תאריך",
     productCol: "תוצר",
@@ -1089,7 +1089,7 @@ export const he = {
     audio: "אודיו",
     actor: "שחקן",
     actionDesc: "אקשן / תיאור",
-    producedBy: 'הופק ע"י Planify',
+    producedBy: 'הופק ע"י Qlipy',
   },
 
   // Financials extra
@@ -1445,8 +1445,8 @@ export const he = {
     submitPassword: "כניסה",
     shareExpired: "קישור השיתוף פג תוקף",
     shareNotFound: "קישור השיתוף לא נמצא",
-    tryPlanify: "נסה את Planify בחינם",
-    planifyDesc: "הכלי החכם לניהול הפקות וידאו",
+    tryQlipy: "נסה את Qlipy בחינם",
+    qlipyDesc: "הכלי החכם לניהול הפקות וידאו",
     uploadFile: "העלה קובץ",
     addLink: "הוסף קישור",
     linkUrl: "כתובת הקישור",

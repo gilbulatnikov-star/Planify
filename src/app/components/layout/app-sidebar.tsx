@@ -72,7 +72,6 @@ export function AppSidebar() {
     { href: "/financials", label: he.nav.financials, icon: FileBarChart2, tourId: "nav-financials" },
     { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
     { href: "/reports", label: "דוחות", icon: BarChart3, tourId: "nav-reports" },
-    { href: "/automations", label: he.automations.title, icon: Zap, tourId: "nav-automations" },
   ];
 
   const groupLabelClass = "text-[10px] font-semibold uppercase tracking-[0.12em] text-white/30 px-3 mb-1 group-data-[collapsible=icon]:hidden";
@@ -88,21 +87,12 @@ export function AppSidebar() {
       <SidebarHeader className="border-b border-sidebar-border/60 px-3 py-4">
         <div className="flex w-full items-center gap-2.5">
           {/* Logo — expanded */}
-          <Link href="/" className="flex items-center gap-2 group-data-[collapsible=icon]:hidden select-none">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7 shrink-0">
-              <rect width="32" height="32" rx="8" fill="#3b82f6"/>
-              <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
-              <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
-            </svg>
-            <span className="text-[15px] font-extrabold tracking-[-0.03em] text-white/90">Planify</span>
+          <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden select-none">
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-7 w-auto" />
           </Link>
-          {/* Logo — collapsed */}
-          <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center">
-            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-7 w-7">
-              <rect width="32" height="32" rx="8" fill="#2563eb"/>
-              <path d="M11 8h6a5 5 0 0 1 0 10h-6V8Zm3 3v4h3a2 2 0 1 0 0-4h-3Z" fill="white"/>
-              <rect x="11" y="20" width="3" height="4" rx="0.5" fill="white" opacity="0.7"/>
-            </svg>
+          {/* Logo — collapsed (icon only) */}
+          <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center justify-center">
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-7 w-auto" />
           </Link>
         </div>
       </SidebarHeader>

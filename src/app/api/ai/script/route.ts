@@ -31,7 +31,7 @@ async function callOpenRouter(messages: { role: string; content: string }[]) {
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": process.env.NEXTAUTH_URL ?? "https://planify.app",
+      "HTTP-Referer": process.env.NEXTAUTH_URL ?? "https://qlipy.com",
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-001",

@@ -743,7 +743,7 @@ export function ScriptEditorClient({
             <div style="font-size:12px;color:#6b7280;">${shots.length} shots</div>
           </div>
           <table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>
-          <div style="margin-top:20px;text-align:center;font-size:10px;color:#9ca3af;">Planify</div>
+          <div style="margin-top:20px;text-align:center;font-size:10px;color:#9ca3af;">Qlipy</div>
         </div></body></html>`;
 
       const printWin = window.open("", "_blank");

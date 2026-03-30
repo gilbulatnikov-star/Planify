@@ -536,7 +536,7 @@ export const en = {
 
   // Auth
   auth: {
-    welcomeBack: "Welcome back to Planify",
+    welcomeBack: "Welcome back to Qlipy",
     signInSubtitle: "Sign in to your account to continue",
     email: "Email",
     password: "Password",
@@ -546,7 +546,7 @@ export const en = {
     noAccount: "Don't have an account?",
     freeSignUp: "Sign up free",
     invalidCredentials: "Invalid email or password",
-    createAccount: "Create a Planify account",
+    createAccount: "Create a Qlipy account",
     createAccountSubtitle: "The management system for photographers and producers",
     fullName: "Full Name",
     createAccountButton: "Create Free Account",
@@ -599,7 +599,7 @@ export const en = {
     monthly: "Monthly",
     annual: "Annual",
     savings: "Save ₪118",
-    freePlan: "Planify Free",
+    freePlan: "Qlipy Free",
     trialDays: "3-day trial",
     forTrialDays: "For 3 trial days",
     currentPlan: "Current Plan",
@@ -607,8 +607,8 @@ export const en = {
     freeFeature2: "3 clients",
     freeFeature3: "Full access for 3 days",
     freeFeature4: "No credit card",
-    proAnnual: "Planify Pro Annual",
-    proMonthly: "Planify Pro Monthly",
+    proAnnual: "Qlipy Pro Annual",
+    proMonthly: "Qlipy Pro Monthly",
     annualBilling: "Annual billing",
     monthlyBilling: "Monthly billing, cancel anytime",
     perMonth: "/ month",
@@ -924,7 +924,7 @@ export const en = {
 
   // Welcome tour
   tour: {
-    welcome: "Welcome to Planify!",
+    welcome: "Welcome to Qlipy!",
     welcomeDesc: "The platform built especially for content creators, photographers, and producers. Let us show you what's here in a few seconds.",
     dashboardTitle: "Dashboard",
     dashboardDesc: "A quick overview of active projects, revenue, upcoming shoots, and open tasks — all in one place.",
@@ -968,7 +968,7 @@ export const en = {
     zoomLabel: "Zoom",
     exporting: "Exporting...",
     footerNote: "The logo, colors, and content are for client preview only",
-    producedBy: "Produced by Planify",
+    producedBy: "Produced by Qlipy",
     noContentThisMonth: "No content days this month",
     dateCol: "Date",
     productCol: "Product",
@@ -1086,7 +1086,7 @@ export const en = {
     audio: "Audio",
     actor: "Actor",
     actionDesc: "Action / Description",
-    producedBy: "Produced by Planify",
+    producedBy: "Produced by Qlipy",
   },
 
   // Financials extra
@@ -1442,8 +1442,8 @@ export const en = {
     submitPassword: "Submit",
     shareExpired: "This share link has expired",
     shareNotFound: "Share link not found",
-    tryPlanify: "Try Planify for Free",
-    planifyDesc: "The smart tool for managing video productions",
+    tryQlipy: "Try Qlipy for Free",
+    qlipyDesc: "The smart tool for managing video productions",
     uploadFile: "Upload File",
     addLink: "Add Link",
     linkUrl: "Link URL",

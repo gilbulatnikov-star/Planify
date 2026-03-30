@@ -21,7 +21,6 @@ const quickNav = [
   { label: "לוח שנה", href: "/calendar", icon: CalendarDays },
   { label: "משימות", href: "/tasks", icon: CheckSquare },
   { label: "כספים", href: "/financials", icon: FileText },
-  { label: "אוטומציות", href: "/automations", icon: Zap },
 ];
 
 const typeConfig: Record<string, { label: string; icon: typeof FolderKanban }> = {

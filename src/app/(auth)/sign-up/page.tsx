@@ -59,12 +59,9 @@ export default function SignUpPage() {
     <div className="w-full max-w-md">
       {/* Logo */}
       <div className="text-center mb-8">
-        <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground shadow-lg mb-4">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-10 w-10">
-            <rect x="3" y="3" width="30" height="30" rx="9" fill="#0a0a0a"/>
-            <rect x="9" y="8" width="18" height="12" rx="5" fill="white"/>
-            <ellipse cx="24" cy="25" rx="5" ry="6.5" fill="#2563eb" transform="rotate(-15 24 25)"/>
-          </svg>
+        <div className="mb-4">
+          <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-10 w-auto mx-auto dark:hidden" />
+          <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-10 w-auto mx-auto hidden dark:block" />
         </div>
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.auth.createAccount}</h1>
         <p className="text-sm text-muted-foreground mt-1">{he.auth.createAccountSubtitle}</p>

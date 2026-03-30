@@ -144,7 +144,7 @@ export default function BillingPricingPage() {
           <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-card/20 mb-4 sm:mb-5">
             <Crown className="h-5 w-5 text-white" />
           </div>
-          <p className="text-lg sm:text-xl font-black text-white mb-1">Planify Pro {isAnnual ? he.billing.annual : he.billing.monthly}</p>
+          <p className="text-lg sm:text-xl font-black text-white mb-1">Qlipy Pro {isAnnual ? he.billing.annual : he.billing.monthly}</p>
           <p className="text-xs text-white/40 mb-4 sm:mb-6">{isAnnual ? he.billing.annualBilling : he.billing.monthlyBilling}</p>
 
           <div className="mb-1 flex items-end gap-1.5">

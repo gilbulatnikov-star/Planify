@@ -29,12 +29,12 @@ const sections = [
   {
     title: "זכויות המשתמש",
     content:
-      "יש לך זכות לגשת למידע האישי שלך, לתקנו או למחקו. ניתן לבקש עותק של המידע שאנו מחזיקים עליך או לבקש את מחיקתו באמצעות פנייה לכתובת support@planify.app. נטפל בבקשתך תוך 30 ימים.",
+      "יש לך זכות לגשת למידע האישי שלך, לתקנו או למחקו. ניתן לבקש עותק של המידע שאנו מחזיקים עליך או לבקש את מחיקתו באמצעות פנייה לכתובת support@qlipy.com. נטפל בבקשתך תוך 30 ימים.",
   },
   {
     title: "יצירת קשר",
     content:
-      "לשאלות או בקשות הנוגעות למדיניות פרטיות זו, ניתן לפנות אלינו בכתובת support@planify.app או באמצעות טופס יצירת הקשר באתר.",
+      "לשאלות או בקשות הנוגעות למדיניות פרטיות זו, ניתן לפנות אלינו בכתובת support@qlipy.com או באמצעות טופס יצירת הקשר באתר.",
   },
 ];
 
@@ -45,10 +45,8 @@ export default function PrivacyPage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
-              P
-            </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">Planify</span>
+            <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-6 w-auto dark:hidden" />
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-6 w-auto hidden dark:block" />
           </Link>
           <Link
             href="/landing"

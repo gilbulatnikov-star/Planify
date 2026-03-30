@@ -12,10 +12,8 @@ export default function ContactPage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4 sm:px-6">
           <Link href="/landing" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-[#2563eb] to-[#0077cc] text-sm font-bold text-white">
-              P
-            </div>
-            <span className="text-lg font-bold text-gray-900 dark:text-white">Planify</span>
+            <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-6 w-auto dark:hidden" />
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-6 w-auto hidden dark:block" />
           </Link>
           <Link
             href="/landing"
@@ -135,11 +133,11 @@ export default function ContactPage() {
                 <p className="flex items-center gap-2">
                   <span className="text-base">&#9993;</span>
                   <a
-                    href="mailto:support@planify.app"
+                    href="mailto:support@qlipy.com"
                     className="transition-colors hover:text-[#2563eb]"
                     dir="ltr"
                   >
-                    support@planify.app
+                    support@qlipy.com
                   </a>
                 </p>
                 <p className="flex items-center gap-2">

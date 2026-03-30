@@ -48,7 +48,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   PLANIFY PREMIUM — Light Mode
+   QLIPY PREMIUM — Light Mode
    ══════════════════════════════════════════════════════════ */
 :root {
   --qlipy-blue: #2563eb;
@@ -99,7 +99,7 @@
 }
 
 /* ══════════════════════════════════════════════════════════
-   PLANIFY PREMIUM — Dark Mode
+   QLIPY PREMIUM — Dark Mode
    ══════════════════════════════════════════════════════════ */
 .dark {
   /* Surfaces — deep, luxurious, not gray */
@@ -238,7 +238,7 @@
    ══════════════════════════════════════════════════════════ */
 
 /* Loading logo */
-@keyframes planify-pulse {
+@keyframes qlipy-pulse {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.04); opacity: 0.8; }
 }

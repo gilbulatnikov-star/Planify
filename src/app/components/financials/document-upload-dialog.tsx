@@ -17,7 +17,9 @@ import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/u
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Textarea } from "@/components/ui/textarea";
 import { createExpense, createInvoice } from "@/lib/actions/financial-actions";
+import { createClientQuick } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
+import { UserPlus } from "lucide-react";
 
 interface DocumentUploadDialogProps {
   open: boolean;
@@ -67,6 +69,23 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
   const [category, setCategory] = useState("other");
   const [notes, setNotes] = useState("");
   const [clientId, setClientId] = useState("");
+  const [localClients, setLocalClients] = useState(clients);
+  const [showNewClient, setShowNewClient] = useState(false);
+  const [newClientName, setNewClientName] = useState("");
+  const [creatingClient, setCreatingClient] = useState(false);
+
+  async function handleAddClient() {
+    if (!newClientName.trim()) return;
+    setCreatingClient(true);
+    const result = await createClientQuick(newClientName.trim());
+    if (result.success && result.client) {
+      setLocalClients((prev) => [...prev, { id: result.client!.id, name: result.client!.name }]);
+      setClientId(result.client!.id);
+      setNewClientName("");
+      setShowNewClient(false);
+    }
+    setCreatingClient(false);
+  }
 
   function resetState() {
     setUploadState("idle");
@@ -76,6 +95,7 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
     setDocType("expense");
     setDescription(""); setAmount(""); setVendor(""); setDate("");
     setCategory("other"); setNotes(""); setClientId("");
+    setLocalClients(clients); setShowNewClient(false); setNewClientName("");
   }
 
   function handleOpenChange(open: boolean) {
@@ -339,20 +359,46 @@ export function DocumentUploadDialog({ open, onOpenChange, clients = [] }: Docum
                   className="h-9 text-sm" required />
               </div>
 
-              {docType === "invoice" && clients.length > 0 && (
+              {docType === "invoice" && (
                 <div className="space-y-1.5">
-                  <Label className="text-xs">{he.docUpload.clientOptional}</Label>
-                  <SearchableSelect
-                    options={[
-                      { value: "_none", label: he.docUpload.noClient },
-                      ...clients.map((c) => ({ value: c.id, label: c.name })),
-                    ]}
-                    value={clientId || "_none"}
-                    onChange={(v) => setClientId(v === "_none" ? "" : v)}
-                    placeholder={he.docUpload.noClient}
-                    searchPlaceholder={he.common.searchPlaceholder}
-                    triggerClassName="w-full h-9 text-sm"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs">{he.docUpload.clientOptional}</Label>
+                    <button
+                      type="button"
+                      onClick={() => setShowNewClient(!showNewClient)}
+                      className="flex items-center gap-1 text-[10px] text-accent hover:text-accent/80 transition-colors"
+                    >
+                      <UserPlus className="h-3 w-3" />
+                      הוסף לקוח
+                    </button>
+                  </div>
+                  {showNewClient ? (
+                    <div className="flex gap-1.5">
+                      <Input
+                        value={newClientName}
+                        onChange={(e) => setNewClientName(e.target.value)}
+                        placeholder="שם הלקוח..."
+                        className="flex-1 h-9 text-sm"
+                        onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddClient())}
+                        autoFocus
+                      />
+                      <Button type="button" size="sm" onClick={handleAddClient} disabled={creatingClient || !newClientName.trim()} className="h-9">
+                        {creatingClient ? "..." : "הוסף"}
+                      </Button>
+                    </div>
+                  ) : (
+                    <SearchableSelect
+                      options={[
+                        { value: "_none", label: he.docUpload.noClient },
+                        ...localClients.map((c) => ({ value: c.id, label: c.name })),
+                      ]}
+                      value={clientId || "_none"}
+                      onChange={(v) => setClientId(v === "_none" ? "" : v)}
+                      placeholder={he.docUpload.noClient}
+                      searchPlaceholder={he.common.searchPlaceholder}
+                      triggerClassName="w-full h-9 text-sm"
+                    />
+                  )}
                 </div>
               )}
 

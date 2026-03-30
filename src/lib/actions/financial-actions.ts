@@ -23,9 +23,16 @@ export async function createInvoice(formData: FormData) {
     const session = await auth();
     const userId = session?.user?.id;
 
-    // Auto-generate invoice number scoped to user
-    const count = await prisma.invoice.count({ where: { userId: userId ?? undefined } });
-    const invoiceNumber = `INV-${String(count + 1).padStart(4, "0")}`;
+    // Auto-generate invoice number scoped to user (use max existing number to avoid duplicates)
+    const lastInvoice = await prisma.invoice.findFirst({
+      where: { userId: userId ?? undefined },
+      orderBy: { createdAt: "desc" },
+      select: { invoiceNumber: true },
+    });
+    const lastNum = lastInvoice?.invoiceNumber
+      ? parseInt(lastInvoice.invoiceNumber.replace(/\D/g, ""), 10) || 0
+      : 0;
+    const invoiceNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
 
     const tax = amount * 0.17;
     const total = amount + tax;

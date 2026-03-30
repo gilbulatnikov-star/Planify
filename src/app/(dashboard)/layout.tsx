@@ -37,13 +37,13 @@ export default async function DashboardLayout({
           <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-2 border-b border-border/50 px-6 bg-background/85 backdrop-blur-md">
             <SidebarTrigger className="-me-2 text-muted-foreground hover:text-foreground transition-colors duration-200" />
             <div className="flex items-center gap-3">
-              <HeaderSearch />
+              <span className="hidden md:block"><HeaderSearch /></span>
               <NotificationBell
                 initialNotifications={notifications}
                 initialUnreadCount={unreadCount}
               />
               <ThemeToggle />
-              <UserMenu />
+              <span className="hidden md:block"><UserMenu /></span>
             </div>
           </header>
           <main className="relative flex-1 overflow-auto p-6 pb-20 md:p-8 md:pb-8">{children}</main>
