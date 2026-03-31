@@ -24,7 +24,31 @@ function getGreeting(): string {
   return "לילה טוב";
 }
 
-/* ── KPI Card — compact, uniform ── */
+/* ── KPI Featured Card — full-width hero on mobile ── */
+function KpiFeaturedCard({ label, value, icon: Icon, href, gradient }: {
+  label: string; value: string | number; icon: React.ElementType; href: string; gradient: string;
+}) {
+  return (
+    <Link href={href} className="group relative overflow-hidden rounded-2xl bg-card border border-border/40 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.1)] transition-all duration-300">
+      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+      {/* Mobile: horizontal layout. Desktop: vertical (same as KpiCard) */}
+      <div className="flex items-center gap-4 px-5 py-4 sm:block sm:px-5 sm:py-4">
+        {/* Icon */}
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-sm sm:h-8 sm:w-8 sm:rounded-lg sm:mb-3`}>
+          <Icon className="h-5 w-5 sm:h-3.5 sm:w-3.5" strokeWidth={2.2} />
+        </div>
+        {/* Data */}
+        <div className="flex-1 min-w-0 sm:flex-none">
+          <div className="text-[28px] font-extrabold tracking-tight leading-none text-foreground tabular-nums sm:text-2xl">{value}</div>
+          <p className="text-[11px] text-muted-foreground/55 mt-1 font-bold tracking-[0.07em] uppercase sm:text-[10px] sm:mt-1.5">{label}</p>
+        </div>
+        <ArrowUpRight className="h-4 w-4 text-foreground/15 group-hover:text-foreground/30 transition-colors shrink-0 sm:hidden" />
+      </div>
+    </Link>
+  );
+}
+
+/* ── KPI Card — compact secondary card ── */
 function KpiCard({ label, value, icon: Icon, href, gradient }: {
   label: string; value: string | number; icon: React.ElementType; href: string; gradient: string;
 }) {
@@ -148,10 +172,15 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════
-         3. KPI SUMMARY — uniform cards, financial-first order
+         3. KPI SUMMARY — featured hero + 2×2 grid on mobile
          ══════════════════════════════════════════════════════ */}
       <motion.div variants={fade} className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
-        {kpiData.map((kpi) => (
+        {/* Revenue — featured full-width on mobile, regular on desktop */}
+        <div className="col-span-2 lg:col-span-1">
+          <KpiFeaturedCard {...kpiData[0]} />
+        </div>
+        {/* 4 secondary KPIs — 2×2 on mobile, 4 columns on desktop */}
+        {kpiData.slice(1).map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
       </motion.div>
