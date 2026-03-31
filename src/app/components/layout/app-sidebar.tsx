@@ -199,8 +199,34 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      {/* ── Footer: billing + sign out ── */}
+      {/* ── Footer: profile + billing + sign out ── */}
       <SidebarFooter className="border-t border-sidebar-border/60 p-3 space-y-0.5">
+        {/* User profile card */}
+        <Link
+          href="/settings/profile"
+          className={`flex items-center gap-3 rounded-[9px] px-3 py-2.5 mb-1 transition-all duration-200 hover:bg-white/[0.05] group-data-[collapsible=icon]:justify-center ${
+            pathname.startsWith("/settings") ? "bg-white/[0.08]" : ""
+          }`}
+        >
+          {/* Avatar */}
+          <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold select-none">
+            {user?.image ? (
+              <img src={user.image} alt={user.name ?? ""} className="h-8 w-8 rounded-full object-cover" />
+            ) : (
+              initials
+            )}
+          </div>
+          {/* Name + email */}
+          <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
+            <p className="text-[13px] font-semibold text-white/90 truncate leading-tight">
+              {user?.name ?? user?.email ?? "משתמש"}
+            </p>
+            <p className="text-[11px] text-white/35 truncate leading-tight mt-0.5">
+              {user?.email ?? ""}
+            </p>
+          </div>
+        </Link>
+
         <SidebarMenuButton
           render={<Link href="/billing" />}
           isActive={pathname.startsWith("/billing")}

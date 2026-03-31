@@ -43,7 +43,7 @@ export default async function DashboardLayout({
                 initialUnreadCount={unreadCount}
               />
               <ThemeToggle />
-              <span className="hidden md:block"><UserMenu /></span>
+              <UserMenu />
             </div>
           </header>
           <main className="relative flex-1 overflow-auto p-6 pb-20 md:p-8 md:pb-8">{children}</main>
