@@ -86,13 +86,13 @@ export function AppSidebar() {
       {/* ── Logo header ── */}
       <SidebarHeader className="border-b border-sidebar-border/60 px-3 py-4">
         <div className="flex w-full items-center gap-2.5">
-          {/* Logo — expanded (wordmark only) */}
+          {/* Logo — expanded */}
           <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden select-none">
-            <img src="/qlipy-wordmark.svg" alt="Qlipy" className="h-7 w-auto" />
+            <img src="/qlipy-logo.png" alt="Qlipy" className="h-7 w-auto brightness-0 invert" />
           </Link>
-          {/* Logo — collapsed (Q letter) */}
+          {/* Logo — collapsed (icon only) */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center justify-center">
-            <span className="text-white font-black text-xl tracking-tight">Q</span>
+            <img src="/qlipy-logo.png" alt="Qlipy" className="h-7 w-auto brightness-0 invert" />
           </Link>
         </div>
       </SidebarHeader>
