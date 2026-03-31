@@ -24,45 +24,7 @@ function getGreeting(): string {
   return "לילה טוב";
 }
 
-/* ── KPI Featured Card — dark hero, full-width on mobile ── */
-function KpiFeaturedCard({ label, value, icon: Icon, href }: {
-  label: string; value: string | number; icon: React.ElementType; href: string; gradient: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className="group relative overflow-hidden rounded-2xl bg-[#0f0f0f] dark:bg-[#1a1a1a] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.22)] transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.3)] sm:bg-card sm:border sm:border-border/40 sm:shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
-    >
-      {/* Mobile layout — dark card */}
-      <div className="sm:hidden px-5 py-5">
-        <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-white/30 mb-3">{label}</p>
-        <div className="flex items-end justify-between">
-          <div className="text-[36px] font-extrabold tracking-tight leading-none text-white tabular-nums">
-            {value}
-          </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.08] mb-0.5">
-            <Icon className="h-5 w-5 text-white/60" strokeWidth={1.8} />
-          </div>
-        </div>
-      </div>
-
-      {/* Desktop layout — same as regular KpiCard */}
-      <div className="hidden sm:block px-5 py-4">
-        <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-emerald-500 to-emerald-600 opacity-30 group-hover:opacity-100 transition-opacity`} />
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-sm">
-            <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
-          </div>
-          <ArrowUpRight className="h-3 w-3 text-transparent group-hover:text-foreground/25 transition-colors" />
-        </div>
-        <div className="text-2xl font-extrabold tracking-tight leading-none text-foreground tabular-nums">{value}</div>
-        <p className="text-[10px] text-muted-foreground/60 mt-1.5 font-bold tracking-[0.08em] uppercase">{label}</p>
-      </div>
-    </Link>
-  );
-}
-
-/* ── KPI Card — compact secondary card ── */
+/* ── KPI Card — compact, uniform ── */
 function KpiCard({ label, value, icon: Icon, href, gradient }: {
   label: string; value: string | number; icon: React.ElementType; href: string; gradient: string;
 }) {
@@ -186,15 +148,10 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       </motion.div>
 
       {/* ══════════════════════════════════════════════════════
-         3. KPI SUMMARY — featured hero + 2×2 grid on mobile
+         3. KPI SUMMARY — uniform cards, financial-first order
          ══════════════════════════════════════════════════════ */}
       <motion.div variants={fade} className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
-        {/* Revenue — featured full-width on mobile, regular on desktop */}
-        <div className="col-span-2 lg:col-span-1">
-          <KpiFeaturedCard {...kpiData[0]} />
-        </div>
-        {/* 4 secondary KPIs — 2×2 on mobile, 4 columns on desktop */}
-        {kpiData.slice(1).map((kpi) => (
+        {kpiData.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
       </motion.div>
