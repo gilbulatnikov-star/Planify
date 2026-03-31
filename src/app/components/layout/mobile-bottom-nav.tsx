@@ -95,7 +95,7 @@ export function MobileBottomNav() {
       <AnimatePresence>
         {(moreOpen || addOpen) && (
           <motion.div
-            className="fixed inset-0 z-40 md:hidden bg-black/50"
+            className="fixed inset-0 z-40 lg:hidden bg-black/50"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={() => { setMoreOpen(false); setAddOpen(false); }}
@@ -107,7 +107,7 @@ export function MobileBottomNav() {
       <AnimatePresence>
         {addOpen && (
           <motion.div
-            className="fixed left-0 right-0 z-50 md:hidden px-4"
+            className="fixed left-0 right-0 z-50 lg:hidden px-4"
             style={{ bottom: panelBottom }}
             initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }}
             transition={{ type: "spring", damping: 28, stiffness: 380 }}
@@ -141,7 +141,7 @@ export function MobileBottomNav() {
       <AnimatePresence>
         {moreOpen && (
           <motion.div
-            className="fixed left-0 right-0 z-50 md:hidden px-3"
+            className="fixed left-0 right-0 z-50 lg:hidden px-3"
             style={{ bottom: panelBottom }}
             initial={{ y: 16, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 16, opacity: 0 }}
             transition={{ type: "spring", damping: 28, stiffness: 380 }}
@@ -178,7 +178,7 @@ export function MobileBottomNav() {
 
       {/* ── Tab bar ── */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+        className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom, 0px), 8px)" }}
       >
         <div className="mx-3 mb-2">
