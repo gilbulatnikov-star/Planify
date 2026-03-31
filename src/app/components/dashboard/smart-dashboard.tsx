@@ -24,25 +24,39 @@ function getGreeting(): string {
   return "לילה טוב";
 }
 
-/* ── KPI Featured Card — full-width hero on mobile ── */
-function KpiFeaturedCard({ label, value, icon: Icon, href, gradient }: {
+/* ── KPI Featured Card — dark hero, full-width on mobile ── */
+function KpiFeaturedCard({ label, value, icon: Icon, href }: {
   label: string; value: string | number; icon: React.ElementType; href: string; gradient: string;
 }) {
   return (
-    <Link href={href} className="group relative overflow-hidden rounded-2xl bg-card border border-border/40 shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.1)] transition-all duration-300">
-      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
-      {/* Mobile: horizontal layout. Desktop: vertical (same as KpiCard) */}
-      <div className="flex items-center gap-4 px-5 py-4 sm:block sm:px-5 sm:py-4">
-        {/* Icon */}
-        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-sm sm:h-8 sm:w-8 sm:rounded-lg sm:mb-3`}>
-          <Icon className="h-5 w-5 sm:h-3.5 sm:w-3.5" strokeWidth={2.2} />
+    <Link
+      href={href}
+      className="group relative overflow-hidden rounded-2xl bg-[#0f0f0f] dark:bg-[#1a1a1a] shadow-[0_4px_24px_-4px_rgba(0,0,0,0.22)] transition-all duration-300 hover:shadow-[0_8px_32px_-4px_rgba(0,0,0,0.3)] sm:bg-card sm:border sm:border-border/40 sm:shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
+    >
+      {/* Mobile layout — dark card */}
+      <div className="sm:hidden px-5 py-5">
+        <p className="text-[10px] font-bold tracking-[0.1em] uppercase text-white/30 mb-3">{label}</p>
+        <div className="flex items-end justify-between">
+          <div className="text-[36px] font-extrabold tracking-tight leading-none text-white tabular-nums">
+            {value}
+          </div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.08] mb-0.5">
+            <Icon className="h-5 w-5 text-white/60" strokeWidth={1.8} />
+          </div>
         </div>
-        {/* Data */}
-        <div className="flex-1 min-w-0 sm:flex-none">
-          <div className="text-[28px] font-extrabold tracking-tight leading-none text-foreground tabular-nums sm:text-2xl">{value}</div>
-          <p className="text-[11px] text-muted-foreground/55 mt-1 font-bold tracking-[0.07em] uppercase sm:text-[10px] sm:mt-1.5">{label}</p>
+      </div>
+
+      {/* Desktop layout — same as regular KpiCard */}
+      <div className="hidden sm:block px-5 py-4">
+        <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-emerald-500 to-emerald-600 opacity-30 group-hover:opacity-100 transition-opacity`} />
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-sm">
+            <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+          </div>
+          <ArrowUpRight className="h-3 w-3 text-transparent group-hover:text-foreground/25 transition-colors" />
         </div>
-        <ArrowUpRight className="h-4 w-4 text-foreground/15 group-hover:text-foreground/30 transition-colors shrink-0 sm:hidden" />
+        <div className="text-2xl font-extrabold tracking-tight leading-none text-foreground tabular-nums">{value}</div>
+        <p className="text-[10px] text-muted-foreground/60 mt-1.5 font-bold tracking-[0.08em] uppercase">{label}</p>
       </div>
     </Link>
   );
