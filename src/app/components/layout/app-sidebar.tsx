@@ -88,11 +88,11 @@ export function AppSidebar() {
         <div className="flex w-full items-center gap-2.5">
           {/* Logo — expanded */}
           <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden select-none">
-            <img src="/qlipy-logo.png" alt="Qlipy" className="h-7 w-auto brightness-0 invert" />
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-7 w-auto" />
           </Link>
           {/* Logo — collapsed (icon only) */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center justify-center">
-            <img src="/qlipy-logo.png" alt="Qlipy" className="h-7 w-auto brightness-0 invert" />
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-7 w-auto" />
           </Link>
         </div>
       </SidebarHeader>
