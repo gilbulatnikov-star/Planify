@@ -83,15 +83,20 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.locale             = user.locale ?? "he";
         token.createdAt          = user.createdAt ?? new Date().toISOString();
       } else if (token.sub) {
-        // Subsequent requests — refresh plan from DB so plan upgrades take effect immediately
-        const fresh = await prisma.user.findUnique({
-          where: { id: token.sub },
-          select: { subscriptionPlan: true, onboardingCompleted: true, locale: true },
-        });
-        if (fresh) {
-          token.subscriptionPlan   = fresh.subscriptionPlan;
-          token.onboardingCompleted = fresh.onboardingCompleted;
-          token.locale             = fresh.locale;
+        // Refresh plan from DB at most once every 5 minutes to avoid DB hit on every request
+        const now = Date.now();
+        const lastFetch = token.planFetchedAt as number | undefined;
+        if (!lastFetch || now - lastFetch > 5 * 60 * 1000) {
+          const fresh = await prisma.user.findUnique({
+            where: { id: token.sub },
+            select: { subscriptionPlan: true, onboardingCompleted: true, locale: true },
+          });
+          if (fresh) {
+            token.subscriptionPlan    = fresh.subscriptionPlan;
+            token.onboardingCompleted = fresh.onboardingCompleted;
+            token.locale              = fresh.locale;
+            token.planFetchedAt       = now;
+          }
         }
       }
       if (trigger === "update") {

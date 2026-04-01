@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe, MessageSquarePlus, Star, Send } from "lucide-react";
-import { updateLocale } from "@/lib/actions/user-actions";
+import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe, MessageSquarePlus, Star, Send, Pencil, X } from "lucide-react";
+import { updateLocale, updateName } from "@/lib/actions/user-actions";
 import { submitFeedback } from "@/lib/actions/feedback-actions";
 import { useLocale, useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,24 @@ export default function ProfileSettingsPage() {
   const currentLocale = useLocale();
   const he = useT();
   const [isPendingLocale, startLocaleTransition] = useTransition();
+
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState(user?.name ?? "");
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameError, setNameError] = useState("");
+
+  async function handleSaveName() {
+    setNameError("");
+    setNameSaving(true);
+    const res = await updateName(nameValue);
+    setNameSaving(false);
+    if (res.success) {
+      await updateSession({ name: nameValue });
+      setEditingName(false);
+    } else {
+      setNameError(res.error ?? "שגיאה בשמירה");
+    }
+  }
 
   function handleLocaleChange(newLocale: "he" | "en") {
     startLocaleTransition(async () => {
@@ -102,10 +120,41 @@ export default function ProfileSettingsPage() {
         {/* Info fields */}
         <div className="space-y-4">
           <div className="flex items-start gap-3">
-            <User className="h-4 w-4 text-muted-foreground mt-0.5" />
-            <div>
-              <p className="text-xs text-muted-foreground font-medium">{he.profile.fullName}</p>
-              <p className="text-sm text-foreground font-medium mt-0.5">{user?.name ?? he.profile.notSet}</p>
+            <User className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground font-medium mb-1">{he.profile.fullName}</p>
+              {editingName ? (
+                <div className="space-y-2">
+                  <input
+                    value={nameValue}
+                    onChange={(e) => setNameValue(e.target.value)}
+                    autoFocus
+                    className="w-full h-9 rounded-lg border border-border bg-muted px-3 text-sm outline-none focus:border-foreground focus:bg-background transition-all"
+                  />
+                  {nameError && <p className="text-xs text-red-500">{nameError}</p>}
+                  <div className="flex gap-2">
+                    <button onClick={handleSaveName} disabled={nameSaving || !nameValue.trim()}
+                      className="flex items-center gap-1.5 rounded-lg bg-foreground text-background px-3 py-1.5 text-xs font-medium disabled:opacity-50">
+                      {nameSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                      שמור
+                    </button>
+                    <button onClick={() => { setEditingName(false); setNameValue(user?.name ?? ""); setNameError(""); }}
+                      className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground">
+                      <X className="h-3 w-3" />
+                      ביטול
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <p className="text-sm text-foreground font-medium">{user?.name ?? he.profile.notSet}</p>
+                  <button onClick={() => { setNameValue(user?.name ?? ""); setEditingName(true); }}
+                    className="flex items-center gap-1 rounded-md px-1.5 py-0.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
+                    <Pencil className="h-3 w-3" />
+                    עריכה
+                  </button>
+                </div>
+              )}
             </div>
           </div>
           <div className="flex items-start gap-3">

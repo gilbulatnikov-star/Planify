@@ -34,7 +34,8 @@ export async function createInvoice(formData: FormData) {
       : 0;
     const invoiceNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
 
-    const tax = amount * 0.17;
+    const includeVat = formData.get("includeVat") === "1";
+    const tax = includeVat ? amount * 0.18 : 0;
     const total = amount + tax;
 
     await prisma.invoice.create({
@@ -71,8 +72,7 @@ export async function updateInvoice(id: string, formData: FormData) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
-    const clientId = formData.get("clientId") as string;
-    if (!clientId) return { success: false, error: "Client is required" };
+    const clientId = (formData.get("clientId") as string) || null;
 
     const amountStr = formData.get("amount") as string;
     const amount = amountStr ? parseFloat(amountStr) : NaN;
@@ -84,7 +84,8 @@ export async function updateInvoice(id: string, formData: FormData) {
     const externalLink = (formData.get("externalLink") as string) || null;
     const notes = (formData.get("notes") as string) || null;
 
-    const tax = amount * 0.17;
+    const includeVat = formData.get("includeVat") === "1";
+    const tax = includeVat ? amount * 0.18 : 0;
     const total = amount + tax;
 
     const existing = await prisma.invoice.findFirst({ where: { id, userId } });

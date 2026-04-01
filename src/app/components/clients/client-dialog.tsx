@@ -1,7 +1,7 @@
 "use client";
 
 import { useTransition, useState, useEffect } from "react";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Globe, Instagram, Youtube, Linkedin } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +18,16 @@ import { createClient, updateClient } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
 
 const SOCIAL_KEYS = ["website", "instagram", "youtube", "linkedin", "tiktok", "facebook"] as const;
-
 type SocialKey = typeof SOCIAL_KEYS[number];
+
+const SOCIAL_META: Record<SocialKey, { label: string; placeholder: string; icon?: React.ReactNode }> = {
+  website:   { label: "אתר", placeholder: "https://...", icon: <Globe className="h-3.5 w-3.5" /> },
+  instagram: { label: "Instagram", placeholder: "@username", icon: <Instagram className="h-3.5 w-3.5" /> },
+  youtube:   { label: "YouTube", placeholder: "YouTube", icon: <Youtube className="h-3.5 w-3.5" /> },
+  linkedin:  { label: "LinkedIn", placeholder: "LinkedIn", icon: <Linkedin className="h-3.5 w-3.5" /> },
+  tiktok:    { label: "TikTok", placeholder: "@username" },
+  facebook:  { label: "Facebook", placeholder: "Facebook" },
+};
 
 interface ClientDialogProps {
   client?: {
@@ -47,14 +55,6 @@ interface ClientDialogProps {
 
 export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: ClientDialogProps) {
   const he = useT();
-  const SOCIAL_OPTIONS = [
-    { key: "website" as const, label: he.common.website, placeholder: "https://..." },
-    { key: "instagram" as const, label: "Instagram", placeholder: "@username" },
-    { key: "youtube" as const, label: "YouTube", placeholder: "YouTube" },
-    { key: "linkedin" as const, label: "LinkedIn", placeholder: "LinkedIn" },
-    { key: "tiktok" as const, label: "TikTok", placeholder: "@username" },
-    { key: "facebook" as const, label: "Facebook", placeholder: "Facebook" },
-  ];
   const [isPending, startTransition] = useTransition();
   const isEditing = !!client;
   const [isActive, setIsActive] = useState(client?.isActive ?? true);
@@ -64,37 +64,30 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
   useEffect(() => {
     if (open) {
       setIsActive(client?.isActive ?? true);
-      // Show socials that already have values
-      const existing = SOCIAL_KEYS
-        .filter(key => (client as Record<string, unknown>)?.[key]);
+      const existing = SOCIAL_KEYS.filter((key) => (client as Record<string, unknown>)?.[key]);
       setVisibleSocials(existing);
       setPickerOpen(false);
     }
   }, [open, client]);
 
-  const availableSocials = SOCIAL_OPTIONS.filter(s => !visibleSocials.includes(s.key));
+  const availableSocials = SOCIAL_KEYS.filter((k) => !visibleSocials.includes(k));
 
   function addSocial(key: SocialKey) {
-    setVisibleSocials(prev => [...prev, key]);
+    setVisibleSocials((prev) => [...prev, key]);
     setPickerOpen(false);
   }
 
   function removeSocial(key: SocialKey) {
-    setVisibleSocials(prev => prev.filter(k => k !== key));
+    setVisibleSocials((prev) => prev.filter((k) => k !== key));
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
+    const formData = new FormData(e.currentTarget);
     formData.set("isActive", String(isActive));
     formData.set("type", "client");
-
-    // Clear hidden social fields
     for (const key of SOCIAL_KEYS) {
-      if (!visibleSocials.includes(key)) {
-        formData.set(key, "");
-      }
+      if (!visibleSocials.includes(key)) formData.set(key, "");
     }
 
     startTransition(async () => {
@@ -107,128 +100,198 @@ export function ClientDialog({ client, open, onOpenChange, onQuotaExceeded }: Cl
         onQuotaExceeded?.();
         return;
       }
-      if (result.success) {
-        onOpenChange(false);
-      }
+      if (result.success) onOpenChange(false);
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={(value) => onOpenChange(value)}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>{isEditing ? he.common.editClient : he.common.newClientTitle}</DialogTitle>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md max-h-[92dvh] overflow-y-auto">
+        <DialogHeader className="pb-1">
+          <DialogTitle className="text-[16px] font-bold">
+            {isEditing ? he.common.editClient : he.common.newClientTitle}
+          </DialogTitle>
           <DialogDescription className="sr-only">
             {isEditing ? he.common.editClientForm : he.common.newClientForm}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          {/* Basic info */}
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <Label htmlFor="name">{he.common.name} *</Label>
-              <Input id="name" name="name" required defaultValue={client?.name ?? ""} />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
 
-            <div className="grid gap-2">
-              <Label htmlFor="email">{he.common.email}</Label>
-              <Input id="email" name="email" type="email" defaultValue={client?.email ?? ""} />
-            </div>
+          {/* ── Section: Basic info ── */}
+          <div className="space-y-3">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">פרטים בסיסיים</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5 sm:col-span-2">
+                <Label htmlFor="name" className="text-[13px]">{he.common.name} *</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  required
+                  defaultValue={client?.name ?? ""}
+                  className="h-9 text-[13px]"
+                  placeholder="שם מלא..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="company" className="text-[13px]">{he.common.company}</Label>
+                <Input
+                  id="company"
+                  name="company"
+                  defaultValue={client?.company ?? ""}
+                  className="h-9 text-[13px]"
+                  placeholder="שם החברה..."
+                />
+              </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="phone">{he.common.phone}</Label>
-              <Input id="phone" name="phone" type="tel" defaultValue={client?.phone ?? ""} />
-            </div>
-
-            <div className="grid gap-2">
-              <Label htmlFor="company">{he.common.company}</Label>
-              <Input id="company" name="company" defaultValue={client?.company ?? ""} />
+              {/* Active toggle inline */}
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-2.5 cursor-pointer select-none">
+                  <button
+                    type="button"
+                    dir="ltr"
+                    role="switch"
+                    aria-checked={isActive}
+                    onClick={() => setIsActive(!isActive)}
+                    className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
+                      isActive ? "bg-emerald-500" : "bg-muted-foreground/30"
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow-sm ring-0 transition-transform ${
+                        isActive ? "translate-x-4" : "translate-x-0"
+                      }`}
+                    />
+                  </button>
+                  <span className="text-[13px] font-medium text-foreground">{he.common.activeClient}</span>
+                </label>
+              </div>
             </div>
           </div>
 
-          {/* Active toggle */}
-          <label className="flex items-center gap-3 cursor-pointer select-none">
-            <button
-              type="button"
-              dir="ltr"
-              role="switch"
-              aria-checked={isActive}
-              onClick={() => setIsActive(!isActive)}
-              className={`relative inline-flex h-5 w-9 shrink-0 rounded-full border-2 border-transparent transition-colors ${
-                isActive ? "bg-[#2563eb]" : "bg-muted-foreground/30"
-              }`}
-            >
-              <span
-                className={`pointer-events-none inline-block h-4 w-4 rounded-full bg-card shadow-sm ring-0 transition-transform ${
-                  isActive ? "translate-x-4" : "translate-x-0"
-                }`}
-              />
-            </button>
-            <span className="text-sm font-medium text-foreground">{he.common.activeClient}</span>
-          </label>
+          {/* ── Divider ── */}
+          <div className="h-px bg-border/50" />
 
-          {/* Dynamic social links */}
-          {visibleSocials.length > 0 && (
-            <div className="space-y-2">
-              {visibleSocials.map(key => {
-                const opt = SOCIAL_OPTIONS.find(s => s.key === key)!;
-                return (
-                  <div key={key} className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground w-20 shrink-0 text-left">{opt.label}</span>
-                    <Input name={key} placeholder={opt.placeholder} defaultValue={(client as Record<string, unknown>)?.[key] as string ?? ""} className="flex-1 h-8 text-sm" />
-                    <button type="button" onClick={() => removeSocial(key)} className="p-1 rounded text-muted-foreground hover:text-red-500 transition-colors">
-                      <X className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                );
-              })}
+          {/* ── Section: Contact ── */}
+          <div className="space-y-3">
+            <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">פרטי קשר</p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-[13px]">{he.common.email}</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  defaultValue={client?.email ?? ""}
+                  className="h-9 text-[13px]"
+                  placeholder="email@example.com"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-[13px]">{he.common.phone}</Label>
+                <Input
+                  id="phone"
+                  name="phone"
+                  type="tel"
+                  defaultValue={client?.phone ?? ""}
+                  className="h-9 text-[13px]"
+                  placeholder="050-0000000"
+                />
+              </div>
             </div>
-          )}
+          </div>
 
-          {/* Add social button */}
-          {availableSocials.length > 0 && (
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setPickerOpen(!pickerOpen)}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Plus className="h-3.5 w-3.5" />
-                {he.common.addSocialNetwork}
-              </button>
-              {pickerOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
-                  <div className="absolute top-full mt-1 right-0 z-50 rounded-xl border border-border bg-card shadow-lg p-1 min-w-[160px]">
-                    {availableSocials.map(s => (
+          {/* ── Section: Socials (shown only if any visible or add button) ── */}
+          {(visibleSocials.length > 0 || availableSocials.length > 0) && (
+            <>
+              <div className="h-px bg-border/50" />
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">רשתות חברתיות</p>
+                  {availableSocials.length > 0 && (
+                    <div className="relative">
                       <button
-                        key={s.key}
                         type="button"
-                        onClick={() => addSocial(s.key)}
-                        className="flex w-full items-center rounded-lg px-3 py-2 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        onClick={() => setPickerOpen(!pickerOpen)}
+                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {s.label}
+                        <Plus className="h-3 w-3" />
+                        הוסף
                       </button>
-                    ))}
+                      {pickerOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => setPickerOpen(false)} />
+                          <div className="absolute top-full mt-1 left-0 z-50 rounded-xl border border-border bg-popover shadow-lg p-1 min-w-[140px]">
+                            {availableSocials.map((key) => (
+                              <button
+                                key={key}
+                                type="button"
+                                onClick={() => addSocial(key)}
+                                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-[12px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                              >
+                                {SOCIAL_META[key].icon}
+                                {SOCIAL_META[key].label}
+                              </button>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {visibleSocials.length > 0 && (
+                  <div className="space-y-2">
+                    {visibleSocials.map((key) => {
+                      const meta = SOCIAL_META[key];
+                      return (
+                        <div key={key} className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 w-24 shrink-0 text-[11.5px] text-muted-foreground">
+                            {meta.icon}
+                            {meta.label}
+                          </div>
+                          <Input
+                            name={key}
+                            placeholder={meta.placeholder}
+                            defaultValue={(client as Record<string, unknown>)?.[key] as string ?? ""}
+                            className="flex-1 h-8 text-[12px]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeSocial(key)}
+                            className="p-1 rounded-md text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
-                </>
-              )}
-            </div>
+                )}
+              </div>
+            </>
           )}
 
-          {/* Notes */}
-          <div className="grid gap-2">
-            <Label htmlFor="notes">{he.common.notes}</Label>
-            <Textarea id="notes" name="notes" defaultValue={client?.notes ?? ""} />
+          {/* ── Section: Notes ── */}
+          <div className="h-px bg-border/50" />
+          <div className="space-y-1.5">
+            <Label htmlFor="notes" className="text-[13px]">{he.common.notes}</Label>
+            <Textarea
+              id="notes"
+              name="notes"
+              defaultValue={client?.notes ?? ""}
+              className="text-[13px] resize-none min-h-[72px]"
+              placeholder="הערות, מידע נוסף..."
+            />
           </div>
 
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+          {/* ── Footer ── */}
+          <DialogFooter className="gap-2 pt-1">
+            <Button type="button" variant="outline" size="sm" onClick={() => onOpenChange(false)} className="h-9">
               {he.common.cancel}
             </Button>
-            <Button type="submit" disabled={isPending}>
-              {isPending ? he.common.saving : he.common.save}
+            <Button type="submit" size="sm" disabled={isPending} className="h-9 px-5">
+              {isPending ? he.common.saving : isEditing ? he.common.save : "הוסף לקוח"}
             </Button>
           </DialogFooter>
         </form>

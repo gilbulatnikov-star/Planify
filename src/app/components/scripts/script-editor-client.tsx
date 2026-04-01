@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { updateScript } from "@/lib/actions/script-actions";
-import { ScriptCallSheet } from "./script-call-sheet";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { useT } from "@/lib/i18n";
 
@@ -47,7 +46,7 @@ type DisplayMode = "image_text" | "storyboard";
 type FoldMode = "unfold" | "fold";
 type ShotOrdering = "asc" | "desc";
 type ChatMsg = { role: "user" | "model"; text: string };
-type Tab = "script" | "shotlist" | "callsheet";
+type Tab = "script" | "shotlist";
 
 type Script = {
   id: string; title: string; content: string; platform: string;
@@ -403,7 +402,7 @@ function ColumnMenu({ visibleCols, onToggle, onClose }: {
 }) {
   const he = useT();
   return (
-    <div className="absolute left-0 top-full z-50 mt-1 w-52 rounded-xl border border-border bg-card py-2 shadow-xl">
+    <div className="absolute right-0 top-full z-50 mt-1 w-52 rounded-xl border border-border bg-card py-2 shadow-xl">
       <div className="px-3 py-1.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">{he.scriptEditor.filterColumns}</div>
       {COLUMNS.map((col) => {
         const visible = visibleCols.has(col.id);
@@ -458,7 +457,7 @@ function ViewSettingsMenu({ displayMode, setDisplayMode, foldMode, setFoldMode, 
   }
 
   return (
-    <div className="absolute left-0 top-full z-50 mt-1 w-64 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
+    <div className="absolute right-0 top-full z-50 mt-1 w-64 rounded-xl border border-border bg-card shadow-xl overflow-hidden">
       {/* Display Mode */}
       <div className={sectionCls}>
         <div className={labelCls}>{he.scriptEditor.displayMode}</div>
@@ -585,7 +584,6 @@ export function ScriptEditorClient({
   const [colWidths, setColWidths] = useState<Record<string, number>>({});
   const [rowHeights, setRowHeights] = useState<Record<string, number>>({});
   const [cinemaUpgradeOpen, setCinemaUpgradeOpen] = useState(false);
-  const [callsheetUpgradeOpen, setCallsheetUpgradeOpen] = useState(false);
   const [storyboardUpgradeOpen, setStoryboardUpgradeOpen] = useState(false);
   const [scriptCtxMenu, setScriptCtxMenu] = useState<{ x: number; y: number; text: string } | null>(null);
   const [foldMode, setFoldMode] = useState<FoldMode>("unfold");
@@ -789,9 +787,8 @@ export function ScriptEditorClient({
   const PlatformIcon = currentPlatform.icon;
 
   const TABS: { id: Tab; label: string; Icon: React.ElementType; badge?: number }[] = [
-    { id: "script",    label: he.scriptEditor.tabScript,    Icon: AlignLeft },
-    { id: "shotlist",  label: he.scriptEditor.tabShotList, Icon: Film, badge: shotList.length || undefined },
-    { id: "callsheet", label: he.scriptEditor.tabCallSheet,  Icon: FileText },
+    { id: "script",   label: he.scriptEditor.tabScript,   Icon: AlignLeft },
+    { id: "shotlist", label: he.scriptEditor.tabShotList, Icon: Film, badge: shotList.length || undefined },
   ];
 
   // ─── Visible columns for table header ────────────────────────────────────────
@@ -811,12 +808,6 @@ export function ScriptEditorClient({
       limit={-1}
     />
     <UpgradeDialog
-      open={callsheetUpgradeOpen}
-      onClose={() => setCallsheetUpgradeOpen(false)}
-      feature={he.scriptEditor.callSheetFeature}
-      limit={-1}
-    />
-    <UpgradeDialog
       open={storyboardUpgradeOpen}
       onClose={() => setStoryboardUpgradeOpen(false)}
       feature={he.scriptEditor.storyboardShotsFeature}
@@ -825,125 +816,17 @@ export function ScriptEditorClient({
     <div className="flex h-[calc(100vh-80px)] flex-col">
 
       {/* ── Top Bar ── */}
-      <div className="flex flex-wrap items-center gap-2 md:gap-3 border-b border-border bg-card px-3 md:px-4 py-2.5 md:py-3 shrink-0">
-        <button onClick={() => router.push("/scripts")}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
-          <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">{he.scriptEditor.scriptsBack}</span>
-        </button>
-        <span className="text-muted-foreground hidden sm:inline">/</span>
-        <input value={title} onChange={(e) => setTitle(e.target.value)}
-          className="flex-1 min-w-0 bg-transparent text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground"
-          placeholder={he.scriptEditor.scriptTitlePlaceholder} />
-        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-          {/* Platform / Category picker — hidden on small mobile */}
-          {customPlatformMode ? (
-            <div className="hidden sm:flex items-center gap-1.5 rounded-lg border border-border bg-muted px-2.5 py-1.5">
-              <Megaphone className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-              <input
-                value={platform}
-                onChange={(e) => setPlatform(e.target.value)}
-                placeholder={he.scriptEditor.customPlatformPlaceholder}
-                autoFocus
-                className="bg-transparent text-xs text-foreground outline-none w-32 placeholder:text-muted-foreground"
-              />
-              <button onClick={() => { setCustomPlatformMode(false); setPlatform("youtube"); }}
-                className="text-muted-foreground hover:text-muted-foreground transition-colors">
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          ) : (
-            <div className="relative hidden sm:block">
-              {showPlatformMenu && <div className="fixed inset-0 z-40" onClick={() => setShowPlatformMenu(false)} />}
-              <button onClick={() => setShowPlatformMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors">
-                <PlatformIcon className={`h-3.5 w-3.5 ${currentPlatform.color}`} />
-                {currentPlatform.label}
-                <ChevronDown className="h-3 w-3 text-muted-foreground" />
-              </button>
-              {showPlatformMenu && (
-                <div className="absolute left-0 top-full z-50 mt-1 min-w-[150px] rounded-lg border border-border bg-card py-1 shadow-lg">
-                  {PLATFORMS.map((p) => (
-                    <button key={p.value} onClick={() => { setPlatform(p.value); setShowPlatformMenu(false); }}
-                      className={`flex w-full items-center gap-2 px-3 py-2 text-xs hover:bg-muted ${platform === p.value ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                      <p.icon className={`h-3.5 w-3.5 ${p.color}`} />{p.label}
-                    </button>
-                  ))}
-                  <div className="mx-2 my-1 border-t border-border" />
-                  <button onClick={() => { setCustomPlatformMode(true); setPlatform(""); setShowPlatformMenu(false); }}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:bg-muted">
-                    <Megaphone className="h-3.5 w-3.5 text-muted-foreground" />{he.scriptEditor.other}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-          {/* Client link */}
-          {clients.length > 0 && (
-            <div className="relative hidden sm:block">
-              {showClientMenu && <div className="fixed inset-0 z-40" onClick={() => setShowClientMenu(false)} />}
-              <button
-                onClick={() => setShowClientMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors max-w-[140px]"
-              >
-                <span className="truncate">{linkedClientId ? (clients.find(c => c.id === linkedClientId)?.name ?? he.common.client) : `👤 ${he.common.client}`}</span>
-                <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
-              </button>
-              {showClientMenu && (
-                <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-card py-1 shadow-lg max-h-48 overflow-y-auto">
-                  <button
-                    onClick={() => { setLinkedClientId(""); setShowClientMenu(false); }}
-                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedClientId ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                  >
-                    {he.calendar?.noClient ?? "ללא לקוח"}
-                  </button>
-                  <div className="mx-2 my-1 border-t border-border" />
-                  {clients.map(c => (
-                    <button
-                      key={c.id}
-                      onClick={() => { setLinkedClientId(c.id); setShowClientMenu(false); }}
-                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedClientId === c.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                    >
-                      {c.name}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-          {/* Project link */}
-          {projects.length > 0 && (
-            <div className="relative hidden sm:block">
-              {showProjectMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProjectMenu(false)} />}
-              <button
-                onClick={() => setShowProjectMenu((v) => !v)}
-                className="flex items-center gap-1.5 rounded-lg border border-border bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted transition-colors max-w-[140px]"
-              >
-                <span className="truncate">{linkedProjectId ? (projects.find(p => p.id === linkedProjectId)?.title ?? he.scriptEditor.linkedProject) : `📁 ${he.scriptEditor.assignToProject}`}</span>
-                <ChevronDown className="h-3 w-3 text-muted-foreground shrink-0" />
-              </button>
-              {showProjectMenu && (
-                <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-card py-1 shadow-lg">
-                  <button
-                    onClick={() => { setLinkedProjectId(""); setShowProjectMenu(false); }}
-                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedProjectId ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                  >
-                    {he.scriptEditor.noProject}
-                  </button>
-                  <div className="mx-2 my-1 border-t border-border" />
-                  {projects.map(p => (
-                    <button
-                      key={p.id}
-                      onClick={() => { setLinkedProjectId(p.id); setShowProjectMenu(false); }}
-                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedProjectId === p.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}
-                    >
-                      {p.title}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
+      <div className="border-b border-border bg-card shrink-0">
+        {/* Row 1: navigation + title + save */}
+        <div className="flex items-center gap-2 px-3 md:px-4 py-2.5">
+          <button onClick={() => router.push("/scripts")}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
+            <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">{he.scriptEditor.scriptsBack}</span>
+          </button>
+          <span className="text-muted-foreground hidden sm:inline">/</span>
+          <input value={title} onChange={(e) => setTitle(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground"
+            placeholder={he.scriptEditor.scriptTitlePlaceholder} />
           <button
             onClick={async () => {
               if (saving) return;
@@ -960,33 +843,126 @@ export function ScriptEditorClient({
               setTimeout(() => setSaved(false), 2000);
             }}
             disabled={saving}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg px-2.5 py-1.5 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg px-2.5 py-1.5 transition-colors shrink-0"
           >
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Save className="h-3.5 w-3.5" />}
-            <span>{saving ? he.scriptEditor.saving : saved ? he.scriptEditor.saved : "שמור"}</span>
+            <span className="hidden sm:inline">{saving ? he.scriptEditor.saving : saved ? he.scriptEditor.saved : "שמור"}</span>
           </button>
+        </div>
+        {/* Row 2: metadata chips */}
+        <div className="flex items-center gap-1.5 px-3 md:px-4 pb-2 overflow-x-auto">
+          {/* Platform picker */}
+          {customPlatformMode ? (
+            <div className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 shrink-0">
+              <Megaphone className="h-3 w-3 text-muted-foreground shrink-0" />
+              <input
+                value={platform}
+                onChange={(e) => setPlatform(e.target.value)}
+                placeholder={he.scriptEditor.customPlatformPlaceholder}
+                autoFocus
+                className="bg-transparent text-xs text-foreground outline-none w-20 placeholder:text-muted-foreground"
+              />
+              <button onClick={() => { setCustomPlatformMode(false); setPlatform("youtube"); }}
+                className="text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          ) : (
+            <div className="relative shrink-0">
+              {showPlatformMenu && <div className="fixed inset-0 z-40" onClick={() => setShowPlatformMenu(false)} />}
+              <button onClick={() => setShowPlatformMenu((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors">
+                <PlatformIcon className={`h-3 w-3 ${currentPlatform.color}`} />
+                {currentPlatform.label}
+                <ChevronDown className="h-2.5 w-2.5 opacity-50" />
+              </button>
+              {showPlatformMenu && (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[150px] rounded-lg border border-border bg-card py-1 shadow-lg">
+                  {PLATFORMS.map((p) => (
+                    <button key={p.value} onClick={() => { setPlatform(p.value); setShowPlatformMenu(false); }}
+                      className={`flex w-full items-center gap-2 px-3 py-2 text-xs hover:bg-muted ${platform === p.value ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                      <p.icon className={`h-3.5 w-3.5 ${p.color}`} />{p.label}
+                    </button>
+                  ))}
+                  <div className="mx-2 my-1 border-t border-border" />
+                  <button onClick={() => { setCustomPlatformMode(true); setPlatform(""); setShowPlatformMenu(false); }}
+                    className="flex w-full items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:bg-muted">
+                    <Megaphone className="h-3.5 w-3.5" />{he.scriptEditor.other}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {/* Client chip */}
+          {clients.length > 0 && (
+            <div className="relative shrink-0">
+              {showClientMenu && <div className="fixed inset-0 z-40" onClick={() => setShowClientMenu(false)} />}
+              <button onClick={() => setShowClientMenu((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors max-w-[130px]">
+                <span className="truncate">{linkedClientId ? (clients.find(c => c.id === linkedClientId)?.name ?? he.common.client) : `👤 ${he.common.client}`}</span>
+                <ChevronDown className="h-2.5 w-2.5 opacity-50 shrink-0" />
+              </button>
+              {showClientMenu && (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-card py-1 shadow-lg max-h-48 overflow-y-auto">
+                  <button onClick={() => { setLinkedClientId(""); setShowClientMenu(false); }}
+                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedClientId ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                    {he.calendar?.noClient ?? "ללא לקוח"}
+                  </button>
+                  <div className="mx-2 my-1 border-t border-border" />
+                  {clients.map(c => (
+                    <button key={c.id} onClick={() => { setLinkedClientId(c.id); setShowClientMenu(false); }}
+                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedClientId === c.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                      {c.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+          {/* Project chip */}
+          {projects.length > 0 && (
+            <div className="relative shrink-0">
+              {showProjectMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProjectMenu(false)} />}
+              <button onClick={() => setShowProjectMenu((v) => !v)}
+                className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground hover:bg-accent transition-colors max-w-[130px]">
+                <span className="truncate">{linkedProjectId ? (projects.find(p => p.id === linkedProjectId)?.title ?? he.scriptEditor.linkedProject) : `📁 ${he.scriptEditor.assignToProject}`}</span>
+                <ChevronDown className="h-2.5 w-2.5 opacity-50 shrink-0" />
+              </button>
+              {showProjectMenu && (
+                <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-card py-1 shadow-lg">
+                  <button onClick={() => { setLinkedProjectId(""); setShowProjectMenu(false); }}
+                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedProjectId ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                    {he.scriptEditor.noProject}
+                  </button>
+                  <div className="mx-2 my-1 border-t border-border" />
+                  {projects.map(p => (
+                    <button key={p.id} onClick={() => { setLinkedProjectId(p.id); setShowProjectMenu(false); }}
+                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedProjectId === p.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                      {p.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* ── Tab Bar ── */}
       <div className="flex items-center border-b border-border bg-card px-2 md:px-4 shrink-0">
-        {TABS.map(({ id, label, Icon, badge }) => {
-          const locked = id === "callsheet" && !isPro;
-          return (
-            <button key={id}
-              onClick={() => locked ? setCallsheetUpgradeOpen(true) : setActiveTab(id)}
-              className={`relative flex items-center gap-1.5 px-3 md:px-4 py-2.5 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
-                activeTab === id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-muted-foreground"
-              }`}>
-              <Icon className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">{label}</span>
-              {locked && <span className="text-amber-400 text-[10px]">★</span>}
-              {!locked && badge !== undefined && badge > 0 && (
-                <span className="rounded-full bg-muted text-muted-foreground px-1.5 py-0.5 text-[10px] font-medium">{badge}</span>
-              )}
-            </button>
-          );
-        })}
+        {TABS.map(({ id, label, Icon, badge }) => (
+          <button key={id}
+            onClick={() => setActiveTab(id)}
+            className={`relative flex items-center gap-1.5 px-3 md:px-4 py-2.5 text-xs md:text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${
+              activeTab === id ? "border-foreground text-foreground" : "border-transparent text-muted-foreground hover:text-muted-foreground"
+            }`}>
+            <Icon className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{label}</span>
+            {badge !== undefined && badge > 0 && (
+              <span className="rounded-full bg-muted text-muted-foreground px-1.5 py-0.5 text-[10px] font-medium">{badge}</span>
+            )}
+          </button>
+        ))}
       </div>
 
       {/* ── Content Area ── */}
@@ -996,6 +972,16 @@ export function ScriptEditorClient({
         {activeTab === "script" && (
           <>
             <div className="relative flex flex-1 flex-col overflow-hidden">
+              {/* AI loading indicator */}
+              {aiLoading && (
+                <div className="absolute bottom-5 left-1/2 z-20 -translate-x-1/2 pointer-events-none">
+                  <div className="flex items-center gap-1.5 rounded-full bg-foreground px-3.5 py-2.5 shadow-lg">
+                    <span className="h-1.5 w-1.5 rounded-full bg-background/60 animate-bounce [animation-delay:-0.3s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-background/60 animate-bounce [animation-delay:-0.15s]" />
+                    <span className="h-1.5 w-1.5 rounded-full bg-background/60 animate-bounce" />
+                  </div>
+                </div>
+              )}
               <div className={`overflow-auto bg-muted p-3 md:p-6 ${chatOpen ? "max-h-[40vh] md:max-h-none md:flex-1" : "flex-1"}`}>
                 <textarea
                   ref={textareaRef}
@@ -1039,8 +1025,10 @@ export function ScriptEditorClient({
               <div className={`absolute bottom-12 left-3 z-30 transition-opacity ${chatOpen ? "opacity-0 pointer-events-none" : "opacity-100"}`}>
                 <button onClick={() => setAiSidebarOpen(!aiSidebarOpen)}
                   className="flex h-10 items-center gap-2 rounded-full bg-foreground text-background shadow-lg hover:scale-105 active:scale-95 transition-transform px-4">
-                  <Sparkles className="h-4 w-4" />
-                  <span className="text-xs font-bold">+ תסריט חדש</span>
+                  {aiLoading
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <Wand2 className={`h-4 w-4 transition-transform ${aiSidebarOpen ? "rotate-12 scale-110" : ""}`} />
+                  }
                 </button>
                 {aiSidebarOpen && (
                   <>
@@ -1286,16 +1274,6 @@ export function ScriptEditorClient({
           </div>
         )}
 
-        {/* ── CALL SHEET TAB ── */}
-        {activeTab === "callsheet" && (
-          <ScriptCallSheet
-            title={script.title}
-            platform={platform}
-            projectTitle={script.project?.title ?? ""}
-            clientName={script.client?.name ?? ""}
-            shotList={shotList}
-          />
-        )}
 
       </div>
     </div>

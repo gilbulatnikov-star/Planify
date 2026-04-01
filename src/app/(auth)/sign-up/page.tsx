@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Loader2, AlertCircle, Lock } from "lucide-react";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { useT } from "@/lib/i18n";
 
 export default function SignUpPage() {
@@ -17,17 +18,25 @@ export default function SignUpPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const turnstileRef = useRef<{ reset: () => void }>(null);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
+    if (!turnstileToken) {
+      setLoading(false);
+      setError("אנא המתן לאימות אבטחה");
+      return;
+    }
+
     // Register
     const res = await fetch("/api/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, password }),
+      body: JSON.stringify({ name, email, password, turnstileToken }),
     });
 
     const data = await res.json();
@@ -49,6 +58,8 @@ export default function SignUpPage() {
 
     if (result?.error) {
       setError(he.auth.signUpSuccessSignInFailed);
+      turnstileRef.current?.reset();
+      setTurnstileToken(null);
     } else {
       router.push("/onboarding");
       router.refresh();
@@ -148,11 +159,22 @@ export default function SignUpPage() {
             </span>
           </label>
 
+          {/* Turnstile */}
+          <div className="flex justify-center">
+            <Turnstile
+              ref={turnstileRef}
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={setTurnstileToken}
+              onExpire={() => setTurnstileToken(null)}
+              options={{ theme: "light", language: "he" }}
+            />
+          </div>
+
           {/* Submit */}
           <div className="space-y-2">
             <button
               type="submit"
-              disabled={loading || !agreedToTerms}
+              disabled={loading || !agreedToTerms || !turnstileToken}
               className="w-full h-11 rounded-[10px] bg-foreground text-background text-sm font-semibold transition-all hover:bg-foreground/90 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (

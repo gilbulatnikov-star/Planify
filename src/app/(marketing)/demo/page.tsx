@@ -171,13 +171,11 @@ function DemoSidebar({
   onTabChange: (t: Tab) => void;
 }) {
   return (
-    <aside className="hidden md:flex w-56 shrink-0 flex-col border-l border-border bg-background/50">
-      <div className="p-4 border-b border-border">
-        <span className="text-xl font-bold bg-gradient-to-l from-[#2563eb] to-[#0077cc] bg-clip-text text-transparent">
-          Qlipy
-        </span>
+    <aside className="hidden md:flex w-56 shrink-0 flex-col border-l" style={{ background: "#232730" }}>
+      <div className="flex h-14 items-center px-4 border-b border-white/[0.06]">
+        <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-7 w-auto" />
       </div>
-      <nav className="flex-1 p-2 space-y-1">
+      <nav className="flex-1 p-2 space-y-0.5">
         {SIDEBAR_ITEMS.map((item) => {
           const isActive = item.tab === activeTab;
           return (
@@ -186,11 +184,11 @@ function DemoSidebar({
               onClick={() => onTabChange(item.tab)}
               className={`w-full flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-200 text-right ${
                 isActive
-                  ? "bg-foreground text-background font-medium shadow-sm"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  ? "bg-white/[0.08] text-white font-medium"
+                  : "text-white/45 hover:bg-white/[0.05] hover:text-white/85"
               }`}
             >
-              <item.icon className="h-4 w-4 shrink-0" />
+              <item.icon className="h-4 w-4 shrink-0" strokeWidth={1.7} />
               {item.label}
             </button>
           );
@@ -204,27 +202,31 @@ function KpiCard({
   title,
   value,
   icon: Icon,
+  gradient,
   onClick,
 }: {
   title: string;
   value: string | number;
   icon: typeof TrendingUp;
+  gradient: string;
   onClick?: () => void;
 }) {
   return (
     <div
       onClick={onClick}
-      className="glass-card group transition-all duration-300 hover:scale-[1.02] cursor-pointer border-r-2 border-r-[#2563eb] rounded-xl p-4"
+      className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-px transition-all duration-300 cursor-pointer"
     >
-      <div className="flex items-center justify-between pb-2">
-        <span className="text-sm font-medium text-muted-foreground">
-          {title}
-        </span>
-        <div className="rounded-lg bg-[#2563eb]/10 p-2 transition-colors duration-300 group-hover:bg-[#2563eb]/20">
-          <Icon className="h-4 w-4 text-[#2563eb]" />
+      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${gradient} opacity-30 group-hover:opacity-100 transition-opacity`} />
+      <div className="px-4 py-4 sm:px-5">
+        <div className="flex items-center justify-between mb-3">
+          <div className={`flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br ${gradient} text-white shadow-sm`}>
+            <Icon className="h-3.5 w-3.5" strokeWidth={2.2} />
+          </div>
+          <ChevronLeft className="h-3 w-3 text-transparent group-hover:text-foreground/25 transition-colors" />
         </div>
+        <div className="text-2xl font-extrabold tracking-tight leading-none text-foreground tabular-nums">{value}</div>
+        <p className="text-[10px] text-muted-foreground/60 mt-1.5 font-bold tracking-[0.08em] uppercase">{title}</p>
       </div>
-      <div className="text-2xl font-bold tracking-tight">{value}</div>
     </div>
   );
 }
@@ -247,43 +249,13 @@ function DashboardTab({ onTabChange }: { onTabChange: (t: Tab) => void }) {
       <h2 className="text-2xl font-bold text-foreground">דשבורד</h2>
 
       {/* KPI Grid */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-        <KpiCard
-          title="לידים חדשים"
-          value={DEMO_SMART_STATS.newLeads}
-          icon={UserPlus}
-          onClick={() => onTabChange("leads")}
-        />
-        <KpiCard
-          title="ממתינים לטיפול"
-          value={DEMO_SMART_STATS.pendingLeads}
-          icon={Clock}
-          onClick={() => onTabChange("leads")}
-        />
-        <KpiCard
-          title="פרויקטים פעילים"
-          value={DEMO_SMART_STATS.activeProjects}
-          icon={FolderKanban}
-          onClick={() => onTabChange("projects")}
-        />
-        <KpiCard
-          title="משימות היום"
-          value={DEMO_SMART_STATS.todayTasks}
-          icon={ListTodo}
-          onClick={() => onTabChange("tasks")}
-        />
-        <KpiCard
-          title="הכנסות החודש"
-          value={formatCurrency(DEMO_SMART_STATS.monthRevenue)}
-          icon={TrendingUp}
-          onClick={() => onTabChange("financials")}
-        />
-        <KpiCard
-          title="חשבוניות פתוחות"
-          value={DEMO_SMART_STATS.openInvoices}
-          icon={Receipt}
-          onClick={() => onTabChange("financials")}
-        />
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-3">
+        <KpiCard title="לידים חדשים" value={DEMO_SMART_STATS.newLeads} icon={UserPlus} gradient="from-blue-500 to-blue-600" onClick={() => onTabChange("leads")} />
+        <KpiCard title="ממתינים לטיפול" value={DEMO_SMART_STATS.pendingLeads} icon={Clock} gradient="from-amber-500 to-orange-500" onClick={() => onTabChange("leads")} />
+        <KpiCard title="פרויקטים פעילים" value={DEMO_SMART_STATS.activeProjects} icon={FolderKanban} gradient="from-violet-500 to-purple-600" onClick={() => onTabChange("projects")} />
+        <KpiCard title="משימות היום" value={DEMO_SMART_STATS.todayTasks} icon={ListTodo} gradient="from-emerald-500 to-teal-500" onClick={() => onTabChange("tasks")} />
+        <KpiCard title="הכנסות החודש" value={formatCurrency(DEMO_SMART_STATS.monthRevenue)} icon={TrendingUp} gradient="from-green-500 to-emerald-600" onClick={() => onTabChange("financials")} />
+        <KpiCard title="חשבוניות פתוחות" value={DEMO_SMART_STATS.openInvoices} icon={Receipt} gradient="from-rose-500 to-pink-600" onClick={() => onTabChange("financials")} />
       </div>
 
       {/* Requires Attention */}

@@ -15,7 +15,7 @@ export const he = {
     inspiration: "השראה",
     cheatSheets: "מדריכים",
     scripts: "תסריטים",
-    moodboard: "Moodboard",
+    moodboard: "מוד בורד",
     billing: "מנוי ותמחור",
     more: "עוד",
   },

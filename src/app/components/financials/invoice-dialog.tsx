@@ -25,7 +25,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { createInvoice, updateInvoice } from "@/lib/actions/financial-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
-import { UserPlus } from "lucide-react";
+import { UserPlus, Check } from "lucide-react";
 
 interface InvoiceDialogProps {
   invoice?: {
@@ -35,6 +35,7 @@ interface InvoiceDialogProps {
     projectId: string | null;
     status: string;
     subtotal: number;
+    tax: number;
     total: number;
     dueDate: Date | null;
     externalLink: string | null;
@@ -77,6 +78,7 @@ export function InvoiceDialog({
   const [clientId, setClientId] = useState(invoice?.clientId ?? "");
   const [projectId, setProjectId] = useState(invoice?.projectId ?? "");
   const [status, setStatus] = useState(invoice?.status ?? "draft");
+  const [includeVat, setIncludeVat] = useState(invoice ? (invoice.tax ?? 0) > 0 : true);
   const [dateValue, setDateValue] = useState(
     invoice?.dueDate ? formatDateForInput(invoice.dueDate) : ""
   );
@@ -91,6 +93,8 @@ export function InvoiceDialog({
     formData.set("clientId", clientId);
     formData.set("projectId", projectId);
     formData.set("status", status);
+
+    formData.set("includeVat", includeVat ? "1" : "0");
 
     startTransition(async () => {
       const result = isEditing
@@ -122,6 +126,7 @@ export function InvoiceDialog({
       setClientId(invoice?.clientId ?? "");
       setProjectId(invoice?.projectId ?? "");
       setStatus(invoice?.status ?? "draft");
+      setIncludeVat(invoice ? (invoice.tax ?? 0) > 0 : true);
       setDateValue(invoice?.dueDate ? formatDateForInput(invoice.dueDate) : "");
       setLocalClients(clients);
       setShowNewClient(false);
@@ -210,6 +215,27 @@ export function InvoiceDialog({
                 required
                 defaultValue={invoice?.subtotal ?? ""}
               />
+            </div>
+
+            {/* מע"מ */}
+            <div className="flex items-center gap-3 pt-6">
+              <button
+                type="button"
+                onClick={() => setIncludeVat((v) => !v)}
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
+                  includeVat
+                    ? "border-foreground bg-foreground"
+                    : "border-border bg-background"
+                }`}
+              >
+                {includeVat && <Check className="h-3 w-3 text-background" strokeWidth={3} />}
+              </button>
+              <span
+                className="cursor-pointer select-none text-sm font-medium leading-none"
+                onClick={() => setIncludeVat((v) => !v)}
+              >
+                כולל מע״מ (18%)
+              </span>
             </div>
 
             {/* סטטוס */}

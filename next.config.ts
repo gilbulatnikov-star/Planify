@@ -4,12 +4,13 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  watchOptions: {
+    poll: 1000,
+    aggregateTimeout: 300,
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "10mb",
-    },
-    turbo: {
-      unstablePersistentCaching: false,
     },
   },
   async headers() {

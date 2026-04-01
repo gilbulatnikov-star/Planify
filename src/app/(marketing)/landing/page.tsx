@@ -210,12 +210,12 @@ export default function LandingPage() {
             >
               התחל בחינם &larr;
             </Link>
-            <a
-              href="#features"
+            <Link
+              href="/demo"
               className="rounded-xl border border-border bg-card/60 px-8 py-3.5 text-base font-semibold text-foreground/80 backdrop-blur-sm transition-colors hover:border-[#2563eb] hover:text-[#2563eb] dark:border-border dark:bg-card/60 dark:text-foreground"
             >
               צפה בדמו
-            </a>
+            </Link>
           </motion.div>
         </motion.div>
       </section>
