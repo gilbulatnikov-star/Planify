@@ -25,6 +25,25 @@ import {
 import Link from "next/link";
 import type { ReportsData } from "@/lib/actions/reports-actions";
 
+// ─── Hebrew-safe XAxis tick (SVG reverses RTL text without this) ──────────────
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function HebrewTick({ x, y, payload }: any) {
+  return (
+    <text
+      x={x}
+      y={y + 10}
+      textAnchor="middle"
+      fontSize={11}
+      fill="var(--foreground)"
+      opacity={0.4}
+      direction="rtl"
+      style={{ unicodeBidi: "embed" }}
+    >
+      {payload.value}
+    </text>
+  );
+}
+
 // ─── Chart colors ─────────────────────────────────────────────────────────────
 const BLUE = "#3b82f6";
 const EMERALD = "#10b981";
@@ -266,7 +285,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.4 }}
+                tick={<HebrewTick />}
                 axisLine={false}
                 tickLine={false}
               />
@@ -290,7 +309,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.4 }}
+                tick={<HebrewTick />}
                 axisLine={false}
                 tickLine={false}
               />
@@ -314,7 +333,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.4 }}
+                tick={<HebrewTick />}
                 axisLine={false}
                 tickLine={false}
               />
@@ -353,7 +372,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.3} />
               <XAxis
                 dataKey="label"
-                tick={{ fontSize: 11, fill: "var(--foreground)", opacity: 0.4 }}
+                tick={<HebrewTick />}
                 axisLine={false}
                 tickLine={false}
               />

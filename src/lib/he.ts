@@ -1019,7 +1019,7 @@ export const he = {
     createFirstScriptDesc: "צור תסריט חדש כדי להתחיל",
     // Tabs
     tabScript: "תסריט",
-    tabShotList: "שוט ליסט",
+    tabShotList: "רשימת שוטים",
     tabCallSheet: "קול שיט",
     // Top bar
     scriptsBack: "תסריטים",
@@ -1034,7 +1034,7 @@ export const he = {
     other: "אחר...",
     // Script tab
     scriptPlaceholder: "התחל לכתוב את התסריט שלך...",
-    addToShotList: "הוסף לשוט ליסט",
+    addToShotList: "הוסף לרשימת שוטים",
     aiHelp: "עזרה מ-AI",
     writingAssistant: "עוזר כתיבה",
     generateScript: "צור תסריט",
@@ -1047,7 +1047,7 @@ export const he = {
     chatPlaceholder: "מה לשנות? (Enter לשליחה)",
     chatEmpty: "כתוב מה לשנות בתסריט...",
     // Shot list tab
-    shotListTitle: "שוט ליסט",
+    shotListTitle: "רשימת שוטים",
     shotsCount: "שוטים",
     filter: "סינון",
     view: "תצוגה",
@@ -1055,7 +1055,7 @@ export const he = {
     addShotFull: "הוסף שוט",
     addFirstShot: "הוסף שוט ראשון",
     noShotsYet: "אין שוטים עדיין",
-    emptyShotListHint: 'לחץ "הוסף שוט" להתחיל לבנות את השוט ליסט',
+    emptyShotListHint: 'לחץ "הוסף שוט" להתחיל לבנות את רשימת השוטים',
     moreShots: "עוד שוטים",
     shotLimit: "מגבלת",
     shotLimitSuffix: "שוטים",

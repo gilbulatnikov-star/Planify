@@ -816,7 +816,7 @@ export function ScriptEditorClient({
     <div className="flex h-[calc(100vh-80px)] flex-col">
 
       {/* ── Top Bar ── */}
-      <div className="border-b border-border bg-card shrink-0">
+      <div className="border-b border-border bg-card shrink-0 relative z-30">
         {/* Row 1: navigation + title + save */}
         <div className="flex items-center gap-2 px-3 md:px-4 py-2.5">
           <button onClick={() => router.push("/scripts")}
