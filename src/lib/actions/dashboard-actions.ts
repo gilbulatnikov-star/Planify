@@ -67,18 +67,13 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
   const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const lastMonthEnd = monthStart;
 
-  // Batch 1: KPI counts + urgent items (10 queries)
+  // Batch 1a: KPI counts (5 queries)
   const [
     activeClients,
     activeProjects,
     completedTasks,
     totalTasks,
     monthRevenue,
-    openInvoices,
-    openQuotes,
-    approachingDeadlines,
-    overdueInvoices,
-    todayContent,
   ] = await Promise.all([
     prisma.client.count({ where: { userId, isActive: true } }),
     prisma.project.count({ where: { userId, phase: { notIn: DONE_PHASES } } }),
@@ -88,6 +83,16 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       where: { userId, status: "paid", paidAt: { gte: new Date(now.getFullYear(), now.getMonth(), 1) } },
       _sum: { total: true },
     }),
+  ]);
+
+  // Batch 1b: Urgent + today (5 queries)
+  const [
+    openInvoices,
+    openQuotes,
+    approachingDeadlines,
+    overdueInvoices,
+    todayContent,
+  ] = await Promise.all([
     prisma.invoice.count({ where: { userId, status: { in: ["sent", "overdue"] } } }),
     prisma.quote.count({ where: { userId, status: { in: ["draft", "sent"] } } }),
     prisma.project.findMany({
@@ -106,18 +111,11 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
     }),
   ]);
 
-  // Batch 2: Week data + recent projects + monthly summary (10 queries)
+  // Batch 2a: Week + recent projects (3 queries)
   const [
     weekDeadlines,
     weekTasks,
     recentProjects,
-    projectsThisMonth,
-    projectsLastMonth,
-    tasksCompletedThisMonth,
-    tasksCompletedLastMonth,
-    revenueLastMonth,
-    contentPublishedThisMonth,
-    contentPublishedLastMonth,
   ] = await Promise.all([
     prisma.project.findMany({
       where: { userId, deadline: { gte: today, lt: weekEnd }, phase: { notIn: DONE_PHASES } },
@@ -137,6 +135,18 @@ export async function getSmartDashboard(): Promise<SmartDashboardData | null> {
       orderBy: { updatedAt: "desc" },
       take: 5,
     }),
+  ]);
+
+  // Batch 2b: Monthly summary (7 queries)
+  const [
+    projectsThisMonth,
+    projectsLastMonth,
+    tasksCompletedThisMonth,
+    tasksCompletedLastMonth,
+    revenueLastMonth,
+    contentPublishedThisMonth,
+    contentPublishedLastMonth,
+  ] = await Promise.all([
     prisma.project.count({ where: { userId, createdAt: { gte: monthStart } } }),
     prisma.project.count({ where: { userId, createdAt: { gte: lastMonthStart, lt: lastMonthEnd } } }),
     prisma.task.count({ where: { project: { userId }, completed: true, createdAt: { gte: monthStart } } }),

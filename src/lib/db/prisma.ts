@@ -9,11 +9,12 @@ const SCHEMA_VERSION = "v4"; // Bump when schema changes to force new client
 
 function buildUrl() {
   const base = process.env.DATABASE_URL ?? "";
-  if (base && !base.includes("connection_limit")) {
-    const sep = base.includes("?") ? "&" : "?";
-    return `${base}${sep}connection_limit=3&pool_timeout=30`;
-  }
-  return base;
+  if (!base) return base;
+  // Always enforce our pool settings — strip any existing values first
+  const url = new URL(base);
+  url.searchParams.set("connection_limit", "10");
+  url.searchParams.set("pool_timeout", "60");
+  return url.toString();
 }
 
 // If schema version changed, discard old cached client
