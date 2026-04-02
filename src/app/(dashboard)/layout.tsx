@@ -1,11 +1,13 @@
 export const dynamic = "force-dynamic";
 
+import { Suspense } from "react";
+import { Bell } from "lucide-react";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/app/components/layout/app-sidebar";
 import { UserMenu } from "@/app/components/layout/user-menu";
 import { ThemeToggle } from "@/app/components/layout/theme-toggle";
 import { WelcomeTour } from "@/app/components/layout/welcome-tour";
-import { NotificationBell } from "@/app/components/layout/notification-bell";
+import { NotificationBellLoader } from "@/app/components/layout/notification-bell-loader";
 import { HeaderSearch } from "@/app/components/layout/header-search";
 import { MobileBottomNav } from "@/app/components/layout/mobile-bottom-nav";
 
@@ -13,7 +15,6 @@ import { LocaleSync } from "@/app/components/layout/locale-sync";
 import { auth } from "@/auth";
 import { LocaleProvider } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n";
-import { getNotifications, getUnreadCount } from "@/lib/actions/notification-actions";
 
 export default async function DashboardLayout({
   children,
@@ -23,10 +24,6 @@ export default async function DashboardLayout({
   const session = await auth();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const locale = ((session?.user as any)?.locale as Locale) ?? "he";
-  const [notifications, unreadCount] = await Promise.all([
-    getNotifications(),
-    getUnreadCount(),
-  ]);
 
   return (
     <LocaleProvider locale={locale}>
@@ -38,10 +35,10 @@ export default async function DashboardLayout({
             <SidebarTrigger className="-me-2 text-muted-foreground hover:text-foreground transition-colors duration-200" />
             <div className="flex items-center gap-3">
               <span className="hidden md:block"><HeaderSearch /></span>
-              <NotificationBell
-                initialNotifications={notifications}
-                initialUnreadCount={unreadCount}
-              />
+              {/* Streamed separately so it never blocks the page shell */}
+              <Suspense fallback={<Bell className="h-5 w-5 text-muted-foreground/40" />}>
+                <NotificationBellLoader />
+              </Suspense>
               <ThemeToggle />
               <UserMenu />
             </div>

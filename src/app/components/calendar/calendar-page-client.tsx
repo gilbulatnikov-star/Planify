@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
@@ -171,38 +171,47 @@ export function CalendarPageClient({
     return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(item.title)}&dates=${fmt(d)}/${fmt(end)}&details=${encodeURIComponent(details)}&sf=true&output=xml`;
   }
 
-  const visibleItems = content.filter((item) => {
-    if (selectedClientId && item.clientId !== selectedClientId) return false;
-    if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const visibleItems = useMemo(() => {
+    const q = search.toLowerCase();
+    return content.filter((item) => {
+      if (selectedClientId && item.clientId !== selectedClientId) return false;
+      if (q && !item.title.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [content, selectedClientId, search]);
 
   // Calendar grid
-  const monthStart = startOfMonth(currentMonth);
-  const monthEnd = endOfMonth(currentMonth);
-  const calStart = startOfWeek(monthStart);
-  const calEnd = endOfWeek(monthEnd);
-  const weeks: Date[][] = [];
-  let day = calStart;
-  while (day <= calEnd) {
-    const week: Date[] = [];
-    for (let i = 0; i < 7; i++) { week.push(day); day = addDays(day, 1); }
-    weeks.push(week);
-  }
+  const weeks = useMemo(() => {
+    const monthStart = startOfMonth(currentMonth);
+    const monthEnd = endOfMonth(currentMonth);
+    const calStart = startOfWeek(monthStart);
+    const calEnd = endOfWeek(monthEnd);
+    const result: Date[][] = [];
+    let day = calStart;
+    while (day <= calEnd) {
+      const week: Date[] = [];
+      for (let i = 0; i < 7; i++) { week.push(day); day = addDays(day, 1); }
+      result.push(week);
+    }
+    return result;
+  }, [currentMonth]);
 
-  function getContentForDay(day: Date) {
+  const getContentForDay = useCallback((day: Date) => {
+    const q = search.toLowerCase();
     return content.filter((item) => {
       if (!isSameDay(new Date(item.date), day)) return false;
       if (selectedClientId && item.clientId !== selectedClientId) return false;
-      if (search && !item.title.toLowerCase().includes(search.toLowerCase())) return false;
+      if (q && !item.title.toLowerCase().includes(q)) return false;
       return true;
     });
-  }
+  }, [content, selectedClientId, search]);
 
   // Events for current month (for mobile list)
-  const monthEvents = visibleItems
+  const monthEvents = useMemo(() => visibleItems
     .filter((item) => isSameMonth(new Date(item.date), currentMonth))
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()),
+    [visibleItems, currentMonth]
+  );
 
   return (
     <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5">

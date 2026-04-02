@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -28,6 +28,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
   const t = useT();
   const [addOpen, setAddOpen] = useState(false);
+  const prefersReduced = useReducedMotion();
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -118,7 +119,7 @@ export function MobileBottomNav() {
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 34, stiffness: 360 }}
+            transition={prefersReduced ? { duration: 0 } : { type: "spring", damping: 34, stiffness: 360 }}
           >
             <div
               className="flex flex-col rounded-t-[28px] bg-[#161618] border-t border-white/[0.06] shadow-[0_-20px_80px_rgba(0,0,0,0.7)] overflow-hidden"
@@ -187,12 +188,12 @@ export function MobileBottomNav() {
               <motion.button
                 onClick={() => setAddOpen((v) => !v)}
                 className="flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-[0_2px_12px_rgba(0,0,0,0.35)] transition-shadow active:shadow-none"
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                whileTap={prefersReduced ? {} : { scale: 0.9 }}
+                transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 500, damping: 30 }}
               >
                 <motion.div
                   animate={{ rotate: addOpen ? 45 : 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 26 }}
+                  transition={prefersReduced ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 26 }}
                 >
                   <Plus className="h-5 w-5 text-[#0f0f0f]" strokeWidth={2.5} />
                 </motion.div>

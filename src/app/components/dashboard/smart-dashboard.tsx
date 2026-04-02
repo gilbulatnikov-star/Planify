@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
@@ -13,7 +13,9 @@ import { getPhaseLabel } from "@/lib/project-config";
 import type { SmartDashboardData } from "@/lib/actions/dashboard-actions";
 
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
+const staggerReduced = { hidden: {}, show: {} };
 const fade = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
+const fadeReduced = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.15 } } };
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -99,6 +101,9 @@ function QuickAction({ label, href, icon: Icon, primary }: {
 export function SmartDashboard({ data, userName }: { data: SmartDashboardData; userName?: string | null }) {
   const he = useT();
   const locale = useLocale();
+  const prefersReduced = useReducedMotion();
+  const sv = prefersReduced ? staggerReduced : stagger;
+  const fv = prefersReduced ? fadeReduced : fade;
 
   const { kpis, todayContent } = data;
   const urgent = data.urgent ?? { approachingDeadlines: [], overdueInvoices: [] };
@@ -122,12 +127,12 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
   ];
 
   return (
-    <motion.div className="space-y-5 max-w-[1100px]" variants={stagger} initial="hidden" animate="show">
+    <motion.div className="space-y-5 max-w-[1100px]" variants={sv} initial="hidden" animate="show">
 
       {/* ══════════════════════════════════════════════════════
          1. HERO — Greeting + summary line
          ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fade} className="pt-0.5">
+      <motion.div variants={fv} className="pt-0.5">
         <h1 className="text-[24px] sm:text-[30px] font-extrabold tracking-[-0.04em] leading-[1.1]">
           {getGreeting()}{firstName ? `, ${firstName}` : ""}
         </h1>
@@ -137,7 +142,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       {/* ══════════════════════════════════════════════════════
          2. QUICK ACTIONS — banking-app style, priority-ordered
          ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fade}>
+      <motion.div variants={fv}>
         <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-6 sm:overflow-visible sm:pb-0">
           <QuickAction label="פרויקט חדש" href="/projects" icon={Plus} primary />
           <QuickAction label="לקוח חדש" href="/clients" icon={UserPlus} />
@@ -151,7 +156,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       {/* ══════════════════════════════════════════════════════
          3. KPI SUMMARY — uniform cards, financial-first order
          ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fade} className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
+      <motion.div variants={fv} className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
         {kpiData.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
@@ -161,7 +166,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
          4. ALERTS — urgent items (if any)
          ══════════════════════════════════════════════════════ */}
       {urgentItems.length > 0 && (
-        <motion.div variants={fade}>
+        <motion.div variants={fv}>
           <div className="relative rounded-2xl border border-red-200/40 dark:border-red-500/10 overflow-hidden">
             <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-red-500 to-orange-500 opacity-60" />
             <div className="flex items-center gap-2 px-5 py-2.5 bg-red-50/30 dark:bg-red-500/5 border-b border-red-200/20 dark:border-red-500/8">
@@ -189,7 +194,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
       <div className="grid gap-4 lg:grid-cols-5">
 
         {/* ── This Week (wider) ── */}
-        <motion.div variants={fade} className="lg:col-span-3 flex flex-col">
+        <motion.div variants={fv} className="lg:col-span-3 flex flex-col">
           <Section title="מה יש השבוע" icon={CalendarDays} className="flex-1">
             {!hasThisWeek ? (
               <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -223,7 +228,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
         </motion.div>
 
         {/* ── Right: Today Schedule ── */}
-        <motion.div variants={fade} className="lg:col-span-2 flex flex-col">
+        <motion.div variants={fv} className="lg:col-span-2 flex flex-col">
           <Section title={he.dashboard.todaySchedule} icon={CalendarDays} action={{ label: "הכל", href: "/calendar" }} className="flex-1">
             {todayContent.length === 0 ? (
               <div className="py-10 text-center">
@@ -252,7 +257,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
          6. RECENT PROJECTS
          ══════════════════════════════════════════════════════ */}
       {recentProjects.length > 0 && (
-        <motion.div variants={fade}>
+        <motion.div variants={fv}>
           <Section title="פרויקטים אחרונים" icon={FolderKanban} action={{ label: "הכל", href: "/projects" }}>
             <div className="divide-y divide-border/30">
               {recentProjects.map(p => (

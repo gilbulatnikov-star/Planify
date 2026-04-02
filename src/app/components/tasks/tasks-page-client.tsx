@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { CheckSquare, Trash2, Plus, ListTodo, Lock, Crown, Sparkles, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -40,20 +40,25 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
   const isFree = todosLimit !== -1;
   const atLimit = isFree && initialTodos.length >= todosLimit;
 
-  const sortedTodos = [...initialTodos].sort((a, b) => {
-    if (a.completed === b.completed) return 0;
-    return a.completed ? 1 : -1;
-  });
+  const sortedTodos = useMemo(
+    () => [...initialTodos].sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1)),
+    [initialTodos]
+  );
 
-  const filtered = sortedTodos.filter((t) => {
-    if (filter === "active" && t.completed) return false;
-    if (filter === "done" && !t.completed) return false;
-    if (search && !t.text.toLowerCase().includes(search.toLowerCase())) return false;
-    return true;
-  });
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return sortedTodos.filter((t) => {
+      if (filter === "active" && t.completed) return false;
+      if (filter === "done" && !t.completed) return false;
+      if (q && !t.text.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [sortedTodos, filter, search]);
 
-  const activeCount = initialTodos.filter((t) => !t.completed).length;
-  const doneCount = initialTodos.filter((t) => t.completed).length;
+  const { activeCount, doneCount } = useMemo(() => ({
+    activeCount: initialTodos.filter((t) => !t.completed).length,
+    doneCount: initialTodos.filter((t) => t.completed).length,
+  }), [initialTodos]);
 
   function handleAdd() {
     if (!newTask.trim()) return;
@@ -85,7 +90,7 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6" dir="rtl">
+    <div className="max-w-2xl mx-auto space-y-6 pb-24 md:pb-0" dir="rtl">
       <UpgradeDialog
         open={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
@@ -116,8 +121,8 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
         />
       </div>
 
-      {/* Add task */}
-      <div className="flex gap-2">
+      {/* Add task — desktop only (mobile uses sticky bar below) */}
+      <div className="hidden md:flex gap-2">
         <Input
           value={newTask}
           onChange={(e) => setNewTask(e.target.value)}
@@ -256,6 +261,32 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
           </div>
         </div>
       )}
+
+      {/* ── Sticky bottom task input — mobile only ── */}
+      <div className="fixed bottom-[76px] inset-x-0 z-20 px-4 md:hidden">
+        <div className="max-w-2xl mx-auto flex gap-2 rounded-[14px] border border-border/50 bg-background/95 backdrop-blur-md p-2 shadow-[0_-2px_20px_rgba(0,0,0,0.08)]">
+          <Input
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            onKeyDown={handleKeyDown}
+            onClick={() => { if (atLimit) setUpgradeOpen(true); }}
+            placeholder={atLimit ? he.tasks.reachedLimit.replace("{limit}", String(todosLimit)) : he.tasks.addNewTask}
+            disabled={isPending}
+            readOnly={atLimit}
+            className={`flex-1 h-11 text-base ${atLimit ? "cursor-pointer text-muted-foreground bg-muted" : ""}`}
+          />
+          <Button
+            onClick={atLimit ? () => setUpgradeOpen(true) : handleAdd}
+            disabled={isPending || (!atLimit && !newTask.trim())}
+            size="icon"
+            className={`h-11 w-11 shrink-0 ${atLimit
+              ? "bg-accent text-white hover:bg-accent/90"
+              : "bg-foreground text-white hover:bg-foreground/80"}`}
+          >
+            {atLimit ? <Lock className="h-4 w-4" /> : <Plus className="h-5 w-5" />}
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   Plus, Pencil, Trash2, CalendarPlus, Search,
   CheckCircle2, RotateCcw, MoreHorizontal,
@@ -54,10 +54,12 @@ const stagger = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.02 } },
 };
+const staggerReduced = { hidden: {}, show: {} };
 const fadeUp = {
   hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" as const } },
 };
+const fadeReduced = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.12 } } };
 
 type ViewTab = "active" | "history";
 
@@ -75,6 +77,9 @@ export function ProjectsPageClient({
   const he = useT();
   const locale = useLocale();
   const router = useRouter();
+  const prefersReduced = useReducedMotion();
+  const sv = prefersReduced ? staggerReduced : stagger;
+  const fv = prefersReduced ? fadeReduced : fadeUp;
   const [isPending, startTransition] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
@@ -85,17 +90,18 @@ export function ProjectsPageClient({
   const [search, setSearch] = useState("");
   const [view, setView] = useState<ViewTab>("active");
 
-  const activeProjects  = projects.filter((p) => p.phase !== "delivered");
-  const historyProjects = projects.filter((p) => p.phase === "delivered");
+  const activeProjects  = useMemo(() => projects.filter((p) => p.phase !== "delivered"), [projects]);
+  const historyProjects = useMemo(() => projects.filter((p) => p.phase === "delivered"), [projects]);
 
-  const displayProjects = (view === "active" ? activeProjects : historyProjects).filter((p) => {
-    if (filterClientId && p.clientId !== filterClientId) return false;
-    if (search) {
-      const q = search.toLowerCase();
-      if (!p.title.toLowerCase().includes(q) && !p.client?.name.toLowerCase().includes(q)) return false;
-    }
-    return true;
-  });
+  const displayProjects = useMemo(() => {
+    const base = view === "active" ? activeProjects : historyProjects;
+    const q = search.toLowerCase();
+    return base.filter((p) => {
+      if (filterClientId && p.clientId !== filterClientId) return false;
+      if (q && !p.title.toLowerCase().includes(q) && !p.client?.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [view, activeProjects, historyProjects, filterClientId, search]);
 
   function handleCreate() {
     if (planLimit !== -1 && activeProjectCount >= planLimit) {
@@ -120,10 +126,10 @@ export function ProjectsPageClient({
   }
 
   return (
-    <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-5">
+    <motion.div variants={sv} initial="hidden" animate="show" className="space-y-5">
 
       {/* ── Header ── */}
-      <motion.div variants={fadeUp} className="flex items-center justify-between">
+      <motion.div variants={fv} className="flex items-center justify-between">
         <div>
           <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.project.title}</h1>
           {historyProjects.length > 0 && (
@@ -143,7 +149,7 @@ export function ProjectsPageClient({
       </motion.div>
 
       {/* ── Search + View toggle ── */}
-      <motion.div variants={fadeUp} className="flex items-center gap-2 flex-wrap" dir="rtl">
+      <motion.div variants={fv} className="flex items-center gap-2 flex-wrap" dir="rtl">
         <div className="relative flex-1 min-w-[160px] max-w-xs">
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-foreground/30" />
           <input
@@ -183,7 +189,7 @@ export function ProjectsPageClient({
 
       {/* ── Client filter (active view only) ── */}
       {view === "active" && clients.length > 0 && (
-        <motion.div variants={fadeUp} className="flex flex-wrap gap-2">
+        <motion.div variants={fv} className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilterClientId(null)}
             className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${!filterClientId ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
@@ -207,7 +213,7 @@ export function ProjectsPageClient({
 
       {/* ── Project grid ── */}
       {displayProjects.length > 0 ? (
-        <motion.div variants={fadeUp} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div variants={fv} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {displayProjects.map((project) => {
             const completedTasks = project.tasks.filter((t) => t.completed).length;
             const totalTasks = project.tasks.length;
@@ -337,7 +343,7 @@ export function ProjectsPageClient({
           })}
         </motion.div>
       ) : (
-        <motion.div variants={fadeUp} className="rounded-[14px] border border-dashed border-border/40 p-10 text-center">
+        <motion.div variants={fv} className="rounded-[14px] border border-dashed border-border/40 p-10 text-center">
           <p className="text-[12.5px] font-semibold text-foreground/40">
             {view === "history" ? "אין פרויקטים שהושלמו" : he.common.noProjectsYet}
           </p>
