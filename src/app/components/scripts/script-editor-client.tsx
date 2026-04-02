@@ -4,12 +4,20 @@ import { useState, useRef, useEffect, useId } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowRight, Wand2, Send, Sparkles, Save, ChevronDown,
-  Youtube, Instagram, Tv, Podcast, Megaphone, Facebook, Loader2, Check,
+  Youtube, Instagram, Podcast, Megaphone, Facebook, Loader2, Check,
   MessageSquare, Film, AlignLeft, FileText, Plus, Trash2,
   Eye, EyeOff, Image, Type, LayoutGrid, X,
   ChevronsUpDown, ChevronUp, ChevronDown as ChevronDn,
   SlidersHorizontal, Download,
 } from "lucide-react";
+
+function TikTokIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.19 8.19 0 0 0 4.79 1.53V6.78a4.85 4.85 0 0 1-1.02-.09z"/>
+    </svg>
+  );
+}
 import { Button } from "@/components/ui/button";
 import { updateScript } from "@/lib/actions/script-actions";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
@@ -98,7 +106,7 @@ const FPS_OPTS = ["23.98", "24", "25", "29.97", "30", "48", "50", "60", "100", "
 function getPlatforms(t: ReturnType<typeof useT>) {
   return [
     { value: "youtube",    label: "YouTube",          icon: Youtube,   color: "text-red-500" },
-    { value: "tiktok",     label: "TikTok",           icon: Tv,        color: "text-foreground" },
+    { value: "tiktok",     label: "TikTok",           icon: TikTokIcon, color: "text-foreground" },
     { value: "instagram",  label: "Instagram",        icon: Instagram, color: "text-pink-500" },
     { value: "podcast",    label: t.scriptEditor.podcast,    icon: Podcast,   color: "text-purple-500" },
     { value: "commercial", label: t.scriptEditor.commercial, icon: Megaphone, color: "text-blue-500" },
