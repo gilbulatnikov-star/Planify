@@ -1,7 +1,5 @@
-import { SmartDashboard } from "@/app/components/dashboard/smart-dashboard";
-import { QuickNotesWidget } from "@/app/components/dashboard/quick-notes-widget";
-import { TodoWidget } from "@/app/components/dashboard/todo-widget";
-import { getSmartDashboard } from "@/lib/actions/dashboard-actions";
+import { DashboardCustomizer } from "@/app/components/dashboard/dashboard-customizer";
+import { getSmartDashboard, getDashboardLayout } from "@/lib/actions/dashboard-actions";
 import {
   getOrCreateQuickNote,
   getTodos,
@@ -17,23 +15,26 @@ export default async function DashboardPage() {
   const plan = session.user.subscriptionPlan ?? "FREE";
   const todosLimit = getLimitsForPlan(plan).todos;
 
-  const [dashboardData, quickNote, todos] = await Promise.all([
+  const [dashboardData, quickNote, todos, layout] = await Promise.all([
     getSmartDashboard(),
     getOrCreateQuickNote(),
     getTodos(),
+    getDashboardLayout(),
   ]);
 
   if (!dashboardData) redirect("/login");
 
-  return (
-    <div className="space-y-6 max-w-[1100px]">
-      <SmartDashboard data={dashboardData} userName={session.user.name} />
+  // Map to the shape TodoWidget expects
+  const todoItems = todos.map((t) => ({ id: t.id, text: t.text, completed: t.completed }));
 
-      {/* Dashboard Widgets */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <QuickNotesWidget initialContent={quickNote?.content ?? ""} />
-        <TodoWidget initialTodos={todos} todosLimit={todosLimit} />
-      </div>
-    </div>
+  return (
+    <DashboardCustomizer
+      initialLayout={layout}
+      data={dashboardData}
+      userName={session.user.name}
+      quickNoteContent={quickNote?.content ?? ""}
+      todos={todoItems}
+      todosLimit={todosLimit}
+    />
   );
 }

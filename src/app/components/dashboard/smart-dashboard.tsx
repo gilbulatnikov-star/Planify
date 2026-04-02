@@ -12,10 +12,10 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { getPhaseLabel } from "@/lib/project-config";
 import type { SmartDashboardData } from "@/lib/actions/dashboard-actions";
 
-const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
-const staggerReduced = { hidden: {}, show: {} };
-const fade = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
-const fadeReduced = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.15 } } };
+export const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.05 } } };
+export const staggerReduced = { hidden: {}, show: {} };
+export const fade = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
+export const fadeReduced = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.15 } } };
 
 function getGreeting(): string {
   const h = new Date().getHours();
@@ -48,7 +48,7 @@ function KpiCard({ label, value, icon: Icon, href, gradient }: {
 }
 
 /* ── Section Container ── */
-function Section({ title, icon: Icon, action, children, className }: {
+export function Section({ title, icon: Icon, action, children, className }: {
   title: string; icon: React.ElementType; action?: { label: string; href: string }; children: React.ReactNode; className?: string;
 }) {
   return (
@@ -98,25 +98,26 @@ function QuickAction({ label, href, icon: Icon, primary }: {
   );
 }
 
-export function SmartDashboard({ data, userName }: { data: SmartDashboardData; userName?: string | null }) {
+// ═══════════════════════════════════════════════════════════════════════════
+// Individual Widget Exports — used by DashboardCustomizer
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function GreetingWidget({ userName }: { userName?: string | null }) {
+  const firstName = userName?.split(" ")[0] ?? "";
+  return (
+    <div className="pt-0.5">
+      <h1 className="text-[24px] sm:text-[30px] font-extrabold tracking-[-0.04em] leading-[1.1]">
+        {getGreeting()}{firstName ? `, ${firstName}` : ""}
+      </h1>
+      <p className="text-[12px] text-muted-foreground/50 mt-1 tracking-[-0.005em] font-medium">הנה סיכום יום העבודה שלך</p>
+    </div>
+  );
+}
+
+export function KpiWidget({ data }: { data: SmartDashboardData }) {
   const he = useT();
   const locale = useLocale();
-  const prefersReduced = useReducedMotion();
-  const sv = prefersReduced ? staggerReduced : stagger;
-  const fv = prefersReduced ? fadeReduced : fade;
-
-  const { kpis, todayContent } = data;
-  const urgent = data.urgent ?? { approachingDeadlines: [], overdueInvoices: [] };
-  const thisWeek = data.thisWeek ?? { deadlines: [], tasks: [] };
-  const recentProjects = data.recentProjects ?? [];
-
-  const urgentItems = [
-    ...(urgent.approachingDeadlines ?? []).map(p => ({ id: p.id, type: "deadline" as const, label: p.title, sub: "דדליין קרוב", href: `/projects/${p.id}` })),
-    ...(urgent.overdueInvoices ?? []).map(inv => ({ id: inv.id, type: "invoice" as const, label: `חשבונית #${inv.invoiceNumber}`, sub: `${formatCurrency(inv.total, locale)} — באיחור`, href: "/financials" })),
-  ];
-
-  const hasThisWeek = thisWeek.deadlines.length > 0 || thisWeek.tasks.length > 0;
-  const firstName = userName?.split(" ")[0] ?? "";
+  const { kpis } = data;
 
   const kpiData = [
     { label: he.dashboard.monthlyRevenue, value: formatCurrency(kpis.monthRevenue, locale), icon: DollarSign, href: "/financials", gradient: "from-emerald-500 to-emerald-600" },
@@ -127,156 +128,199 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
   ];
 
   return (
-    <motion.div className="space-y-5 max-w-[1100px]" variants={sv} initial="hidden" animate="show">
+    <div className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
+      {kpiData.map((kpi) => (
+        <KpiCard key={kpi.label} {...kpi} />
+      ))}
+    </div>
+  );
+}
 
-      {/* ══════════════════════════════════════════════════════
-         1. HERO — Greeting + summary line
-         ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fv} className="pt-0.5">
-        <h1 className="text-[24px] sm:text-[30px] font-extrabold tracking-[-0.04em] leading-[1.1]">
-          {getGreeting()}{firstName ? `, ${firstName}` : ""}
-        </h1>
-        <p className="text-[12px] text-muted-foreground/50 mt-1 tracking-[-0.005em] font-medium">הנה סיכום יום העבודה שלך</p>
-      </motion.div>
+export function QuickActionsWidget() {
+  return (
+    <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-6 sm:overflow-visible sm:pb-0">
+      <QuickAction label="פרויקט חדש" href="/projects" icon={Plus} primary />
+      <QuickAction label="לקוח חדש" href="/clients" icon={UserPlus} />
+      <QuickAction label="משימה חדשה" href="/tasks" icon={CheckSquare} />
+      <QuickAction label="חשבונית" href="/financials" icon={Receipt} />
+      <QuickAction label="סריקת מסמך" href="/financials" icon={Scan} />
+      <QuickAction label="סיכום חודשי" href="/reports" icon={BarChart3} />
+    </div>
+  );
+}
 
-      {/* ══════════════════════════════════════════════════════
-         2. QUICK ACTIONS — banking-app style, priority-ordered
-         ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fv}>
-        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-6 sm:overflow-visible sm:pb-0">
-          <QuickAction label="פרויקט חדש" href="/projects" icon={Plus} primary />
-          <QuickAction label="לקוח חדש" href="/clients" icon={UserPlus} />
-          <QuickAction label="משימה חדשה" href="/tasks" icon={CheckSquare} />
-          <QuickAction label="חשבונית" href="/financials" icon={Receipt} />
-          <QuickAction label="סריקת מסמך" href="/financials" icon={Scan} />
-          <QuickAction label="סיכום חודשי" href="/reports" icon={BarChart3} />
+export function UrgentWidget({ data }: { data: SmartDashboardData }) {
+  const locale = useLocale();
+  const urgent = data.urgent ?? { approachingDeadlines: [], overdueInvoices: [] };
+
+  const urgentItems = [
+    ...(urgent.approachingDeadlines ?? []).map(p => ({ id: p.id, type: "deadline" as const, label: p.title, sub: "דדליין קרוב", href: `/projects/${p.id}` })),
+    ...(urgent.overdueInvoices ?? []).map(inv => ({ id: inv.id, type: "invoice" as const, label: `חשבונית #${inv.invoiceNumber}`, sub: `${formatCurrency(inv.total, locale)} — באיחור`, href: "/financials" })),
+  ];
+
+  if (urgentItems.length === 0) {
+    return (
+      <div className="relative rounded-2xl border border-border/30 overflow-hidden">
+        <div className="flex items-center gap-2 px-5 py-2.5 bg-muted/20 border-b border-border/20">
+          <AlertTriangle className="h-3 w-3 text-muted-foreground/50" strokeWidth={2.2} />
+          <span className="text-[10px] font-bold text-muted-foreground/50 tracking-[0.08em] uppercase">דורש טיפול</span>
         </div>
-      </motion.div>
+        <div className="bg-card flex items-center justify-center py-8">
+          <p className="text-[12px] text-foreground/30 font-medium">אין פריטים דחופים 🎉</p>
+        </div>
+      </div>
+    );
+  }
 
-      {/* ══════════════════════════════════════════════════════
-         3. KPI SUMMARY — uniform cards, financial-first order
-         ══════════════════════════════════════════════════════ */}
-      <motion.div variants={fv} className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
-        {kpiData.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} />
+  return (
+    <div className="relative rounded-2xl border border-red-200/40 dark:border-red-500/10 overflow-hidden">
+      <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-red-500 to-orange-500 opacity-60" />
+      <div className="flex items-center gap-2 px-5 py-2.5 bg-red-50/30 dark:bg-red-500/5 border-b border-red-200/20 dark:border-red-500/8">
+        <AlertTriangle className="h-3 w-3 text-red-500/70" strokeWidth={2.2} />
+        <span className="text-[10px] font-bold text-red-700/60 dark:text-red-400 tracking-[0.08em] uppercase">דורש טיפול</span>
+        <span className="text-[8px] font-bold bg-red-500/80 text-white rounded px-1.5 py-px leading-none tabular-nums">{urgentItems.length}</span>
+      </div>
+      <div className="bg-card divide-y divide-red-100/30 dark:divide-red-500/6">
+        {urgentItems.map(item => (
+          <Link key={item.id} href={item.href} className="flex items-center justify-between px-5 py-2.5 hover:bg-red-50/20 dark:hover:bg-red-500/4 transition-colors">
+            <span className="text-[12.5px] font-semibold text-foreground/80">{item.label}</span>
+            <span className={`text-[10.5px] flex items-center gap-1 font-semibold ${item.type === "deadline" ? "text-amber-600/60" : "text-red-500/60"}`}>
+              <Clock className="h-2.5 w-2.5" /> {item.sub}
+            </span>
+          </Link>
         ))}
-      </motion.div>
+      </div>
+    </div>
+  );
+}
 
-      {/* ══════════════════════════════════════════════════════
-         4. ALERTS — urgent items (if any)
-         ══════════════════════════════════════════════════════ */}
-      {urgentItems.length > 0 && (
-        <motion.div variants={fv}>
-          <div className="relative rounded-2xl border border-red-200/40 dark:border-red-500/10 overflow-hidden">
-            <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-red-500 to-orange-500 opacity-60" />
-            <div className="flex items-center gap-2 px-5 py-2.5 bg-red-50/30 dark:bg-red-500/5 border-b border-red-200/20 dark:border-red-500/8">
-              <AlertTriangle className="h-3 w-3 text-red-500/70" strokeWidth={2.2} />
-              <span className="text-[10px] font-bold text-red-700/60 dark:text-red-400 tracking-[0.08em] uppercase">דורש טיפול</span>
-              <span className="text-[8px] font-bold bg-red-500/80 text-white rounded px-1.5 py-px leading-none tabular-nums">{urgentItems.length}</span>
+export function ScheduleWidget({ data }: { data: SmartDashboardData }) {
+  const he = useT();
+  const locale = useLocale();
+  const { todayContent } = data;
+  const thisWeek = data.thisWeek ?? { deadlines: [], tasks: [] };
+  const hasThisWeek = thisWeek.deadlines.length > 0 || thisWeek.tasks.length > 0;
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-5">
+      {/* ── This Week (wider) ── */}
+      <div className="lg:col-span-3 flex flex-col">
+        <Section title="מה יש השבוע" icon={CalendarDays} className="flex-1">
+          {!hasThisWeek ? (
+            <div className="flex flex-col items-center justify-center py-10 text-center">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/20 mb-3">
+                <Sparkles className="h-4 w-4 text-muted-foreground/20" strokeWidth={1.8} />
+              </div>
+              <p className="text-[12.5px] font-semibold text-foreground/35">אין אירועים השבוע</p>
+              <p className="text-[10.5px] text-muted-foreground/35 mt-0.5">הזמן ליצור פרויקט חדש</p>
             </div>
-            <div className="bg-card divide-y divide-red-100/30 dark:divide-red-500/6">
-              {urgentItems.map(item => (
-                <Link key={item.id} href={item.href} className="flex items-center justify-between px-5 py-2.5 hover:bg-red-50/20 dark:hover:bg-red-500/4 transition-colors">
-                  <span className="text-[12.5px] font-semibold text-foreground/80">{item.label}</span>
-                  <span className={`text-[10.5px] flex items-center gap-1 font-semibold ${item.type === "deadline" ? "text-amber-600/60" : "text-red-500/60"}`}>
-                    <Clock className="h-2.5 w-2.5" /> {item.sub}
-                  </span>
+          ) : (
+            <div className="divide-y divide-border/30">
+              {thisWeek.deadlines.map(d => (
+                <Link key={d.id} href={`/projects/${d.id}`} className="flex items-center justify-between px-5 py-2.5 hover:bg-foreground/[0.02] transition-colors group">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
+                    <span className="text-[12.5px] font-semibold text-foreground/80 group-hover:text-foreground transition-colors">{d.title}</span>
+                  </div>
+                  <span className="text-[10.5px] text-foreground/30 font-medium tabular-nums">{formatDate(d.deadline, locale)}</span>
                 </Link>
               ))}
-            </div>
-          </div>
-        </motion.div>
-      )}
-
-      {/* ══════════════════════════════════════════════════════
-         5. MAIN CONTENT — two-column layout
-         ══════════════════════════════════════════════════════ */}
-      <div className="grid gap-4 lg:grid-cols-5">
-
-        {/* ── This Week (wider) ── */}
-        <motion.div variants={fv} className="lg:col-span-3 flex flex-col">
-          <Section title="מה יש השבוע" icon={CalendarDays} className="flex-1">
-            {!hasThisWeek ? (
-              <div className="flex flex-col items-center justify-center py-10 text-center">
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-muted/20 mb-3">
-                  <Sparkles className="h-4 w-4 text-muted-foreground/20" strokeWidth={1.8} />
+              {thisWeek.tasks.map(t => (
+                <div key={t.id} className="flex items-center gap-2.5 px-5 py-2.5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="text-[12.5px] font-medium text-foreground/75 flex-1">{t.title}</span>
+                  {t.projectTitle && <span className="text-[9.5px] text-foreground/30 bg-foreground/[0.04] rounded-md px-1.5 py-[2px] font-bold">{t.projectTitle}</span>}
                 </div>
-                <p className="text-[12.5px] font-semibold text-foreground/35">אין אירועים השבוע</p>
-                <p className="text-[10.5px] text-muted-foreground/35 mt-0.5">הזמן ליצור פרויקט חדש</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border/30">
-                {thisWeek.deadlines.map(d => (
-                  <Link key={d.id} href={`/projects/${d.id}`} className="flex items-center justify-between px-5 py-2.5 hover:bg-foreground/[0.02] transition-colors group">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-1.5 w-1.5 rounded-full bg-blue-500 shrink-0" />
-                      <span className="text-[12.5px] font-semibold text-foreground/80 group-hover:text-foreground transition-colors">{d.title}</span>
-                    </div>
-                    <span className="text-[10.5px] text-foreground/30 font-medium tabular-nums">{formatDate(d.deadline, locale)}</span>
-                  </Link>
-                ))}
-                {thisWeek.tasks.map(t => (
-                  <div key={t.id} className="flex items-center gap-2.5 px-5 py-2.5">
-                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-                    <span className="text-[12.5px] font-medium text-foreground/75 flex-1">{t.title}</span>
-                    {t.projectTitle && <span className="text-[9.5px] text-foreground/30 bg-foreground/[0.04] rounded-md px-1.5 py-[2px] font-bold">{t.projectTitle}</span>}
-                  </div>
-                ))}
-              </div>
-            )}
-          </Section>
-        </motion.div>
-
-        {/* ── Right: Today Schedule ── */}
-        <motion.div variants={fv} className="lg:col-span-2 flex flex-col">
-          <Section title={he.dashboard.todaySchedule} icon={CalendarDays} action={{ label: "הכל", href: "/calendar" }} className="flex-1">
-            {todayContent.length === 0 ? (
-              <div className="py-10 text-center">
-                <p className="text-[11.5px] text-foreground/25 font-medium">{he.dashboard.noContentToday}</p>
-              </div>
-            ) : (
-              <div className="divide-y divide-border/30">
-                {todayContent.map(item => (
-                  <div key={item.id} className="flex items-center justify-between px-5 py-2.5">
-                    <div className="flex items-center gap-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color || "#9ca3af" }} />
-                      <span className="text-[12.5px] font-semibold text-foreground/80">{item.title}</span>
-                    </div>
-                    <span className="text-[9.5px] text-foreground/30 bg-foreground/[0.04] rounded-md px-1.5 py-[2px] font-bold tracking-wide">
-                      {he.calendar.statuses[item.status as keyof typeof he.calendar.statuses] ?? item.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Section>
-        </motion.div>
+              ))}
+            </div>
+          )}
+        </Section>
       </div>
 
-      {/* ══════════════════════════════════════════════════════
-         6. RECENT PROJECTS
-         ══════════════════════════════════════════════════════ */}
-      {recentProjects.length > 0 && (
-        <motion.div variants={fv}>
-          <Section title="פרויקטים אחרונים" icon={FolderKanban} action={{ label: "הכל", href: "/projects" }}>
+      {/* ── Right: Today Schedule ── */}
+      <div className="lg:col-span-2 flex flex-col">
+        <Section title={he.dashboard.todaySchedule} icon={CalendarDays} action={{ label: "הכל", href: "/calendar" }} className="flex-1">
+          {todayContent.length === 0 ? (
+            <div className="py-10 text-center">
+              <p className="text-[11.5px] text-foreground/25 font-medium">{he.dashboard.noContentToday}</p>
+            </div>
+          ) : (
             <div className="divide-y divide-border/30">
-              {recentProjects.map(p => (
-                <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-foreground/[0.02] transition-colors group">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground/[0.04] shrink-0 group-hover:bg-accent/10 transition-colors">
-                      <FolderKanban className="h-3 w-3 text-foreground/25 group-hover:text-accent/70 transition-colors" />
-                    </div>
-                    <div className="min-w-0">
-                      <span className="text-[12.5px] font-semibold block truncate text-foreground/80">{p.title}</span>
-                      {p.clientName && <span className="text-[10.5px] text-foreground/30">{p.clientName}</span>}
-                    </div>
+              {todayContent.map(item => (
+                <div key={item.id} className="flex items-center justify-between px-5 py-2.5">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: item.color || "#9ca3af" }} />
+                    <span className="text-[12.5px] font-semibold text-foreground/80">{item.title}</span>
                   </div>
-                  <span className="text-[9.5px] text-foreground/30 bg-foreground/[0.04] rounded-md px-1.5 py-[2px] font-bold shrink-0">{getPhaseLabel(p.phase)}</span>
-                </Link>
+                  <span className="text-[9.5px] text-foreground/30 bg-foreground/[0.04] rounded-md px-1.5 py-[2px] font-bold tracking-wide">
+                    {he.calendar.statuses[item.status as keyof typeof he.calendar.statuses] ?? item.status}
+                  </span>
+                </div>
               ))}
             </div>
-          </Section>
-        </motion.div>
+          )}
+        </Section>
+      </div>
+    </div>
+  );
+}
+
+export function RecentProjectsWidget({ data }: { data: SmartDashboardData }) {
+  const recentProjects = data.recentProjects ?? [];
+
+  if (recentProjects.length === 0) {
+    return (
+      <Section title="פרויקטים אחרונים" icon={FolderKanban} action={{ label: "הכל", href: "/projects" }}>
+        <div className="flex flex-col items-center justify-center py-10">
+          <p className="text-[12px] text-foreground/30 font-medium">אין פרויקטים עדיין</p>
+        </div>
+      </Section>
+    );
+  }
+
+  return (
+    <Section title="פרויקטים אחרונים" icon={FolderKanban} action={{ label: "הכל", href: "/projects" }}>
+      <div className="divide-y divide-border/30">
+        {recentProjects.map(p => (
+          <Link key={p.id} href={`/projects/${p.id}`} className="flex items-center justify-between px-5 py-3 hover:bg-foreground/[0.02] transition-colors group">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-foreground/[0.04] shrink-0 group-hover:bg-accent/10 transition-colors">
+                <FolderKanban className="h-3 w-3 text-foreground/25 group-hover:text-accent/70 transition-colors" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-[12.5px] font-semibold block truncate text-foreground/80">{p.title}</span>
+                {p.clientName && <span className="text-[10.5px] text-foreground/30">{p.clientName}</span>}
+              </div>
+            </div>
+            <span className="text-[9.5px] text-foreground/30 bg-foreground/[0.04] rounded-md px-1.5 py-[2px] font-bold shrink-0">{getPhaseLabel(p.phase)}</span>
+          </Link>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SmartDashboard — legacy full-page component (used as fallback)
+// ═══════════════════════════════════════════════════════════════════════════
+
+export function SmartDashboard({ data, userName }: { data: SmartDashboardData; userName?: string | null }) {
+  const prefersReduced = useReducedMotion();
+  const sv = prefersReduced ? staggerReduced : stagger;
+  const fv = prefersReduced ? fadeReduced : fade;
+
+  const urgent = data.urgent ?? { approachingDeadlines: [], overdueInvoices: [] };
+  const urgentCount = (urgent.approachingDeadlines?.length ?? 0) + (urgent.overdueInvoices?.length ?? 0);
+
+  return (
+    <motion.div className="space-y-5 max-w-[1100px]" variants={sv} initial="hidden" animate="show">
+      <motion.div variants={fv}><GreetingWidget userName={userName} /></motion.div>
+      <motion.div variants={fv}><QuickActionsWidget /></motion.div>
+      <motion.div variants={fv}><KpiWidget data={data} /></motion.div>
+      {urgentCount > 0 && <motion.div variants={fv}><UrgentWidget data={data} /></motion.div>}
+      <motion.div variants={fv}><ScheduleWidget data={data} /></motion.div>
+      {(data.recentProjects?.length ?? 0) > 0 && (
+        <motion.div variants={fv}><RecentProjectsWidget data={data} /></motion.div>
       )}
     </motion.div>
   );

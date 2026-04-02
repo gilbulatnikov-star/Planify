@@ -1,8 +1,54 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
+import { Prisma } from "@prisma/client";
 import { auth } from "@/auth";
 import { DONE_PHASES } from "@/lib/project-config";
+import { resolveLayout, DEFAULT_LAYOUT, type WidgetConfig } from "@/lib/dashboard-config";
+
+// ── Dashboard Layout ──────────────────────────────────────────────────────────
+
+export async function getDashboardLayout(): Promise<WidgetConfig[]> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return [...DEFAULT_LAYOUT];
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { dashboardLayout: true },
+  });
+
+  return resolveLayout(user?.dashboardLayout);
+}
+
+export async function saveDashboardLayout(layout: WidgetConfig[]): Promise<{ ok: boolean }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { ok: false };
+
+  // Validate: must be an array of WidgetConfig
+  if (!Array.isArray(layout) || layout.length === 0) return { ok: false };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { dashboardLayout: layout as object[] },
+  });
+
+  return { ok: true };
+}
+
+export async function resetDashboardLayout(): Promise<{ ok: boolean }> {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { ok: false };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { dashboardLayout: Prisma.DbNull },
+  });
+
+  return { ok: true };
+}
 
 export type SmartDashboardData = {
   kpis: {
