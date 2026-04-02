@@ -1,26 +1,69 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 
-export async function POST(request: Request) {
+// ── Simple in-process rate limiter: max 5 registrations per IP per 10 minutes ──
+const ipRegistry = new Map<string, { count: number; resetAt: number }>();
+const RATE_WINDOW_MS  = 10 * 60 * 1000; // 10 min
+const RATE_MAX        = 5;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = ipRegistry.get(ip);
+  if (!entry || now > entry.resetAt) {
+    ipRegistry.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+  if (entry.count >= RATE_MAX) return true;
+  entry.count++;
+  return false;
+}
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+export async function POST(request: NextRequest) {
   try {
+    // ── Rate limit by IP ──────────────────────────────────────────────────────
+    const ip =
+      request.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+      request.headers.get("x-real-ip") ??
+      "unknown";
+
+    if (isRateLimited(ip)) {
+      return NextResponse.json(
+        { error: "יותר מדי בקשות. נסה שוב בעוד מספר דקות." },
+        { status: 429 }
+      );
+    }
+
     const { name, email, password } = await request.json();
 
-    if (!email || !password) {
+    // ── Input validation ──────────────────────────────────────────────────────
+    if (!email || typeof email !== "string" || !password || typeof password !== "string") {
       return NextResponse.json(
         { error: "Email and password are required" },
         { status: 400 }
       );
     }
 
-    if (password.length < 6) {
+    const trimmedEmail = email.toLowerCase().trim();
+    if (!EMAIL_RE.test(trimmedEmail) || trimmedEmail.length > 254) {
       return NextResponse.json(
-        { error: "Password must be at least 6 characters" },
+        { error: "Invalid email address" },
         { status: 400 }
       );
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    if (password.length < 6 || password.length > 128) {
+      return NextResponse.json(
+        { error: "Password must be between 6 and 128 characters" },
+        { status: 400 }
+      );
+    }
+
+    const trimmedName = typeof name === "string" ? name.trim().slice(0, 100) : null;
+
+    const existing = await prisma.user.findUnique({ where: { email: trimmedEmail } });
     if (existing) {
       return NextResponse.json(
         { error: "An account with this email already exists" },
@@ -32,8 +75,8 @@ export async function POST(request: Request) {
 
     await prisma.user.create({
       data: {
-        name: name?.trim() || null,
-        email: email.toLowerCase().trim(),
+        name: trimmedName || null,
+        email: trimmedEmail,
         password: hashedPassword,
         onboardingCompleted: true,
       },

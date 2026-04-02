@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db/prisma";
 import { decode } from "next-auth/jwt";
 
+const VALID_ROLES        = ["freelancer", "agency", "studio", "creator", "other"] as const;
+const VALID_GOALS        = ["projects", "clients", "content", "invoicing", "all"] as const;
+const VALID_TEAM_SIZES   = ["solo", "2-5", "6-15", "16+"] as const;
+
 export async function POST(request: NextRequest) {
   try {
     // NextAuth v5 stores session as an encrypted JWT cookie
@@ -21,14 +25,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { role, primaryGoal, teamSize } = await request.json();
+    const body = await request.json();
+    const { role, primaryGoal, teamSize } = body;
+
+    // Validate enums — accept only known values, reject arbitrary strings
+    const safeRole        = VALID_ROLES.includes(role as typeof VALID_ROLES[number]) ? role : null;
+    const safePrimaryGoal = VALID_GOALS.includes(primaryGoal as typeof VALID_GOALS[number]) ? primaryGoal : null;
+    const safeTeamSize    = VALID_TEAM_SIZES.includes(teamSize as typeof VALID_TEAM_SIZES[number]) ? teamSize : null;
 
     await prisma.user.update({
       where: { id: userId },
       data: {
-        role: role || null,
-        primaryGoal: primaryGoal || null,
-        teamSize: teamSize || null,
+        role: safeRole,
+        primaryGoal: safePrimaryGoal,
+        teamSize: safeTeamSize,
         onboardingCompleted: true,
       },
     });

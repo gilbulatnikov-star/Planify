@@ -4,24 +4,32 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
 
+const VALID_INVOICE_STATUSES = ["draft", "sent", "paid", "overdue", "cancelled"] as const;
+const VALID_QUOTE_STATUSES   = ["draft", "sent", "accepted", "rejected", "expired"] as const;
+
 // ============ INVOICE ACTIONS ============
 
 export async function createInvoice(formData: FormData) {
   try {
+    // ── Auth first ────────────────────────────────────────────────────────────
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
     const clientId = (formData.get("clientId") as string) || undefined;
 
     const amountStr = formData.get("amount") as string;
     const amount = amountStr ? parseFloat(amountStr) : NaN;
-    if (isNaN(amount)) return { success: false, error: "A valid amount is required" };
+    if (isNaN(amount) || amount < 0 || amount > 10_000_000) return { success: false, error: "A valid amount is required" };
 
-    const status = (formData.get("status") as string) || "draft";
+    const rawStatus = (formData.get("status") as string) || "draft";
+    const status = VALID_INVOICE_STATUSES.includes(rawStatus as typeof VALID_INVOICE_STATUSES[number])
+      ? rawStatus : "draft";
+
     const dateStr = formData.get("date") as string;
     const projectId = (formData.get("projectId") as string) || undefined;
     const externalLink = (formData.get("externalLink") as string) || null;
-    const notes = (formData.get("notes") as string) || null;
-
-    const session = await auth();
-    const userId = session?.user?.id;
+    const notes = ((formData.get("notes") as string) || null)?.slice(0, 2000) ?? null;
 
     // Auto-generate invoice number scoped to user (use max existing number to avoid duplicates)
     const lastInvoice = await prisma.invoice.findFirst({
@@ -76,9 +84,11 @@ export async function updateInvoice(id: string, formData: FormData) {
 
     const amountStr = formData.get("amount") as string;
     const amount = amountStr ? parseFloat(amountStr) : NaN;
-    if (isNaN(amount)) return { success: false, error: "A valid amount is required" };
+    if (isNaN(amount) || amount < 0 || amount > 10_000_000) return { success: false, error: "A valid amount is required" };
 
-    const status = (formData.get("status") as string) || "draft";
+    const rawStatus = (formData.get("status") as string) || "draft";
+    const status = VALID_INVOICE_STATUSES.includes(rawStatus as typeof VALID_INVOICE_STATUSES[number])
+      ? rawStatus : "draft";
     const dateStr = formData.get("date") as string;
     const projectId = (formData.get("projectId") as string) || null;
     const externalLink = (formData.get("externalLink") as string) || null;
@@ -148,6 +158,10 @@ export async function updateInvoiceStatus(id: string, status: string) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
 
+    if (!VALID_INVOICE_STATUSES.includes(status as typeof VALID_INVOICE_STATUSES[number])) {
+      return { success: false, error: "Invalid status" };
+    }
+
     const existing = await prisma.invoice.findFirst({ where: { id, userId } });
     if (!existing) return { success: false, error: "Not found" };
 
@@ -177,6 +191,10 @@ export async function updateQuoteStatus(id: string, status: string) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
+
+    if (!VALID_QUOTE_STATUSES.includes(status as typeof VALID_QUOTE_STATUSES[number])) {
+      return { success: false, error: "Invalid status" };
+    }
 
     const existing = await prisma.quote.findFirst({ where: { id, userId } });
     if (!existing) return { success: false, error: "Not found" };
@@ -224,19 +242,24 @@ export async function deleteQuote(id: string) {
 
 export async function createExpense(formData: FormData) {
   try {
-    const description = formData.get("description") as string;
-    if (!description) {
+    // ── Auth first ──────────────────────────────────────────────────────────
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
+    const description = ((formData.get("description") as string) || "").slice(0, 500);
+    if (!description.trim()) {
       return { success: false, error: "Description is required" };
     }
 
-    const category = formData.get("category") as string;
-    if (!category) {
+    const category = ((formData.get("category") as string) || "").slice(0, 100);
+    if (!category.trim()) {
       return { success: false, error: "Category is required" };
     }
 
     const amountStr = formData.get("amount") as string;
     const amount = amountStr ? parseFloat(amountStr) : NaN;
-    if (isNaN(amount)) {
+    if (isNaN(amount) || amount < 0 || amount > 10_000_000) {
       return { success: false, error: "A valid amount is required" };
     }
 
@@ -245,19 +268,16 @@ export async function createExpense(formData: FormData) {
       return { success: false, error: "Date is required" };
     }
 
-    const session = await auth();
-    const userId = session?.user?.id;
-
     await prisma.expense.create({
       data: {
         description,
         category,
         amount,
         date: new Date(dateStr),
-        vendor: (formData.get("vendor") as string) || null,
+        vendor: ((formData.get("vendor") as string) || null)?.slice(0, 200) ?? null,
         receiptUrl: (formData.get("receiptUrl") as string) || null,
-        notes: (formData.get("notes") as string) || null,
-        userId: userId ?? undefined,
+        notes: ((formData.get("notes") as string) || null)?.slice(0, 2000) ?? null,
+        userId,
       },
     });
 

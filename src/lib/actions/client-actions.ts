@@ -5,6 +5,9 @@ import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
 
+const VALID_CLIENT_TYPES   = ["lead", "client"] as const;
+const VALID_LEAD_STATUSES  = ["new", "contacted", "qualified", "proposal", "negotiation", "won", "lost"] as const;
+
 export async function getClients() {
   const session = await auth();
   const userId = session?.user?.id;
@@ -58,24 +61,30 @@ export async function createClient(formData: FormData) {
     }
 
     const tagsRaw = (formData.get("tags") as string) || "";
-    const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+    const tags = tagsRaw.split(",").map((t) => t.trim().slice(0, 50)).filter(Boolean).slice(0, 20);
+
+    const rawType = (formData.get("type") as string) || "lead";
+    const type = VALID_CLIENT_TYPES.includes(rawType as typeof VALID_CLIENT_TYPES[number]) ? rawType : "lead";
+
+    const rawLeadStatus = (formData.get("leadStatus") as string) || "new";
+    const leadStatus = VALID_LEAD_STATUSES.includes(rawLeadStatus as typeof VALID_LEAD_STATUSES[number]) ? rawLeadStatus : "new";
 
     await prisma.client.create({
       data: {
-        name,
-        email: (formData.get("email") as string) || null,
-        phone: (formData.get("phone") as string) || null,
-        company: (formData.get("company") as string) || null,
-        website: (formData.get("website") as string) || null,
-        instagram: (formData.get("instagram") as string) || null,
-        youtube: (formData.get("youtube") as string) || null,
-        linkedin: (formData.get("linkedin") as string) || null,
-        tiktok: (formData.get("tiktok") as string) || null,
-        facebook: (formData.get("facebook") as string) || null,
-        notes: (formData.get("notes") as string) || null,
-        type: (formData.get("type") as string) || "lead",
-        leadSource: (formData.get("leadSource") as string) || null,
-        leadStatus: (formData.get("leadStatus") as string) || "new",
+        name: name.trim().slice(0, 200),
+        email: ((formData.get("email") as string) || null)?.slice(0, 254) ?? null,
+        phone: ((formData.get("phone") as string) || null)?.slice(0, 30) ?? null,
+        company: ((formData.get("company") as string) || null)?.slice(0, 200) ?? null,
+        website: ((formData.get("website") as string) || null)?.slice(0, 500) ?? null,
+        instagram: ((formData.get("instagram") as string) || null)?.slice(0, 200) ?? null,
+        youtube: ((formData.get("youtube") as string) || null)?.slice(0, 200) ?? null,
+        linkedin: ((formData.get("linkedin") as string) || null)?.slice(0, 200) ?? null,
+        tiktok: ((formData.get("tiktok") as string) || null)?.slice(0, 200) ?? null,
+        facebook: ((formData.get("facebook") as string) || null)?.slice(0, 200) ?? null,
+        notes: ((formData.get("notes") as string) || null)?.slice(0, 5000) ?? null,
+        type,
+        leadSource: ((formData.get("leadSource") as string) || null)?.slice(0, 100) ?? null,
+        leadStatus,
         isActive: formData.get("isActive") !== "false",
         isRetainer: formData.get("isRetainer") === "true",
         tags,
@@ -106,7 +115,13 @@ export async function updateClient(id: string, formData: FormData) {
     }
 
     const tagsRaw = (formData.get("tags") as string) || "";
-    const tags = tagsRaw.split(",").map((t) => t.trim()).filter(Boolean);
+    const tags = tagsRaw.split(",").map((t) => t.trim().slice(0, 50)).filter(Boolean).slice(0, 20);
+
+    const rawType = (formData.get("type") as string) || "lead";
+    const type = VALID_CLIENT_TYPES.includes(rawType as typeof VALID_CLIENT_TYPES[number]) ? rawType : "lead";
+
+    const rawLeadStatus = (formData.get("leadStatus") as string) || "new";
+    const leadStatus = VALID_LEAD_STATUSES.includes(rawLeadStatus as typeof VALID_LEAD_STATUSES[number]) ? rawLeadStatus : "new";
 
     const existing = await prisma.client.findFirst({ where: { id, userId } });
     if (!existing) return { success: false, error: "Not found" };
@@ -114,20 +129,20 @@ export async function updateClient(id: string, formData: FormData) {
     await prisma.client.update({
       where: { id },
       data: {
-        name,
-        email: (formData.get("email") as string) || null,
-        phone: (formData.get("phone") as string) || null,
-        company: (formData.get("company") as string) || null,
-        website: (formData.get("website") as string) || null,
-        instagram: (formData.get("instagram") as string) || null,
-        youtube: (formData.get("youtube") as string) || null,
-        linkedin: (formData.get("linkedin") as string) || null,
-        tiktok: (formData.get("tiktok") as string) || null,
-        facebook: (formData.get("facebook") as string) || null,
-        notes: (formData.get("notes") as string) || null,
-        type: (formData.get("type") as string) || "lead",
-        leadSource: (formData.get("leadSource") as string) || null,
-        leadStatus: (formData.get("leadStatus") as string) || "new",
+        name: name.trim().slice(0, 200),
+        email: ((formData.get("email") as string) || null)?.slice(0, 254) ?? null,
+        phone: ((formData.get("phone") as string) || null)?.slice(0, 30) ?? null,
+        company: ((formData.get("company") as string) || null)?.slice(0, 200) ?? null,
+        website: ((formData.get("website") as string) || null)?.slice(0, 500) ?? null,
+        instagram: ((formData.get("instagram") as string) || null)?.slice(0, 200) ?? null,
+        youtube: ((formData.get("youtube") as string) || null)?.slice(0, 200) ?? null,
+        linkedin: ((formData.get("linkedin") as string) || null)?.slice(0, 200) ?? null,
+        tiktok: ((formData.get("tiktok") as string) || null)?.slice(0, 200) ?? null,
+        facebook: ((formData.get("facebook") as string) || null)?.slice(0, 200) ?? null,
+        notes: ((formData.get("notes") as string) || null)?.slice(0, 5000) ?? null,
+        type,
+        leadSource: ((formData.get("leadSource") as string) || null)?.slice(0, 100) ?? null,
+        leadStatus,
         isActive: formData.get("isActive") !== "false",
         isRetainer: formData.get("isRetainer") === "true",
         tags,
@@ -163,6 +178,10 @@ export async function updateLeadStatus(id: string, leadStatus: string) {
   const session = await auth();
   const userId = session?.user?.id;
   if (!userId) return { success: false, error: "Not authenticated" };
+
+  if (!VALID_LEAD_STATUSES.includes(leadStatus as typeof VALID_LEAD_STATUSES[number])) {
+    return { success: false, error: "Invalid status" };
+  }
 
   const existing = await prisma.client.findFirst({ where: { id, userId } });
   if (!existing) return { success: false, error: "Not found" };

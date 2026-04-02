@@ -4,7 +4,8 @@ import { join } from "path";
 import { randomUUID } from "crypto";
 import { auth } from "@/auth";
 
-const ALLOWED_EXTS = [".pdf", ".jpg", ".jpeg", ".png", ".webp"];
+const ALLOWED_EXTS  = [".pdf", ".jpg", ".jpeg", ".png", ".webp"];
+const ALLOWED_MIMES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
 const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
 
 export async function POST(request: Request) {
@@ -26,9 +27,9 @@ export async function POST(request: Request) {
     }
 
     const ext = ("." + (file.name.split(".").pop() ?? "")).toLowerCase();
-    if (!ALLOWED_EXTS.includes(ext)) {
+    if (!ALLOWED_EXTS.includes(ext) || !ALLOWED_MIMES.includes(file.type)) {
       return NextResponse.json(
-        { error: "ניתן להעלות PDF, JPG, PNG בלבד" },
+        { error: "ניתן להעלות PDF, JPG, PNG, WEBP בלבד" },
         { status: 400 },
       );
     }

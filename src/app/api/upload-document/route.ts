@@ -41,7 +41,7 @@ async function callVisionModel(base64Image: string, mimeType: string): Promise<s
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000",
+      "HTTP-Referer": process.env.NEXTAUTH_URL ?? process.env.AUTH_URL ?? "https://qlipy.com",
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-001",
@@ -78,7 +78,7 @@ async function callTextModel(text: string): Promise<string> {
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
       "Content-Type": "application/json",
-      "HTTP-Referer": "http://localhost:3000",
+      "HTTP-Referer": process.env.NEXTAUTH_URL ?? process.env.AUTH_URL ?? "https://qlipy.com",
     },
     body: JSON.stringify({
       model: "google/gemini-2.0-flash-001",

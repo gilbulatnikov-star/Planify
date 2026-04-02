@@ -44,8 +44,7 @@ type ClientData = {
   isActive: boolean;
   isRetainer: boolean;
   tags: string[];
-  projects: { id: string }[];
-  _count: { interactions: number };
+  _count: { interactions: number; projects: number };
 };
 
 const stagger = {
@@ -304,10 +303,10 @@ function ClientCard({
 
       {/* Right meta + actions */}
       <div className="flex items-center gap-2 shrink-0">
-        {client.projects.length > 0 && (
+        {client._count.projects > 0 && (
           <span className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground bg-muted/80 rounded-lg px-2 py-1">
             <FolderOpen className="h-3 w-3" />
-            {client.projects.length}
+            {client._count.projects}
           </span>
         )}
 

@@ -5,6 +5,20 @@ const MAX_CONTENT_LEN = 50_000;
 const MAX_INSTRUCTION_LEN = 5_000;
 const MAX_MESSAGES = 50;
 
+// ── Per-user rate limit: max 30 AI requests per minute ───────────────────────
+const aiRateMap = new Map<string, { count: number; resetAt: number }>();
+function checkAiRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = aiRateMap.get(userId);
+  if (!entry || now > entry.resetAt) {
+    aiRateMap.set(userId, { count: 1, resetAt: now + 60_000 });
+    return false; // not limited
+  }
+  if (entry.count >= 30) return true; // limited
+  entry.count++;
+  return false;
+}
+
 const SYSTEM_PROMPT = `אתה עוזר כתיבת תסריטי וידאו ברמה עולמית. אתה עוזר למשתמש לכתוב, לשפר ולייעץ על תסריטים לYouTube, TikTok, Instagram Reels, פודקאסטים ווידאו מסחרי.
 
 סגנון התקשורת שלך:
@@ -54,6 +68,13 @@ export async function POST(req: NextRequest) {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (checkAiRateLimit(session.user.id)) {
+      return NextResponse.json(
+        { error: "יותר מדי בקשות. נסה שוב בעוד דקה." },
+        { status: 429 }
+      );
     }
 
     const { mode, content, instruction, platform, duration, messages } = await req.json();
