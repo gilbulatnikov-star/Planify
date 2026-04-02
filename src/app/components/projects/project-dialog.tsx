@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useState, useRef, useTransition } from "react";
 import {
   Dialog,
   DialogContent,
@@ -96,9 +96,17 @@ export function QuickAddDialog({
   onGoToProject,
 }: QuickAddDialogProps) {
   const [activeTool, setActiveTool] = useState<QuickTool>(null);
-  const [isPending, startTransition] = useTransition();
+  // Use plain useState (NOT useTransition) — useTransition can be interrupted by
+  // the router refresh triggered by revalidatePath, causing post-await setState calls to be lost
+  const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<Set<QuickTool>>(new Set());
+  const doneRef = useRef<Set<string>>(new Set());
+  const [doneVersion, setDoneVersion] = useState(0); // increment to force re-render
+
+  function markDone(tool: string) {
+    doneRef.current.add(tool);
+    setDoneVersion((v) => v + 1);
+  }
 
   // Script fields
   const [scriptTitle, setScriptTitle]       = useState("");
@@ -121,11 +129,12 @@ export function QuickAddDialog({
     setActiveTool(activeTool === tool ? null : tool);
   }
 
-  function handleScript(e: React.FormEvent) {
+  async function handleScript(e: React.FormEvent) {
     e.preventDefault();
     if (!scriptTitle.trim()) { setError("יש להזין כותרת"); return; }
     setError(null);
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       const r = await createScript({
         title: scriptTitle.trim(),
         platform: scriptPlatform,
@@ -134,18 +143,23 @@ export function QuickAddDialog({
         clientId: clientId || undefined,
       });
       if (!r || !("id" in r)) { setError("שגיאה ביצירת התסריט"); return; }
-      setDone((prev) => new Set(prev).add("script"));
+      markDone("script");
       setActiveTool(null);
       setScriptTitle(""); setScriptPlatform("youtube"); setScriptContent("");
-    });
+    } catch {
+      setError("שגיאה ביצירת התסריט");
+    } finally {
+      setIsPending(false);
+    }
   }
 
-  function handleEvent(e: React.FormEvent) {
+  async function handleEvent(e: React.FormEvent) {
     e.preventDefault();
     if (!eventTitle.trim()) { setError("יש להזין כותרת"); return; }
     if (!eventDate) { setError("יש לבחור תאריך"); return; }
     setError(null);
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       const fd = new FormData();
       fd.set("title", eventTitle.trim()); fd.set("date", eventDate);
       fd.set("status", eventStatus); fd.set("projectId", projectId);
@@ -153,22 +167,32 @@ export function QuickAddDialog({
       fd.set("color", "blue");
       const r = await createScheduledContent(fd);
       if (!r.success) { setError("שגיאה ביצירת האירוע"); return; }
-      setDone((prev) => new Set(prev).add("event"));
+      markDone("event");
       setActiveTool(null);
       setEventTitle(""); setEventDate("");
-    });
+    } catch {
+      setError("שגיאה ביצירת האירוע");
+    } finally {
+      setIsPending(false);
+    }
   }
 
-  function handleTask(e: React.FormEvent) {
+  async function handleTask(e: React.FormEvent) {
     e.preventDefault();
     if (!taskTitle.trim()) { setError("יש להזין משימה"); return; }
     setError(null);
-    startTransition(async () => {
-      await addProjectTask(projectId, taskTitle.trim());
-      setDone((prev) => new Set(prev).add("task"));
+    setIsPending(true);
+    try {
+      const result = await addProjectTask(projectId, taskTitle.trim());
+      if (!result.success) { setError("שגיאה ביצירת המשימה"); return; }
+      markDone("task");
       setActiveTool(null);
       setTaskTitle("");
-    });
+    } catch {
+      setError("שגיאה ביצירת המשימה");
+    } finally {
+      setIsPending(false);
+    }
   }
 
   const tools = [
@@ -198,7 +222,7 @@ export function QuickAddDialog({
           <div className="grid grid-cols-3 gap-2">
             {tools.map((t) => {
               const isActive = activeTool === t.id;
-              const isDone   = done.has(t.id);
+              const isDone   = doneRef.current.has(t.id);
               return (
                 <button
                   key={t.id}
