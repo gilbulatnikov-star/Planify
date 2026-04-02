@@ -369,7 +369,11 @@ export function ProjectsPageClient({
           projectId={quickAdd.id}
           projectTitle={quickAdd.title}
           clientId={quickAdd.clientId}
-          onGoToProject={() => { setQuickAdd(null); router.push(`/projects/${quickAdd.id}`); }}
+          onGoToProject={() => {
+            const id = quickAdd.id;
+            setQuickAdd(null);
+            router.push(`/projects/${id}`);
+          }}
         />
       )}
       {deleteTarget && (

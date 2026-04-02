@@ -36,6 +36,7 @@ export async function createScript(data: {
   platform?: string;
   projectId?: string;
   clientId?: string;
+  content?: string;
 }) {
   // ── Quota check ──────────────────────────────────────────────────────────────
   const session = await auth();
@@ -56,6 +57,7 @@ export async function createScript(data: {
       platform: data.platform || "youtube",
       projectId: data.projectId || null,
       clientId: data.clientId || null,
+      content: data.content || undefined,
       userId: userId ?? undefined,
     },
   });
