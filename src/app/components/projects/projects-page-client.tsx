@@ -19,7 +19,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ProjectDialog } from "./project-dialog";
+import { ProjectDialog, QuickAddDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, daysUntil } from "@/lib/utils/format";
@@ -80,6 +80,7 @@ export function ProjectsPageClient({
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
+  const [quickAdd, setQuickAdd] = useState<{ id: string; title: string; clientId: string } | null>(null);
   const [filterClientId, setFilterClientId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [view, setView] = useState<ViewTab>("active");
@@ -359,8 +360,18 @@ export function ProjectsPageClient({
         onOpenChange={setDialogOpen}
         onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
         defaultClientId={!editingProject && filterClientId ? filterClientId : undefined}
-        onSuccess={(projectId) => router.push(`/projects/${projectId}`)}
+        onCreated={(projectId, title, clientId) => setQuickAdd({ id: projectId, title, clientId })}
       />
+      {quickAdd && (
+        <QuickAddDialog
+          open={!!quickAdd}
+          onOpenChange={(v) => { if (!v) setQuickAdd(null); }}
+          projectId={quickAdd.id}
+          projectTitle={quickAdd.title}
+          clientId={quickAdd.clientId}
+          onGoToProject={() => { setQuickAdd(null); router.push(`/projects/${quickAdd.id}`); }}
+        />
+      )}
       {deleteTarget && (
         <DeleteProjectDialog
           projectId={deleteTarget.id}
