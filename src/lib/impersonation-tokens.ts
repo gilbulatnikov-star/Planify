@@ -1,26 +1,22 @@
-import crypto from "crypto";
+import { SignJWT, jwtVerify } from "jose";
 
-// In-process one-time tokens for admin impersonation (TTL 60s)
-const tokens = new Map<string, { userId: string; expiresAt: number }>();
+const SECRET = new TextEncoder().encode(process.env.AUTH_SECRET!);
 
-export function createToken(userId: string): string {
-  const now = Date.now();
-  // Clean expired
-  for (const [t, v] of tokens) {
-    if (v.expiresAt < now) tokens.delete(t);
-  }
-  const token = crypto.randomBytes(32).toString("hex");
-  tokens.set(token, { userId, expiresAt: now + 60_000 });
-  return token;
+// Creates a signed JWT valid for 60 seconds, containing just the userId
+export async function createToken(userId: string): Promise<string> {
+  return new SignJWT({ userId })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("60s")
+    .sign(SECRET);
 }
 
-export function consumeToken(token: string): string | null {
-  const entry = tokens.get(token);
-  if (!entry) return null;
-  if (entry.expiresAt < Date.now()) {
-    tokens.delete(token);
+// Verifies + decodes the token, returns userId or null
+export async function consumeToken(token: string): Promise<string | null> {
+  try {
+    const { payload } = await jwtVerify(token, SECRET);
+    return (payload.userId as string) ?? null;
+  } catch {
     return null;
   }
-  tokens.delete(token);
-  return entry.userId;
 }

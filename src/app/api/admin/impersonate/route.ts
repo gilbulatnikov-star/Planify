@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
   if (!token) return NextResponse.json({ error: "Missing token" }, { status: 400 });
 
-  const userId = consumeToken(token);
+  const userId = await consumeToken(token);
   if (!userId) return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
 
   // 3. Load target user
