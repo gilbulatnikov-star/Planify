@@ -10,7 +10,6 @@ export default async function FinancialsPage() {
     return (
       <FinancialsPageClient
         invoices={[]}
-        quotes={[]}
         expenses={[]}
         clients={[]}
         projects={[]}
@@ -20,16 +19,8 @@ export default async function FinancialsPage() {
     );
   }
 
-  const [invoices, quotes, expenses, clients, projects, subscriptions] = await Promise.all([
+  const [invoices, expenses, clients, projects, subscriptions] = await Promise.all([
     prisma.invoice.findMany({
-      where: { userId },
-      include: {
-        client: { select: { name: true } },
-        project: { select: { title: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.quote.findMany({
       where: { userId },
       include: {
         client: { select: { name: true } },
@@ -64,7 +55,6 @@ export default async function FinancialsPage() {
   return (
     <FinancialsPageClient
       invoices={invoices}
-      quotes={quotes}
       expenses={expenses}
       clients={clients}
       projects={projects}

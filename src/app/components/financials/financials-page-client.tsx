@@ -49,13 +49,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { InvoiceDialog } from "./invoice-dialog";
 import { DeleteInvoiceDialog } from "./delete-invoice-dialog";
-import { DeleteQuoteDialog } from "./delete-quote-dialog";
 import { ExpenseDialog } from "./expense-dialog";
 import { DeleteExpenseDialog } from "./delete-expense-dialog";
 import { DocumentUploadDialog } from "./document-upload-dialog";
+import { SubscriptionDialog } from "@/app/components/subscriptions/subscription-dialog";
+import { DeleteSubscriptionDialog } from "@/app/components/subscriptions/delete-subscription-dialog";
 import {
   updateInvoiceStatus,
-  updateQuoteStatus,
 } from "@/lib/actions/financial-actions";
 import { useT } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -69,12 +69,6 @@ const invoiceStatusStyles: Record<string, string> = {
   cancelled: "bg-muted text-muted-foreground border-0",
 };
 
-const quoteStatusStyles: Record<string, string> = {
-  draft: "bg-muted text-muted-foreground border-0",
-  sent: "bg-cyan-50 text-cyan-700 dark:bg-cyan-950 dark:text-cyan-300 border-0",
-  accepted: "bg-emerald-50 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300 border-0",
-  declined: "bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300 border-0",
-};
 
 type ExpenseData = {
   id: string;
@@ -112,20 +106,6 @@ type InvoiceData = {
   project: { title: string } | null;
 };
 
-type QuoteData = {
-  id: string;
-  quoteNumber: string;
-  clientId: string;
-  projectId: string | null;
-  status: string;
-  subtotal: number;
-  tax: number;
-  total: number;
-  validUntil: Date | null;
-  notes: string | null;
-  client: { name: string };
-  project: { title: string } | null;
-};
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -146,7 +126,6 @@ const fadeUp = {
 
 export function FinancialsPageClient({
   invoices,
-  quotes,
   expenses,
   clients,
   projects,
@@ -154,7 +133,6 @@ export function FinancialsPageClient({
   totalMonthlyCost,
 }: {
   invoices: InvoiceData[];
-  quotes: QuoteData[];
   expenses: ExpenseData[];
   clients: { id: string; name: string }[];
   projects: { id: string; title: string }[];
@@ -169,13 +147,6 @@ export function FinancialsPageClient({
     { value: "paid", label: he.financial.invoiceStatuses.paid },
     { value: "overdue", label: he.financial.invoiceStatuses.overdue },
     { value: "cancelled", label: he.financial.invoiceStatuses.cancelled },
-  ];
-
-  const quoteStatusFlow: { value: string; label: string }[] = [
-    { value: "draft", label: he.financial.quoteStatuses.draft },
-    { value: "sent", label: he.financial.quoteStatuses.sent },
-    { value: "accepted", label: he.financial.quoteStatuses.accepted },
-    { value: "declined", label: he.financial.quoteStatuses.declined },
   ];
 
   const MONTH_NAMES = he.financialPage.monthNames as unknown as string[];
@@ -245,8 +216,10 @@ export function FinancialsPageClient({
   const [editingInvoice, setEditingInvoice] = useState<InvoiceData | null>(null);
   const [deleteInvoiceTarget, setDeleteInvoiceTarget] = useState<string | null>(null);
 
-  // Quote state
-  const [deleteQuoteTarget, setDeleteQuoteTarget] = useState<string | null>(null);
+  // Subscription state
+  const [subDialogOpen, setSubDialogOpen] = useState(false);
+  const [editingSub, setEditingSub] = useState<SubscriptionData | null>(null);
+  const [deleteSubTarget, setDeleteSubTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Expense state
   const [expenseDialogOpen, setExpenseDialogOpen] = useState(false);
@@ -266,16 +239,6 @@ export function FinancialsPageClient({
       (i.notes ?? "").toLowerCase().includes(searchLower) ||
       i.invoiceNumber.toLowerCase().includes(searchLower) ||
       String(i.total).includes(search)
-    );
-  });
-  const filteredQuotes = quotes.filter((q) => {
-    if (!matchesFilter(q.validUntil)) return false;
-    if (!search) return true;
-    return (
-      q.client.name.toLowerCase().includes(searchLower) ||
-      (q.notes ?? "").toLowerCase().includes(searchLower) ||
-      q.quoteNumber.toLowerCase().includes(searchLower) ||
-      String(q.total).includes(search)
     );
   });
   const filteredExpenses = expenses.filter((e) => {
@@ -309,12 +272,6 @@ export function FinancialsPageClient({
   function handleQuickInvoiceStatus(id: string, status: string) {
     startTransition(async () => {
       await updateInvoiceStatus(id, status);
-    });
-  }
-
-  function handleQuickQuoteStatus(id: string, status: string) {
-    startTransition(async () => {
-      await updateQuoteStatus(id, status);
     });
   }
 
@@ -416,7 +373,7 @@ export function FinancialsPageClient({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => { window.location.href = "/subscriptions"; }}
+                onClick={() => { setEditingSub(null); setSubDialogOpen(true); }}
                 className="flex items-center gap-3 py-2.5 cursor-pointer"
               >
                 <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/10">
@@ -616,12 +573,6 @@ export function FinancialsPageClient({
               {he.financial.invoices} ({filteredInvoices.length})
             </TabsTrigger>
             <TabsTrigger
-              value="quotes"
-              className="text-[13px] h-7 data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
-            >
-              {he.financial.quotes} ({filteredQuotes.length})
-            </TabsTrigger>
-            <TabsTrigger
               value="expenses"
               className="text-[13px] h-7 data-[state=active]:bg-foreground data-[state=active]:text-background transition-all duration-200"
             >
@@ -713,95 +664,6 @@ export function FinancialsPageClient({
                                   onEdit={() => handleEditInvoice(inv)}
                                   onDelete={() => setDeleteInvoiceTarget(inv.id)}
                                   onStatus={(s) => handleQuickInvoiceStatus(inv.id, s)}
-                                />
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </CardContent>
-                </Card>
-              </>
-            )}
-          </TabsContent>
-
-          {/* ── QUOTES ── */}
-          <TabsContent value="quotes" className="mt-3">
-            {filteredQuotes.length === 0 ? (
-              <EmptyState label="אין הצעות מחיר בתקופה זו" />
-            ) : (
-              <>
-                {/* Mobile cards */}
-                <div className="sm:hidden space-y-2">
-                  {filteredQuotes.map((q) => (
-                    <div key={q.id} className="bg-card border border-border/50 rounded-2xl p-3.5 flex items-center gap-3">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge className={`text-[10px] px-1.5 py-0 ${quoteStatusStyles[q.status] ?? "bg-muted text-muted-foreground border-0"}`}>
-                            {he.financial.quoteStatuses[q.status as keyof typeof he.financial.quoteStatuses] ?? q.status}
-                          </Badge>
-                          <span className="text-[11px] text-muted-foreground font-mono">{q.quoteNumber}</span>
-                        </div>
-                        <p className="text-[13px] font-semibold text-foreground truncate">{q.client.name}</p>
-                        {q.validUntil && (
-                          <p className="text-[11px] text-muted-foreground mt-0.5">{formatDate(q.validUntil)}</p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-[15px] font-bold text-foreground">{formatCurrency(q.total)}</span>
-                        <QuoteActionMenu
-                          q={q}
-                          he={he}
-                          quoteStatusFlow={quoteStatusFlow}
-                          quoteStatusStyles={quoteStatusStyles}
-                          isPending={isPending}
-                          onDelete={() => setDeleteQuoteTarget(q.id)}
-                          onStatus={(s) => handleQuickQuoteStatus(q.id, s)}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Desktop table */}
-                <Card className="glass-card overflow-hidden hidden sm:block">
-                  <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="border-border hover:bg-transparent">
-                            <TableHead className="text-muted-foreground text-xs">{he.financialPage.number}</TableHead>
-                            <TableHead className="text-muted-foreground text-xs">{he.common.client}</TableHead>
-                            <TableHead className="hidden md:table-cell text-muted-foreground text-xs">{he.common.project}</TableHead>
-                            <TableHead className="text-muted-foreground text-xs">{he.common.status}</TableHead>
-                            <TableHead className="text-muted-foreground text-xs">{he.financial.total}</TableHead>
-                            <TableHead className="hidden md:table-cell text-muted-foreground text-xs">{he.financialPage.validUntil}</TableHead>
-                            <TableHead className="w-[50px]" />
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {filteredQuotes.map((q) => (
-                            <TableRow key={q.id} className="border-border transition-all duration-200 hover:bg-muted/50 group">
-                              <TableCell className="font-medium font-mono text-sm">{q.quoteNumber}</TableCell>
-                              <TableCell className="text-sm">{q.client.name}</TableCell>
-                              <TableCell className="hidden md:table-cell text-muted-foreground text-sm">{q.project?.title ?? "—"}</TableCell>
-                              <TableCell>
-                                <Badge className={quoteStatusStyles[q.status] ?? "bg-muted text-muted-foreground border-0"}>
-                                  {he.financial.quoteStatuses[q.status as keyof typeof he.financial.quoteStatuses] ?? q.status}
-                                </Badge>
-                              </TableCell>
-                              <TableCell className="font-semibold text-sm">{formatCurrency(q.total)}</TableCell>
-                              <TableCell className="hidden md:table-cell text-muted-foreground text-sm">{formatDate(q.validUntil)}</TableCell>
-                              <TableCell>
-                                <QuoteActionMenu
-                                  q={q}
-                                  he={he}
-                                  quoteStatusFlow={quoteStatusFlow}
-                                  quoteStatusStyles={quoteStatusStyles}
-                                  isPending={isPending}
-                                  onDelete={() => setDeleteQuoteTarget(q.id)}
-                                  onStatus={(s) => handleQuickQuoteStatus(q.id, s)}
                                 />
                               </TableCell>
                             </TableRow>
@@ -920,13 +782,13 @@ export function FinancialsPageClient({
               <p className="text-sm text-muted-foreground">
                 {he.subscriptions.totalMonthly}: <span className="font-semibold text-red-500">{formatCurrency(totalMonthlyCost)}</span>
               </p>
-              <a
-                href="/subscriptions"
-                onClick={(e) => { e.preventDefault(); window.location.href = "/subscriptions"; }}
-                className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+              <button
+                onClick={() => { setEditingSub(null); setSubDialogOpen(true); }}
+                className="inline-flex items-center gap-1.5 h-8 px-3 rounded-lg bg-foreground text-background hover:bg-foreground/90 text-[12px] font-medium transition-colors"
               >
-                {he.financialPage.manageFixedExpenses}
-              </a>
+                <Plus className="h-3.5 w-3.5" />
+                הוצאה קבועה חדשה
+              </button>
             </div>
 
             {/* Mobile cards */}
@@ -949,17 +811,32 @@ export function FinancialsPageClient({
                         </Badge>
                       </div>
                     </div>
-                    <div className="shrink-0 text-right">
-                      <p className="text-[14px] font-bold text-red-500">{formatCurrency(monthlyCost)}</p>
-                      {sub.billingCycle === "yearly" && (
-                        <p className="text-[10px] text-muted-foreground">{formatCurrency(sub.amount)}{he.financialPage.perYear}</p>
-                      )}
+                    <div className="flex items-center gap-2 shrink-0">
+                      <div className="text-right">
+                        <p className="text-[14px] font-bold text-red-500">{formatCurrency(monthlyCost)}</p>
+                        {sub.billingCycle === "yearly" && (
+                          <p className="text-[10px] text-muted-foreground">{formatCurrency(sub.amount)}{he.financialPage.perYear}</p>
+                        )}
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-muted transition-colors outline-none">
+                          <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" sideOffset={4}>
+                          <DropdownMenuItem onClick={() => { setEditingSub(sub); setSubDialogOpen(true); }}>
+                            <Pencil className="h-4 w-4" /><span>עריכה</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem variant="destructive" onClick={() => setDeleteSubTarget({ id: sub.id, name: sub.serviceName })}>
+                            <Trash2 className="h-4 w-4" /><span>מחיקה</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 );
               })}
               {subscriptions.length === 0 && (
-                <div className="text-center py-10 text-foreground/40 text-sm">{he.financialPage.noFixedExpenses}</div>
+                <EmptyState label={he.financialPage.noFixedExpenses} onAdd={() => { setEditingSub(null); setSubDialogOpen(true); }} addLabel="הוצאה קבועה חדשה" />
               )}
             </div>
 
@@ -975,16 +852,19 @@ export function FinancialsPageClient({
                         <TableHead className="text-muted-foreground text-xs">{he.financialPage.monthlyCost}</TableHead>
                         <TableHead className="hidden md:table-cell text-muted-foreground text-xs">{he.financialPage.nextBilling}</TableHead>
                         <TableHead className="text-muted-foreground text-xs">{he.common.status}</TableHead>
+                        <TableHead className="w-[70px]" />
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {subscriptions.map((sub) => {
                         const monthlyCost = sub.billingCycle === "yearly" ? sub.amount / 12 : sub.amount;
                         return (
-                          <TableRow key={sub.id} className="border-border hover:bg-muted/50">
-                            <TableCell className="font-medium text-sm flex items-center gap-2">
-                              <RefreshCw className="h-3.5 w-3.5 text-muted-foreground" />
-                              {sub.serviceName}
+                          <TableRow key={sub.id} className="border-border hover:bg-muted/50 group">
+                            <TableCell className="font-medium text-sm">
+                              <span className="flex items-center gap-2">
+                                <RefreshCw className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                {sub.serviceName}
+                              </span>
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                               <Badge variant="outline" className={sub.billingCycle === "yearly" ? "border-purple-200 text-purple-700" : "border-cyan-200 text-cyan-700"}>
@@ -1003,12 +883,24 @@ export function FinancialsPageClient({
                                 {sub.status === "active" ? he.subscriptions.statuses.active : he.subscriptions.statuses.cancelled}
                               </Badge>
                             </TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-muted"
+                                  onClick={() => { setEditingSub(sub); setSubDialogOpen(true); }}>
+                                  <Pencil className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-red-50 text-destructive"
+                                  onClick={() => setDeleteSubTarget({ id: sub.id, name: sub.serviceName })}>
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
                       {subscriptions.length === 0 && (
                         <TableRow>
-                          <TableCell colSpan={5} className="text-center text-foreground/40 py-8">
+                          <TableCell colSpan={6} className="text-center text-foreground/40 py-8">
                             {he.financialPage.noFixedExpenses}
                           </TableCell>
                         </TableRow>
@@ -1037,11 +929,17 @@ export function FinancialsPageClient({
           onOpenChange={(open) => { if (!open) setDeleteInvoiceTarget(null); }}
         />
       )}
-      {deleteQuoteTarget && (
-        <DeleteQuoteDialog
-          quoteId={deleteQuoteTarget}
-          open={!!deleteQuoteTarget}
-          onOpenChange={(open) => { if (!open) setDeleteQuoteTarget(null); }}
+      <SubscriptionDialog
+        subscription={editingSub}
+        open={subDialogOpen}
+        onOpenChange={setSubDialogOpen}
+      />
+      {deleteSubTarget && (
+        <DeleteSubscriptionDialog
+          subscriptionId={deleteSubTarget.id}
+          subscriptionName={deleteSubTarget.name}
+          open={!!deleteSubTarget}
+          onOpenChange={(open) => { if (!open) setDeleteSubTarget(null); }}
         />
       )}
       <ExpenseDialog
@@ -1145,49 +1043,4 @@ function InvoiceActionMenu({
   );
 }
 
-function QuoteActionMenu({
-  q,
-  he,
-  quoteStatusFlow,
-  quoteStatusStyles,
-  isPending,
-  onDelete,
-  onStatus,
-}: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  q: any; he: any; quoteStatusFlow: any[]; quoteStatusStyles: Record<string, string>;
-  isPending: boolean; onDelete: () => void; onStatus: (s: string) => void;
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-muted transition-colors outline-none">
-        <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={4}>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <ArrowRightLeft className="h-4 w-4" />
-            <span>{he.financialPage.changeStatus}</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            {quoteStatusFlow.map((s) => (
-              <DropdownMenuItem
-                key={s.value}
-                disabled={q.status === s.value || isPending}
-                onClick={() => onStatus(s.value)}
-              >
-                <Badge className={`${quoteStatusStyles[s.value]} text-[11px] px-1.5 py-0`}>{s.label}</Badge>
-                {q.status === s.value && <span className="mr-auto text-xs text-muted-foreground">{he.financialPage.current}</span>}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" onClick={onDelete}>
-          <Trash2 className="h-4 w-4" />
-          <span>{he.financialPage.deleteAction}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
+

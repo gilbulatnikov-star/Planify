@@ -40,6 +40,7 @@ export async function createSubscription(formData: FormData) {
     });
 
     revalidatePath("/subscriptions");
+    revalidatePath("/financials");
     revalidatePath("/");
     return { success: true };
   } catch (error) {
@@ -93,6 +94,7 @@ export async function updateSubscription(id: string, formData: FormData) {
     });
 
     revalidatePath("/subscriptions");
+    revalidatePath("/financials");
     revalidatePath("/");
     return { success: true };
   } catch (error) {
@@ -120,6 +122,7 @@ export async function deleteSubscription(id: string) {
     });
 
     revalidatePath("/subscriptions");
+    revalidatePath("/financials");
     revalidatePath("/");
     return { success: true };
   } catch (error) {
