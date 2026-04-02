@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar, MessageSquare, Star } from "lucide-react";
-import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionExpiry } from "@/lib/actions/admin-actions";
+import { Users, Crown, Trash2, Search, ShieldCheck, BarChart3, Key, Calendar, MessageSquare, Star, ExternalLink } from "lucide-react";
+import { updateUserPlan, deleteUser, resetUserPassword, updateUserSubscriptionExpiry, createImpersonationToken } from "@/lib/actions/admin-actions";
 import { DatePicker } from "@/components/ui/date-picker";
 import { deleteFeedback } from "@/lib/actions/feedback-actions";
 import { format } from "date-fns";
@@ -265,6 +265,21 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
                     {/* Actions */}
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-1.5">
+                        {/* Open as user (impersonate) */}
+                        <button
+                          onClick={async () => {
+                            try {
+                              const token = await createImpersonationToken(user.id);
+                              window.open(`/api/admin/impersonate?token=${token}`, "_blank");
+                            } catch {
+                              alert("שגיאה ביצירת טוקן");
+                            }
+                          }}
+                          className="flex h-7 w-7 items-center justify-center rounded-lg text-muted-foreground hover:bg-green-50 hover:text-green-600 transition-colors"
+                          title={`פתח כ-${user.name ?? user.email}`}
+                        >
+                          <ExternalLink className="h-3.5 w-3.5" />
+                        </button>
                         {/* Reset password */}
                         <button
                           onClick={() => setPasswordModal({ userId: user.id, name: user.name ?? user.email })}

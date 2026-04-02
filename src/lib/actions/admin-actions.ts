@@ -3,6 +3,36 @@
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import crypto from "crypto";
+
+// ── Impersonation tokens (in-process, TTL 60s) ────────────────────────────────
+const impersonationTokens = new Map<string, { userId: string; expiresAt: number }>();
+
+export async function createImpersonationToken(targetUserId: string): Promise<string> {
+  const session = await auth();
+  if (!session?.user?.email || !isAdmin(session.user.email)) {
+    throw new Error("Unauthorized");
+  }
+  // Clean expired tokens
+  const now = Date.now();
+  for (const [t, v] of impersonationTokens) {
+    if (v.expiresAt < now) impersonationTokens.delete(t);
+  }
+  const token = crypto.randomBytes(32).toString("hex");
+  impersonationTokens.set(token, { userId: targetUserId, expiresAt: now + 60_000 });
+  return token;
+}
+
+export function consumeImpersonationToken(token: string): string | null {
+  const entry = impersonationTokens.get(token);
+  if (!entry) return null;
+  if (entry.expiresAt < Date.now()) {
+    impersonationTokens.delete(token);
+    return null;
+  }
+  impersonationTokens.delete(token);
+  return entry.userId;
+}
 
 function isAdmin(email: string) {
   const admins = (process.env.ADMIN_EMAIL ?? "").split(",").map(e => e.trim().toLowerCase());
