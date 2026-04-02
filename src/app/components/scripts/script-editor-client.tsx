@@ -942,7 +942,7 @@ export function ScriptEditorClient({
           </button>
         </div>
         {/* Row 2: metadata chips */}
-        <div className="flex items-center gap-1.5 px-3 md:px-4 pb-2 overflow-x-auto">
+        <div className="flex items-center gap-1.5 px-3 md:px-4 pb-2 flex-wrap">
           {/* Platform picker */}
           {customPlatformMode ? (
             <div className="flex items-center gap-1.5 rounded-full border border-border bg-muted px-2.5 py-1 shrink-0">
