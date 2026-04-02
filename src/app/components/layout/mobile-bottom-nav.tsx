@@ -168,7 +168,7 @@ export function MobileBottomNav() {
                 } as React.CSSProperties}
                 onTouchMove={(e) => e.stopPropagation()}
               >
-                <div className="grid grid-cols-4 gap-y-1 px-3 pb-2">
+                <div className="grid grid-cols-4 gap-y-1 px-3 pb-[88px]">
                   {allItems.map((item) => {
                     const active = isActive(item.href);
                     return (
