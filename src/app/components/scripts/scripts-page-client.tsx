@@ -243,38 +243,47 @@ export function ScriptsPageClient({
         </Button>
       </div>
 
-      {/* Client filter pills */}
-      {clientsWithScripts.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+      {/* Filters row */}
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Client selector */}
+        <div className="w-52">
+          <SearchableSelect
+            options={[
+              { value: "", label: `כל הלקוחות (${scripts.length})` },
+              ...clientsWithScripts.map(c => {
+                const count = scripts.filter(s => s.client?.id === c.id || s.clientId === c.id).length;
+                return { value: c.id, label: `${c.name} (${count})` };
+              }),
+            ]}
+            value={filterClientId ?? ""}
+            onChange={(v) => setFilterClientId(v || null)}
+            placeholder="סינון לפי לקוח"
+            searchPlaceholder="חיפוש לקוח..."
+            triggerClassName="h-9 text-sm"
+          />
+        </div>
+
+        {/* Search */}
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <input
+            placeholder="חיפוש תסריטים..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-[10px] border border-border/60 bg-background pr-4 pl-10 py-2 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          />
+        </div>
+
+        {/* Clear filter badge */}
+        {filterClientId && (
           <button
             onClick={() => setFilterClientId(null)}
-            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${!filterClientId ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+            className="flex items-center gap-1 rounded-full bg-foreground/8 px-3 py-1.5 text-xs font-medium text-foreground/60 hover:bg-foreground/12 transition-colors"
           >
-            הכל ({scripts.length})
+            {clientsWithScripts.find(c => c.id === filterClientId)?.name}
+            <span className="text-foreground/40">✕</span>
           </button>
-          {clientsWithScripts.map(c => {
-            const count = scripts.filter(s => s.client?.id === c.id || s.clientId === c.id).length;
-            return (
-              <button
-                key={c.id}
-                onClick={() => setFilterClientId(filterClientId === c.id ? null : c.id)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterClientId === c.id ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
-              >
-                {c.name} ({count})
-              </button>
-            );
-          })}
-        </div>
-      )}
-
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
-        <input
-          placeholder="חיפוש תסריטים..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-xs rounded-[10px] border border-border/60 bg-background pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
-        />
+        )}
       </div>
 
       {scripts.length === 0 ? (
