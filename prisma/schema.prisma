@@ -17,6 +17,7 @@ model User {
   email               String    @unique
   password            String
   name                String?
+  image               String?   // profile picture URL or base64 data URL
   role                String?   // videographer, photographer, smm, editor, producer, agency
   primaryGoal         String?   // shoots_gear, retainer, financials, scripts
   teamSize            String?   // solo, small, studio

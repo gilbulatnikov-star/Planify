@@ -44,6 +44,8 @@ interface ProjectDialogProps {
   onOpenChange: (open: boolean) => void;
   onQuotaExceeded?: () => void;
   defaultClientId?: string;
+  /** Called with the new project's ID after successful creation */
+  onSuccess?: (projectId: string) => void;
 }
 
 function formatDateForInput(date: Date | null | undefined): string {
@@ -59,6 +61,7 @@ export function ProjectDialog({
   onOpenChange,
   onQuotaExceeded,
   defaultClientId,
+  onSuccess,
 }: ProjectDialogProps) {
   const he = useT();
   const STATUS_OPTIONS = [
@@ -124,6 +127,9 @@ export function ProjectDialog({
 
       if (result.success) {
         onOpenChange(false);
+        if (!isEditing && "projectId" in result && typeof result.projectId === "string") {
+          onSuccess?.(result.projectId);
+        }
       }
     });
   }

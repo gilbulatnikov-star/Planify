@@ -3,13 +3,14 @@
 import { useState, useTransition } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe, MessageSquarePlus, Star, Send, Pencil, X } from "lucide-react";
-import { updateLocale, updateName } from "@/lib/actions/user-actions";
+import { User, Mail, Shield, Eye, EyeOff, Check, Loader2, Globe, MessageSquarePlus, Star, Send, Pencil, X, Camera, Trash2 } from "lucide-react";
+import { updateLocale, updateName, updateAvatar } from "@/lib/actions/user-actions";
 import { submitFeedback } from "@/lib/actions/feedback-actions";
 import { useLocale, useT } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useRef } from "react";
 
 export default function ProfileSettingsPage() {
   const { data: session, update: updateSession } = useSession();
@@ -23,6 +24,57 @@ export default function ProfileSettingsPage() {
   const [nameValue, setNameValue] = useState(user?.name ?? "");
   const [nameSaving, setNameSaving] = useState(false);
   const [nameError, setNameError] = useState("");
+
+  // ── Avatar state ──
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const [avatarError, setAvatarError] = useState("");
+
+  async function handleAvatarFile(file: File) {
+    if (!file.type.startsWith("image/")) { setAvatarError("יש לבחור קובץ תמונה"); return; }
+    setAvatarError("");
+    setAvatarSaving(true);
+    try {
+      // Resize to 200×200 via canvas
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const img = new window.Image();
+        const reader = new FileReader();
+        reader.onload = (ev) => { img.src = ev.target?.result as string; };
+        img.onload = () => {
+          const SIZE = 200;
+          const canvas = document.createElement("canvas");
+          canvas.width = SIZE; canvas.height = SIZE;
+          const ctx = canvas.getContext("2d")!;
+          // Crop to square from center
+          const s = Math.min(img.width, img.height);
+          const sx = (img.width - s) / 2;
+          const sy = (img.height - s) / 2;
+          ctx.drawImage(img, sx, sy, s, s, 0, 0, SIZE, SIZE);
+          resolve(canvas.toDataURL("image/jpeg", 0.85));
+        };
+        img.onerror = reject;
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await updateAvatar(dataUrl);
+      if (res.success) {
+        await updateSession({ image: dataUrl });
+      } else {
+        setAvatarError(res.error ?? "שגיאה בשמירה");
+      }
+    } catch {
+      setAvatarError("שגיאה בעיבוד התמונה");
+    } finally {
+      setAvatarSaving(false);
+    }
+  }
+
+  async function handleRemoveAvatar() {
+    setAvatarSaving(true);
+    const res = await updateAvatar("");
+    if (res.success) await updateSession({ image: null });
+    setAvatarSaving(false);
+  }
 
   async function handleSaveName() {
     setNameError("");
@@ -104,14 +156,56 @@ export default function ProfileSettingsPage() {
       <div className="rounded-2xl border border-border bg-card shadow-sm px-6 py-6 space-y-5">
         {/* Avatar */}
         <div className="flex items-center gap-4">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-foreground text-background text-xl font-bold">
-            {user?.name
-              ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
-              : user?.email?.[0]?.toUpperCase() ?? "U"}
+          {/* Clickable avatar with overlay */}
+          <div className="relative group shrink-0">
+            <div
+              className="h-16 w-16 rounded-full overflow-hidden cursor-pointer ring-2 ring-transparent group-hover:ring-foreground/20 transition-all"
+              onClick={() => !avatarSaving && fileInputRef.current?.click()}
+            >
+              {user?.image ? (
+                <img src={user.image} alt={user.name ?? ""} className="h-full w-full object-cover" />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-foreground text-background text-xl font-bold select-none">
+                  {user?.name
+                    ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
+                    : user?.email?.[0]?.toUpperCase() ?? "U"}
+                </div>
+              )}
+              {/* Hover overlay */}
+              <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity">
+                {avatarSaving
+                  ? <Loader2 className="h-5 w-5 text-white animate-spin" />
+                  : <Camera className="h-5 w-5 text-white" />}
+              </div>
+            </div>
+            {/* Remove button (shown only when there's a custom image) */}
+            {user?.image && !avatarSaving && (
+              <button
+                onClick={handleRemoveAvatar}
+                title="הסר תמונה"
+                className="absolute -bottom-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition-colors"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAvatarFile(f); e.target.value = ""; }}
+          />
           <div>
             <p className="text-base font-semibold text-foreground">{user?.name ?? "—"}</p>
             <p className="text-sm text-muted-foreground">{user?.email}</p>
+            <button
+              onClick={() => !avatarSaving && fileInputRef.current?.click()}
+              className="mt-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
+            >
+              {user?.image ? "החלף תמונה" : "הוסף תמונת פרופיל"}
+            </button>
+            {avatarError && <p className="text-xs text-red-500 mt-1">{avatarError}</p>}
           </div>
         </div>
 

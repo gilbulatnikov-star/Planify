@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   Plus, Pencil, Trash2, CalendarPlus, Search,
@@ -73,6 +74,7 @@ export function ProjectsPageClient({
 }) {
   const he = useT();
   const locale = useLocale();
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<ProjectData | null>(null);
@@ -357,6 +359,7 @@ export function ProjectsPageClient({
         onOpenChange={setDialogOpen}
         onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
         defaultClientId={!editingProject && filterClientId ? filterClientId : undefined}
+        onSuccess={(projectId) => router.push(`/projects/${projectId}`)}
       />
       {deleteTarget && (
         <DeleteProjectDialog
