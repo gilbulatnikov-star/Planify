@@ -710,46 +710,138 @@ export function ScriptEditorClient({
 
   async function exportShotListPDF() {
     try {
-      const { default: jsPDF } = await import("jspdf");
-      const cols = COLUMNS.filter(c => visibleCols.has(c.id));
-      const shots = shotOrdering === "desc" ? [...shotList].reverse() : shotList;
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import("jspdf"),
+        import("html2canvas"),
+      ]);
 
-      // Use print-based approach: open a new window with styled HTML table
-      const thStyle = "padding:8px 10px;text-align:right;font-size:11px;font-weight:600;color:#6b7280;border-bottom:2px solid #e5e7eb;white-space:nowrap;background:#f8fafc;";
-      const tdStyleBase = "padding:7px 10px;font-size:11px;border-bottom:1px solid #e5e7eb;color:#111827;text-align:right;";
+      const today = new Date().toLocaleDateString("he-IL");
+      // Exclude frameUrl from PDF (images would require network + inflate PDF size)
+      const cols = COLUMNS.filter(c => visibleCols.has(c.id) && c.id !== "frameUrl");
+      const shots = orderedShots;
 
-      let headerHtml = `<th style="${thStyle}">#</th>`;
-      cols.forEach(col => { headerHtml += `<th style="${thStyle}">${col.label}</th>`; });
+      // ── Build styled HTML ──────────────────────────────────────────────────
+      const thStyle = [
+        "padding:9px 14px", "text-align:right", "font-size:10px", "font-weight:700",
+        "color:#6b7280", "border-bottom:2px solid #e5e7eb", "white-space:nowrap",
+        "background:#f8fafc", "letter-spacing:0.04em",
+      ].join(";");
 
-      let bodyHtml = "";
-      shots.forEach((shot, idx) => {
-        const bg = idx % 2 === 0 ? "#ffffff" : "#f9fafb";
-        let row = `<td style="${tdStyleBase}background:${bg};font-weight:700;color:#6366f1;">${customShotNo ? shot.customShotNum : shot.shotNum}</td>`;
-        cols.forEach(col => {
-          const val = String((shot as Record<string, unknown>)[col.id] ?? "") || "\u2014";
-          row += `<td style="${tdStyleBase}background:${bg};">${val}</td>`;
-        });
-        bodyHtml += `<tr>${row}</tr>`;
-      });
+      const tdBase = [
+        "padding:8px 14px", "font-size:11px", "border-bottom:1px solid #f3f4f6",
+        "color:#111827", "vertical-align:top", "line-height:1.4",
+      ].join(";");
 
-      const html = `<!DOCTYPE html><html dir="rtl"><head><meta charset="utf-8"><title>Shot List</title>
-        <style>@page{size:landscape;margin:20mm;}body{font-family:system-ui,-apple-system,sans-serif;direction:rtl;padding:0;margin:0;color:#111827;}table{width:100%;border-collapse:collapse;}</style>
-        </head><body>
-        <div style="padding:32px 40px;">
-          <div style="border-bottom:3px solid #6366f1;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;">
-            <div style="font-size:22px;font-weight:800;">${title || "Shot List"}</div>
-            <div style="font-size:12px;color:#6b7280;">${shots.length} shots</div>
+      const headerRow = `<tr>
+        <th style="${thStyle}">#</th>
+        ${cols.map(c => `<th style="${thStyle}">${c.label}</th>`).join("")}
+      </tr>`;
+
+      const bodyRows = shots.map((shot, i) => {
+        const bg = i % 2 === 0 ? "#ffffff" : "#f9fafb";
+        return `<tr>
+          <td style="${tdBase};background:${bg};font-weight:800;color:#6366f1;width:36px;text-align:center;">
+            ${customShotNo ? shot.customShotNum : shot.shotNum}
+          </td>
+          ${cols.map(c => {
+            const val = String((shot as Record<string, unknown>)[c.id] ?? "") || "—";
+            return `<td style="${tdBase};background:${bg};">${val}</td>`;
+          }).join("")}
+        </tr>`;
+      }).join("");
+
+      const metaLine = [
+        script.project?.title,
+        script.client?.name,
+        today,
+        `${shots.length} שוטים`,
+      ].filter(Boolean).join("  ·  ");
+
+      const container = document.createElement("div");
+      container.style.cssText = [
+        "position:absolute", "top:-999999px", "left:0", "width:1200px",
+        "direction:rtl", "background:#ffffff",
+        "font-family:-apple-system,system-ui,'Segoe UI',Helvetica,Arial,sans-serif",
+      ].join(";");
+
+      container.innerHTML = `
+        <div style="background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;padding:20px 28px 18px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;margin-bottom:4px;">
+              ${title || "רשימת שוטים"}
+            </div>
+            <div style="font-size:11px;opacity:0.75;">${metaLine}</div>
           </div>
-          <table><thead><tr>${headerHtml}</tr></thead><tbody>${bodyHtml}</tbody></table>
-          <div style="margin-top:20px;text-align:center;font-size:10px;color:#9ca3af;">Qlipy</div>
-        </div></body></html>`;
+          <div style="background:rgba(255,255,255,0.18);border-radius:10px;padding:6px 16px;font-size:13px;font-weight:700;">
+            ${shots.length} shots
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          <thead>${headerRow}</thead>
+          <tbody>${bodyRows}</tbody>
+        </table>
+        <div style="padding:10px 28px;font-size:9px;color:#d1d5db;text-align:center;background:#f9fafb;border-top:1px solid #f3f4f6;">
+          Qlipy CRM  ·  ${today}
+        </div>
+      `;
+      document.body.appendChild(container);
 
-      const printWin = window.open("", "_blank");
-      if (printWin) {
-        printWin.document.write(html);
-        printWin.document.close();
-        setTimeout(() => { printWin.print(); }, 300);
+      // ── Render to canvas ───────────────────────────────────────────────────
+      const canvas = await html2canvas(container, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        backgroundColor: "#ffffff",
+      });
+      document.body.removeChild(container);
+
+      // ── Paginate into A4 landscape ─────────────────────────────────────────
+      const pageWmm = 297;
+      const pageHmm = 210;
+      const margin = 0; // full bleed
+      const contentWmm = pageWmm - margin * 2;
+      const contentHmm = pageHmm - margin * 2;
+
+      const imgHeightMM = (canvas.height / canvas.width) * contentWmm;
+
+      const doc = new jsPDF({ orientation: "landscape", format: "a4", unit: "mm" });
+
+      let renderedMM = 0;
+      let page = 0;
+
+      while (renderedMM < imgHeightMM) {
+        if (page > 0) doc.addPage("a4", "landscape");
+
+        const sliceMM = Math.min(contentHmm, imgHeightMM - renderedMM);
+        const srcY = Math.round((renderedMM / imgHeightMM) * canvas.height);
+        const srcH = Math.round((sliceMM / imgHeightMM) * canvas.height);
+
+        // Create a sub-canvas for this slice
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = srcH;
+        const ctx = sliceCanvas.getContext("2d")!;
+        ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+
+        const sliceImg = sliceCanvas.toDataURL("image/jpeg", 0.95);
+        doc.addImage(sliceImg, "JPEG", margin, margin, contentWmm, sliceMM);
+
+        // Page number footer (right-aligned)
+        const totalPages = Math.ceil(imgHeightMM / contentHmm);
+        doc.setFontSize(7.5);
+        doc.setTextColor(180, 180, 180);
+        doc.text(`${page + 1} / ${totalPages}`, pageWmm - 6, pageHmm - 3, { align: "right" });
+
+        renderedMM += sliceMM;
+        page++;
       }
+
+      const safeName = (title || "shot-list")
+        .replace(/[<>:"/\\|?*]/g, "")
+        .trim() || "shot-list";
+      doc.save(`${safeName}.pdf`);
+
     } catch (err) {
       console.error("PDF export error:", err);
       alert("שגיאה בייצוא. נסה שוב.");
