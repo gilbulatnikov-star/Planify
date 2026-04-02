@@ -94,9 +94,9 @@ export function AppSidebar() {
           {/* Logo — expanded: clean QLIPY wordmark */}
           <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden select-none">
             <img
-              src="/qlipy-wordmark.svg"
+              src="/qlipy-text-logo.svg"
               alt="Qlipy"
-              className="h-6 w-auto max-w-[100px] object-contain object-left"
+              className="h-6 w-auto max-w-[110px] object-contain object-left"
             />
           </Link>
           {/* Logo — collapsed: small icon only */}
