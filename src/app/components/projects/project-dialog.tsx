@@ -89,8 +89,9 @@ function QuickAddStep({
   const [done, setDone] = useState<QuickTool>(null); // last succeeded tool
 
   // Script fields
-  const [scriptTitle, setScriptTitle]     = useState("");
+  const [scriptTitle, setScriptTitle]       = useState("");
   const [scriptPlatform, setScriptPlatform] = useState("youtube");
+  const [scriptContent, setScriptContent]   = useState("");
 
   // Event fields
   const [eventTitle, setEventTitle] = useState("");
@@ -102,7 +103,7 @@ function QuickAddStep({
 
   function reset(tool: QuickTool) {
     setError(null);
-    setScriptTitle(""); setScriptPlatform("youtube");
+    setScriptTitle(""); setScriptPlatform("youtube"); setScriptContent("");
     setEventTitle(""); setEventDate(""); setEventStatus("planned");
     setTaskTitle("");
     setActiveTool(tool);
@@ -113,9 +114,9 @@ function QuickAddStep({
     if (!scriptTitle.trim()) { setError("יש להזין כותרת"); return; }
     setError(null);
     startTransition(async () => {
-      const r = await createScript({ title: scriptTitle.trim(), platform: scriptPlatform, projectId, clientId: clientId || undefined });
+      const r = await createScript({ title: scriptTitle.trim(), platform: scriptPlatform, content: scriptContent.trim() || undefined, projectId, clientId: clientId || undefined });
       if (!r || !("id" in r)) { setError("שגיאה ביצירת התסריט"); return; }
-      setDone("script"); setActiveTool(null); setScriptTitle(""); setScriptPlatform("youtube");
+      setDone("script"); setActiveTool(null); setScriptTitle(""); setScriptPlatform("youtube"); setScriptContent("");
     });
   }
 
@@ -205,6 +206,15 @@ function QuickAddStep({
               </SelectTrigger>
               <SelectContent>{PLATFORMS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}</SelectContent>
             </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">תוכן התסריט <span className="text-muted-foreground/50 font-normal">(אופציונלי)</span></Label>
+            <Textarea
+              value={scriptContent}
+              onChange={(e) => setScriptContent(e.target.value)}
+              placeholder="כתוב את התסריט כאן..."
+              className="min-h-[100px] text-sm resize-y"
+            />
           </div>
           {error && <p className="text-xs text-red-500">{error}</p>}
           <Button type="submit" size="sm" disabled={isPending} className="w-full">
@@ -358,11 +368,9 @@ export function ProjectDialog({
 
       if (result.success) {
         if (!isEditing && "projectId" in result && typeof result.projectId === "string") {
-          // Show step 2: quick add panel
+          // Show step 2: quick add panel (navigation handled by "עבור לפרויקט" button)
           const title = (formData.get("title") as string) ?? "";
           setCreatedProject({ id: result.projectId, title, clientId: resolvedClientId });
-          // Also notify parent (for any extra side-effects)
-          onSuccess?.(result.projectId);
         } else {
           onOpenChange(false);
         }
