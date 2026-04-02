@@ -113,26 +113,27 @@ export function MobileBottomNav() {
       <AnimatePresence>
         {addOpen && (
           <motion.div
-            className="fixed inset-x-0 bottom-0 z-50 lg:hidden"
+            className="fixed inset-x-0 bottom-0 z-50 lg:hidden flex flex-col"
+            style={{ maxHeight: "85dvh" }}
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 34, stiffness: 360 }}
           >
             <div
-              className="rounded-t-[28px] bg-[#161618] border-t border-white/[0.06] shadow-[0_-20px_80px_rgba(0,0,0,0.7)]"
+              className="flex flex-col rounded-t-[28px] bg-[#161618] border-t border-white/[0.06] shadow-[0_-20px_80px_rgba(0,0,0,0.7)] overflow-hidden"
               style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
             >
               {/* Handle */}
-              <div className="flex justify-center pt-3.5 pb-4">
+              <div className="flex justify-center pt-3.5 pb-4 shrink-0">
                 <div className="h-[5px] w-12 rounded-full bg-white/[0.15]" />
               </div>
               {/* Scrollable grid wrapper */}
               <div
-                className="overflow-y-auto overscroll-contain"
-                style={{ maxHeight: "58vh", WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+                className="overflow-y-auto overscroll-contain min-h-0"
+                style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}
               >
-                <div className="grid grid-cols-4 gap-y-1 px-3">
+                <div className="grid grid-cols-4 gap-y-1 px-3 pb-2">
                   {allItems.map((item) => {
                     const active = isActive(item.href);
                     return (
