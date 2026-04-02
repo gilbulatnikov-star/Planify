@@ -50,10 +50,12 @@ export function UserMenu() {
       <button
         ref={btnRef}
         onClick={() => setOpen((v) => !v)}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-80 transition-colors"
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-80 transition-colors overflow-hidden"
         title={session.user.name ?? session.user.email ?? ""}
       >
-        {initials}
+        {session.user.image ? (
+          <img src={session.user.image} alt={session.user.name ?? ""} className="h-8 w-8 rounded-full object-cover" />
+        ) : initials}
       </button>
 
       {open && typeof document !== "undefined" && createPortal(
@@ -67,8 +69,10 @@ export function UserMenu() {
             {/* User info */}
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold shrink-0">
-                  {initials}
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold shrink-0 overflow-hidden">
+                  {session.user.image ? (
+                    <img src={session.user.image} alt={session.user.name ?? ""} className="h-9 w-9 rounded-full object-cover" />
+                  ) : initials}
                 </div>
                 <div className="min-w-0">
                   {session.user.name && (
