@@ -117,6 +117,23 @@ export async function updateTodoProject(id: string, projectId: string | null) {
   return { success: true };
 }
 
+export async function updateTodoText(id: string, text: string) {
+  try {
+    if (!text.trim()) return { success: false, error: "Text is required" };
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "לא מחובר" };
+    const existing = await prisma.todo.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+    await prisma.todo.update({ where: { id }, data: { text: text.trim() } });
+    revalidatePath("/");
+    revalidatePath("/tasks");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : "Failed to update todo" };
+  }
+}
+
 export async function toggleTodo(id: string) {
   try {
     const session = await auth();
