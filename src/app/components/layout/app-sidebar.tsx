@@ -47,8 +47,13 @@ export function AppSidebar() {
   const btnIdle   = `${btnBase} text-sidebar-foreground hover:text-white/85 hover:bg-white/[0.05]`;
   const pathname = usePathname();
   const { data: session } = useSession();
-  const { state } = useSidebar();
+  const { state, setOpenMobile, isMobile } = useSidebar();
   const isCollapsed = state === "collapsed";
+
+  // Close sidebar on mobile after navigating to any page
+  const handleNavClick = () => {
+    if (isMobile) setOpenMobile(false);
+  };
 
   // Grouped navigation
   const mainItems = [
@@ -106,7 +111,7 @@ export function AppSidebar() {
       </SidebarHeader>
 
       {/* ── Main nav ── */}
-      <SidebarContent className="pt-2">
+      <SidebarContent className="pt-2" onClick={handleNavClick}>
         {/* ── ראשי ── */}
         <SidebarGroup className="pb-1">
           <SidebarGroupContent>
@@ -208,7 +213,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       {/* ── Footer: profile + billing + sign out ── */}
-      <SidebarFooter className="border-t border-sidebar-border/60 p-3 space-y-0.5">
+      <SidebarFooter className="border-t border-sidebar-border/60 p-3 space-y-0.5" onClick={handleNavClick}>
         {/* User profile card */}
         <Link
           href="/settings/profile"
