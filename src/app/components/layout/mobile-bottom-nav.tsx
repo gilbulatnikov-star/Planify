@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   LayoutDashboard,
@@ -29,6 +29,34 @@ export function MobileBottomNav() {
   const t = useT();
   const [addOpen, setAddOpen] = useState(false);
   const prefersReduced = useReducedMotion();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Lock background scroll when panel is open (works on iOS + Android)
+  useEffect(() => {
+    if (addOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflowY = "scroll"; // prevent layout shift
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflowY = "";
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY) * -1);
+      }
+    }
+    return () => {
+      // cleanup on unmount
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflowY = "";
+    };
+  }, [addOpen]);
 
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
@@ -120,6 +148,7 @@ export function MobileBottomNav() {
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={prefersReduced ? { duration: 0 } : { type: "spring", damping: 34, stiffness: 360 }}
+            onTouchMove={(e) => e.stopPropagation()}
           >
             <div
               className="flex flex-col rounded-t-[28px] bg-[#161618] border-t border-white/[0.06] shadow-[0_-20px_80px_rgba(0,0,0,0.7)] overflow-hidden"
@@ -131,8 +160,13 @@ export function MobileBottomNav() {
               </div>
               {/* Scrollable grid wrapper */}
               <div
-                className="overflow-y-auto overscroll-contain min-h-0"
-                style={{ WebkitOverflowScrolling: "touch" } as React.CSSProperties}
+                ref={scrollRef}
+                className="overflow-y-auto min-h-0"
+                style={{
+                  WebkitOverflowScrolling: "touch",
+                  overscrollBehavior: "contain",
+                } as React.CSSProperties}
+                onTouchMove={(e) => e.stopPropagation()}
               >
                 <div className="grid grid-cols-4 gap-y-1 px-3 pb-2">
                   {allItems.map((item) => {
