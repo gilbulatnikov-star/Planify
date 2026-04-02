@@ -37,8 +37,8 @@ export default function SignInPage() {
       turnstileRef.current?.reset();
       setTurnstileToken(null);
     } else {
-      router.push("/");
-      router.refresh();
+      // Hard redirect ensures the middleware reads the fresh auth cookie correctly
+      window.location.href = "/";
     }
   }
 
