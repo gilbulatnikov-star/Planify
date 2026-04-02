@@ -8,6 +8,7 @@ import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
   CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X, Users, Share2,
   Paperclip, Upload, Image, Video, FileIcon, Trash2, ExternalLink, Loader2,
+  Calendar,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +21,14 @@ import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { useT, useLocale } from "@/lib/i18n";
 import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject, updateProjectClient } from "@/lib/actions/project-actions";
 import { addProjectFile, deleteProjectFile, getProjectFiles } from "@/lib/actions/share-actions";
+import { createScript, updateScript } from "@/lib/actions/script-actions";
+import { createScheduledContent } from "@/lib/actions/calendar-actions";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from "@/components/ui/dialog";
+import { DatePicker } from "@/components/ui/date-picker";
 
 type ProjectDetail = {
   id: string;
@@ -135,6 +143,189 @@ function ClientPicker({
   );
 }
 
+const PLATFORMS = [
+  { value: "youtube",   label: "YouTube"   },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok",    label: "TikTok"    },
+  { value: "facebook",  label: "Facebook"  },
+  { value: "linkedin",  label: "LinkedIn"  },
+  { value: "podcast",   label: "Podcast"   },
+  { value: "other",     label: "אחר"       },
+];
+
+function NewScriptDialog({
+  open,
+  onOpenChange,
+  projectId,
+  clientId,
+  isPending,
+  startTransition,
+  onDone,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  projectId: string;
+  clientId: string | null;
+  isPending: boolean;
+  startTransition: React.TransitionStartFunction;
+  onDone: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [platform, setPlatform] = useState("youtube");
+  const [content, setContent] = useState("");
+  const [addToCalendar, setAddToCalendar] = useState(false);
+  const [calDate, setCalDate] = useState("");
+  const [calStatus, setCalStatus] = useState("planned");
+  const [error, setError] = useState<string | null>(null);
+
+  function reset() {
+    setTitle(""); setPlatform("youtube"); setContent("");
+    setAddToCalendar(false); setCalDate(""); setCalStatus("planned");
+    setError(null);
+  }
+
+  function handleOpenChange(v: boolean) {
+    if (!v) reset();
+    onOpenChange(v);
+  }
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!title.trim()) { setError("יש להזין כותרת"); return; }
+    if (addToCalendar && !calDate) { setError("יש לבחור תאריך ללוח תוכן"); return; }
+    setError(null);
+
+    startTransition(async () => {
+      // 1. Create the script
+      const result = await createScript({ title: title.trim(), platform, projectId, clientId: clientId ?? undefined });
+      if (!result || !("id" in result)) {
+        setError(result && "quotaExceeded" in result ? "הגעת למגבלת התסריטים בחשבונך" : "שגיאה ביצירת התסריט");
+        return;
+      }
+
+      // 2. Save content if provided
+      if (content.trim()) {
+        await updateScript(result.id, { content: content.trim() });
+      }
+
+      // 3. Optionally add to content calendar
+      if (addToCalendar && calDate) {
+        const fd = new FormData();
+        fd.set("title", title.trim());
+        fd.set("date", calDate);
+        fd.set("status", calStatus);
+        fd.set("projectId", projectId);
+        if (clientId) fd.set("clientId", clientId);
+        fd.set("color", "blue");
+        await createScheduledContent(fd);
+      }
+
+      reset();
+      onOpenChange(false);
+      onDone();
+    });
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>תסריט חדש לפרויקט</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4 py-2">
+          {/* Title */}
+          <div className="space-y-1.5">
+            <Label htmlFor="ns-title">כותרת</Label>
+            <Input
+              id="ns-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="שם התסריט..."
+              required
+            />
+          </div>
+
+          {/* Platform */}
+          <div className="space-y-1.5">
+            <Label>פלטפורמה</Label>
+            <Select value={platform} onValueChange={(v) => { if (v) setPlatform(v); }}>
+              <SelectTrigger className="w-full">
+                <span className="flex flex-1">{PLATFORMS.find(p => p.value === platform)?.label}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {PLATFORMS.map(p => (
+                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Content */}
+          <div className="space-y-1.5">
+            <Label htmlFor="ns-content">תוכן התסריט (אופציונלי)</Label>
+            <Textarea
+              id="ns-content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="כתוב את התסריט כאן..."
+              className="min-h-[140px] resize-y text-sm"
+            />
+          </div>
+
+          {/* Add to calendar toggle */}
+          <div className="rounded-xl border border-border/50 bg-muted/30 p-3 space-y-3">
+            <button
+              type="button"
+              onClick={() => setAddToCalendar(v => !v)}
+              className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors w-full"
+            >
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              הוסף ללוח תוכן
+              <div className={`mr-auto h-5 w-9 rounded-full transition-colors ${addToCalendar ? "bg-blue-600" : "bg-muted-foreground/30"} relative`}>
+                <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${addToCalendar ? "-translate-x-0.5 right-0.5" : "right-4"}`} />
+              </div>
+            </button>
+
+            {addToCalendar && (
+              <div className="space-y-3 pt-1 border-t border-border/40">
+                <div className="space-y-1.5">
+                  <Label>תאריך פרסום</Label>
+                  <DatePicker value={calDate} onChange={setCalDate} placeholder="בחר תאריך" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label>סטטוס</Label>
+                  <Select value={calStatus} onValueChange={(v) => { if (v) setCalStatus(v); }}>
+                    <SelectTrigger className="w-full">
+                      <span className="flex flex-1">
+                        {{ planned: "מתוכנן", editing: "בעריכה", ready: "מוכן", published: "פורסם" }[calStatus] ?? "מתוכנן"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="planned">מתוכנן</SelectItem>
+                      <SelectItem value="editing">בעריכה</SelectItem>
+                      <SelectItem value="ready">מוכן</SelectItem>
+                      <SelectItem value="published">פורסם</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg px-3 py-2">{error}</p>}
+
+          <DialogFooter className="gap-2">
+            <DialogClose render={<Button type="button" variant="outline" />}>ביטול</DialogClose>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "שומר..." : "צור תסריט"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export function ProjectDetailClient({
   project,
   clients,
@@ -149,7 +340,83 @@ export function ProjectDetailClient({
   const router = useRouter();
   const [editOpen, setEditOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [newScriptOpen, setNewScriptOpen] = useState(false);
+  const [newScriptPending, startNewScript] = useTransition();
   const [, startTransition] = useTransition();
+  const [quickTool, setQuickTool] = useState<"script" | "event" | "task" | null>(null);
+  // Quick-add form state
+  const [qaScriptTitle, setQaScriptTitle] = useState("");
+  const [qaScriptPlatform, setQaScriptPlatform] = useState("youtube");
+  const [qaScriptContent, setQaScriptContent] = useState("");
+  const [qaScriptAddCal, setQaScriptAddCal] = useState(false);
+  const [qaScriptDate, setQaScriptDate] = useState("");
+  const [qaScriptStatus, setQaScriptStatus] = useState("planned");
+  const [qaEventTitle, setQaEventTitle] = useState("");
+  const [qaEventDate, setQaEventDate] = useState("");
+  const [qaEventStatus, setQaEventStatus] = useState("planned");
+  const [qaTaskTitle, setQaTaskTitle] = useState("");
+  const [qaError, setQaError] = useState<string | null>(null);
+  const [qaSubmitting, startQa] = useTransition();
+
+  function resetQuickAdd() {
+    setQaScriptTitle(""); setQaScriptPlatform("youtube"); setQaScriptContent("");
+    setQaScriptAddCal(false); setQaScriptDate(""); setQaScriptStatus("planned");
+    setQaEventTitle(""); setQaEventDate(""); setQaEventStatus("planned");
+    setQaTaskTitle(""); setQaError(null);
+  }
+
+  function toggleQuickTool(tool: "script" | "event" | "task") {
+    if (quickTool === tool) { setQuickTool(null); resetQuickAdd(); }
+    else { setQuickTool(tool); resetQuickAdd(); }
+  }
+
+  function handleQaScript(e: React.FormEvent) {
+    e.preventDefault();
+    if (!qaScriptTitle.trim()) { setQaError("יש להזין כותרת"); return; }
+    if (qaScriptAddCal && !qaScriptDate) { setQaError("יש לבחור תאריך"); return; }
+    setQaError(null);
+    startQa(async () => {
+      const result = await createScript({ title: qaScriptTitle.trim(), platform: qaScriptPlatform, projectId: project.id, clientId: project.clientId ?? undefined });
+      if (!result || !("id" in result)) { setQaError("שגיאה ביצירת התסריט"); return; }
+      if (qaScriptContent.trim()) await updateScript(result.id, { content: qaScriptContent.trim() });
+      if (qaScriptAddCal && qaScriptDate) {
+        const fd = new FormData();
+        fd.set("title", qaScriptTitle.trim()); fd.set("date", qaScriptDate);
+        fd.set("status", qaScriptStatus); fd.set("projectId", project.id);
+        if (project.clientId) fd.set("clientId", project.clientId);
+        fd.set("color", "blue");
+        await createScheduledContent(fd);
+      }
+      resetQuickAdd(); setQuickTool(null); router.refresh();
+    });
+  }
+
+  function handleQaEvent(e: React.FormEvent) {
+    e.preventDefault();
+    if (!qaEventTitle.trim()) { setQaError("יש להזין כותרת"); return; }
+    if (!qaEventDate) { setQaError("יש לבחור תאריך"); return; }
+    setQaError(null);
+    startQa(async () => {
+      const fd = new FormData();
+      fd.set("title", qaEventTitle.trim()); fd.set("date", qaEventDate);
+      fd.set("status", qaEventStatus); fd.set("projectId", project.id);
+      if (project.clientId) fd.set("clientId", project.clientId);
+      fd.set("color", "gray");
+      const res = await createScheduledContent(fd);
+      if (!res.success) { setQaError("שגיאה ביצירת האירוע"); return; }
+      resetQuickAdd(); setQuickTool(null); router.refresh();
+    });
+  }
+
+  function handleQaTask(e: React.FormEvent) {
+    e.preventDefault();
+    if (!qaTaskTitle.trim()) { setQaError("יש להזין משימה"); return; }
+    setQaError(null);
+    startQa(async () => {
+      await addProjectTask(project.id, qaTaskTitle.trim());
+      resetQuickAdd(); setQuickTool(null); router.refresh();
+    });
+  }
 
   function handleLink(type: "script" | "moodboard" | "contact" | "content", itemId: string) {
     startTransition(async () => { await linkItemToProject(type, itemId, project.id); router.refresh(); });
@@ -292,6 +559,156 @@ export function ProjectDetailClient({
         ))}
       </motion.div>
 
+      {/* ── Quick Add ── */}
+      <motion.div variants={fadeUp} className="space-y-3">
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => toggleQuickTool("script")}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${quickTool === "script" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            <FileText className="h-3.5 w-3.5" />
+            תסריט
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleQuickTool("event")}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${quickTool === "event" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            <CalendarDays className="h-3.5 w-3.5" />
+            אירוע בלוח
+          </button>
+          <button
+            type="button"
+            onClick={() => toggleQuickTool("task")}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${quickTool === "task" ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            <ListTodo className="h-3.5 w-3.5" />
+            משימה
+          </button>
+        </div>
+
+        {quickTool && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="rounded-xl border border-dashed border-border/60 bg-muted/20 p-4 space-y-3"
+          >
+            {/* Script form */}
+            {quickTool === "script" && (
+              <form onSubmit={handleQaScript} className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">כותרת</Label>
+                    <Input value={qaScriptTitle} onChange={e => setQaScriptTitle(e.target.value)} placeholder="שם התסריט..." className="h-8 text-sm" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">פלטפורמה</Label>
+                    <Select value={qaScriptPlatform} onValueChange={v => { if (v) setQaScriptPlatform(v); }}>
+                      <SelectTrigger className="w-full h-8 text-sm">
+                        <span className="flex flex-1 text-sm">{PLATFORMS.find(p => p.value === qaScriptPlatform)?.label}</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PLATFORMS.map(p => <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs">תוכן (אופציונלי)</Label>
+                  <Textarea value={qaScriptContent} onChange={e => setQaScriptContent(e.target.value)} placeholder="כתוב את התסריט כאן..." className="min-h-[80px] resize-y text-sm" />
+                </div>
+                <div className="rounded-xl border border-border/50 bg-muted/30 p-3 space-y-3">
+                  <button type="button" onClick={() => setQaScriptAddCal(v => !v)} className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors w-full">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    הוסף ללוח תוכן
+                    <div className={`mr-auto h-5 w-9 rounded-full transition-colors ${qaScriptAddCal ? "bg-blue-600" : "bg-muted-foreground/30"} relative`}>
+                      <div className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow transition-transform ${qaScriptAddCal ? "-translate-x-0.5 right-0.5" : "right-4"}`} />
+                    </div>
+                  </button>
+                  {qaScriptAddCal && (
+                    <div className="space-y-3 pt-1 border-t border-border/40">
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">תאריך פרסום</Label>
+                        <DatePicker value={qaScriptDate} onChange={setQaScriptDate} placeholder="בחר תאריך" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-xs">סטטוס</Label>
+                        <Select value={qaScriptStatus} onValueChange={v => { if (v) setQaScriptStatus(v); }}>
+                          <SelectTrigger className="w-full">
+                            <span className="flex flex-1">{{ planned: "מתוכנן", editing: "בעריכה", ready: "מוכן", published: "פורסם" }[qaScriptStatus] ?? "מתוכנן"}</span>
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="planned">מתוכנן</SelectItem>
+                            <SelectItem value="editing">בעריכה</SelectItem>
+                            <SelectItem value="ready">מוכן</SelectItem>
+                            <SelectItem value="published">פורסם</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                {qaError && <p className="text-xs text-red-500">{qaError}</p>}
+                <div className="flex justify-end">
+                  <Button type="submit" size="sm" disabled={qaSubmitting}>{qaSubmitting ? "יוצר..." : "צור תסריט"}</Button>
+                </div>
+              </form>
+            )}
+
+            {/* Calendar event form */}
+            {quickTool === "event" && (
+              <form onSubmit={handleQaEvent} className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">כותרת</Label>
+                  <Input value={qaEventTitle} onChange={e => setQaEventTitle(e.target.value)} placeholder="שם האירוע..." className="h-8 text-sm" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">תאריך</Label>
+                    <DatePicker value={qaEventDate} onChange={setQaEventDate} placeholder="בחר תאריך" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">סטטוס</Label>
+                    <Select value={qaEventStatus} onValueChange={v => { if (v) setQaEventStatus(v); }}>
+                      <SelectTrigger className="w-full h-8 text-sm">
+                        <span className="flex flex-1 text-sm">{{ planned: "מתוכנן", editing: "בעריכה", ready: "מוכן", published: "פורסם" }[qaEventStatus] ?? "מתוכנן"}</span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="planned">מתוכנן</SelectItem>
+                        <SelectItem value="editing">בעריכה</SelectItem>
+                        <SelectItem value="ready">מוכן</SelectItem>
+                        <SelectItem value="published">פורסם</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {qaError && <p className="text-xs text-red-500">{qaError}</p>}
+                <div className="flex justify-end">
+                  <Button type="submit" size="sm" disabled={qaSubmitting}>{qaSubmitting ? "יוצר..." : "הוסף ללוח"}</Button>
+                </div>
+              </form>
+            )}
+
+            {/* Task form */}
+            {quickTool === "task" && (
+              <form onSubmit={handleQaTask} className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs">משימה</Label>
+                  <Input value={qaTaskTitle} onChange={e => setQaTaskTitle(e.target.value)} placeholder="תאר את המשימה..." className="h-8 text-sm" />
+                </div>
+                {qaError && <p className="text-xs text-red-500">{qaError}</p>}
+                <div className="flex justify-end">
+                  <Button type="submit" size="sm" disabled={qaSubmitting}>{qaSubmitting ? "מוסיף..." : "הוסף משימה"}</Button>
+                </div>
+              </form>
+            )}
+          </motion.div>
+        )}
+      </motion.div>
+
       {/* ── Tasks ── */}
       <motion.div variants={fadeUp} id="tasks" className="space-y-3">
         <h2 className="text-[10.5px] font-bold tracking-[0.1em] uppercase text-foreground/50 flex items-center gap-2">
@@ -361,6 +778,17 @@ export function ProjectDetailClient({
           <LinkItemDropdown items={unlinked.scripts} onSelect={(id) => handleLink("script", id)} />
         </div>
       </motion.div>
+
+      {/* ── New Script Dialog ── */}
+      <NewScriptDialog
+        open={newScriptOpen}
+        onOpenChange={setNewScriptOpen}
+        projectId={project.id}
+        clientId={project.clientId}
+        isPending={newScriptPending}
+        startTransition={startNewScript}
+        onDone={() => router.refresh()}
+      />
 
       {/* ── Moodboards ── */}
       <motion.div variants={fadeUp} id="moodboards" className="space-y-3">

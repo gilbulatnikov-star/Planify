@@ -20,6 +20,7 @@ function TikTokIcon({ className }: { className?: string }) {
 }
 import { Button } from "@/components/ui/button";
 import { updateScript } from "@/lib/actions/script-actions";
+import { createProject } from "@/lib/actions/project-actions";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { useT } from "@/lib/i18n";
 
@@ -573,6 +574,10 @@ export function ScriptEditorClient({
   const [linkedClientId, setLinkedClientId] = useState(script.client?.id ?? "");
   const [showProjectMenu, setShowProjectMenu] = useState(false);
   const [showClientMenu, setShowClientMenu] = useState(false);
+  const [localProjects, setLocalProjects] = useState(projects);
+  const [newProjectMode, setNewProjectMode] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [creatingProject, setCreatingProject] = useState(false);
   const [duration] = useState(script.duration); // kept for save compatibility, no UI
   const isPredefinedPlatform = PLATFORMS.some((p: { value: string }) => p.value === platform);
   const [customPlatformMode, setCustomPlatformMode] = useState(!isPredefinedPlatform && !!platform);
@@ -1010,7 +1015,17 @@ export function ScriptEditorClient({
                   </button>
                   <div className="mx-2 my-1 border-t border-border" />
                   {clients.map(c => (
-                    <button key={c.id} onClick={() => { setLinkedClientId(c.id); setShowClientMenu(false); }}
+                    <button key={c.id} onClick={() => {
+                      setLinkedClientId(c.id);
+                      setShowClientMenu(false);
+                      // Clear project if it doesn't belong to this client
+                      if (linkedProjectId) {
+                        const cur = projects.find(p => p.id === linkedProjectId);
+                        if (cur && "clientId" in cur && cur.clientId && cur.clientId !== c.id) {
+                          setLinkedProjectId("");
+                        }
+                      }
+                    }}
                       className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedClientId === c.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
                       {c.name}
                     </button>
@@ -1028,21 +1043,69 @@ export function ScriptEditorClient({
                 <span className="truncate">{linkedProjectId ? (projects.find(p => p.id === linkedProjectId)?.title ?? he.scriptEditor.linkedProject) : `📁 ${he.scriptEditor.assignToProject}`}</span>
                 <ChevronDown className="h-2.5 w-2.5 opacity-50 shrink-0" />
               </button>
-              {showProjectMenu && (
-                <div className="absolute right-0 top-full z-50 mt-1 min-w-[180px] rounded-lg border border-border bg-card py-1 shadow-lg">
-                  <button onClick={() => { setLinkedProjectId(""); setShowProjectMenu(false); }}
-                    className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedProjectId ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                    {he.scriptEditor.noProject}
-                  </button>
-                  <div className="mx-2 my-1 border-t border-border" />
-                  {projects.map(p => (
-                    <button key={p.id} onClick={() => { setLinkedProjectId(p.id); setShowProjectMenu(false); }}
-                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedProjectId === p.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                      {p.title}
+              {showProjectMenu && (() => {
+                const visibleProjects = linkedClientId
+                  ? localProjects.filter(p => !("clientId" in p) || !p.clientId || p.clientId === linkedClientId)
+                  : localProjects;
+                return (
+                  <div className="absolute right-0 top-full z-50 mt-1 min-w-[200px] rounded-lg border border-border bg-card py-1 shadow-lg max-h-56 overflow-y-auto">
+                    <button onClick={() => { setLinkedProjectId(""); setShowProjectMenu(false); setNewProjectMode(false); }}
+                      className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${!linkedProjectId ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                      {he.scriptEditor.noProject}
                     </button>
-                  ))}
-                </div>
-              )}
+                    <div className="mx-2 my-1 border-t border-border" />
+                    {visibleProjects.length === 0 ? (
+                      <p className="px-3 py-2 text-xs text-muted-foreground text-center">אין פרויקטים ללקוח זה</p>
+                    ) : (
+                      visibleProjects.map(p => (
+                        <button key={p.id} onClick={() => { setLinkedProjectId(p.id); setShowProjectMenu(false); setNewProjectMode(false); }}
+                          className={`flex w-full items-center px-3 py-2 text-xs hover:bg-muted ${linkedProjectId === p.id ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                          {p.title}
+                        </button>
+                      ))
+                    )}
+                    <div className="mx-2 my-1 border-t border-border" />
+                    {newProjectMode ? (
+                      <div className="px-2 py-1.5 space-y-1.5">
+                        <input
+                          autoFocus
+                          value={newProjectTitle}
+                          onChange={e => setNewProjectTitle(e.target.value)}
+                          onKeyDown={async e => {
+                            if (e.key === "Escape") { setNewProjectMode(false); setNewProjectTitle(""); }
+                            if (e.key === "Enter" && newProjectTitle.trim() && !creatingProject) {
+                              setCreatingProject(true);
+                              const fd = new FormData();
+                              fd.set("title", newProjectTitle.trim());
+                              if (linkedClientId) fd.set("clientId", linkedClientId);
+                              const res = await createProject(fd);
+                              if (res.success && "projectId" in res && typeof res.projectId === "string") {
+                                const newP = { id: res.projectId, title: newProjectTitle.trim(), clientId: linkedClientId || null };
+                                setLocalProjects(prev => [...prev, newP]);
+                                setLinkedProjectId(res.projectId as string);
+                                setShowProjectMenu(false);
+                              }
+                              setNewProjectMode(false);
+                              setNewProjectTitle("");
+                              setCreatingProject(false);
+                            }
+                          }}
+                          placeholder="שם הפרויקט..."
+                          className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-xs outline-none focus:border-blue-400"
+                        />
+                        <p className="text-[10px] text-muted-foreground">Enter לשמירה • Esc לביטול</p>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => { setNewProjectMode(true); setNewProjectTitle(""); }}
+                        className="flex w-full items-center gap-1.5 px-3 py-2 text-xs text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
+                      >
+                        <Plus className="h-3 w-3" /> צור פרויקט חדש
+                      </button>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
         </div>

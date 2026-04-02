@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -61,7 +61,7 @@ interface ContentDialogProps {
   defaultDate?: string;
   defaultClientId?: string | null;
   clients: { id: string; name: string }[];
-  projects: { id: string; title: string }[];
+  projects: { id: string; title: string; clientId?: string | null }[];
   boardId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -103,6 +103,7 @@ export function ContentDialog({
   const [isPending, startTransition] = useTransition();
   const isEditing = !!content;
 
+  const [titleValue, setTitleValue]       = useState(content?.title ?? "");
   const [clientId, setClientId]           = useState(content?.clientId ?? defaultClientId ?? "");
   const [projectId, setProjectId]         = useState(content?.projectId ?? "");
   const [selectedColor, setSelectedColor] = useState(content?.color ?? "gray");
@@ -115,18 +116,51 @@ export function ContentDialog({
     content?.date ? formatDateForInput(content.date) : defaultDate ?? ""
   );
 
-  function handleOpenChange(open: boolean) {
-    if (open) {
-      setClientId(content?.clientId ?? defaultClientId ?? "");
-      setProjectId(content?.projectId ?? "");
-      setSelectedColor(content?.color ?? "gray");
-      setStatusValue(content?.status ?? "planned");
-      setError(null);
-      setNewClientMode(false);
-      setNewClientName("");
-      setLocalClients(clients);
-      setDateValue(content?.date ? formatDateForInput(content.date) : defaultDate ?? "");
+  // Sync all state when dialog opens or the target content changes
+  // Note: defaultDate is intentionally NOT in deps — it is always batched with `open`
+  // changes (same event handler), so its value is captured correctly by the closure.
+  // Including it caused the date to reset when editing after a day-click.
+  useEffect(() => {
+    if (!open) return;
+    setTitleValue(content?.title ?? "");
+    setClientId(content?.clientId ?? defaultClientId ?? "");
+    setProjectId(content?.projectId ?? "");
+    setSelectedColor(content?.color ?? "gray");
+    setStatusValue(content?.status ?? "planned");
+    setError(null);
+    setNewClientMode(false);
+    setNewClientName("");
+    setLocalClients(clients);
+    setDateValue(content?.date ? formatDateForInput(content.date) : defaultDate ?? "");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, content]);
+
+  // Projects filtered by the currently selected client
+  const filteredProjects = clientId
+    ? projects.filter((p) => !p.clientId || p.clientId === clientId)
+    : projects;
+
+  function handleClientChange(newClientId: string) {
+    setClientId(newClientId);
+    // Clear project if it doesn't belong to the new client
+    if (projectId) {
+      const cur = projects.find((p) => p.id === projectId);
+      if (cur?.clientId && cur.clientId !== newClientId) {
+        setProjectId("");
+      }
     }
+  }
+
+  function handleProjectChange(newProjectId: string) {
+    setProjectId(newProjectId);
+    // Auto-fill title with project name if title is still empty
+    if (newProjectId && !titleValue.trim()) {
+      const proj = projects.find((p) => p.id === newProjectId);
+      if (proj) setTitleValue(proj.title);
+    }
+  }
+
+  function handleOpenChange(open: boolean) {
     onOpenChange(open);
   }
 
@@ -187,7 +221,8 @@ export function ContentDialog({
                 id="title"
                 name="title"
                 required
-                defaultValue={content?.title ?? ""}
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
               />
             </div>
 
@@ -263,7 +298,7 @@ export function ContentDialog({
                     ...localClients.map((c) => ({ value: c.id, label: c.name })),
                   ]}
                   value={clientId}
-                  onChange={(v) => setClientId(v)}
+                  onChange={(v) => handleClientChange(v)}
                   placeholder={he.common.selectClient}
                   searchPlaceholder={he.common.searchPlaceholder}
                   triggerClassName="w-full"
@@ -286,10 +321,10 @@ export function ContentDialog({
               <SearchableSelect
                 options={[
                   { value: "", label: he.common.noProject },
-                  ...projects.map((p) => ({ value: p.id, label: p.title })),
+                  ...filteredProjects.map((p) => ({ value: p.id, label: p.title })),
                 ]}
                 value={projectId}
-                onChange={(v) => setProjectId(v)}
+                onChange={(v) => handleProjectChange(v)}
                 placeholder={he.common.selectProject}
                 searchPlaceholder={he.common.searchPlaceholder}
                 triggerClassName="w-full"

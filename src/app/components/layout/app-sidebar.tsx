@@ -106,7 +106,7 @@ export function AppSidebar() {
               {mainItems.map((item) => {
                 const isActive = item.href === "/" ? pathname === "/" : pathname.startsWith(item.href);
                 return (
-                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId} className="md:border-0 border-b border-white/[0.06] last:border-0">
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
@@ -131,7 +131,7 @@ export function AppSidebar() {
               {workItems.map((item) => {
                 const isActive = pathname.startsWith(item.href);
                 return (
-                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId} className="md:border-0 border-b border-white/[0.06] last:border-0">
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
@@ -156,7 +156,7 @@ export function AppSidebar() {
               {contentItems.map((item) => {
                 const isActive = pathname.startsWith(item.href);
                 return (
-                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId} className="md:border-0 border-b border-white/[0.06] last:border-0">
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}
@@ -181,7 +181,7 @@ export function AppSidebar() {
               {managementItems.map((item) => {
                 const isActive = pathname.startsWith(item.href);
                 return (
-                  <SidebarMenuItem key={item.href} data-tour={item.tourId}>
+                  <SidebarMenuItem key={item.href} data-tour={item.tourId} className="md:border-0 border-b border-white/[0.06] last:border-0">
                     <SidebarMenuButton
                       render={<Link href={item.href} />}
                       isActive={isActive}

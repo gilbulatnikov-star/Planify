@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   Users, FolderKanban, CheckSquare, DollarSign, FileText,
   AlertTriangle, CalendarDays, Plus, Clock, ChevronLeft,
-  ArrowUpRight, Sparkles, UserPlus, Scan, Receipt,
+  ArrowUpRight, Sparkles, UserPlus, Scan, Receipt, BarChart3,
 } from "lucide-react";
 import { useT, useLocale } from "@/lib/i18n";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
@@ -138,12 +138,13 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
          2. QUICK ACTIONS — banking-app style, priority-ordered
          ══════════════════════════════════════════════════════ */}
       <motion.div variants={fade}>
-        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-5 sm:overflow-visible sm:pb-0">
+        <div className="flex gap-2.5 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-6 sm:overflow-visible sm:pb-0">
           <QuickAction label="פרויקט חדש" href="/projects" icon={Plus} primary />
           <QuickAction label="לקוח חדש" href="/clients" icon={UserPlus} />
           <QuickAction label="משימה חדשה" href="/tasks" icon={CheckSquare} />
           <QuickAction label="חשבונית" href="/financials" icon={Receipt} />
           <QuickAction label="סריקת מסמך" href="/financials" icon={Scan} />
+          <QuickAction label="סיכום חודשי" href="/reports" icon={BarChart3} />
         </div>
       </motion.div>
 

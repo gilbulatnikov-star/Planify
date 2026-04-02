@@ -43,6 +43,7 @@ interface ProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onQuotaExceeded?: () => void;
+  defaultClientId?: string;
 }
 
 function formatDateForInput(date: Date | null | undefined): string {
@@ -57,6 +58,7 @@ export function ProjectDialog({
   open,
   onOpenChange,
   onQuotaExceeded,
+  defaultClientId,
 }: ProjectDialogProps) {
   const he = useT();
   const STATUS_OPTIONS = [
@@ -80,14 +82,14 @@ export function ProjectDialog({
   useEffect(() => {
     if (open) {
       setPhase(project?.phase ?? "planning");
-      setClientId(project?.clientId ?? "");
+      setClientId(project?.clientId ?? defaultClientId ?? "");
       setNewClientMode(false);
       setNewClientName("");
       setLocalClients(clients);
       setShootDate(formatDateForInput(project?.shootDate) ?? "");
       setDeadline(formatDateForInput(project?.deadline) ?? "");
     }
-  }, [open, project, clients]);
+  }, [open, project, clients, defaultClientId]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -120,7 +122,9 @@ export function ProjectDialog({
         return;
       }
 
-      if (result.success) onOpenChange(false);
+      if (result.success) {
+        onOpenChange(false);
+      }
     });
   }
 
@@ -246,6 +250,7 @@ export function ProjectDialog({
                 rows={3}
               />
             </div>
+
           </div>
 
           <DialogFooter>

@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import {
@@ -13,11 +13,24 @@ import {
   Tv,
   Megaphone,
   Search,
+  CheckSquare,
+  Square,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createScript, deleteScript } from "@/lib/actions/script-actions";
+import { SearchableSelect } from "@/components/ui/searchable-select";
+import { createScript, deleteScript, updateScript } from "@/lib/actions/script-actions";
 import { formatDate } from "@/lib/utils/format";
 import { useT } from "@/lib/i18n";
+
+const PLATFORMS = [
+  { value: "youtube",   label: "YouTube"   },
+  { value: "instagram", label: "Instagram" },
+  { value: "tiktok",    label: "TikTok"    },
+  { value: "facebook",  label: "Facebook"  },
+  { value: "linkedin",  label: "LinkedIn"  },
+  { value: "podcast",   label: "Podcast"   },
+  { value: "other",     label: "אחר"       },
+];
 
 const platformIcons: Record<string, React.ReactNode> = {
   youtube: <Youtube className="h-4 w-4 text-red-500" />,
@@ -43,15 +56,19 @@ type Script = {
   updatedAt: Date;
   project: { id: string; title: string } | null;
   client: { id: string; name: string } | null;
+  clientId?: string | null;
+  projectId?: string | null;
 };
 
 export function ScriptsPageClient({
   scripts,
+  clients,
+  projects,
   planLimit,
 }: {
   scripts: Script[];
   clients: { id: string; name: string }[];
-  projects: { id: string; title: string }[];
+  projects: { id: string; title: string; clientId?: string | null }[];
   planLimit: number;
 }) {
   const router = useRouter();
@@ -63,11 +80,28 @@ export function ScriptsPageClient({
   const [newTitle, setNewTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
 
+  // Client filter
+  const [filterClientId, setFilterClientId] = useState<string | null>(null);
+
+  // Multi-select
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  // Bulk assign state
+  const [bulkClientId, setBulkClientId] = useState("");
+  const [bulkProjectId, setBulkProjectId] = useState("");
+  const [bulkPlatform, setBulkPlatform] = useState("");
+  const [, startBulk] = useTransition();
+
   useEffect(() => {
     if (dialogOpen) {
       setTimeout(() => titleInputRef.current?.focus(), 0);
     }
   }, [dialogOpen]);
+
+  // Reset bulk project when bulk client changes
+  useEffect(() => {
+    setBulkProjectId("");
+  }, [bulkClientId]);
 
   function openCreateDialog() {
     if (planLimit !== -1 && scripts.length >= planLimit) {
@@ -99,6 +133,56 @@ export function ScriptsPageClient({
     }
   }
 
+  function toggleSelect(id: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setBulkClientId("");
+    setBulkProjectId("");
+    setBulkPlatform("");
+  }
+
+  function handleBulkApply() {
+    const ids = Array.from(selectedIds);
+    startBulk(async () => {
+      await Promise.all(ids.map(id => updateScript(id, {
+        ...(bulkClientId ? { clientId: bulkClientId } : {}),
+        ...(bulkProjectId ? { projectId: bulkProjectId } : {}),
+        ...(bulkPlatform ? { platform: bulkPlatform } : {}),
+      })));
+      clearSelection();
+      router.refresh();
+    });
+  }
+
+  // Filtered scripts (client filter + search)
+  const clientsWithScripts = clients.filter(c => scripts.some(s => s.client?.id === c.id || s.clientId === c.id));
+
+  const filteredScripts = scripts.filter(s => {
+    if (filterClientId) {
+      const cid = s.client?.id ?? s.clientId;
+      if (cid !== filterClientId) return false;
+    }
+    if (search) {
+      if (!s.title.toLowerCase().includes(search.toLowerCase())) return false;
+    }
+    return true;
+  });
+
+  const bulkFilteredProjects = bulkClientId
+    ? projects.filter(p => !p.clientId || p.clientId === bulkClientId)
+    : projects;
+
+  const hasSelection = selectedIds.size > 0;
+
   return (
     <>
     <UpgradeDialog
@@ -126,7 +210,7 @@ export function ScriptsPageClient({
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="הזן שם לתסריט..."
-            className="w-full rounded-[10px] border border-border/40 bg-background px-4 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+            className="w-full rounded-[10px] border border-border/60 bg-background px-4 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
           />
           {newTitle.length > 0 && !newTitle.trim() && (
             <p className="mt-1.5 text-[11px] text-red-500">יש להזין שם תקין</p>
@@ -159,13 +243,37 @@ export function ScriptsPageClient({
         </Button>
       </div>
 
+      {/* Client filter pills */}
+      {clientsWithScripts.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilterClientId(null)}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${!filterClientId ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+          >
+            הכל ({scripts.length})
+          </button>
+          {clientsWithScripts.map(c => {
+            const count = scripts.filter(s => s.client?.id === c.id || s.clientId === c.id).length;
+            return (
+              <button
+                key={c.id}
+                onClick={() => setFilterClientId(filterClientId === c.id ? null : c.id)}
+                className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${filterClientId === c.id ? "bg-foreground text-background" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+              >
+                {c.name} ({count})
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
         <input
           placeholder="חיפוש תסריטים..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-xs rounded-[10px] border border-border/40 bg-card pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          className="w-full max-w-xs rounded-[10px] border border-border/60 bg-background pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
         />
       </div>
 
@@ -191,60 +299,132 @@ export function ScriptsPageClient({
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {scripts.filter((script) => script.title.toLowerCase().includes(search.toLowerCase())).map((script) => (
-            <div
-              key={script.id}
-              onClick={() => router.push(`/scripts/${script.id}`)}
-              className="glass-card cursor-pointer rounded-[14px] border border-border/40 bg-card p-5 transition-all duration-300 hover:border-border/60 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)]"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2 min-w-0">
-                  {platformIcons[script.platform] ?? (
-                    <FileText className="h-4 w-4 text-muted-foreground" />
-                  )}
-                  <span className="truncate font-semibold text-foreground">
-                    {script.title}
-                  </span>
-                </div>
+          {filteredScripts.map((script) => {
+            const isSelected = selectedIds.has(script.id);
+            return (
+              <div
+                key={script.id}
+                onClick={() => router.push(`/scripts/${script.id}`)}
+                className={`glass-card relative cursor-pointer rounded-[14px] border bg-card p-5 transition-all duration-300 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] ${isSelected ? "border-foreground/40 ring-1 ring-foreground/20" : "border-border/40 hover:border-border/60"}`}
+              >
+                {/* Checkbox */}
                 <button
-                  onClick={(e) => handleDelete(script.id, e)}
-                  className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  onClick={(e) => toggleSelect(script.id, e)}
+                  className={`absolute top-3 right-3 z-10 transition-opacity ${hasSelection || isSelected ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                  style={{ opacity: hasSelection || isSelected ? 1 : undefined }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLElement).style.opacity = "1"; }}
+                  onMouseLeave={e => { if (!hasSelection && !isSelected) (e.currentTarget as HTMLElement).style.opacity = "0"; }}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  {isSelected
+                    ? <CheckSquare className="h-4 w-4 text-foreground" />
+                    : <Square className="h-4 w-4 text-muted-foreground" />}
                 </button>
-              </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
-                  {platformLabels[script.platform] ?? script.platform}
-                </span>
-                {script.client && (
-                  <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-600 dark:bg-blue-950 dark:text-blue-300">
-                    {script.client.name}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    {platformIcons[script.platform] ?? (
+                      <FileText className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="truncate font-semibold text-foreground">
+                      {script.title}
+                    </span>
+                  </div>
+                  <button
+                    onClick={(e) => handleDelete(script.id, e)}
+                    className="shrink-0 rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-950 dark:hover:text-red-400"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full bg-muted px-2.5 py-0.5 text-xs text-muted-foreground">
+                    {platformLabels[script.platform] ?? script.platform}
                   </span>
-                )}
-                {script.project && (
-                  <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs text-purple-600 dark:bg-purple-950 dark:text-purple-300">
-                    {script.project.title}
-                  </span>
-                )}
-              </div>
+                  {script.client && (
+                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs text-blue-600 dark:bg-blue-950 dark:text-blue-300">
+                      {script.client.name}
+                    </span>
+                  )}
+                  {script.project && (
+                    <span className="rounded-full bg-purple-50 px-2.5 py-0.5 text-xs text-purple-600 dark:bg-purple-950 dark:text-purple-300">
+                      {script.project.title}
+                    </span>
+                  )}
+                </div>
 
-              {script.content && (
-                <p className="mt-3 line-clamp-2 text-xs text-muted-foreground leading-relaxed">
-                  {script.content.replace(/<[^>]+>/g, "").slice(0, 120)}
-                </p>
-              )}
+                {script.content && (
+                  <p className="mt-3 line-clamp-2 text-xs text-muted-foreground leading-relaxed">
+                    {script.content.replace(/<[^>]+>/g, "").slice(0, 120)}
+                  </p>
+                )}
 
-              <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
-                <Clock className="h-3 w-3" />
-                <span>{formatDate(script.updatedAt)}</span>
+                <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
+                  <span>{formatDate(script.updatedAt)}</span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
+
+    {/* Bulk action bar */}
+    {hasSelection && (
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-sm shadow-lg p-4">
+        <div className="max-w-4xl mx-auto flex flex-wrap items-center gap-3" dir="rtl">
+          <span className="text-sm font-medium text-foreground shrink-0">
+            {selectedIds.size} תסריטים נבחרו
+          </span>
+          <div className="flex-1 min-w-0 flex flex-wrap gap-2">
+            <div className="min-w-[160px]">
+              <SearchableSelect
+                options={[
+                  { value: "", label: "ללא לקוח" },
+                  ...clients.map(c => ({ value: c.id, label: c.name })),
+                ]}
+                value={bulkClientId}
+                onChange={setBulkClientId}
+                placeholder="בחר לקוח"
+                searchPlaceholder="חיפוש..."
+                triggerClassName="h-8 text-sm"
+              />
+            </div>
+            <div className="min-w-[160px]">
+              <SearchableSelect
+                options={[
+                  { value: "", label: "ללא פרויקט" },
+                  ...bulkFilteredProjects.map(p => ({ value: p.id, label: p.title })),
+                ]}
+                value={bulkProjectId}
+                onChange={setBulkProjectId}
+                placeholder="בחר פרויקט"
+                searchPlaceholder="חיפוש..."
+                triggerClassName="h-8 text-sm"
+              />
+            </div>
+            <div className="min-w-[140px]">
+              <SearchableSelect
+                options={[
+                  { value: "", label: "כל הפלטפורמות" },
+                  ...PLATFORMS.map(p => ({ value: p.value, label: p.label })),
+                ]}
+                value={bulkPlatform}
+                onChange={setBulkPlatform}
+                placeholder="פלטפורמה"
+                searchPlaceholder="חיפוש..."
+                triggerClassName="h-8 text-sm"
+              />
+            </div>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Button size="sm" onClick={handleBulkApply}>החל</Button>
+            <Button size="sm" variant="outline" onClick={clearSelection}>ביטול</Button>
+          </div>
+        </div>
+      </div>
+    )}
     </>
   );
 }

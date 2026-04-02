@@ -147,7 +147,7 @@ export function ProjectsPageClient({
             placeholder="חיפוש פרויקטים..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-border/40 bg-card pr-9 pl-4 py-2 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+            className="w-full rounded-xl border border-border/60 bg-background pr-9 pl-4 py-2 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
           />
         </div>
 
@@ -356,6 +356,7 @@ export function ProjectsPageClient({
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onQuotaExceeded={() => { setDialogOpen(false); setUpgradeOpen(true); }}
+        defaultClientId={!editingProject && filterClientId ? filterClientId : undefined}
       />
       {deleteTarget && (
         <DeleteProjectDialog

@@ -94,7 +94,7 @@ export function CalendarPageClient({
 }: {
   content: ContentItem[];
   clients: { id: string; name: string }[];
-  projects: { id: string; title: string }[];
+  projects: { id: string; title: string; clientId?: string | null }[];
   initialMonth: string;
   activeClientId: string | null;
   activeClientName: string | null;
@@ -325,7 +325,7 @@ export function CalendarPageClient({
             placeholder="חיפוש אירועים..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-xs rounded-[10px] border border-border/40 bg-card pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+            className="w-full max-w-xs rounded-[10px] border border-border/60 bg-background pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
           />
         </div>
       </motion.div>

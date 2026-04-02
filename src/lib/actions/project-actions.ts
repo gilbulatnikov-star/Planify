@@ -12,7 +12,7 @@ export async function getProjects() {
   return prisma.project.findMany({
     where: { userId },
     orderBy: { title: "asc" },
-    select: { id: true, title: true },
+    select: { id: true, title: true, clientId: true },
   });
 }
 
@@ -67,7 +67,7 @@ export async function createProject(formData: FormData) {
       if (!client) return { success: false, error: "Invalid client" };
     }
 
-    await prisma.project.create({
+    const project = await prisma.project.create({
       data: {
         title,
         description: (formData.get("description") as string) || null,
@@ -84,7 +84,7 @@ export async function createProject(formData: FormData) {
 
     revalidatePath("/projects");
     revalidatePath("/");
-    return { success: true };
+    return { success: true, projectId: project.id };
   } catch (error) {
     return {
       success: false,
