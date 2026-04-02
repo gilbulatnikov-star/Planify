@@ -332,13 +332,13 @@ export function CalendarPageClient({
 
       {/* ── Month navigation ── */}
       <motion.div variants={fadeUp} className="flex items-center justify-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigateMonth("next")} className="hover:bg-muted h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigateMonth("prev")} className="hover:bg-muted h-8 w-8">
           <ChevronRight className="h-4 w-4" />
         </Button>
         <h2 className="text-lg font-semibold min-w-[160px] text-center">
           {format(currentMonth, "MMMM yyyy", { locale: heLocale })}
         </h2>
-        <Button variant="ghost" size="icon" onClick={() => navigateMonth("prev")} className="hover:bg-muted h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigateMonth("next")} className="hover:bg-muted h-8 w-8">
           <ChevronLeft className="h-4 w-4" />
         </Button>
       </motion.div>

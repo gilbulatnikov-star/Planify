@@ -30,5 +30,8 @@ export default async function ProjectsPage() {
   const plan = session?.user?.subscriptionPlan ?? "FREE";
   const limits = getLimitsForPlan(plan);
 
-  return <ProjectsPageClient projects={projects} clients={clients} planLimit={limits.projects} />;
+  // Only active (non-delivered) projects count toward the plan limit
+  const activeProjectCount = projects.filter((p) => p.phase !== "delivered").length;
+
+  return <ProjectsPageClient projects={projects} clients={clients} planLimit={limits.projects} activeProjectCount={activeProjectCount} />;
 }

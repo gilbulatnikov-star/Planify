@@ -276,3 +276,53 @@ export async function deleteProject(id: string) {
     };
   }
 }
+
+export async function completeProject(id: string) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
+    const existing = await prisma.project.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
+    await prisma.project.update({
+      where: { id },
+      data: { phase: "delivered", status: "delivered", deliveredAt: new Date() },
+    });
+
+    revalidatePath("/projects");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to complete project",
+    };
+  }
+}
+
+export async function restoreProject(id: string) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
+    const existing = await prisma.project.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
+    await prisma.project.update({
+      where: { id },
+      data: { phase: "post_production", status: "revisions_v1", deliveredAt: null },
+    });
+
+    revalidatePath("/projects");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to restore project",
+    };
+  }
+}
