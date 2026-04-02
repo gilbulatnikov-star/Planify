@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { encode } from "next-auth/jwt";
 import { prisma } from "@/lib/db/prisma";
-import { consumeImpersonationToken } from "@/lib/actions/admin-actions";
+import { consumeToken } from "@/lib/impersonation-tokens";
 import { auth } from "@/auth";
 
 const ADMIN_EMAILS = (process.env.ADMIN_EMAIL ?? "").split(",").map(e => e.trim().toLowerCase());
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   const token = req.nextUrl.searchParams.get("token");
   if (!token) return NextResponse.json({ error: "Missing token" }, { status: 400 });
 
-  const userId = consumeImpersonationToken(token);
+  const userId = consumeToken(token);
   if (!userId) return NextResponse.json({ error: "Invalid or expired token" }, { status: 400 });
 
   // 3. Load target user
