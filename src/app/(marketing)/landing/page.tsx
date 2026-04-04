@@ -87,7 +87,8 @@ export default function LandingPage() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           {/* Logo */}
           <Link href="/landing" className="flex items-center gap-2">
-            <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-7 w-auto" />
+            <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-7 w-auto dark:hidden" />
+            <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-7 w-auto hidden dark:block" />
           </Link>
 
           {/* Desktop nav */}

@@ -14,13 +14,16 @@ export async function getOrCreateQuickNote() {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return null;
-    let note = await prisma.quickNote.findFirst({ where: { userId } });
-    if (!note) {
-      note = await prisma.quickNote.create({
-        data: { content: "", userId },
-      });
-    }
-    return note;
+    // Single upsert instead of findFirst + conditional create
+    const note = await prisma.quickNote.findFirst({
+      where: { userId },
+      select: { id: true, content: true },
+    });
+    if (note) return note;
+    return prisma.quickNote.create({
+      data: { content: "", userId },
+      select: { id: true, content: true },
+    });
   } catch (error) {
     console.error("Failed to get/create quick note:", error);
     return null;
@@ -32,14 +35,11 @@ export async function updateQuickNote(content: string) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "לא מחובר" };
-    const note = await prisma.quickNote.findFirst({ where: { userId } });
+    const note = await prisma.quickNote.findFirst({ where: { userId }, select: { id: true } });
     if (!note) {
       await prisma.quickNote.create({ data: { content, userId } });
     } else {
-      await prisma.quickNote.update({
-        where: { id: note.id },
-        data: { content },
-      });
+      await prisma.quickNote.update({ where: { id: note.id }, data: { content } });
     }
     revalidatePath("/");
     return { success: true };
@@ -194,6 +194,7 @@ export async function getQuickLinks() {
     const links = await prisma.quickLink.findMany({
       where: { userId },
       orderBy: { sortOrder: "asc" },
+      select: { id: true, name: true, url: true, icon: true, sortOrder: true },
     });
     return links;
   } catch (error) {
@@ -215,9 +216,10 @@ export async function createQuickLink(formData: FormData) {
     const session = await auth();
     const userId = session?.user?.id;
 
-    const maxOrder = await prisma.quickLink.aggregate({
+    const lastLink = await prisma.quickLink.findFirst({
       where: { userId },
-      _max: { sortOrder: true },
+      orderBy: { sortOrder: "desc" },
+      select: { sortOrder: true },
     });
 
     await prisma.quickLink.create({
@@ -225,7 +227,7 @@ export async function createQuickLink(formData: FormData) {
         name,
         url,
         icon,
-        sortOrder: (maxOrder._max.sortOrder ?? 0) + 1,
+        sortOrder: (lastLink?.sortOrder ?? 0) + 1,
         userId: userId ?? undefined,
       },
     });
@@ -271,7 +273,10 @@ export async function getGearStatuses() {
     const userId = session?.user?.id;
     if (!userId) return [];
 
-    let statuses = await prisma.gearStatus.findMany({ where: { userId } });
+    let statuses = await prisma.gearStatus.findMany({
+      where: { userId },
+      select: { id: true, key: true, label: true, isReady: true },
+    });
 
     if (statuses.length === 0) {
       const defaults = [
@@ -289,7 +294,10 @@ export async function getGearStatuses() {
         })),
       });
 
-      statuses = await prisma.gearStatus.findMany({ where: { userId } });
+      statuses = await prisma.gearStatus.findMany({
+        where: { userId },
+        select: { id: true, key: true, label: true, isReady: true },
+      });
     }
 
     return statuses;

@@ -11,7 +11,9 @@ export async function getScripts() {
   return prisma.script.findMany({
     where: { userId },
     orderBy: { updatedAt: "desc" },
-    include: {
+    select: {
+      id: true, title: true, platform: true, content: true, updatedAt: true,
+      clientId: true, projectId: true,
       project: { select: { id: true, title: true } },
       client: { select: { id: true, name: true } },
     },

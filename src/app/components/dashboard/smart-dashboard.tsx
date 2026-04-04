@@ -17,13 +17,14 @@ export const staggerReduced = { hidden: {}, show: {} };
 export const fade = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0, transition: { duration: 0.4 } } };
 export const fadeReduced = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { duration: 0.15 } } };
 
-function getGreeting(): string {
+function useGreeting() {
+  const he = useT();
   const h = new Date().getHours();
-  if (h < 6) return "לילה טוב";
-  if (h < 12) return "בוקר טוב";
-  if (h < 17) return "צהריים טובים";
-  if (h < 21) return "ערב טוב";
-  return "לילה טוב";
+  if (h < 6) return he.dashboard.greetingNight;
+  if (h < 12) return he.dashboard.greetingMorning;
+  if (h < 17) return he.dashboard.greetingNoon;
+  if (h < 21) return he.dashboard.greetingEvening;
+  return he.dashboard.greetingNight;
 }
 
 /* ── KPI Card — compact, uniform ── */
@@ -42,6 +43,27 @@ function KpiCard({ label, value, icon: Icon, href, gradient }: {
         </div>
         <div className="text-2xl font-extrabold tracking-tight leading-none text-foreground tabular-nums">{value}</div>
         <p className="text-[10px] text-muted-foreground/60 mt-1.5 font-bold tracking-[0.08em] uppercase">{label}</p>
+      </div>
+    </Link>
+  );
+}
+
+/* ── Featured KPI Card — full-width hero card for mobile ── */
+function FeaturedKpiCard({ label, value, icon: Icon, href, gradient }: {
+  label: string; value: string | number; icon: React.ElementType; href: string; gradient: string;
+}) {
+  return (
+    <Link href={href} className="group relative overflow-hidden rounded-2xl border border-border/40 bg-card shadow-[0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-px transition-all duration-300">
+      <div className={`absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r ${gradient} opacity-60 group-hover:opacity-100 transition-opacity`} />
+      <div className="px-5 py-5 flex items-center gap-4">
+        <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-white shadow-sm`}>
+          <Icon className="h-5 w-5" strokeWidth={2} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[28px] font-extrabold tracking-tight leading-none text-foreground tabular-nums">{value}</div>
+          <p className="text-[10px] text-muted-foreground/60 mt-1 font-bold tracking-[0.08em] uppercase">{label}</p>
+        </div>
+        <ArrowUpRight className="h-3.5 w-3.5 text-transparent group-hover:text-foreground/25 transition-colors shrink-0" />
       </div>
     </Link>
   );
@@ -103,13 +125,15 @@ function QuickAction({ label, href, icon: Icon, primary }: {
 // ═══════════════════════════════════════════════════════════════════════════
 
 export function GreetingWidget({ userName }: { userName?: string | null }) {
+  const he = useT();
+  const greeting = useGreeting();
   const firstName = userName?.split(" ")[0] ?? "";
   return (
     <div className="pt-0.5">
       <h1 className="text-[24px] sm:text-[30px] font-extrabold tracking-[-0.04em] leading-[1.1]">
-        {getGreeting()}{firstName ? `, ${firstName}` : ""}
+        {greeting}{firstName ? `, ${firstName}` : ""}
       </h1>
-      <p className="text-[12px] text-muted-foreground/50 mt-1 tracking-[-0.005em] font-medium">הנה סיכום יום העבודה שלך</p>
+      <p className="text-[12px] text-muted-foreground/50 mt-1 tracking-[-0.005em] font-medium">{he.dashboard.greetingSubtitle}</p>
     </div>
   );
 }
@@ -127,12 +151,26 @@ export function KpiWidget({ data }: { data: SmartDashboardData }) {
     { label: he.dashboard.openInvoices, value: kpis.openInvoices, icon: FileText, href: "/financials", gradient: "from-rose-500 to-pink-600" },
   ];
 
+  const [featured, ...rest] = kpiData;
+
   return (
-    <div className="grid gap-2.5 grid-cols-2 lg:grid-cols-5">
-      {kpiData.map((kpi) => (
-        <KpiCard key={kpi.label} {...kpi} />
-      ))}
-    </div>
+    <>
+      {/* Mobile: featured hero card + 2x2 grid */}
+      <div className="flex flex-col gap-2.5 lg:hidden">
+        <FeaturedKpiCard {...featured} />
+        <div className="grid grid-cols-2 gap-2.5">
+          {rest.map((kpi) => (
+            <KpiCard key={kpi.label} {...kpi} />
+          ))}
+        </div>
+      </div>
+      {/* Desktop: 5-column grid */}
+      <div className="hidden lg:grid gap-2.5 grid-cols-5">
+        {kpiData.map((kpi) => (
+          <KpiCard key={kpi.label} {...kpi} />
+        ))}
+      </div>
+    </>
   );
 }
 

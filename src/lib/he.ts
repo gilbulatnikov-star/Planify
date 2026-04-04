@@ -52,6 +52,11 @@ export const he = {
     createQuote: "צור הצעת מחיר",
     projectsOverTime: "פרויקטים לאורך זמן",
     projectTypes: "סוגי פרויקטים",
+    greetingNight: "לילה טוב",
+    greetingMorning: "בוקר טוב",
+    greetingNoon: "צהריים טובים",
+    greetingEvening: "ערב טוב",
+    greetingSubtitle: "הנה סיכום יום העבודה שלך",
   },
 
   // Projects
@@ -475,7 +480,7 @@ export const he = {
     clickAgainToDelete: "לחץ שוב למחיקה",
     noTasks: "אין משימות",
     noScriptsLinked: "אין תסריטים",
-    noMoodboardsLinked: "אין Moodboards",
+    noMoodboardsLinked: "אין מוד בורדים",
     noContactsLinked: "אין אנשי קשר",
     noCalendarLinked: "אין תוכן מתוכנן",
     allLinked: "הכל כבר משויך",
@@ -715,12 +720,12 @@ export const he = {
 
   // Moodboard
   moodboard: {
-    title: "Moodboard",
+    title: "מוד בורד",
     subtitle: "עצב ואסוף השראה ויזואלית לפרויקטים שלך",
-    newMoodboard: "Moodboard חדש",
-    noMoodboards: "אין Moodboards עדיין",
-    noMoodboardsDesc: "צור Moodboard חדש כדי להתחיל לאסוף השראה",
-    createFirst: "צור Moodboard ראשון",
+    newMoodboard: "מוד בורד חדש",
+    noMoodboards: "אין מוד בורדים עדיין",
+    noMoodboardsDesc: "צור מוד בורד חדש כדי להתחיל לאסוף השראה",
+    createFirst: "צור מוד בורד ראשון",
     updated: "עודכן",
     deleteConfirm: "למחוק את הלוח?",
     writeHere: "כתוב כאן...",

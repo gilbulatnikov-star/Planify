@@ -72,9 +72,9 @@ export async function deleteContentBoard(id: string) {
   const existing = await prisma.contentBoard.findFirst({ where: { id, userId } });
   if (!existing) return { success: false, error: "Not found" };
 
-  // Unlink items first (don't delete them)
+  // Unlink items first (don't delete them) — only items owned by the current user
   await prisma.scheduledContent.updateMany({
-    where: { boardId: id },
+    where: { boardId: id, userId },
     data: { boardId: null },
   });
   await prisma.contentBoard.delete({ where: { id } });

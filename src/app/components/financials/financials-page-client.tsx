@@ -164,11 +164,22 @@ export function FinancialsPageClient({
   // Search
   const [search, setSearch] = useState("");
 
+  // Pagination
+  const ITEMS_PER_PAGE = 20;
+  const [invoicePage, setInvoicePage] = useState(1);
+  const [expensePage, setExpensePage] = useState(1);
+
   // Date range filter
   const [dateFilterOpen, setDateFilterOpen] = useState(false);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo]     = useState("");
   const hasDateFilter = !!dateFrom || !!dateTo;
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setInvoicePage(1);
+    setExpensePage(1);
+  }, [search, selectedMonth, selectedYear, dateFrom, dateTo]);
 
   // Close picker on outside click
   useEffect(() => {
@@ -250,6 +261,12 @@ export function FinancialsPageClient({
       String(e.amount).includes(search)
     );
   });
+
+  // Paginated slices
+  const invoiceTotalPages = Math.max(1, Math.ceil(filteredInvoices.length / ITEMS_PER_PAGE));
+  const expenseTotalPages = Math.max(1, Math.ceil(filteredExpenses.length / ITEMS_PER_PAGE));
+  const paginatedInvoices = filteredInvoices.slice((invoicePage - 1) * ITEMS_PER_PAGE, invoicePage * ITEMS_PER_PAGE);
+  const paginatedExpenses = filteredExpenses.slice((expensePage - 1) * ITEMS_PER_PAGE, expensePage * ITEMS_PER_PAGE);
 
   const totalRevenue = filteredInvoices
     .filter((i) => i.status === "paid")
@@ -552,7 +569,7 @@ export function FinancialsPageClient({
                 <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
               </div>
               <div className="min-w-0">
-                <p className="text-[11px] text-muted-foreground truncate">{stat.label}</p>
+                <p className="text-[11px] text-muted-foreground leading-tight">{stat.label}</p>
                 <p className={`text-base font-bold tracking-tight leading-tight ${stat.textColor}`}>
                   {stat.value}
                 </p>
@@ -594,7 +611,7 @@ export function FinancialsPageClient({
               <>
                 {/* Mobile cards */}
                 <div className="sm:hidden space-y-2">
-                  {filteredInvoices.map((inv) => (
+                  {paginatedInvoices.map((inv) => (
                     <div key={inv.id} className="bg-card border border-border/50 rounded-2xl p-3.5 flex items-center gap-3">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -642,7 +659,7 @@ export function FinancialsPageClient({
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredInvoices.map((inv) => (
+                          {paginatedInvoices.map((inv) => (
                             <TableRow key={inv.id} className="border-border transition-all duration-200 hover:bg-muted/50 group">
                               <TableCell className="font-medium font-mono text-sm">{inv.invoiceNumber}</TableCell>
                               <TableCell className="text-sm">{inv.client?.name ?? "—"}</TableCell>
@@ -673,6 +690,31 @@ export function FinancialsPageClient({
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Invoices pagination */}
+                {invoiceTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-3 mt-3" dir="rtl">
+                    <button
+                      onClick={() => setInvoicePage((p) => Math.max(1, p - 1))}
+                      disabled={invoicePage === 1}
+                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-border/60 bg-card text-[13px] font-medium text-foreground transition-all duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                      הקודם
+                    </button>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                      {invoicePage} / {invoiceTotalPages}
+                    </span>
+                    <button
+                      onClick={() => setInvoicePage((p) => Math.min(invoiceTotalPages, p + 1))}
+                      disabled={invoicePage === invoiceTotalPages}
+                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-border/60 bg-card text-[13px] font-medium text-foreground transition-all duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card"
+                    >
+                      הבא
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
@@ -685,7 +727,7 @@ export function FinancialsPageClient({
               <>
                 {/* Mobile cards */}
                 <div className="sm:hidden space-y-2">
-                  {filteredExpenses.map((exp) => (
+                  {paginatedExpenses.map((exp) => (
                     <div key={exp.id} className="bg-card border border-border/50 rounded-2xl p-3.5 flex items-center gap-3">
                       <div className="flex-1 min-w-0">
                         <p className="text-[13px] font-semibold text-foreground truncate">{exp.description}</p>
@@ -734,7 +776,7 @@ export function FinancialsPageClient({
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {filteredExpenses.map((exp) => (
+                          {paginatedExpenses.map((exp) => (
                             <TableRow key={exp.id} className="border-border transition-all duration-200 hover:bg-muted/50 group">
                               <TableCell className="font-medium text-sm">{exp.description}</TableCell>
                               <TableCell className="hidden md:table-cell">
@@ -772,6 +814,31 @@ export function FinancialsPageClient({
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Expenses pagination */}
+                {expenseTotalPages > 1 && (
+                  <div className="flex items-center justify-center gap-3 mt-3" dir="rtl">
+                    <button
+                      onClick={() => setExpensePage((p) => Math.max(1, p - 1))}
+                      disabled={expensePage === 1}
+                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-border/60 bg-card text-[13px] font-medium text-foreground transition-all duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card"
+                    >
+                      <ChevronRight className="h-3.5 w-3.5" />
+                      הקודם
+                    </button>
+                    <span className="text-[13px] text-muted-foreground tabular-nums">
+                      {expensePage} / {expenseTotalPages}
+                    </span>
+                    <button
+                      onClick={() => setExpensePage((p) => Math.min(expenseTotalPages, p + 1))}
+                      disabled={expensePage === expenseTotalPages}
+                      className="inline-flex items-center gap-1.5 h-8 px-3.5 rounded-xl border border-border/60 bg-card text-[13px] font-medium text-foreground transition-all duration-200 hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-card"
+                    >
+                      הבא
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>

@@ -171,7 +171,8 @@ export async function getShareLink(token: string) {
   const isPasswordProtected = !!link.passwordHash;
 
   // Build safe payload, respecting show* visibility flags
-  const payload: Record<string, unknown> = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const payload: Record<string, any> = {
     projectTitle: link.project.title,
     note: link.note,
     sharedByName: link.user.name,

@@ -6,7 +6,6 @@ import {
   LayoutDashboard,
   FolderKanban,
   Users,
-  UserPlus,
   CalendarDays,
   Contact,
   Sparkles,
@@ -15,9 +14,9 @@ import {
   FileBarChart2,
   Crown,
   ListTodo,
-  Zap,
   LogOut,
   BarChart3,
+  CreditCard,
 } from "lucide-react";
 // import { useState } from "react";
 import { useSession, signOut } from "next-auth/react";
@@ -75,6 +74,7 @@ export function AppSidebar() {
 
   const managementItems = [
     { href: "/financials", label: he.nav.financials, icon: FileBarChart2, tourId: "nav-financials" },
+    { href: "/subscriptions", label: he.nav.subscriptions, icon: CreditCard, tourId: "nav-subscriptions" },
     { href: "/tasks", label: he.widgets.todos, icon: ListTodo, tourId: "nav-tasks" },
     { href: "/reports", label: "דוחות", icon: BarChart3, tourId: "nav-reports" },
   ];
@@ -85,6 +85,8 @@ export function AppSidebar() {
   const initials = user?.name
     ? user.name.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()
     : user?.email?.[0]?.toUpperCase() ?? "U";
+  // Prefer URL-based image; fall back to avatar endpoint for base64 avatars stored in DB
+  const avatarSrc = user?.image ?? ((user as { hasAvatar?: boolean } | undefined)?.hasAvatar ? "/api/user/avatar" : null);
 
   return (
     <Sidebar side={isRTL ? "right" : "left"} collapsible="icon" dir={isRTL ? "rtl" : "ltr"}>
@@ -93,6 +95,7 @@ export function AppSidebar() {
         <div className="flex w-full items-center gap-2.5">
           {/* Logo — expanded: clean QLIPY wordmark */}
           <Link href="/" className="flex items-center group-data-[collapsible=icon]:hidden select-none">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/qlipy-text-only.png"
               alt="Qlipy"
@@ -101,6 +104,7 @@ export function AppSidebar() {
           </Link>
           {/* Logo — collapsed: small icon only */}
           <Link href="/" className="hidden group-data-[collapsible=icon]:flex items-center justify-center w-full">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/qlipy-small-white.png"
               alt="Qlipy"
@@ -222,9 +226,9 @@ export function AppSidebar() {
           }`}
         >
           {/* Avatar */}
-          <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold select-none">
-            {user?.image ? (
-              <img src={user.image} alt={user.name ?? ""} className="h-8 w-8 rounded-full object-cover" />
+          <div className="h-8 w-8 shrink-0 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold select-none overflow-hidden">
+            {avatarSrc ? (
+              <img src={avatarSrc} alt={user?.name ?? ""} className="h-8 w-8 rounded-full object-cover" />
             ) : (
               initials
             )}
@@ -241,16 +245,16 @@ export function AppSidebar() {
         </Link>
 
         <SidebarMenuButton
-          render={<Link href="/billing" />}
-          isActive={pathname.startsWith("/billing")}
+          render={<Link href="/settings/billing" />}
+          isActive={pathname.startsWith("/settings/billing")}
           tooltip={he.nav.billing}
-          className={pathname.startsWith("/billing") ? btnActive : btnIdle}
+          className={pathname.startsWith("/settings/billing") ? btnActive : btnIdle}
         >
           <Crown className="h-5 w-5 shrink-0 text-amber-400" />
           <span className="truncate group-data-[collapsible=icon]:hidden">{he.common.billingPlan}</span>
         </SidebarMenuButton>
         <SidebarMenuButton
-          onClick={() => signOut({ callbackUrl: "/login" })}
+          onClick={() => signOut({ callbackUrl: "/sign-in" })}
           tooltip={he.common.signOut}
           className={`${btnIdle} cursor-pointer`}
         >

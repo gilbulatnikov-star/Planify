@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 
 // ── Simple in-process rate limiter: max 5 registrations per IP per 10 minutes ──
+// Note: on Vercel serverless this only prevents abuse within a single instance.
+// For multi-instance rate limiting, use Upstash Redis or similar.
 const ipRegistry = new Map<string, { count: number; resetAt: number }>();
 const RATE_WINDOW_MS  = 10 * 60 * 1000; // 10 min
 const RATE_MAX        = 5;
@@ -17,6 +19,18 @@ function isRateLimited(ip: string): boolean {
   if (entry.count >= RATE_MAX) return true;
   entry.count++;
   return false;
+}
+
+async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
+  const secret = process.env.TURNSTILE_SECRET_KEY;
+  if (!secret) return true; // skip if not configured (dev)
+  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ secret, response: token, remoteip: ip }),
+  });
+  const data = await res.json();
+  return data.success === true;
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -36,7 +50,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name, email, password } = await request.json();
+    const { name, email, password, turnstileToken } = await request.json();
+
+    // ── Turnstile server-side verification ────────────────────────────────────
+    if (!turnstileToken || typeof turnstileToken !== "string") {
+      return NextResponse.json({ error: "אימות אבטחה נכשל" }, { status: 400 });
+    }
+    const turnstileOk = await verifyTurnstile(turnstileToken, ip);
+    if (!turnstileOk) {
+      return NextResponse.json({ error: "אימות אבטחה נכשל. נסה שוב." }, { status: 400 });
+    }
 
     // ── Input validation ──────────────────────────────────────────────────────
     if (!email || typeof email !== "string" || !password || typeof password !== "string") {
@@ -61,6 +84,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      return NextResponse.json(
+        { error: "הסיסמה חייבת להכיל אות גדולה, אות קטנה ומספר" },
+        { status: 400 }
+      );
+    }
+
     const trimmedName = typeof name === "string" ? name.trim().slice(0, 100) : null;
 
     const existing = await prisma.user.findUnique({ where: { email: trimmedEmail } });
@@ -78,7 +108,7 @@ export async function POST(request: NextRequest) {
         name: trimmedName || null,
         email: trimmedEmail,
         password: hashedPassword,
-        onboardingCompleted: true,
+        onboardingCompleted: false,
       },
     });
 

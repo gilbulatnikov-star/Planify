@@ -42,73 +42,84 @@ export async function getReportsData(monthsBack = 6): Promise<ReportsData> {
 
   const userId = session.user.id;
   const now = new Date();
-  const months: MonthlyDataPoint[] = [];
 
+  // Compute the full date range once
+  const rangeStart = new Date(now.getFullYear(), now.getMonth() - (monthsBack - 1), 1);
+  const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   const donePhases = DONE_PHASES;
 
+  // 8 queries total instead of 8 × monthsBack (was 48 for 6 months)
+  const [
+    paidInvoices,
+    expenses,
+    openedProjects,
+    completedProjects,
+    completedTasks,
+    allTasks,
+    newClients,
+    publishedContent,
+  ] = await Promise.all([
+    prisma.invoice.findMany({
+      where: { userId, status: "paid", paidAt: { gte: rangeStart, lt: rangeEnd } },
+      select: { total: true, paidAt: true },
+    }),
+    prisma.expense.findMany({
+      where: { userId, date: { gte: rangeStart, lt: rangeEnd } },
+      select: { amount: true, date: true },
+    }),
+    prisma.project.findMany({
+      where: { userId, createdAt: { gte: rangeStart, lt: rangeEnd } },
+      select: { createdAt: true },
+    }),
+    prisma.project.findMany({
+      where: { userId, phase: { in: donePhases }, updatedAt: { gte: rangeStart, lt: rangeEnd } },
+      select: { updatedAt: true },
+    }),
+    prisma.task.findMany({
+      where: { project: { userId }, completed: true, createdAt: { gte: rangeStart, lt: rangeEnd } },
+      select: { createdAt: true },
+    }),
+    prisma.task.findMany({
+      where: { project: { userId }, createdAt: { gte: rangeStart, lt: rangeEnd } },
+      select: { createdAt: true },
+    }),
+    prisma.client.findMany({
+      where: { userId, createdAt: { gte: rangeStart, lt: rangeEnd } },
+      select: { createdAt: true },
+    }),
+    prisma.scheduledContent.findMany({
+      where: { userId, status: "published", date: { gte: rangeStart, lt: rangeEnd } },
+      select: { date: true },
+    }),
+  ]);
+
+  // Helper to bucket items by month key
+  const bucket = (date: Date | null) => {
+    if (!date) return null;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
+  };
+
+  // Build month data points by bucketing fetched rows
+  const months: MonthlyDataPoint[] = [];
   for (let i = monthsBack - 1; i >= 0; i--) {
     const start = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const end = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
     const monthKey = `${start.getFullYear()}-${String(start.getMonth() + 1).padStart(2, "0")}`;
     const label = HEBREW_MONTHS[start.getMonth()];
 
-    const [
-      revenueAgg,
-      expensesAgg,
-      projectsOpened,
-      projectsCompleted,
-      tasksCompleted,
-      totalTasks,
-      newClients,
-      contentPublished,
-    ] = await Promise.all([
-      // Revenue: paid invoices in this month
-      prisma.invoice.aggregate({
-        where: { userId, status: "paid", paidAt: { gte: start, lt: end } },
-        _sum: { total: true },
-      }),
-      // Expenses this month
-      prisma.expense.aggregate({
-        where: { userId, date: { gte: start, lt: end } },
-        _sum: { amount: true },
-      }),
-      // Projects opened this month
-      prisma.project.count({
-        where: { userId, createdAt: { gte: start, lt: end } },
-      }),
-      // Projects completed this month (delivered/done)
-      prisma.project.count({
-        where: { userId, phase: { in: donePhases }, updatedAt: { gte: start, lt: end } },
-      }),
-      // Tasks completed this month
-      prisma.task.count({
-        where: { project: { userId }, completed: true, createdAt: { gte: start, lt: end } },
-      }),
-      // Total tasks created this month
-      prisma.task.count({
-        where: { project: { userId }, createdAt: { gte: start, lt: end } },
-      }),
-      // New clients this month
-      prisma.client.count({
-        where: { userId, createdAt: { gte: start, lt: end } },
-      }),
-      // Content published this month
-      prisma.scheduledContent.count({
-        where: { userId, status: "published", date: { gte: start, lt: end } },
-      }),
-    ]);
+    const revenue = paidInvoices.filter(r => bucket(r.paidAt) === monthKey).reduce((s, r) => s + (r.total ?? 0), 0);
+    const expenseTotal = expenses.filter(r => bucket(r.date) === monthKey).reduce((s, r) => s + (r.amount ?? 0), 0);
 
     months.push({
       month: monthKey,
       label,
-      revenue: revenueAgg._sum.total ?? 0,
-      expenses: expensesAgg._sum.amount ?? 0,
-      projectsOpened,
-      projectsCompleted,
-      tasksCompleted,
-      totalTasks,
-      newClients,
-      contentPublished,
+      revenue,
+      expenses: expenseTotal,
+      projectsOpened: openedProjects.filter(r => bucket(r.createdAt) === monthKey).length,
+      projectsCompleted: completedProjects.filter(r => bucket(r.updatedAt) === monthKey).length,
+      tasksCompleted: completedTasks.filter(r => bucket(r.createdAt) === monthKey).length,
+      totalTasks: allTasks.filter(r => bucket(r.createdAt) === monthKey).length,
+      newClients: newClients.filter(r => bucket(r.createdAt) === monthKey).length,
+      contentPublished: publishedContent.filter(r => bucket(r.date) === monthKey).length,
     });
   }
 

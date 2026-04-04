@@ -2,7 +2,12 @@ import { notFound } from "next/navigation";
 import { getMoodboard } from "@/lib/actions/moodboard-actions";
 import { auth } from "@/auth";
 import { getLimitsForPlan } from "@/lib/plan-limits";
-import { MoodboardCanvas } from "@/app/components/moodboard/moodboard-canvas";
+import dynamic from "next/dynamic";
+
+const MoodboardCanvas = dynamic(
+  () => import("@/app/components/moodboard/moodboard-canvas").then(m => m.MoodboardCanvas),
+  { ssr: false, loading: () => <div className="h-full w-full bg-muted animate-pulse" /> },
+);
 
 export default async function MoodboardPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

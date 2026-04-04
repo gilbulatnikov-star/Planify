@@ -38,7 +38,8 @@ export default auth((req) => {
     pathname.startsWith("/billing") ||
     pathname.startsWith("/settings/billing") ||
     pathname.startsWith("/api/checkout") ||
-    pathname.startsWith("/api/user/me");
+    pathname.startsWith("/api/user/me") ||
+    pathname.startsWith("/api/user/avatar");
 
   // Marketing page is always public
   if (isMarketingPage) {
@@ -60,8 +61,13 @@ export default auth((req) => {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
-  if (isLoggedIn && isOnboarding) {
+  // Only redirect away from onboarding if the user has already completed it
+  if (isLoggedIn && isOnboarding && session?.user?.onboardingCompleted) {
     return NextResponse.redirect(new URL("/", req.nextUrl));
+  }
+  // If logged in and onboarding not completed, force them to /onboarding (page navigations only)
+  if (isLoggedIn && !isOnboarding && !session?.user?.onboardingCompleted && !isAuthPage && !isPublicApi && !isBillingPage && !isInternalApi) {
+    return NextResponse.redirect(new URL("/onboarding", req.nextUrl));
   }
 
   if (isLoggedIn && !isBillingPage && !isPublicApi) {
@@ -88,5 +94,5 @@ export default auth((req) => {
 });
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|uploads).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|uploads|.*\\.png$|.*\\.jpg$|.*\\.jpeg$|.*\\.svg$|.*\\.gif$|.*\\.ico$|.*\\.webp$).*)"],
 };

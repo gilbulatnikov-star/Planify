@@ -44,7 +44,7 @@ export function MoodboardPageClient({
     <div className="space-y-6" dir="rtl">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Moodboard</h1>
+          <h1 className="text-2xl font-bold text-foreground">מוד בורד</h1>
           <p className="text-sm text-muted-foreground mt-1">{t.subtitle}</p>
         </div>
         <NewMoodboardButton action={handleCreate} canCreate={canCreate} planLimit={planLimit} />

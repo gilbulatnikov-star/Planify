@@ -18,6 +18,7 @@ export async function createAsset(formData: FormData) {
 
     const session = await auth();
     const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Unauthorized" };
 
     await prisma.asset.create({
       data: {

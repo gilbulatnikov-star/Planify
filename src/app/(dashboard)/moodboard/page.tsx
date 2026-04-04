@@ -20,6 +20,7 @@ export default async function MoodboardListPage() {
     "use server";
     const title = (formData.get("title") as string)?.trim() || "Moodboard חדש";
     const board = await createMoodboard(title);
+    if ("error" in board) return;
     redirect(`/moodboard/${board.id}`);
   }
 

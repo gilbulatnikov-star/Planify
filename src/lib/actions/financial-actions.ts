@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
+import { getLimitsForPlan } from "@/lib/plan-limits";
 
 const VALID_INVOICE_STATUSES = ["draft", "sent", "paid", "overdue", "cancelled"] as const;
 const VALID_QUOTE_STATUSES   = ["draft", "sent", "accepted", "rejected", "expired"] as const;
@@ -15,6 +16,14 @@ export async function createInvoice(formData: FormData) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
+
+    // ── Plan quota check ─────────────────────────────────────────────────────
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.invoices !== -1) {
+      const count = await prisma.invoice.count({ where: { userId } });
+      if (count >= limits.invoices) return { success: false, quotaExceeded: true, error: "Invoice limit reached for your plan" };
+    }
 
     const clientId = (formData.get("clientId") as string) || undefined;
 
@@ -31,36 +40,38 @@ export async function createInvoice(formData: FormData) {
     const externalLink = (formData.get("externalLink") as string) || null;
     const notes = ((formData.get("notes") as string) || null)?.slice(0, 2000) ?? null;
 
-    // Auto-generate invoice number scoped to user (use max existing number to avoid duplicates)
-    const lastInvoice = await prisma.invoice.findFirst({
-      where: { userId: userId ?? undefined },
-      orderBy: { createdAt: "desc" },
-      select: { invoiceNumber: true },
-    });
-    const lastNum = lastInvoice?.invoiceNumber
-      ? parseInt(lastInvoice.invoiceNumber.replace(/\D/g, ""), 10) || 0
-      : 0;
-    const invoiceNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
-
     const includeVat = formData.get("includeVat") === "1";
     const tax = includeVat ? amount * 0.18 : 0;
     const total = amount + tax;
 
-    await prisma.invoice.create({
-      data: {
-        invoiceNumber,
-        clientId,
-        projectId,
-        status,
-        subtotal: amount,
-        tax,
-        total,
-        dueDate: dateStr ? new Date(dateStr) : null,
-        paidAt: status === "paid" ? new Date() : null,
-        externalLink,
-        notes,
-        userId: userId ?? undefined,
-      },
+    // Auto-generate invoice number in a transaction to prevent race conditions
+    await prisma.$transaction(async (tx) => {
+      const lastInvoice = await tx.invoice.findFirst({
+        where: { userId: userId ?? undefined },
+        orderBy: { createdAt: "desc" },
+        select: { invoiceNumber: true },
+      });
+      const lastNum = lastInvoice?.invoiceNumber
+        ? parseInt(lastInvoice.invoiceNumber.replace(/\D/g, ""), 10) || 0
+        : 0;
+      const invoiceNumber = `INV-${String(lastNum + 1).padStart(4, "0")}`;
+
+      await tx.invoice.create({
+        data: {
+          invoiceNumber,
+          clientId,
+          projectId,
+          status,
+          subtotal: amount,
+          tax,
+          total,
+          dueDate: dateStr ? new Date(dateStr) : null,
+          paidAt: status === "paid" ? new Date() : null,
+          externalLink,
+          notes,
+          userId: userId ?? undefined,
+        },
+      });
     });
 
     revalidatePath("/financials");
@@ -246,6 +257,14 @@ export async function createExpense(formData: FormData) {
     const session = await auth();
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "Not authenticated" };
+
+    // ── Plan quota check ─────────────────────────────────────────────────────
+    const plan = session?.user?.subscriptionPlan ?? "FREE";
+    const limits = getLimitsForPlan(plan);
+    if (limits.expenses !== -1) {
+      const count = await prisma.expense.count({ where: { userId } });
+      if (count >= limits.expenses) return { success: false, quotaExceeded: true, error: "Expense limit reached for your plan" };
+    }
 
     const description = ((formData.get("description") as string) || "").slice(0, 500);
     if (!description.trim()) {

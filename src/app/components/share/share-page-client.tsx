@@ -114,8 +114,10 @@ function formatDateHebrew(date: string | Date | null | undefined): string {
 function QlipyLogo({ height = 28 }: { height?: number }) {
   return (
     <>
-      <img src="/qlipy-new-logo.png" alt="Qlipy" style={{ height }} className="w-auto dark:hidden" />
-      <img src="/qlipy-inverse-logo.png" alt="Qlipy" style={{ height }} className="w-auto hidden dark:block" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/qlipy-new-logo.png" alt="Qlipy" width={120} height={height} style={{ height }} className="w-auto dark:hidden" />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/qlipy-inverse-logo.png" alt="Qlipy" width={120} height={height} style={{ height }} className="w-auto hidden dark:block" />
     </>
 
   );

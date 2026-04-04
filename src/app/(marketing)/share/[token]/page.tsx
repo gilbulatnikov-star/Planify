@@ -11,5 +11,6 @@ export default async function SharePage({
   const data = await getShareLink(token);
   if (!data) return notFound();
 
-  return <SharePageClient token={token} data={data} />;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <SharePageClient token={token} data={data as any} />;
 }

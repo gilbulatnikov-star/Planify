@@ -10,7 +10,7 @@ import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session?.user?.id) redirect("/login");
+  if (!session?.user?.id) redirect("/sign-in");
 
   const plan = session.user.subscriptionPlan ?? "FREE";
   const todosLimit = getLimitsForPlan(plan).todos;
@@ -22,7 +22,7 @@ export default async function DashboardPage() {
     getDashboardLayout(),
   ]);
 
-  if (!dashboardData) redirect("/login");
+  if (!dashboardData) redirect("/sign-in");
 
   // Map to the shape TodoWidget expects
   const todoItems = todos.map((t) => ({ id: t.id, text: t.text, completed: t.completed }));

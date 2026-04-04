@@ -50,7 +50,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   // TODO: verify webhook signature and process events (see comments above)
-  console.log("Webhook received — plug in Stripe/Lemon Squeezy here");
-
+  void request;
   return NextResponse.json({ received: true });
 }

@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { encode } from "next-auth/jwt";
 import { prisma } from "@/lib/db/prisma";
 import { consumeToken } from "@/lib/impersonation-tokens";
-import { auth } from "@/auth";
-
-const ADMIN_EMAILS = (process.env.ADMIN_EMAIL ?? "").split(",").map(e => e.trim().toLowerCase());
+import { requireAdmin } from "@/lib/admin";
 
 export async function GET(req: NextRequest) {
   // 1. Verify caller is still admin
-  const session = await auth();
-  if (!session?.user?.email || !ADMIN_EMAILS.includes(session.user.email.toLowerCase())) {
+  try {
+    await requireAdmin();
+  } catch {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

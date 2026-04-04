@@ -75,7 +75,7 @@ export function AdminPageClient({ stats, users, feedbacks }: { stats: Stats; use
   );
 
   function handlePlanChange(userId: string, plan: string) {
-    startTransition(() => updateUserPlan(userId, plan));
+    startTransition(() => { void updateUserPlan(userId, plan); });
   }
 
   function handleDelete(userId: string) {

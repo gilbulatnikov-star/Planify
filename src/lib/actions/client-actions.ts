@@ -166,8 +166,15 @@ export async function getLeads() {
   if (!userId) return [];
   return prisma.client.findMany({
     where: { userId, type: "lead" },
-    include: {
-      interactions: { orderBy: { date: "desc" }, take: 1 },
+    select: {
+      id: true, name: true, email: true, phone: true, company: true,
+      type: true, leadStatus: true, leadSource: true, tags: true, notes: true,
+      createdAt: true, updatedAt: true,
+      interactions: {
+        orderBy: { date: "desc" },
+        take: 1,
+        select: { id: true, clientId: true, type: true, summary: true, date: true, createdAt: true },
+      },
       _count: { select: { interactions: true } },
     },
     orderBy: { updatedAt: "desc" },

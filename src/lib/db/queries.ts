@@ -40,7 +40,7 @@ export async function getDashboardStats() {
         phase: { in: ["pre_production", "production"] },
         userId,
       },
-      include: { client: true },
+      select: { id: true, title: true, shootDate: true, phase: true, client: { select: { id: true, name: true } } },
       orderBy: { shootDate: "asc" },
       take: 5,
     }),
@@ -50,7 +50,7 @@ export async function getDashboardStats() {
         phase: { notIn: DONE_PHASES },
         userId,
       },
-      include: { client: true },
+      select: { id: true, title: true, deadline: true, phase: true, client: { select: { id: true, name: true } } },
       orderBy: { deadline: "asc" },
       take: 5,
     }),
@@ -90,7 +90,7 @@ export async function getRecentProjects() {
   if (!userId) return [];
   return prisma.project.findMany({
     where: { userId },
-    include: { client: true },
+    select: { id: true, title: true, phase: true, updatedAt: true, client: { select: { id: true, name: true } } },
     orderBy: { updatedAt: "desc" },
     take: 5,
   });

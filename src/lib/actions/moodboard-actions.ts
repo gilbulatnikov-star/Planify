@@ -11,7 +11,10 @@ export async function getMoodboards() {
   return prisma.moodboard.findMany({
     where: { userId },
     orderBy: { updatedAt: "desc" },
-    include: { project: { select: { id: true, title: true } } },
+    select: {
+      id: true, title: true, updatedAt: true,
+      project: { select: { id: true, title: true } },
+    },
   });
 }
 
@@ -28,6 +31,7 @@ export async function getMoodboard(id: string) {
 export async function createMoodboard(title?: string) {
   const session = await auth();
   const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Unauthorized" };
   const board = await prisma.moodboard.create({
     data: { title: title ?? "Moodboard חדש", userId: userId ?? undefined },
   });

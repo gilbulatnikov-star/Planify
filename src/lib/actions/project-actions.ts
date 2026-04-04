@@ -326,3 +326,50 @@ export async function restoreProject(id: string) {
     };
   }
 }
+
+// ── Bulk operations ──────────────────────────────────────────────────────────
+
+export async function bulkDeleteProjects(ids: string[]) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+    if (!ids.length) return { success: false, error: "No projects selected" };
+
+    await prisma.project.deleteMany({
+      where: { id: { in: ids }, userId },
+    });
+
+    revalidatePath("/projects");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to delete projects",
+    };
+  }
+}
+
+export async function bulkCompleteProjects(ids: string[]) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+    if (!ids.length) return { success: false, error: "No projects selected" };
+
+    await prisma.project.updateMany({
+      where: { id: { in: ids }, userId },
+      data: { phase: "delivered", status: "delivered", deliveredAt: new Date() },
+    });
+
+    revalidatePath("/projects");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to complete projects",
+    };
+  }
+}

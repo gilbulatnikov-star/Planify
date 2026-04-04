@@ -21,6 +21,7 @@ declare module "next-auth" {
       locale: string;
       createdAt: string;
       image?: string | null;
+      hasAvatar?: boolean;
     } & import("next-auth").DefaultSession["user"];
   }
 }
@@ -79,14 +80,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.subscriptionPlan   = dbUser.subscriptionPlan;
         token.locale             = dbUser.locale;
         token.createdAt          = dbUser.createdAt.toISOString();
-        token.picture            = dbUser.image ?? user.image ?? null;
+        // Store image URL only if it's a real URL (not base64) to keep JWT small
+        const googleImg = dbUser.image ?? user.image ?? null;
+        const googleIsUrl = googleImg && !googleImg.startsWith("data:");
+        token.picture    = googleIsUrl ? googleImg : null;
+        token.hasAvatar  = !!googleImg; // true if any image exists in DB (URL or base64)
       } else if (user) {
-        // Credentials sign-in
+        // Credentials sign-in — never store base64 in JWT
         token.onboardingCompleted = user.onboardingCompleted ?? false;
         token.subscriptionPlan   = user.subscriptionPlan ?? "FREE";
         token.locale             = user.locale ?? "he";
         token.createdAt          = user.createdAt ?? new Date().toISOString();
-        token.picture            = user.image ?? null;
+        const img = user.image ?? null;
+        const isUrl = img && !img.startsWith("data:");
+        token.picture   = isUrl ? img : null;
+        token.hasAvatar = !!img;
       } else if (token.sub) {
         // Refresh plan from DB at most once every 5 minutes to avoid DB hit on every request
         const now = Date.now();
@@ -100,8 +108,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             token.subscriptionPlan    = fresh.subscriptionPlan;
             token.onboardingCompleted = fresh.onboardingCompleted;
             token.locale              = fresh.locale;
-            token.picture             = fresh.image ?? token.picture ?? null;
-            token.planFetchedAt       = now;
+            // Don't store base64 in JWT — it bloats the session cookie
+            const freshImg = fresh.image ?? null;
+            const freshIsUrl = freshImg && !freshImg.startsWith("data:");
+            token.picture    = freshIsUrl ? freshImg : null;
+            token.hasAvatar  = !!freshImg;
+            token.planFetchedAt = now;
           }
         }
       }
@@ -109,7 +121,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (session?.onboardingCompleted !== undefined) token.onboardingCompleted = session.onboardingCompleted;
         if (session?.subscriptionPlan    !== undefined) token.subscriptionPlan    = session.subscriptionPlan;
         if (session?.locale              !== undefined) token.locale              = session.locale;
-        if (session?.image               !== undefined) token.picture             = session.image;
+        if (session?.image               !== undefined) {
+          // Only update JWT picture if it's not base64
+          const img = session.image;
+          const isUrl = img && !img.startsWith("data:");
+          token.picture   = isUrl ? img : token.picture;
+          token.hasAvatar = !!img; // update hasAvatar when image changes
+        }
       }
       return token;
     },
@@ -121,6 +139,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.user.locale              = token.locale              ?? "he";
       session.user.createdAt           = token.createdAt           ?? "";
       session.user.image               = token.picture             ?? null;
+      session.user.hasAvatar           = token.hasAvatar           ?? false;
       return session;
     },
   },

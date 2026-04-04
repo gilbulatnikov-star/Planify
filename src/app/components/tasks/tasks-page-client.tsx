@@ -177,27 +177,29 @@ export function TasksPageClient({ initialTodos, todosLimit, projects }: TasksPag
               key={todo.id}
               className="group flex items-center gap-3 px-4 py-3 hover:bg-accent/5 transition-colors"
             >
-              {/* Checkbox */}
+              {/* Checkbox — large touch target on mobile */}
               <button
                 onClick={() => handleToggle(todo.id)}
                 disabled={isPending}
-                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2 transition-all ${
+                className="flex h-11 w-11 md:h-6 md:w-6 shrink-0 items-center justify-center rounded-md"
+              >
+                <span className={`flex h-6 w-6 items-center justify-center rounded-md border-2 transition-all ${
                   todo.completed
                     ? "border-accent bg-accent"
                     : "border-border/40 hover:border-accent/60"
-                }`}
-              >
-                {todo.completed && (
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-white">
-                    <path
-                      d="M2 5L4 7L8 3"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
+                }`}>
+                  {todo.completed && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-white">
+                      <path
+                        d="M2 5L4 7L8 3"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  )}
+                </span>
               </button>
 
               {/* Text + project */}

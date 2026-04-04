@@ -125,21 +125,23 @@ export function TodoWidget({ initialTodos, todosLimit }: TodoWidgetProps) {
               key={todo.id}
               className="group flex items-center gap-2 rounded-md px-2 py-1.5 transition-colors hover:bg-[#2563eb]/5"
             >
-              {/* Checkbox */}
+              {/* Checkbox — large touch target on mobile */}
               <button
                 onClick={() => handleToggle(todo.id)}
                 disabled={isPending || editingId === todo.id}
-                className={`flex h-4 w-4 shrink-0 items-center justify-center rounded border transition-colors ${
+                className="flex h-9 w-9 md:h-4 md:w-4 shrink-0 items-center justify-center rounded"
+              >
+                <span className={`flex h-4 w-4 items-center justify-center rounded border transition-colors ${
                   todo.completed
                     ? "border-[#2563eb] bg-[#2563eb]/10 text-[#2563eb]"
                     : "border-muted-foreground/30 hover:border-[#2563eb]/50"
-                }`}
-              >
-                {todo.completed && (
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-[#2563eb]">
-                    <path d="M2 5L4 7L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
+                }`}>
+                  {todo.completed && (
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className="text-[#2563eb]">
+                      <path d="M2 5L4 7L8 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </span>
               </button>
 
               {/* Text or inline editor */}

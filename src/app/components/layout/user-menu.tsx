@@ -45,6 +45,9 @@ export function UserMenu() {
     ? session.user.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase()
     : session.user.email?.[0]?.toUpperCase() ?? "U";
 
+  // Prefer session.user.image (URL-based), fall back to /api/user/avatar for base64 stored in DB
+  const avatarSrc = session.user.image ?? ((session.user as { hasAvatar?: boolean }).hasAvatar ? "/api/user/avatar" : null);
+
   return (
     <>
       <button
@@ -53,8 +56,8 @@ export function UserMenu() {
         className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-80 transition-colors overflow-hidden"
         title={session.user.name ?? session.user.email ?? ""}
       >
-        {session.user.image ? (
-          <img src={session.user.image} alt={session.user.name ?? ""} className="h-8 w-8 rounded-full object-cover" />
+        {avatarSrc ? (
+          <img src={avatarSrc} alt={session.user.name ?? ""} className="h-8 w-8 rounded-full object-cover" />
         ) : initials}
       </button>
 
@@ -70,8 +73,8 @@ export function UserMenu() {
             <div className="px-4 py-3 border-b border-border">
               <div className="flex items-center gap-3">
                 <div className="flex h-9 w-9 items-center justify-center rounded-full bg-foreground text-background text-xs font-semibold shrink-0 overflow-hidden">
-                  {session.user.image ? (
-                    <img src={session.user.image} alt={session.user.name ?? ""} className="h-9 w-9 rounded-full object-cover" />
+                  {avatarSrc ? (
+                    <img src={avatarSrc} alt={session.user.name ?? ""} className="h-9 w-9 rounded-full object-cover" />
                   ) : initials}
                 </div>
                 <div className="min-w-0">

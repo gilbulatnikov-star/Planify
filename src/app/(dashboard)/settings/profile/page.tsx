@@ -20,6 +20,10 @@ export default function ProfileSettingsPage() {
   const he = useT();
   const [isPendingLocale, startLocaleTransition] = useTransition();
 
+  // Prefer URL-based image; fall back to avatar endpoint for base64 avatars stored in DB
+  const avatarSrc = user?.image ?? ((user as { hasAvatar?: boolean } | undefined)?.hasAvatar ? "/api/user/avatar" : null);
+  const hasAvatar = !!(user?.image ?? (user as { hasAvatar?: boolean } | undefined)?.hasAvatar);
+
   const [editingName, setEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(user?.name ?? "");
   const [nameSaving, setNameSaving] = useState(false);
@@ -162,8 +166,8 @@ export default function ProfileSettingsPage() {
               className="h-16 w-16 rounded-full overflow-hidden cursor-pointer ring-2 ring-transparent group-hover:ring-foreground/20 transition-all"
               onClick={() => !avatarSaving && fileInputRef.current?.click()}
             >
-              {user?.image ? (
-                <img src={user.image} alt={user.name ?? ""} className="h-full w-full object-cover" />
+              {avatarSrc ? (
+                <img src={avatarSrc} alt={user?.name ?? ""} className="h-full w-full object-cover" />
               ) : (
                 <div className="flex h-full w-full items-center justify-center bg-foreground text-background text-xl font-bold select-none">
                   {user?.name
@@ -179,7 +183,7 @@ export default function ProfileSettingsPage() {
               </div>
             </div>
             {/* Remove button (shown only when there's a custom image) */}
-            {user?.image && !avatarSaving && (
+            {hasAvatar && !avatarSaving && (
               <button
                 onClick={handleRemoveAvatar}
                 title="הסר תמונה"
@@ -203,7 +207,7 @@ export default function ProfileSettingsPage() {
               onClick={() => !avatarSaving && fileInputRef.current?.click()}
               className="mt-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors underline underline-offset-2"
             >
-              {user?.image ? "החלף תמונה" : "הוסף תמונת פרופיל"}
+              {hasAvatar ? "החלף תמונה" : "הוסף תמונת פרופיל"}
             </button>
             {avatarError && <p className="text-xs text-red-500 mt-1">{avatarError}</p>}
           </div>

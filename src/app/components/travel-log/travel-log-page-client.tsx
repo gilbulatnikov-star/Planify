@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, MoreHorizontal } from "lucide-react";
+import { Plus, Pencil, Trash2, MoreHorizontal, Car } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -133,6 +133,25 @@ export function TravelLogPageClient({
       <motion.div variants={fadeUp}>
         <Card className="glass-card overflow-hidden">
           <CardContent className="p-0">
+            {travelLogs.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center gap-4">
+                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-muted">
+                  <Car className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-base font-semibold text-foreground">אין נסיעות עדיין</p>
+                  <p className="text-sm text-muted-foreground mt-1">הוסף את הנסיעה הראשונה שלך כדי להתחיל לעקוב אחרי הקילומטרים</p>
+                </div>
+                <Button
+                  size="sm"
+                  onClick={handleCreate}
+                  className="bg-foreground text-background hover:bg-foreground/90 shadow-sm transition-all duration-200 border-0"
+                >
+                  <Plus className="h-4 w-4 me-2" />
+                  {he.travelLog.newEntry}
+                </Button>
+              </div>
+            ) : (
             <Table>
               <TableHeader>
                 <TableRow className="border-border hover:bg-transparent">
@@ -218,18 +237,9 @@ export function TravelLogPageClient({
                     </TableCell>
                   </TableRow>
                 ))}
-                {travelLogs.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={7}
-                      className="text-center text-muted-foreground py-8"
-                    >
-                      {he.common.noResults}
-                    </TableCell>
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
+            )}
           </CardContent>
         </Card>
       </motion.div>

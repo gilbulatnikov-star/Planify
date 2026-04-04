@@ -9,6 +9,8 @@ export interface PlanLimits {
   documents: number;
   scripts: number;
   clients: number;
+  invoices: number;        // total invoices
+  expenses: number;        // total expenses
   moodboards: number;      // total moodboard canvases
   moodboardNodes: number;  // items per moodboard canvas
   inspirationRefs: number; // items in inspiration board
@@ -35,6 +37,8 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
     documents:       5,
     scripts:         1,
     clients:         3,
+    invoices:        3,   // total invoices
+    expenses:        5,   // total expenses
     moodboards:      1,   // total moodboard canvases
     moodboardNodes:  3,   // items per moodboard canvas
     inspirationRefs: 2,   // items in inspiration board
@@ -46,6 +50,8 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
     documents:       -1,
     scripts:         -1,
     clients:         -1,
+    invoices:        -1,
+    expenses:        -1,
     moodboards:      -1,
     moodboardNodes:  -1,
     inspirationRefs: -1,
@@ -57,6 +63,8 @@ export const PLAN_LIMITS: Record<PlanKey, PlanLimits> = {
     documents:       -1,
     scripts:         -1,
     clients:         -1,
+    invoices:        -1,
+    expenses:        -1,
     moodboards:      -1,
     moodboardNodes:  -1,
     inspirationRefs: -1,

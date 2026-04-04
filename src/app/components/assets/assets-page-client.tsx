@@ -111,16 +111,16 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
             className="pl-10 bg-card border-border"
           />
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-nowrap overflow-x-auto pb-1">
           <Button
             variant={activeType === null ? "default" : "outline"}
             size="sm"
             onClick={() => setActiveType(null)}
-            className={
+            className={`shrink-0 ${
               activeType === null
                 ? "bg-foreground text-background border-gray-900 hover:bg-foreground/90"
                 : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-            }
+            }`}
           >
             {he.common.all}
           </Button>
@@ -130,11 +130,11 @@ export function AssetsPageClient({ assets }: { assets: AssetData[] }) {
               variant={activeType === t ? "default" : "outline"}
               size="sm"
               onClick={() => setActiveType(activeType === t ? null : t)}
-              className={
+              className={`shrink-0 ${
                 activeType === t
                   ? "bg-foreground text-background border-gray-900 hover:bg-foreground/90"
                   : "border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-              }
+              }`}
             >
               {he.assets.types[t as keyof typeof he.assets.types]}
             </Button>

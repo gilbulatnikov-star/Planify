@@ -34,7 +34,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ContentDialog } from "./content-dialog";
 import { DeleteContentDialog } from "./delete-content-dialog";
-import { CalendarExportStudio } from "./calendar-export-studio";
+import dynamic from "next/dynamic";
+const CalendarExportStudio = dynamic(() => import("./calendar-export-studio").then(m => m.CalendarExportStudio), {
+  loading: () => null,
+});
 import { useT } from "@/lib/i18n";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────

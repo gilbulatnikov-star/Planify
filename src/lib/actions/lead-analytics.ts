@@ -33,7 +33,6 @@ export async function getLeadAnalytics(): Promise<LeadAnalyticsData | null> {
       leadSource: true,
       tags: true,
       createdAt: true,
-      _count: { select: { interactions: true } },
     },
   });
 

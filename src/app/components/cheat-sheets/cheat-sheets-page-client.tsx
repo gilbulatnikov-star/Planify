@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Plus, Pencil, Trash2, FileText, ChevronLeft } from "lucide-react";
+import { Plus, Pencil, Trash2, FileText, ChevronLeft, ArrowRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -54,8 +54,10 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingSheet, setEditingSheet] = useState<CheatSheetData | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  // On mobile, start with no selection so the list is visible; on desktop, pre-select first item
+  const isMobileInitial = typeof window !== "undefined" && window.innerWidth < 768;
   const [selectedId, setSelectedId] = useState<string | null>(
-    cheatSheets.length > 0 ? cheatSheets[0].id : null
+    !isMobileInitial && cheatSheets.length > 0 ? cheatSheets[0].id : null
   );
 
   const selectedSheet = cheatSheets.find((s) => s.id === selectedId) ?? null;
@@ -102,17 +104,28 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
       </motion.div>
 
       {/* Sidebar + Content Layout (sidebar on right for RTL) */}
-      <motion.div variants={fadeUp} className="flex gap-6 min-h-[60vh]">
-        {/* Main Content Area */}
-        <div className="flex-1 min-w-0">
+      <motion.div variants={fadeUp} className="flex flex-col md:flex-row gap-6 min-h-[60vh]">
+        {/* Main Content Area — hidden on mobile when no item selected */}
+        <div className={`flex-1 min-w-0 ${selectedSheet ? "" : "hidden md:block"}`}>
           {selectedSheet ? (
             <Card className="glass-card h-full">
               <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
-                <div>
-                  <CardTitle className="text-xl">{selectedSheet.title}</CardTitle>
-                  <Badge className={`${getCategoryColor(selectedSheet.category, allCategories)} border-0 mt-2`}>
-                    {selectedSheet.category}
-                  </Badge>
+                <div className="flex items-center gap-3">
+                  {/* Back button on mobile */}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 md:hidden hover:bg-muted hover:text-foreground transition-colors duration-200"
+                    onClick={() => setSelectedId(null)}
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                  <div>
+                    <CardTitle className="text-xl">{selectedSheet.title}</CardTitle>
+                    <Badge className={`${getCategoryColor(selectedSheet.category, allCategories)} border-0 mt-2`}>
+                      {selectedSheet.category}
+                    </Badge>
+                  </div>
                 </div>
                 <div className="flex items-center gap-1">
                   <Button
@@ -149,8 +162,8 @@ export function CheatSheetsPageClient({ cheatSheets }: { cheatSheets: CheatSheet
           )}
         </div>
 
-        {/* Sidebar (right side for RTL) */}
-        <div className="w-64 flex-shrink-0">
+        {/* Sidebar (right side for RTL) — hidden on mobile when item selected */}
+        <div className={`w-full md:w-64 flex-shrink-0 ${selectedSheet ? "hidden md:block" : ""}`}>
           <Card className="glass-card h-full">
             <CardContent className="p-3">
               {allCategories.length === 0 ? (

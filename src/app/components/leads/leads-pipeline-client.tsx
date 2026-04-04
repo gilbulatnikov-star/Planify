@@ -14,8 +14,12 @@ import {
 } from "@/lib/actions/client-actions";
 import { LeadDialog } from "./lead-dialog";
 import { InteractionDialog } from "./interaction-dialog";
-import { LeadsAnalytics } from "./leads-analytics";
+import dynamic from "next/dynamic";
 import type { LeadAnalyticsData } from "@/lib/actions/lead-analytics";
+
+const LeadsAnalytics = dynamic(() => import("./leads-analytics").then(m => m.LeadsAnalytics), {
+  loading: () => <div className="h-96 bg-muted animate-pulse rounded-2xl" />,
+});
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

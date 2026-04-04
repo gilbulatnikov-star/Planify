@@ -52,6 +52,11 @@ export const en = {
     createQuote: "Create Quote",
     projectsOverTime: "Projects Over Time",
     projectTypes: "Project Types",
+    greetingNight: "Good night",
+    greetingMorning: "Good morning",
+    greetingNoon: "Good afternoon",
+    greetingEvening: "Good evening",
+    greetingSubtitle: "Here's your work day summary",
   },
 
   // Projects

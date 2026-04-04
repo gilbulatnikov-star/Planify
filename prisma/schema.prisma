@@ -76,6 +76,9 @@ model Notification {
   read      Boolean  @default(false)
   type      String   @default("info") // info, warning, urgent
   createdAt DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
 }
 
 // ---------- AUTOMATION RULES ----------
@@ -88,6 +91,8 @@ model AutomationRule {
   config      Json     @default("{}")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- CLIENTS & LEADS ----------
@@ -126,6 +131,9 @@ model Client {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, type])
 }
 
 model Interaction {
@@ -137,6 +145,8 @@ model Interaction {
   date     DateTime @default(now())
 
   createdAt DateTime @default(now())
+
+  @@index([clientId])
 }
 
 // ---------- PROJECTS (KANBAN PIPELINE) ----------
@@ -179,6 +189,10 @@ model Project {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, phase])
+  @@index([clientId])
 }
 
 model Task {
@@ -190,6 +204,8 @@ model Task {
   dueDate   DateTime?
 
   createdAt DateTime @default(now())
+
+  @@index([projectId])
 }
 
 // ---------- EQUIPMENT & GEAR ----------
@@ -212,6 +228,8 @@ model Equipment {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model GearAssignment {
@@ -247,6 +265,9 @@ model Quote {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([clientId])
 }
 
 model QuoteItem {
@@ -282,6 +303,10 @@ model Invoice {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([clientId])
 }
 
 model InvoiceItem {
@@ -308,6 +333,9 @@ model Expense {
   user      User?   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([userId, date])
 }
 
 // ---------- CONTENT CALENDAR ----------
@@ -325,6 +353,8 @@ model ContentBoard {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model ScheduledContent {
@@ -350,6 +380,10 @@ model ScheduledContent {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([userId, date])
+  @@index([boardId])
 }
 
 // ---------- DASHBOARD WIDGETS ----------
@@ -360,6 +394,8 @@ model QuickNote {
   user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Todo {
@@ -373,6 +409,9 @@ model Todo {
   project     Project?  @relation(fields: [projectId], references: [id])
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([projectId])
 }
 
 model QuickLink {
@@ -385,6 +424,8 @@ model QuickLink {
   user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model GearStatus {
@@ -414,6 +455,8 @@ model Contact {
   user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- SUBSCRIPTIONS TRACKER ----------
@@ -429,6 +472,8 @@ model Subscription {
   user            User?     @relation(fields: [userId], references: [id])
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- TRAVEL LOG ----------
@@ -447,6 +492,8 @@ model TravelLog {
   user        User?   @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- ASSET & LICENSE LIBRARY ----------
@@ -462,6 +509,8 @@ model Asset {
   user        User?   @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- INSPIRATION BOARD ----------
@@ -492,6 +541,9 @@ model Inspiration {
   user       User?               @relation(fields: [userId], references: [id])
   createdAt  DateTime             @default(now())
   updatedAt  DateTime             @updatedAt
+
+  @@index([userId])
+  @@index([categoryId])
 }
 
 // ---------- PROJECT FILES / ATTACHMENTS ----------
@@ -509,6 +561,9 @@ model ProjectFile {
   isShared   Boolean  @default(false) // marked for external sharing
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([userId])
 }
 
 // ---------- SHARE LINKS ----------
@@ -533,6 +588,9 @@ model ShareLink {
   passwordHash    String?
   regeneratedAt   DateTime?
   createdAt       DateTime  @default(now())
+
+  @@index([projectId])
+  @@index([userId])
 }
 
 // ---------- CHEAT SHEETS / SOPs ----------
@@ -546,6 +604,8 @@ model CheatSheet {
   user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- SCRIPTS ----------
@@ -565,6 +625,8 @@ model Script {
   user         User?   @relation(fields: [userId], references: [id])
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([userId])
 }
 
 // ---------- FEEDBACK ----------
@@ -591,4 +653,6 @@ model Moodboard {
   user      User?   @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }

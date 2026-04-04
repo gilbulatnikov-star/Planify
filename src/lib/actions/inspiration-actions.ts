@@ -140,11 +140,12 @@ export async function createInspirationCategory(formData: FormData) {
     const userId = session?.user?.id;
     if (!userId) return { success: false, error: "לא מחובר" };
 
-    const maxSort = await prisma.inspirationCategory.aggregate({
+    const lastCat = await prisma.inspirationCategory.findFirst({
       where: { userId },
-      _max: { sortOrder: true },
+      orderBy: { sortOrder: "desc" },
+      select: { sortOrder: true },
     });
-    const sortOrder = (maxSort._max.sortOrder ?? -1) + 1;
+    const sortOrder = (lastCat?.sortOrder ?? -1) + 1;
 
     const created = await prisma.inspirationCategory.create({
       data: { name: name || `cat_${Date.now()}`, label, color, sortOrder, userId },

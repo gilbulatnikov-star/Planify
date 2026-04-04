@@ -1,29 +1,14 @@
 "use server";
 
 import { prisma } from "@/lib/db/prisma";
-import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
 import { createToken } from "@/lib/impersonation-tokens";
+import { requireAdmin } from "@/lib/admin";
 
 // ── Impersonation ─────────────────────────────────────────────────────────────
 export async function createImpersonationToken(targetUserId: string): Promise<string> {
-  const session = await auth();
-  if (!session?.user?.email || !isAdmin(session.user.email)) {
-    throw new Error("Unauthorized");
-  }
+  await requireAdmin();
   return createToken(targetUserId);
-}
-
-function isAdmin(email: string) {
-  const admins = (process.env.ADMIN_EMAIL ?? "").split(",").map(e => e.trim().toLowerCase());
-  return admins.includes(email.toLowerCase());
-}
-
-async function requireAdmin() {
-  const session = await auth();
-  if (!session?.user?.email || !isAdmin(session.user.email)) {
-    throw new Error("Unauthorized");
-  }
 }
 
 export async function getAdminStats() {
@@ -64,49 +49,65 @@ export async function getAdminStats() {
 
 export async function getAdminUsers() {
   await requireAdmin();
-  const users = await prisma.user.findMany({
+  return prisma.user.findMany({
     orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      subscriptionPlan: true,
+      subscriptionStatus: true,
+      subscriptionEndsAt: true,
+      onboardingCompleted: true,
+      createdAt: true,
+    },
+    take: 200,
   });
-
-  return users.map(u => ({
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    subscriptionPlan: u.subscriptionPlan,
-    subscriptionStatus: u.subscriptionStatus,
-    subscriptionEndsAt: u.subscriptionEndsAt,
-    onboardingCompleted: u.onboardingCompleted,
-    createdAt: u.createdAt,
-  }));
 }
 
 export async function updateUserPlan(userId: string, plan: string) {
-  await requireAdmin();
-  await prisma.user.update({
-    where: { id: userId },
-    data: {
-      subscriptionPlan: plan,
-      subscriptionStatus: plan === "FREE" ? null : "ACTIVE",
-    },
-  });
-  revalidatePath("/admin");
+  try {
+    await requireAdmin();
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        subscriptionPlan: plan,
+        subscriptionStatus: plan === "FREE" ? null : "ACTIVE",
+      },
+    });
+    revalidatePath("/admin");
+  } catch {
+    return { success: false, error: "Failed to update user plan" };
+  }
 }
 
 export async function deleteUser(userId: string) {
-  await requireAdmin();
-  await prisma.user.delete({ where: { id: userId } });
-  revalidatePath("/admin");
+  try {
+    await requireAdmin();
+    await prisma.user.delete({ where: { id: userId } });
+    revalidatePath("/admin");
+  } catch {
+    return { success: false, error: "Failed to delete user" };
+  }
 }
 
 export async function resetUserPassword(userId: string, newPassword: string) {
-  await requireAdmin();
-  const bcrypt = await import("bcryptjs");
-  const hashed = await bcrypt.hash(newPassword, 10);
-  await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  try {
+    await requireAdmin();
+    const bcrypt = await import("bcryptjs");
+    const hashed = await bcrypt.hash(newPassword, 10);
+    await prisma.user.update({ where: { id: userId }, data: { password: hashed } });
+  } catch {
+    return { success: false, error: "Failed to reset password" };
+  }
 }
 
 export async function updateUserSubscriptionExpiry(userId: string, endsAt: Date | null) {
-  await requireAdmin();
-  await prisma.user.update({ where: { id: userId }, data: { subscriptionEndsAt: endsAt } });
-  revalidatePath("/admin");
+  try {
+    await requireAdmin();
+    await prisma.user.update({ where: { id: userId }, data: { subscriptionEndsAt: endsAt } });
+    revalidatePath("/admin");
+  } catch {
+    return { success: false, error: "Failed to update subscription expiry" };
+  }
 }
