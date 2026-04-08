@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import { LayoutTemplate, Pencil, Search } from "lucide-react";
+import { LayoutTemplate, Pencil, Search, ArrowUpDown, Clock } from "lucide-react";
+import { timeAgo, formatDateTime } from "@/lib/utils/format";
 import { DeleteMoodboardButton } from "./delete-moodboard-button";
 import { NewMoodboardButton } from "./new-moodboard-button";
 import { MoodboardProjectLink } from "./moodboard-project-link";
@@ -34,11 +35,18 @@ export function MoodboardPageClient({
   dateMap: Record<string, string>;
 }) {
   const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<"updated" | "name">("updated");
 
-  const filteredBoards = boards.filter((board) => {
-    if (!search) return true;
-    return board.title.toLowerCase().includes(search.toLowerCase());
-  });
+  const filteredBoards = useMemo(() => {
+    const filtered = boards.filter((board) => {
+      if (!search) return true;
+      return board.title.toLowerCase().includes(search.toLowerCase());
+    });
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "name") return a.title.localeCompare(b.title, "he");
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [boards, search, sortBy]);
 
   return (
     <div className="space-y-6" dir="rtl">
@@ -50,15 +58,24 @@ export function MoodboardPageClient({
         <NewMoodboardButton action={handleCreate} canCreate={canCreate} planLimit={planLimit} />
       </div>
 
-      {/* Search bar */}
-      <div className="relative w-full max-w-xs">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
-        <input
-          placeholder="חיפוש מוד בורד..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full rounded-[10px] border border-border/60 bg-background pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
-        />
+      {/* Search bar + sort */}
+      <div className="flex items-center gap-3 flex-wrap">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-foreground/30" />
+          <input
+            placeholder="חיפוש מוד בורד..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-[10px] border border-border/60 bg-background pr-4 pl-10 py-2.5 text-[13px] text-foreground placeholder:text-foreground/30 outline-none focus:border-accent/40 focus:ring-1 focus:ring-accent/20 transition-all duration-200"
+          />
+        </div>
+        <button
+          onClick={() => setSortBy(s => s === "updated" ? "name" : "updated")}
+          className="flex items-center gap-1.5 h-[38px] px-3 rounded-[10px] border border-border/60 bg-background text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowUpDown className="h-3 w-3" />
+          {sortBy === "updated" ? "נערך לאחרונה" : "שם"}
+        </button>
       </div>
 
       {boards.length === 0 ? (
@@ -86,9 +103,10 @@ export function MoodboardPageClient({
                 </div>
                 <div className="p-4">
                   <p className="font-semibold text-foreground truncate">{board.title}</p>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {t.updated} {dateMap[board.updatedAt] ?? board.updatedAt}
-                  </p>
+                  <div className="flex items-center gap-1 text-[10.5px] text-foreground/30 mt-1.5" title={formatDateTime(board.updatedAt)}>
+                    <Clock className="h-2.5 w-2.5" />
+                    <span>{timeAgo(board.updatedAt)}</span>
+                  </div>
                 </div>
               </Link>
               {/* Project link */}

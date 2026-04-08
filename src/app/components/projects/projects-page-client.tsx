@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   Plus, Pencil, Trash2, CalendarPlus, Search,
-  CheckCircle2, RotateCcw, MoreHorizontal, X,
+  CheckCircle2, RotateCcw, MoreHorizontal, X, Clock, ArrowUpDown,
 } from "lucide-react";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { Card, CardContent } from "@/components/ui/card";
@@ -33,7 +33,7 @@ import { SearchableSelect } from "@/components/ui/searchable-select";
 import { ProjectDialog, QuickAddDialog } from "./project-dialog";
 import { DeleteProjectDialog } from "./delete-project-dialog";
 import { useT, useLocale } from "@/lib/i18n";
-import { formatCurrency, daysUntil } from "@/lib/utils/format";
+import { formatCurrency, daysUntil, timeAgo, formatDateTime } from "@/lib/utils/format";
 import { getPhaseLabel, toUniversalColumn } from "@/lib/project-config";
 import { completeProject, restoreProject, bulkDeleteProjects, bulkCompleteProjects } from "@/lib/actions/project-actions";
 
@@ -55,6 +55,8 @@ type ProjectData = {
   budget: number | null;
   shootDate: Date | null;
   deadline: Date | null;
+  updatedAt: Date;
+  createdAt: Date;
   client: { id: string; name: string } | null;
   tasks: { id: string; completed: boolean }[];
 };
@@ -102,6 +104,7 @@ export function ProjectsPageClient({
   const [view, setView] = useState<ViewTab>("active");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<"updated" | "name" | "deadline">("updated");
 
   const activeProjects  = useMemo(() => projects.filter((p) => p.phase !== "delivered"), [projects]);
   const historyProjects = useMemo(() => projects.filter((p) => p.phase === "delivered"), [projects]);
@@ -109,12 +112,24 @@ export function ProjectsPageClient({
   const displayProjects = useMemo(() => {
     const base = view === "active" ? activeProjects : historyProjects;
     const q = search.toLowerCase();
-    return base.filter((p) => {
+    const filtered = base.filter((p) => {
       if (filterClientId && p.clientId !== filterClientId) return false;
       if (q && !p.title.toLowerCase().includes(q) && !p.client?.name.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [view, activeProjects, historyProjects, filterClientId, search]);
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "name") return a.title.localeCompare(b.title, "he");
+      if (sortBy === "deadline") {
+        const da = a.deadline ?? a.shootDate;
+        const db = b.deadline ?? b.shootDate;
+        if (!da && !db) return 0;
+        if (!da) return 1;
+        if (!db) return -1;
+        return new Date(da).getTime() - new Date(db).getTime();
+      }
+      return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+    });
+  }, [view, activeProjects, historyProjects, filterClientId, search, sortBy]);
 
   function handleCreate() {
     if (planLimit !== -1 && activeProjectCount >= planLimit) {
@@ -237,6 +252,28 @@ export function ProjectsPageClient({
             )}
           </div>
         )}
+
+        {/* Sort */}
+        <DropdownMenu>
+          <DropdownMenuTrigger className="flex items-center gap-1.5 h-[34px] px-3 rounded-xl border border-border/60 bg-background text-[12px] font-medium text-muted-foreground hover:text-foreground transition-colors outline-none">
+            <ArrowUpDown className="h-3 w-3" />
+            {sortBy === "updated" ? "נערך לאחרונה" : sortBy === "name" ? "שם" : "דדליין"}
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" dir="rtl">
+            <DropdownMenuItem onClick={() => setSortBy("updated")} className={sortBy === "updated" ? "font-semibold" : ""}>
+              <Clock className="h-3.5 w-3.5" />
+              <span>נערך לאחרונה</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortBy("name")} className={sortBy === "name" ? "font-semibold" : ""}>
+              <span className="h-3.5 w-3.5 text-center text-[11px]">א</span>
+              <span>שם</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setSortBy("deadline")} className={sortBy === "deadline" ? "font-semibold" : ""}>
+              <CalendarPlus className="h-3.5 w-3.5" />
+              <span>דדליין</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Active / History toggle */}
         <div className="flex items-center gap-0.5 bg-muted/70 rounded-xl p-1 border border-border/30">
@@ -451,6 +488,12 @@ export function ProjectsPageClient({
                           </p>
                         </div>
                       )}
+
+                      {/* Last edited */}
+                      <div className="flex items-center gap-1 text-[10.5px] text-foreground/30 pt-0.5" title={formatDateTime(project.updatedAt, locale)}>
+                        <Clock className="h-2.5 w-2.5" />
+                        <span>{timeAgo(project.updatedAt, locale)}</span>
+                      </div>
                     </CardContent>
                   </Card>
                 </Link>

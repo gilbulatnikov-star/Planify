@@ -15,12 +15,13 @@ import {
   Search,
   CheckSquare,
   Square,
+  ArrowUpDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { createScript, deleteScript, updateScript } from "@/lib/actions/script-actions";
-import { formatDate } from "@/lib/utils/format";
-import { useT } from "@/lib/i18n";
+import { timeAgo, formatDateTime } from "@/lib/utils/format";
+import { useT, useLocale } from "@/lib/i18n";
 
 const PLATFORMS = [
   { value: "youtube",   label: "YouTube"   },
@@ -73,6 +74,7 @@ export function ScriptsPageClient({
 }) {
   const router = useRouter();
   const he = useT();
+  const locale = useLocale();
   const [creating, setCreating] = useState(false);
   const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -80,8 +82,9 @@ export function ScriptsPageClient({
   const [newTitle, setNewTitle] = useState("");
   const titleInputRef = useRef<HTMLInputElement>(null);
 
-  // Client filter
+  // Client filter + sort
   const [filterClientId, setFilterClientId] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"updated" | "name">("updated");
 
   // Multi-select
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -175,6 +178,9 @@ export function ScriptsPageClient({
       if (!s.title.toLowerCase().includes(search.toLowerCase())) return false;
     }
     return true;
+  }).sort((a, b) => {
+    if (sortBy === "name") return a.title.localeCompare(b.title, "he");
+    return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
   });
 
   const bulkFilteredProjects = bulkClientId
@@ -274,6 +280,15 @@ export function ScriptsPageClient({
           />
         </div>
 
+        {/* Sort toggle */}
+        <button
+          onClick={() => setSortBy(s => s === "updated" ? "name" : "updated")}
+          className="flex items-center gap-1.5 h-9 px-3 rounded-[10px] border border-border/60 bg-background text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <ArrowUpDown className="h-3 w-3" />
+          {sortBy === "updated" ? "נערך לאחרונה" : "שם"}
+        </button>
+
         {/* Clear filter badge */}
         {filterClientId && (
           <button
@@ -368,9 +383,9 @@ export function ScriptsPageClient({
                   </p>
                 )}
 
-                <div className="mt-4 flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span>{formatDate(script.updatedAt)}</span>
+                <div className="mt-4 flex items-center gap-1 text-[10.5px] text-foreground/30" title={formatDateTime(script.updatedAt, locale)}>
+                  <Clock className="h-2.5 w-2.5" />
+                  <span>{timeAgo(script.updatedAt, locale)}</span>
                 </div>
               </div>
             );

@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "gil-crm-dev",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["next", "dev", "--turbopack"],
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": ["node_modules/next/dist/bin/next", "dev", "--turbopack"],
       "port": 3000
     }
   ]
