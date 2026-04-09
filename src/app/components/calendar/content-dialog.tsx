@@ -55,6 +55,7 @@ interface ContentDialogProps {
     status: string;
     clientId: string | null;
     projectId: string | null;
+    scriptId: string | null;
     notes: string | null;
     color?: string | null;
   } | null;
@@ -62,6 +63,7 @@ interface ContentDialogProps {
   defaultClientId?: string | null;
   clients: { id: string; name: string }[];
   projects: { id: string; title: string; clientId?: string | null }[];
+  scripts: { id: string; title: string; projectId?: string | null }[];
   boardId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -84,6 +86,7 @@ export function ContentDialog({
   defaultClientId,
   clients,
   projects,
+  scripts,
   boardId,
   open,
   onOpenChange,
@@ -106,6 +109,7 @@ export function ContentDialog({
   const [titleValue, setTitleValue]       = useState(content?.title ?? "");
   const [clientId, setClientId]           = useState(content?.clientId ?? defaultClientId ?? "");
   const [projectId, setProjectId]         = useState(content?.projectId ?? "");
+  const [scriptId, setScriptId]           = useState(content?.scriptId ?? "");
   const [selectedColor, setSelectedColor] = useState(content?.color ?? "gray");
   const [statusValue, setStatusValue]     = useState(content?.status ?? "planned");
   const [newClientMode, setNewClientMode] = useState(false);
@@ -125,6 +129,7 @@ export function ContentDialog({
     setTitleValue(content?.title ?? "");
     setClientId(content?.clientId ?? defaultClientId ?? "");
     setProjectId(content?.projectId ?? "");
+    setScriptId(content?.scriptId ?? "");
     setSelectedColor(content?.color ?? "gray");
     setStatusValue(content?.status ?? "planned");
     setError(null);
@@ -139,6 +144,11 @@ export function ContentDialog({
   const filteredProjects = clientId
     ? projects.filter((p) => !p.clientId || p.clientId === clientId)
     : projects;
+
+  // Scripts filtered by the currently selected project
+  const filteredScripts = projectId
+    ? scripts.filter((s) => !s.projectId || s.projectId === projectId)
+    : scripts;
 
   function handleClientChange(newClientId: string) {
     setClientId(newClientId);
@@ -183,6 +193,7 @@ export function ContentDialog({
 
       formData.set("clientId",  resolvedClientId);
       formData.set("projectId", projectId);
+      formData.set("scriptId",  scriptId);
       formData.set("color",     selectedColor);
       formData.set("status",    statusValue);
       if (boardId) formData.set("boardId", boardId);
@@ -330,6 +341,24 @@ export function ContentDialog({
                 triggerClassName="w-full"
               />
             </div>
+
+            {/* תסריט */}
+            {scripts.length > 0 && (
+              <div className="col-span-2 space-y-2">
+                <Label>{`${he.common.script} (${he.common.optional})`}</Label>
+                <SearchableSelect
+                  options={[
+                    { value: "", label: he.common.noScript },
+                    ...filteredScripts.map((s) => ({ value: s.id, label: s.title })),
+                  ]}
+                  value={scriptId}
+                  onChange={(v) => setScriptId(v)}
+                  placeholder={he.common.selectScript}
+                  searchPlaceholder={he.common.searchPlaceholder}
+                  triggerClassName="w-full"
+                />
+              </div>
+            )}
 
             {/* הערות */}
             <div className="col-span-2 space-y-2">

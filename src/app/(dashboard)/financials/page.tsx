@@ -1,8 +1,29 @@
+import { Suspense } from "react";
 import { prisma } from "@/lib/db/prisma";
 import { auth } from "@/auth";
 import { FinancialsPageClient } from "@/app/components/financials/financials-page-client";
 
-export default async function FinancialsPage() {
+function FinancialsSkeleton() {
+  return (
+    <div className="space-y-6 animate-pulse" dir="rtl">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="h-7 w-36 bg-muted rounded-lg" />
+          <div className="h-4 w-52 bg-muted rounded-lg mt-2" />
+        </div>
+        <div className="h-9 w-28 bg-muted rounded-xl" />
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="h-24 bg-muted rounded-2xl" />
+        ))}
+      </div>
+      <div className="h-64 bg-muted rounded-2xl" />
+    </div>
+  );
+}
+
+async function FinancialsContent() {
   const session = await auth();
   const userId = session?.user?.id;
 
@@ -61,5 +82,13 @@ export default async function FinancialsPage() {
       subscriptions={subscriptions}
       totalMonthlyCost={totalMonthlyCost}
     />
+  );
+}
+
+export default function FinancialsPage() {
+  return (
+    <Suspense fallback={<FinancialsSkeleton />}>
+      <FinancialsContent />
+    </Suspense>
   );
 }

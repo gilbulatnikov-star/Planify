@@ -32,7 +32,7 @@ export default async function BoardPage({
   const rangeStart = startOfMonth(subMonths(monthStart, 1));
   const rangeEnd = endOfMonth(addMonths(monthStart, 1));
 
-  const [content, clients, projects] = await Promise.all([
+  const [content, clients, projects, scripts] = await Promise.all([
     prisma.scheduledContent.findMany({
       where: { boardId: id, userId, date: { gte: rangeStart, lte: rangeEnd } },
       include: {
@@ -51,6 +51,11 @@ export default async function BoardPage({
       select: { id: true, title: true, clientId: true },
       orderBy: { title: "asc" },
     }),
+    prisma.script.findMany({
+      where: { userId },
+      select: { id: true, title: true, projectId: true },
+      orderBy: { title: "asc" },
+    }),
   ]);
 
   return (
@@ -58,6 +63,7 @@ export default async function BoardPage({
       content={content}
       clients={clients}
       projects={projects}
+      scripts={scripts}
       initialMonth={monthStart.toISOString()}
       activeClientId={board.clientId}
       activeClientName={board.client?.name ?? null}

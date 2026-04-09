@@ -16,6 +16,7 @@ export async function createScheduledContent(formData: FormData) {
     const status = (formData.get("status") as string) || "planned";
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
+    const scriptId = (formData.get("scriptId") as string) || null;
     const boardId = (formData.get("boardId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
     const color = (formData.get("color") as string) || "gray";
@@ -33,6 +34,7 @@ export async function createScheduledContent(formData: FormData) {
         isEvent,
         clientId: clientId || undefined,
         projectId: projectId || undefined,
+        scriptId: scriptId || undefined,
         boardId: boardId || undefined,
         notes,
         color,
@@ -67,6 +69,7 @@ export async function updateScheduledContent(id: string, formData: FormData) {
     const status = (formData.get("status") as string) || "planned";
     const clientId = (formData.get("clientId") as string) || null;
     const projectId = (formData.get("projectId") as string) || null;
+    const scriptId = (formData.get("scriptId") as string) || null;
     const notes = (formData.get("notes") as string) || null;
     const color = (formData.get("color") as string) || "gray";
 
@@ -82,6 +85,7 @@ export async function updateScheduledContent(id: string, formData: FormData) {
         status,
         clientId: clientId || null,
         projectId: projectId || null,
+        scriptId: scriptId || null,
         notes,
         color,
       },

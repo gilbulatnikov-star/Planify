@@ -50,6 +50,7 @@ type ContentItem = {
   status: string;
   clientId: string | null;
   projectId: string | null;
+  scriptId: string | null;
   notes: string | null;
   color?: string | null;
   client: { id: string; name: string } | null;
@@ -90,6 +91,7 @@ export function CalendarPageClient({
   content,
   clients,
   projects,
+  scripts,
   initialMonth,
   activeClientId,
   boardId,
@@ -98,6 +100,7 @@ export function CalendarPageClient({
   content: ContentItem[];
   clients: { id: string; name: string }[];
   projects: { id: string; title: string; clientId?: string | null }[];
+  scripts: { id: string; title: string; projectId?: string | null }[];
   initialMonth: string;
   activeClientId: string | null;
   activeClientName: string | null;
@@ -471,6 +474,7 @@ export function CalendarPageClient({
         defaultClientId={selectedClientId}
         clients={clients}
         projects={projects}
+        scripts={scripts}
         boardId={boardId}
         open={dialogOpen}
         onOpenChange={setDialogOpen}

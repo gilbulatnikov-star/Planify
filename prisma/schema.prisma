@@ -371,6 +371,8 @@ model ScheduledContent {
   client    Client?  @relation(fields: [clientId], references: [id])
   projectId String?
   project   Project? @relation(fields: [projectId], references: [id])
+  scriptId  String?
+  script    Script?  @relation(fields: [scriptId], references: [id])
 
   userId    String?
   user      User?   @relation(fields: [userId], references: [id])
@@ -623,6 +625,7 @@ model Script {
   client       Client?  @relation(fields: [clientId], references: [id])
   userId       String?
   user         User?   @relation(fields: [userId], references: [id])
+  scheduledContents ScheduledContent[]
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
