@@ -42,7 +42,7 @@ interface InvoiceDialogProps {
     notes: string | null;
   } | null;
   clients: { id: string; name: string }[];
-  projects: { id: string; title: string }[];
+  projects: { id: string; title: string; clientId?: string | null }[];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
@@ -86,6 +86,22 @@ export function InvoiceDialog({
   const [showNewClient, setShowNewClient] = useState(false);
   const [newClientName, setNewClientName] = useState("");
   const [creatingClient, setCreatingClient] = useState(false);
+
+  // Projects filtered by the currently selected client
+  const filteredProjects = clientId
+    ? projects.filter((p) => !p.clientId || p.clientId === clientId)
+    : projects;
+
+  function handleClientChange(newClientId: string) {
+    setClientId(newClientId);
+    // Clear project if it doesn't belong to the new client
+    if (projectId) {
+      const cur = projects.find((p) => p.id === projectId);
+      if (cur?.clientId && cur.clientId !== newClientId) {
+        setProjectId("");
+      }
+    }
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -182,7 +198,7 @@ export function InvoiceDialog({
                 <SearchableSelect
                   options={localClients.map((c) => ({ value: c.id, label: c.name }))}
                   value={clientId}
-                  onChange={(v) => setClientId(v)}
+                  onChange={handleClientChange}
                   placeholder={he.financialExtra.selectClient}
                   searchPlaceholder={he.common.searchPlaceholder}
                   triggerClassName="w-full"
@@ -194,7 +210,7 @@ export function InvoiceDialog({
             <div className="space-y-2">
               <Label htmlFor="projectId">{he.common.project}</Label>
               <SearchableSelect
-                options={projects.map((p) => ({ value: p.id, label: p.title }))}
+                options={filteredProjects.map((p) => ({ value: p.id, label: p.title }))}
                 value={projectId}
                 onChange={(v) => setProjectId(v)}
                 placeholder={he.financialExtra.selectProjectOptional}

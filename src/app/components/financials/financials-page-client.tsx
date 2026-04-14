@@ -12,7 +12,6 @@ import {
   Wallet,
   ExternalLink,
   MoreHorizontal,
-  ArrowRightLeft,
   Upload,
   RefreshCw,
   ChevronRight,
@@ -42,9 +41,6 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { InvoiceDialog } from "./invoice-dialog";
@@ -135,7 +131,7 @@ export function FinancialsPageClient({
   invoices: InvoiceData[];
   expenses: ExpenseData[];
   clients: { id: string; name: string }[];
-  projects: { id: string; title: string }[];
+  projects: { id: string; title: string; clientId?: string | null }[];
   subscriptions: SubscriptionData[];
   totalMonthlyCost: number;
 }) {
@@ -1068,39 +1064,40 @@ function InvoiceActionMenu({
       <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-lg hover:bg-muted transition-colors outline-none">
         <MoreHorizontal className="h-4 w-4 text-muted-foreground" />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={4}>
-        {inv.externalLink && (
-          <>
-            <DropdownMenuItem onClick={() => window.open(inv.externalLink!, "_blank", "noopener")}>
-              <ExternalLink className="h-4 w-4" />
-              <span>{he.financialPage.viewInvoice}</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger>
-            <ArrowRightLeft className="h-4 w-4" />
-            <span>{he.financialPage.changeStatus}</span>
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
+      <DropdownMenuContent align="end" sideOffset={4} className="min-w-[200px]">
+        {/* Status pills — flat, no submenu */}
+        <div className="px-2 py-1.5">
+          <p className="text-[11px] font-medium text-muted-foreground mb-1.5">{he.financialPage.changeStatus}</p>
+          <div className="flex flex-wrap gap-1.5">
             {invoiceStatusFlow.map((s) => (
-              <DropdownMenuItem
+              <button
                 key={s.value}
+                type="button"
                 disabled={inv.status === s.value || isPending}
                 onClick={() => onStatus(s.value)}
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-medium transition-all duration-150 ${
+                  inv.status === s.value
+                    ? `${invoiceStatusStyles[s.value]} ring-2 ring-offset-1 ring-foreground/20 scale-105`
+                    : `${invoiceStatusStyles[s.value]} opacity-60 hover:opacity-100 hover:scale-105 cursor-pointer`
+                } disabled:cursor-default`}
               >
-                <Badge className={`${invoiceStatusStyles[s.value]} text-[11px] px-1.5 py-0`}>{s.label}</Badge>
-                {inv.status === s.value && <span className="mr-auto text-xs text-muted-foreground">{he.financialPage.current}</span>}
-              </DropdownMenuItem>
+                {s.label}
+              </button>
             ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
+          </div>
+        </div>
         <DropdownMenuSeparator />
+        {inv.externalLink && (
+          <DropdownMenuItem onClick={() => window.open(inv.externalLink!, "_blank", "noopener")}>
+            <ExternalLink className="h-4 w-4" />
+            <span>{he.financialPage.viewInvoice}</span>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem onClick={onEdit}>
           <Pencil className="h-4 w-4" />
           <span>{he.financialPage.editAction}</span>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={onDelete}>
           <Trash2 className="h-4 w-4" />
           <span>{he.financialPage.deleteAction}</span>

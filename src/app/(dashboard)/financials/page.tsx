@@ -60,7 +60,7 @@ async function FinancialsContent() {
     }),
     prisma.project.findMany({
       where: { userId },
-      select: { id: true, title: true },
+      select: { id: true, title: true, clientId: true },
       orderBy: { title: "asc" },
     }),
     prisma.subscription.findMany({
