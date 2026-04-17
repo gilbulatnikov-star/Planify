@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
+import { useTheme } from "./providers";
 import { useT } from "@/lib/i18n";
 
 export function ThemeToggle() {

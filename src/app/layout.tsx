@@ -36,6 +36,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="he" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme")||"light";document.documentElement.classList.add(t);document.documentElement.style.colorScheme=t}catch(e){}})()`,
+          }}
+        />
+      </head>
       <body className={`${notoSansHebrew.variable} font-sans antialiased`}>
         <Providers>
           <NextTopLoader color="#2563eb" height={3} showSpinner={false} shadow="0 0 10px #2563eb,0 0 5px #2563eb" />
