@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Hebrew } from "next/font/google";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { SessionProvider } from "@/app/components/layout/session-provider";
 import NextTopLoader from "nextjs-toploader";
-import { ThemeProvider } from "next-themes";
+import { Providers } from "@/app/components/layout/providers";
 import "./globals.css";
 
 const notoSansHebrew = Noto_Sans_Hebrew({
@@ -39,12 +37,10 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl" suppressHydrationWarning data-scroll-behavior="smooth">
       <body className={`${notoSansHebrew.variable} font-sans antialiased`}>
-        <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
+        <Providers>
           <NextTopLoader color="#2563eb" height={3} showSpinner={false} shadow="0 0 10px #2563eb,0 0 5px #2563eb" />
-          <SessionProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-          </SessionProvider>
-        </ThemeProvider>
+          {children}
+        </Providers>
       </body>
     </html>
   );
