@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { Eye, EyeOff, Loader2, AlertCircle, Lock } from "lucide-react";
 import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 import { useT } from "@/lib/i18n";
@@ -72,8 +71,10 @@ export default function SignUpPage() {
       {/* Logo */}
       <div className="text-center mb-8">
         <div className="mb-4">
-          <Image src="/qlipy-new-logo.png" alt="Qlipy" width={681} height={164} className="h-10 w-auto mx-auto dark:hidden" priority />
-          <Image src="/qlipy-inverse-logo.png" alt="Qlipy" width={681} height={164} className="h-10 w-auto mx-auto hidden dark:block" priority />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-10 w-auto mx-auto dark:hidden" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-10 w-auto mx-auto hidden dark:block" />
         </div>
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.auth.createAccount}</h1>
         <p className="text-sm text-muted-foreground mt-1">{he.auth.createAccountSubtitle}</p>
