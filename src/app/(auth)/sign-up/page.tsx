@@ -70,12 +70,12 @@ export default function SignUpPage() {
     <div className="w-full max-w-md">
       {/* Logo */}
       <div className="text-center mb-8">
-        <div className="mb-4">
+        <Link href="/landing" className="inline-block mb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/qlipy-new-logo.png" alt="Qlipy" className="h-10 w-auto mx-auto dark:hidden" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/qlipy-inverse-logo.png" alt="Qlipy" className="h-10 w-auto mx-auto hidden dark:block" />
-        </div>
+        </Link>
         <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{he.auth.createAccount}</h1>
         <p className="text-sm text-muted-foreground mt-1">{he.auth.createAccountSubtitle}</p>
       </div>

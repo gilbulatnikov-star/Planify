@@ -187,7 +187,7 @@ export default function ProfileSettingsPage() {
               <button
                 onClick={handleRemoveAvatar}
                 title="הסר תמונה"
-                className="absolute -bottom-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition-colors"
+                className="absolute -top-1 -left-1 flex h-5 w-5 items-center justify-center rounded-full bg-card border border-border text-muted-foreground shadow-sm hover:bg-red-50 hover:text-red-500 hover:border-red-200 transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>
