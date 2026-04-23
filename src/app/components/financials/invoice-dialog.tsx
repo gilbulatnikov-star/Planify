@@ -25,7 +25,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { createInvoice, updateInvoice } from "@/lib/actions/financial-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { useT } from "@/lib/i18n";
-import { UserPlus, Check } from "lucide-react";
+import { UserPlus, Check, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface InvoiceDialogProps {
   invoice?: {
@@ -66,6 +68,8 @@ export function InvoiceDialog({
 }: InvoiceDialogProps) {
   const [isPending, startTransition] = useTransition();
   const he = useT();
+  const pathname = usePathname();
+  const returnToParam = pathname ? `?returnTo=${encodeURIComponent(pathname)}` : "";
   const isEditing = !!invoice;
 
   const invoiceStatuses = [
@@ -171,14 +175,26 @@ export function InvoiceDialog({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="clientId">{he.common.client}</Label>
-                <button
-                  type="button"
-                  onClick={() => setShowNewClient(!showNewClient)}
-                  className="flex items-center gap-1 text-[11px] text-accent hover:text-accent/80 transition-colors"
-                >
-                  <UserPlus className="h-3.5 w-3.5" />
-                  הוסף לקוח
-                </button>
+                <div className="flex items-center gap-2">
+                  {clientId && !showNewClient && (
+                    <Link
+                      href={`/clients${returnToParam}`}
+                      onClick={() => onOpenChange(false)}
+                      className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/60 transition-colors"
+                    >
+                      <ArrowUpRight className="h-3 w-3" />
+                      {he.common.openClient ?? "פתח לקוח"}
+                    </Link>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowNewClient(!showNewClient)}
+                    className="flex items-center gap-1 text-[11px] text-accent hover:text-accent/80 transition-colors"
+                  >
+                    <UserPlus className="h-3.5 w-3.5" />
+                    הוסף לקוח
+                  </button>
+                </div>
               </div>
               {showNewClient ? (
                 <div className="flex gap-2">
@@ -208,7 +224,19 @@ export function InvoiceDialog({
 
             {/* פרויקט */}
             <div className="space-y-2">
-              <Label htmlFor="projectId">{he.common.project}</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="projectId">{he.common.project}</Label>
+                {projectId && (
+                  <Link
+                    href={`/projects/${projectId}${returnToParam}`}
+                    onClick={() => onOpenChange(false)}
+                    className="flex items-center gap-1.5 rounded-full bg-violet-50 dark:bg-violet-950/40 px-2.5 py-1 text-[11px] font-semibold text-violet-700 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-950/60 transition-colors"
+                  >
+                    <ArrowUpRight className="h-3 w-3" />
+                    {he.common.openProject ?? "פתח פרויקט"}
+                  </Link>
+                )}
+              </div>
               <SearchableSelect
                 options={filteredProjects.map((p) => ({ value: p.id, label: p.title }))}
                 value={projectId}

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
@@ -338,6 +338,8 @@ export function ProjectDetailClient({
   const he = useT();
   const locale = useLocale();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams?.get("returnTo");
   const [editOpen, setEditOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [newScriptOpen, setNewScriptOpen] = useState(false);
@@ -503,9 +505,9 @@ export function ProjectDetailClient({
 
       {/* Header */}
       <motion.div variants={fadeUp} className="space-y-3">
-        <button onClick={() => router.push("/projects")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
+        <button onClick={() => router.push(returnTo || "/projects")} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors">
           <ArrowRight className="h-4 w-4" />
-          {he.common.backToProjects}
+          {returnTo ? (he.common.back ?? "חזרה") : he.common.backToProjects}
         </button>
         <div className="flex items-start justify-between gap-4">
           <div>

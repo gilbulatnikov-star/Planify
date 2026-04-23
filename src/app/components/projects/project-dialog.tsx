@@ -25,7 +25,9 @@ import { createProject, updateProject, addProjectTask } from "@/lib/actions/proj
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { createScript } from "@/lib/actions/script-actions";
 import { createScheduledContent } from "@/lib/actions/calendar-actions";
-import { Plus, X, FileText, CalendarDays, ListTodo, CheckCircle2, ArrowLeft, Loader2 } from "lucide-react";
+import { Plus, X, FileText, CalendarDays, ListTodo, CheckCircle2, ArrowLeft, Loader2, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useT } from "@/lib/i18n";
 
 /* ─────────────────────────────────────────────────────────────
@@ -362,6 +364,8 @@ export function ProjectDialog({
     { value: "done",        label: he.common.statusDone,        color: "bg-emerald-500" },
   ];
   const isEditing = !!project;
+  const pathname = usePathname();
+  const returnToParam = pathname ? `?returnTo=${encodeURIComponent(pathname)}` : "";
   const [isPending, startTransition] = useTransition();
 
   const [phase, setPhase] = useState(project?.phase ?? "planning");
@@ -448,7 +452,19 @@ export function ProjectDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>{he.common.client}</Label>
+              <div className="flex items-center justify-between">
+                <Label>{he.common.client}</Label>
+                {clientId && !newClientMode && (
+                  <Link
+                    href={`/clients${returnToParam}`}
+                    onClick={() => onOpenChange(false)}
+                    className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/60 transition-colors"
+                  >
+                    <ArrowUpRight className="h-3 w-3" />
+                    {he.common.openClient ?? "פתח לקוח"}
+                  </Link>
+                )}
+              </div>
               {newClientMode ? (
                 <div className="flex gap-1.5">
                   <Input

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useId } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ArrowRight, Wand2, Send, Sparkles, Save, ChevronDown,
   Youtube, Instagram, Podcast, Megaphone, Facebook, Loader2, Check,
@@ -564,6 +564,8 @@ export function ScriptEditorClient({
 }) {
   const he = useT();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams?.get("returnTo");
 
   const PLATFORMS = getPlatforms(he);
 
@@ -924,9 +926,9 @@ export function ScriptEditorClient({
       <div className="border-b border-border bg-card shrink-0 relative z-30">
         {/* Row 1: navigation + title + save */}
         <div className="flex items-center gap-2 px-3 md:px-4 py-2.5">
-          <button onClick={() => router.push("/scripts")}
+          <button onClick={() => router.push(returnTo || "/scripts")}
             className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">
-            <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">{he.scriptEditor.scriptsBack}</span>
+            <ArrowRight className="h-4 w-4" /><span className="hidden sm:inline">{returnTo ? (he.common.back ?? "חזרה") : he.scriptEditor.scriptsBack}</span>
           </button>
           <span className="text-muted-foreground hidden sm:inline">/</span>
           <input value={title} onChange={(e) => setTitle(e.target.value)}

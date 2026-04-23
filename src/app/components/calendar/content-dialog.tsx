@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -28,7 +29,7 @@ import {
   updateScheduledContent,
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
-import { Plus, X, Check, Trash2 } from "lucide-react";
+import { Plus, X, Check, Trash2, ArrowUpRight } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
 // ─── Color options ────────────────────────────────────────────────────────────
@@ -103,6 +104,8 @@ export function ContentDialog({
   ];
 
   const router = useRouter();
+  const pathname = usePathname();
+  const returnToParam = pathname ? `?returnTo=${encodeURIComponent(pathname)}` : "";
   const [isPending, startTransition] = useTransition();
   const isEditing = !!content;
 
@@ -284,7 +287,19 @@ export function ContentDialog({
 
             {/* לקוח */}
             <div className="col-span-2 space-y-2">
-              <Label>{`${he.common.client} (${he.common.optional})`}</Label>
+              <div className="flex items-center justify-between">
+                <Label>{`${he.common.client} (${he.common.optional})`}</Label>
+                {clientId && !newClientMode && (
+                  <Link
+                    href={`/clients${returnToParam}`}
+                    onClick={() => onOpenChange(false)}
+                    className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/60 transition-colors"
+                  >
+                    <ArrowUpRight className="h-3 w-3" />
+                    {he.common.openClient ?? "פתח לקוח"}
+                  </Link>
+                )}
+              </div>
               {newClientMode ? (
                 <div className="flex gap-1.5">
                   <Input
@@ -328,7 +343,19 @@ export function ContentDialog({
 
             {/* פרויקט */}
             <div className="col-span-2 space-y-2">
-              <Label>{`${he.common.project} (${he.common.optional})`}</Label>
+              <div className="flex items-center justify-between">
+                <Label>{`${he.common.project} (${he.common.optional})`}</Label>
+                {projectId && (
+                  <Link
+                    href={`/projects/${projectId}${returnToParam}`}
+                    onClick={() => onOpenChange(false)}
+                    className="flex items-center gap-1.5 rounded-full bg-violet-50 dark:bg-violet-950/40 px-2.5 py-1 text-[11px] font-semibold text-violet-700 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-950/60 transition-colors"
+                  >
+                    <ArrowUpRight className="h-3 w-3" />
+                    {he.common.openProject ?? "פתח פרויקט"}
+                  </Link>
+                )}
+              </div>
               <SearchableSelect
                 options={[
                   { value: "", label: he.common.noProject },
@@ -345,7 +372,19 @@ export function ContentDialog({
             {/* תסריט */}
             {scripts.length > 0 && (
               <div className="col-span-2 space-y-2">
-                <Label>{`${he.common.script} (${he.common.optional})`}</Label>
+                <div className="flex items-center justify-between">
+                  <Label>{`${he.common.script} (${he.common.optional})`}</Label>
+                  {scriptId && (
+                    <Link
+                      href={`/scripts/${scriptId}${returnToParam}`}
+                      onClick={() => onOpenChange(false)}
+                      className="flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1 text-[11px] font-semibold text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-950/60 transition-colors"
+                    >
+                      <ArrowUpRight className="h-3 w-3" />
+                      {he.common.openScript ?? "פתח תסריט"}
+                    </Link>
+                  )}
+                </div>
                 <SearchableSelect
                   options={[
                     { value: "", label: he.common.noScript },
