@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { updateScheduledContentDate } from "@/lib/actions/calendar-actions";
+import { toast } from "sonner";
 import {
   format,
   startOfMonth,
@@ -120,6 +122,55 @@ export function CalendarPageClient({
   const [calendarPopoverOpen, setCalendarPopoverOpen] = useState(false);
   const [clientMenuOpen, setClientMenuOpen] = useState(false);
   const [search, setSearch] = useState("");
+
+  // Drag-and-drop state for moving events between days
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+  const [, startDragTransition] = useTransition();
+
+  function handleDragStart(e: React.DragEvent, item: ContentItem) {
+    setDraggingId(item.id);
+    // Setting transferred data is required for HTML5 drag to work in some browsers
+    e.dataTransfer.setData("text/plain", item.id);
+    e.dataTransfer.effectAllowed = "move";
+  }
+
+  function handleDragEnd() {
+    setDraggingId(null);
+    setDragOverDate(null);
+  }
+
+  function handleDayDragOver(e: React.DragEvent, day: Date) {
+    if (!draggingId) return;
+    e.preventDefault(); // required to allow drop
+    e.dataTransfer.dropEffect = "move";
+    const dayKey = format(day, "yyyy-MM-dd");
+    if (dragOverDate !== dayKey) setDragOverDate(dayKey);
+  }
+
+  function handleDayDrop(e: React.DragEvent, day: Date) {
+    e.preventDefault();
+    const itemId = e.dataTransfer.getData("text/plain") || draggingId;
+    if (!itemId) return;
+    const dayKey = format(day, "yyyy-MM-dd");
+
+    // Skip if dropped on the same day
+    const original = content.find((c) => c.id === itemId);
+    if (original && isSameDay(new Date(original.date), day)) {
+      handleDragEnd();
+      return;
+    }
+
+    handleDragEnd();
+    startDragTransition(async () => {
+      const result = await updateScheduledContentDate(itemId, dayKey);
+      if (result.success) {
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "שגיאה בשינוי תאריך");
+      }
+    });
+  }
 
   const isIsolated = !!selectedClientId;
   const selectedClientName = selectedClientId
@@ -380,12 +431,21 @@ export function CalendarPageClient({
                       const dayContent = getContentForDay(day);
                       const inMonth = isSameMonth(day, currentMonth);
                       const today = isToday(day);
+                      const dayKey = format(day, "yyyy-MM-dd");
+                      const isDropTarget = dragOverDate === dayKey && draggingId !== null;
 
                       return (
                         <div
                           key={di}
                           onClick={() => handleDayClick(day)}
-                          className={`min-h-[90px] p-1.5 border-l border-border/40 first:border-l-0 cursor-pointer transition-all duration-200 hover:bg-muted/50 ${!inMonth ? "opacity-30" : ""}`}
+                          onDragOver={(e) => handleDayDragOver(e, day)}
+                          onDragLeave={() => { if (dragOverDate === dayKey) setDragOverDate(null); }}
+                          onDrop={(e) => handleDayDrop(e, day)}
+                          className={`min-h-[90px] p-1.5 border-l border-border/40 first:border-l-0 cursor-pointer transition-all duration-200 ${
+                            isDropTarget
+                              ? "bg-blue-50 dark:bg-blue-950/30 ring-2 ring-blue-400 ring-inset"
+                              : "hover:bg-muted/50"
+                          } ${!inMonth ? "opacity-30" : ""}`}
                         >
                           {/* Day number */}
                           <div className="flex items-center justify-between mb-1">
@@ -394,16 +454,22 @@ export function CalendarPageClient({
                             </span>
                           </div>
 
-                          {/* Events — colored chips with title */}
+                          {/* Events — colored chips with title (draggable) */}
                           <div className="flex flex-col gap-0.5 mt-1 w-full">
                             {dayContent.slice(0, 3).map((item) => {
                               const c = getColor(item.color);
+                              const isDragging = draggingId === item.id;
                               return (
                                 <div
                                   key={item.id}
+                                  draggable
+                                  onDragStart={(e) => { e.stopPropagation(); handleDragStart(e, item); }}
+                                  onDragEnd={handleDragEnd}
                                   onClick={(e) => { e.stopPropagation(); handleEditContent(item); }}
                                   title={item.title}
-                                  className={`flex items-start gap-1 rounded px-1 py-0.5 cursor-pointer hover:brightness-95 transition-all ${c.bg}`}
+                                  className={`flex items-start gap-1 rounded px-1 py-0.5 cursor-grab active:cursor-grabbing hover:brightness-95 transition-all ${c.bg} ${
+                                    isDragging ? "opacity-40 scale-95" : ""
+                                  }`}
                                 >
                                   <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-[3px] ${c.dot}`} />
                                   <span className={`text-[11px] sm:text-xs font-medium leading-tight break-words min-w-0 line-clamp-2 ${c.text}`}>{item.title}</span>

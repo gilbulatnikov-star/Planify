@@ -102,6 +102,32 @@ export async function updateScheduledContent(id: string, formData: FormData) {
   }
 }
 
+/** Lightweight action — just changes the date of an event (used by drag-and-drop). */
+export async function updateScheduledContentDate(id: string, newDate: string) {
+  try {
+    const session = await auth();
+    const userId = session?.user?.id;
+    if (!userId) return { success: false, error: "Not authenticated" };
+
+    const existing = await prisma.scheduledContent.findFirst({ where: { id, userId } });
+    if (!existing) return { success: false, error: "Not found" };
+
+    await prisma.scheduledContent.update({
+      where: { id },
+      data: { date: new Date(newDate) },
+    });
+
+    revalidatePath("/calendar");
+    revalidatePath("/");
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to update date",
+    };
+  }
+}
+
 export async function deleteScheduledContent(id: string) {
   try {
     const session = await auth();
