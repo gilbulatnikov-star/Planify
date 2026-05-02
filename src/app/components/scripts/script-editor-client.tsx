@@ -968,10 +968,10 @@ export function ScriptEditorClient({
           ) : (
             <button
               onClick={async () => { await completeScript(script.id); router.refresh(); }}
-              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors shrink-0"
+              className="flex items-center gap-1.5 rounded-lg border border-border/60 px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 dark:hover:text-emerald-400 transition-colors shrink-0"
             >
               <CheckCircle2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">בוצע</span>
+              <span className="hidden sm:inline">סמן כבוצע</span>
             </button>
           )}
         </div>

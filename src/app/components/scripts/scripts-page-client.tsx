@@ -470,10 +470,10 @@ export function ScriptsPageClient({
                   ) : (
                     <button
                       onClick={(e) => handleComplete(script.id, e)}
-                      className="flex items-center gap-1 rounded-full bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-950/60 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 transition-colors"
+                      className="flex items-center gap-1 rounded-full border border-border/60 px-2.5 py-1 text-[11px] font-semibold text-muted-foreground hover:border-emerald-400 hover:text-emerald-700 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/20 dark:hover:text-emerald-400 transition-colors"
                     >
                       <CheckCircle2 className="h-3 w-3" />
-                      בוצע
+                      סמן כבוצע
                     </button>
                   )}
                 </div>

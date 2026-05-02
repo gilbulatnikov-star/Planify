@@ -532,11 +532,12 @@ export function ProjectDetailClient({
             ) : (
               <Button
                 size="sm"
+                variant="outline"
                 onClick={() => startTransition(async () => { await completeProject(project.id); router.refresh(); })}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                className="hover:border-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-400"
               >
                 <CheckCircle2 className="h-3.5 w-3.5 me-1.5" />
-                בוצע
+                סמן כבוצע
               </Button>
             )}
             <Button size="sm" variant="outline" onClick={() => setShareOpen(true)}>
