@@ -29,6 +29,7 @@ import {
   updateScheduledContent,
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
+import { createScript } from "@/lib/actions/script-actions";
 import { Plus, X, Check, Trash2, ArrowUpRight } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
@@ -125,8 +126,12 @@ export function ContentDialog({
   const [statusValue, setStatusValue]     = useState(content?.status ?? "planned");
   const [newClientMode, setNewClientMode] = useState(false);
   const [newClientName, setNewClientName] = useState("");
+  const [newScriptMode, setNewScriptMode] = useState(false);
+  const [newScriptTitle, setNewScriptTitle] = useState("");
+  const [creatingScript, setCreatingScript] = useState(false);
   const [error, setError]                 = useState<string | null>(null);
   const [localClients, setLocalClients]   = useState(clients);
+  const [localScripts, setLocalScripts]   = useState(scripts);
   const [dateValue, setDateValue]         = useState(
     content?.date ? formatDateForInput(content.date) : defaultDate ?? ""
   );
@@ -146,7 +151,10 @@ export function ContentDialog({
     setError(null);
     setNewClientMode(false);
     setNewClientName("");
+    setNewScriptMode(false);
+    setNewScriptTitle("");
     setLocalClients(clients);
+    setLocalScripts(scripts);
     setDateValue(content?.date ? formatDateForInput(content.date) : defaultDate ?? "");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, content]);
@@ -159,7 +167,7 @@ export function ContentDialog({
   // Scripts filtered by client first, then by project. Scripts already linked to
   // a different client are hidden — when no client is selected, hide scripts that
   // belong to a specific client (only show unassigned ones).
-  const filteredScripts = scripts.filter((s) => {
+  const filteredScripts = localScripts.filter((s) => {
     if (clientId) {
       // Show scripts for the chosen client OR scripts with no client at all
       if (s.clientId && s.clientId !== clientId) return false;
@@ -170,6 +178,30 @@ export function ContentDialog({
     if (projectId && s.projectId && s.projectId !== projectId) return false;
     return true;
   });
+
+  async function handleCreateScript() {
+    const title = newScriptTitle.trim();
+    if (!title) return;
+    setCreatingScript(true);
+    const result = await createScript({
+      title,
+      projectId: projectId || undefined,
+      clientId: clientId || undefined,
+    });
+    setCreatingScript(false);
+    if ("id" in result) {
+      const newScript = {
+        id: result.id,
+        title,
+        projectId: projectId || null,
+        clientId: clientId || null,
+      };
+      setLocalScripts((prev) => [...prev, newScript]);
+      setScriptId(result.id);
+      setNewScriptMode(false);
+      setNewScriptTitle("");
+    }
+  }
 
   function handleClientChange(newClientId: string) {
     setClientId(newClientId);
@@ -399,21 +431,48 @@ export function ContentDialog({
             )}
 
             {/* תסריט */}
-            {scripts.length > 0 && (
-              <div className="col-span-2 space-y-2">
-                <div className="flex items-center justify-between">
-                  <Label>{`${he.common.script} (${he.common.optional})`}</Label>
-                  {scriptId && (
-                    <Link
-                      href={`/scripts/${scriptId}${returnToParam}`}
-                      onClick={() => onOpenChange(false)}
-                      className="flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1 text-[11px] font-semibold text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-950/60 transition-colors"
-                    >
-                      <ArrowUpRight className="h-3 w-3" />
-                      {he.common.openScript ?? "פתח תסריט"}
-                    </Link>
-                  )}
+            <div className="col-span-2 space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>{`${he.common.script} (${he.common.optional})`}</Label>
+                {scriptId && !newScriptMode && (
+                  <Link
+                    href={`/scripts/${scriptId}${returnToParam}`}
+                    onClick={() => onOpenChange(false)}
+                    className="flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1 text-[11px] font-semibold text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-950/60 transition-colors"
+                  >
+                    <ArrowUpRight className="h-3 w-3" />
+                    {he.common.openScript ?? "פתח תסריט"}
+                  </Link>
+                )}
+              </div>
+              {newScriptMode ? (
+                <div className="flex gap-1.5">
+                  <Input
+                    autoFocus
+                    value={newScriptTitle}
+                    onChange={(e) => setNewScriptTitle(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateScript(); } }}
+                    placeholder="שם התסריט החדש..."
+                    className="flex-1 h-9 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateScript}
+                    disabled={creatingScript || !newScriptTitle.trim()}
+                    className="flex h-9 items-center gap-1.5 rounded-md bg-foreground px-3 text-xs font-semibold text-background hover:bg-foreground/90 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    {creatingScript ? "..." : "צור"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setNewScriptMode(false); setNewScriptTitle(""); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-red-500 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
+              ) : (
                 <SearchableSelect
                   options={[
                     { value: "", label: he.common.noScript },
@@ -424,9 +483,18 @@ export function ContentDialog({
                   placeholder={he.common.selectScript}
                   searchPlaceholder={he.common.searchPlaceholder}
                   triggerClassName="w-full"
+                  createAction={
+                    <button
+                      type="button"
+                      onClick={() => { setNewScriptMode(true); setScriptId(""); }}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />צור תסריט חדש
+                    </button>
+                  }
                 />
-              </div>
-            )}
+              )}
+            </div>
 
             {/* הערות */}
             <div className="col-span-2 space-y-2">
