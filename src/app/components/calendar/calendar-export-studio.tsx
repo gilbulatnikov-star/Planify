@@ -174,11 +174,6 @@ function TimelinePreview({
   logoUrl: string | null; clientName: string; darkMode: boolean;
 }) {
   const he = useT();
-  const platformLabel: Record<string, string> = {
-    client_shoot: he.calendarExportExtra.platformShoot,
-    youtube_long: he.calendarExportExtra.platformYouTube,
-    short_form: he.calendarExportExtra.platformReel,
-  };
   const monthLabel = format(currentMonth, "MMMM yyyy", { locale: heLocale });
   const sorted = [...content]
     .filter((item) => isSameMonth(new Date(item.date), currentMonth))
@@ -207,7 +202,6 @@ function TimelinePreview({
             <tr style={{ background: t.chipBg }}>
               <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right", width: "110px" }}>{he.calendarExport.dateCol}</th>
               <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right" }}>{he.calendarExport.productCol}</th>
-              <th style={{ padding: "9px 12px", fontSize: "11px", fontWeight: 700, color: t.chipColor, textAlign: "right", width: "85px" }}>{he.calendarExport.platformCol}</th>
             </tr>
           </thead>
           <tbody>
@@ -218,11 +212,6 @@ function TimelinePreview({
                 </td>
                 <td style={{ padding: "9px 12px", fontSize: "13px", fontWeight: 600, color: t.text, borderBottom: `1px solid ${t.border}` }}>
                   {item.title}
-                </td>
-                <td style={{ padding: "9px 12px", fontSize: "11px", borderBottom: `1px solid ${t.border}` }}>
-                  <span style={{ background: t.chipBg, color: t.chipColor, padding: "2px 8px", borderRadius: "12px", fontWeight: 600 }}>
-                    {platformLabel[item.contentType] ?? item.contentType}
-                  </span>
                 </td>
               </tr>
             ))}
@@ -259,47 +248,43 @@ export function CalendarExportStudio({
     reader.readAsDataURL(file);
   }, []);
 
-  // ── Capture: SVG foreignObject approach — no html2canvas, no CSS interference ──
+  // ── Capture: html2canvas on a detached clone ──
+  // The GridPreview / TimelinePreview use ONLY inline styles. By cloning the
+  // element into a detached container (no Tailwind oklch from the parent DOM
+  // can leak in), html2canvas sees only plain hex/rgb colors. The previous
+  // SVG-foreignObject approach was unreliable for Hebrew text + external logos.
   async function captureToCanvas(): Promise<HTMLCanvasElement> {
     const srcEl = exportRef.current;
     if (!srcEl) throw new Error("preview element not found");
 
-    const bg  = darkMode ? "#0b1120" : "#ffffff";
-    const SCALE = 2;
-
-    // The GridPreview / TimelinePreview use ONLY inline styles.
-    // Strip any residual class="" attrs for safety, then render via SVG foreignObject
-    // so no browser stylesheet (including Tailwind's oklch) is ever touched.
+    const bg = darkMode ? "#0b1120" : "#ffffff";
     const w = srcEl.scrollWidth;
     const h = srcEl.scrollHeight;
-    const cleanHtml = srcEl.outerHTML.replace(/\s+class="[^"]*"/g, "");
 
-    const svgXml = [
-      `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">`,
-      `<foreignObject width="${w}" height="${h}">`,
-      `<div xmlns="http://www.w3.org/1999/xhtml"`,
-      ` style="width:${w}px;height:${h}px;overflow:hidden;background:${bg};">`,
-      cleanHtml,
-      `</div></foreignObject></svg>`,
-    ].join("");
+    // Detached clone — kept off-screen, isolated from page CSS
+    const wrapper = document.createElement("div");
+    wrapper.style.cssText = `position:fixed;left:-99999px;top:0;width:${w}px;height:${h}px;background:${bg};`;
+    const clone = srcEl.cloneNode(true) as HTMLElement;
+    // Strip class attributes — defense in depth so Tailwind cannot match
+    clone.querySelectorAll("[class]").forEach((el) => el.removeAttribute("class"));
+    clone.removeAttribute("class");
+    wrapper.appendChild(clone);
+    document.body.appendChild(wrapper);
 
-    const dataUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgXml)}`;
-
-    return new Promise<HTMLCanvasElement>((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width  = w * SCALE;
-        canvas.height = h * SCALE;
-        const ctx = canvas.getContext("2d")!;
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, 0, 0, w * SCALE, h * SCALE);
-        resolve(canvas);
-      };
-      img.onerror = () => reject(new Error("SVG render failed"));
-      img.src = dataUrl;
-    });
+    try {
+      const { default: html2canvas } = await import("html2canvas");
+      return await html2canvas(clone, {
+        backgroundColor: bg,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false,
+        width: w,
+        height: h,
+      });
+    } finally {
+      document.body.removeChild(wrapper);
+    }
   }
 
   async function downloadPNG() {
