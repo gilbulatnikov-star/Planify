@@ -235,11 +235,14 @@ export function CalendarPageClient({
   const visibleItems = useMemo(() => {
     const q = search.toLowerCase();
     return content.filter((item) => {
-      if (selectedClientId && item.clientId !== selectedClientId) return false;
+      // When inside a board, never filter by client — the SQL query already
+      // scopes to this board's events. Filtering by client would hide events
+      // created before the board got a client assigned, making them seem deleted.
+      if (!boardId && selectedClientId && item.clientId !== selectedClientId) return false;
       if (q && !item.title.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [content, selectedClientId, search]);
+  }, [content, selectedClientId, search, boardId]);
 
   // Calendar grid
   const weeks = useMemo(() => {
@@ -261,11 +264,12 @@ export function CalendarPageClient({
     const q = search.toLowerCase();
     return content.filter((item) => {
       if (!isSameDay(new Date(item.date), day)) return false;
-      if (selectedClientId && item.clientId !== selectedClientId) return false;
+      // Same logic as visibleItems — skip client filter inside a board view.
+      if (!boardId && selectedClientId && item.clientId !== selectedClientId) return false;
       if (q && !item.title.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [content, selectedClientId, search]);
+  }, [content, selectedClientId, search, boardId]);
 
   // Events for current month (for mobile list)
   const monthEvents = useMemo(() => visibleItems
