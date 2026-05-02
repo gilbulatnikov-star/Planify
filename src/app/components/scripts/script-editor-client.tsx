@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useId } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowRight, Wand2, Send, Sparkles, Save, ChevronDown,
+  ArrowRight, Wand2, Send, Sparkles, Save, ChevronDown, CheckCircle2, RotateCcw,
   Youtube, Instagram, Podcast, Megaphone, Facebook, Loader2, Check,
   MessageSquare, Film, AlignLeft, FileText, Plus, Trash2,
   Eye, EyeOff, Image, Type, LayoutGrid, X,
@@ -19,7 +19,7 @@ function TikTokIcon({ className }: { className?: string }) {
   );
 }
 import { Button } from "@/components/ui/button";
-import { updateScript } from "@/lib/actions/script-actions";
+import { updateScript, completeScript, restoreScript } from "@/lib/actions/script-actions";
 import { createProject } from "@/lib/actions/project-actions";
 import { UpgradeDialog } from "@/app/components/shared/upgrade-dialog";
 import { useT } from "@/lib/i18n";
@@ -60,6 +60,7 @@ type Tab = "script" | "shotlist";
 type Script = {
   id: string; title: string; content: string; platform: string;
   duration: string; notes: string; shotListData: string;
+  completedAt?: Date | null;
   project: { id: string; title: string } | null;
   client: { id: string; name: string } | null;
 };
@@ -955,6 +956,24 @@ export function ScriptEditorClient({
             {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : saved ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Save className="h-3.5 w-3.5" />}
             <span className="hidden sm:inline">{saving ? he.scriptEditor.saving : saved ? he.scriptEditor.saved : "שמור"}</span>
           </button>
+          {/* Done / Restore button */}
+          {script.completedAt ? (
+            <button
+              onClick={async () => { await restoreScript(script.id); router.refresh(); }}
+              className="flex items-center gap-1.5 rounded-lg border border-border/60 px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shrink-0"
+            >
+              <RotateCcw className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">החזר לפעיל</span>
+            </button>
+          ) : (
+            <button
+              onClick={async () => { await completeScript(script.id); router.refresh(); }}
+              className="flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors shrink-0"
+            >
+              <CheckCircle2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">בוצע</span>
+            </button>
+          )}
         </div>
         {/* Row 2: metadata chips */}
         <div className="flex items-center gap-1.5 px-3 md:px-4 pb-2 flex-wrap">

@@ -294,7 +294,7 @@ export function ProjectsPageClient({
               view === "history" ? "bg-foreground text-background shadow-sm" : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            הושלמו
+            פרויקטים אחרונים
             <span className={`text-[10px] tabular-nums ${view === "history" ? "opacity-60" : "opacity-40"}`}>
               {historyProjects.length}
             </span>
@@ -489,10 +489,30 @@ export function ProjectsPageClient({
                         </div>
                       )}
 
-                      {/* Last edited */}
-                      <div className="flex items-center gap-1 text-[10.5px] text-foreground/30 pt-0.5" title={formatDateTime(project.updatedAt, locale)}>
-                        <Clock className="h-2.5 w-2.5" />
-                        <span>{timeAgo(project.updatedAt, locale)}</span>
+                      {/* Last edited + complete button */}
+                      <div className="flex items-center justify-between gap-2 pt-0.5">
+                        <div className="flex items-center gap-1 text-[10.5px] text-foreground/30" title={formatDateTime(project.updatedAt, locale)}>
+                          <Clock className="h-2.5 w-2.5" />
+                          <span>{timeAgo(project.updatedAt, locale)}</span>
+                        </div>
+
+                        {isHistory ? (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRestore(project.id); }}
+                            className="flex items-center gap-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] px-2.5 py-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                          >
+                            <RotateCcw className="h-3 w-3" />
+                            החזר
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleComplete(project.id); }}
+                            className="flex items-center gap-1 rounded-full bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-950/60 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 transition-colors"
+                          >
+                            <CheckCircle2 className="h-3 w-3" />
+                            בוצע
+                          </button>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

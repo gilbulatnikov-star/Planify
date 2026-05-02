@@ -13,7 +13,7 @@ export async function getScripts() {
     orderBy: { updatedAt: "desc" },
     select: {
       id: true, title: true, platform: true, content: true, updatedAt: true,
-      clientId: true, projectId: true,
+      clientId: true, projectId: true, completedAt: true,
       project: { select: { id: true, title: true } },
       client: { select: { id: true, name: true } },
     },
@@ -103,4 +103,32 @@ export async function deleteScript(id: string) {
 
   await prisma.script.delete({ where: { id } });
   revalidatePath("/scripts");
+}
+
+export async function completeScript(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  const existing = await prisma.script.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.script.update({ where: { id }, data: { completedAt: new Date() } });
+  revalidatePath("/scripts");
+  revalidatePath(`/scripts/${id}`);
+  return { success: true };
+}
+
+export async function restoreScript(id: string) {
+  const session = await auth();
+  const userId = session?.user?.id;
+  if (!userId) return { success: false, error: "Not authenticated" };
+
+  const existing = await prisma.script.findFirst({ where: { id, userId } });
+  if (!existing) return { success: false, error: "Not found" };
+
+  await prisma.script.update({ where: { id }, data: { completedAt: null } });
+  revalidatePath("/scripts");
+  revalidatePath(`/scripts/${id}`);
+  return { success: true };
 }

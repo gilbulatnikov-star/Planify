@@ -62,9 +62,10 @@ interface ContentDialogProps {
   } | null;
   defaultDate?: string;
   defaultClientId?: string | null;
+  defaultProjectId?: string | null;
   clients: { id: string; name: string }[];
   projects: { id: string; title: string; clientId?: string | null }[];
-  scripts: { id: string; title: string; projectId?: string | null }[];
+  scripts: { id: string; title: string; projectId?: string | null; clientId?: string | null }[];
   boardId?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -85,6 +86,7 @@ export function ContentDialog({
   content,
   defaultDate,
   defaultClientId,
+  defaultProjectId,
   clients,
   projects,
   scripts,
@@ -111,7 +113,7 @@ export function ContentDialog({
 
   const [titleValue, setTitleValue]       = useState(content?.title ?? "");
   const [clientId, setClientId]           = useState(content?.clientId ?? defaultClientId ?? "");
-  const [projectId, setProjectId]         = useState(content?.projectId ?? "");
+  const [projectId, setProjectId]         = useState(content?.projectId ?? defaultProjectId ?? "");
   const [scriptId, setScriptId]           = useState(content?.scriptId ?? "");
   const [selectedColor, setSelectedColor] = useState(content?.color ?? "gray");
   const [statusValue, setStatusValue]     = useState(content?.status ?? "planned");
@@ -131,7 +133,7 @@ export function ContentDialog({
     if (!open) return;
     setTitleValue(content?.title ?? "");
     setClientId(content?.clientId ?? defaultClientId ?? "");
-    setProjectId(content?.projectId ?? "");
+    setProjectId(content?.projectId ?? defaultProjectId ?? "");
     setScriptId(content?.scriptId ?? "");
     setSelectedColor(content?.color ?? "gray");
     setStatusValue(content?.status ?? "planned");
@@ -148,10 +150,20 @@ export function ContentDialog({
     ? projects.filter((p) => !p.clientId || p.clientId === clientId)
     : projects;
 
-  // Scripts filtered by the currently selected project
-  const filteredScripts = projectId
-    ? scripts.filter((s) => !s.projectId || s.projectId === projectId)
-    : scripts;
+  // Scripts filtered by client first, then by project. Scripts already linked to
+  // a different client are hidden — when no client is selected, hide scripts that
+  // belong to a specific client (only show unassigned ones).
+  const filteredScripts = scripts.filter((s) => {
+    if (clientId) {
+      // Show scripts for the chosen client OR scripts with no client at all
+      if (s.clientId && s.clientId !== clientId) return false;
+    } else {
+      // No client selected → hide scripts that are tied to some other client
+      if (s.clientId) return false;
+    }
+    if (projectId && s.projectId && s.projectId !== projectId) return false;
+    return true;
+  });
 
   function handleClientChange(newClientId: string) {
     setClientId(newClientId);
@@ -160,6 +172,13 @@ export function ContentDialog({
       const cur = projects.find((p) => p.id === projectId);
       if (cur?.clientId && cur.clientId !== newClientId) {
         setProjectId("");
+      }
+    }
+    // Clear script if it doesn't belong to the new client
+    if (scriptId) {
+      const cur = scripts.find((s) => s.id === scriptId);
+      if (cur?.clientId && cur.clientId !== newClientId) {
+        setScriptId("");
       }
     }
   }

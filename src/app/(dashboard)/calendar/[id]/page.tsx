@@ -53,7 +53,7 @@ export default async function BoardPage({
     }),
     prisma.script.findMany({
       where: { userId },
-      select: { id: true, title: true, projectId: true },
+      select: { id: true, title: true, projectId: true, clientId: true },
       orderBy: { title: "asc" },
     }),
   ]);
@@ -69,6 +69,8 @@ export default async function BoardPage({
       activeClientName={board.client?.name ?? null}
       boardId={id}
       boardTitle={board.title}
+      boardClientId={board.clientId}
+      boardProjectId={board.projectId}
     />
   );
 }

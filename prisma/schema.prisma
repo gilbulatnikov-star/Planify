@@ -626,6 +626,7 @@ model Script {
   userId       String?
   user         User?   @relation(fields: [userId], references: [id])
   scheduledContents ScheduledContent[]
+  completedAt  DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

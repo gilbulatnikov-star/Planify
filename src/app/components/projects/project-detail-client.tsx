@@ -8,7 +8,7 @@ import {
   ArrowRight, Pencil, FileText, LayoutTemplate, Contact,
   CalendarDays, ListTodo, Phone, Mail, Plus, Link2, X, Users, Share2,
   Paperclip, Upload, Image, Video, FileIcon, Trash2, ExternalLink, Loader2,
-  Calendar,
+  Calendar, CheckCircle2, RotateCcw,
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +19,7 @@ import { getPhaseLabel, CATEGORY_LABELS, PROJECT_TYPE_CONFIG } from "@/lib/proje
 import type { ProjectCategory } from "@/lib/project-config";
 import { formatCurrency, formatDate } from "@/lib/utils/format";
 import { useT, useLocale } from "@/lib/i18n";
-import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject, updateProjectClient } from "@/lib/actions/project-actions";
+import { toggleProjectTask, addProjectTask, deleteProjectTask, linkItemToProject, updateProjectClient, completeProject, restoreProject } from "@/lib/actions/project-actions";
 import { addProjectFile, deleteProjectFile, getProjectFiles } from "@/lib/actions/share-actions";
 import { createScript, updateScript } from "@/lib/actions/script-actions";
 import { createScheduledContent } from "@/lib/actions/calendar-actions";
@@ -520,6 +520,25 @@ export function ProjectDetailClient({
             />
           </div>
           <div className="flex items-center gap-2 shrink-0">
+            {project.phase === "delivered" ? (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => startTransition(async () => { await restoreProject(project.id); router.refresh(); })}
+              >
+                <RotateCcw className="h-3.5 w-3.5 me-1.5" />
+                החזר לפעיל
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                onClick={() => startTransition(async () => { await completeProject(project.id); router.refresh(); })}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5 me-1.5" />
+                בוצע
+              </Button>
+            )}
             <Button size="sm" variant="outline" onClick={() => setShareOpen(true)}>
               <Share2 className="h-3.5 w-3.5 me-1.5" />
               {he.share?.title ?? "שתף"}

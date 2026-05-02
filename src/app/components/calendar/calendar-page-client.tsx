@@ -98,6 +98,8 @@ export function CalendarPageClient({
   activeClientId,
   boardId,
   boardTitle,
+  boardClientId,
+  boardProjectId,
 }: {
   content: ContentItem[];
   clients: { id: string; name: string }[];
@@ -108,6 +110,8 @@ export function CalendarPageClient({
   activeClientName: string | null;
   boardId?: string;
   boardTitle?: string;
+  boardClientId?: string | null;
+  boardProjectId?: string | null;
 }) {
   const he = useT();
   const dayNames = he.calendar.dayNames as unknown as string[];
@@ -537,7 +541,8 @@ export function CalendarPageClient({
       <ContentDialog
         content={editingContent}
         defaultDate={selectedDate}
-        defaultClientId={selectedClientId}
+        defaultClientId={boardClientId ?? selectedClientId}
+        defaultProjectId={boardProjectId ?? null}
         clients={clients}
         projects={projects}
         scripts={scripts}

@@ -16,10 +16,12 @@ import {
   CheckSquare,
   Square,
   ArrowUpDown,
+  CheckCircle2,
+  RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SearchableSelect } from "@/components/ui/searchable-select";
-import { createScript, deleteScript, updateScript } from "@/lib/actions/script-actions";
+import { createScript, deleteScript, updateScript, completeScript, restoreScript } from "@/lib/actions/script-actions";
 import { timeAgo, formatDateTime } from "@/lib/utils/format";
 import { useT, useLocale } from "@/lib/i18n";
 
@@ -55,11 +57,14 @@ type Script = {
   platform: string;
   content: string;
   updatedAt: Date;
+  completedAt?: Date | null;
   project: { id: string; title: string } | null;
   client: { id: string; name: string } | null;
   clientId?: string | null;
   projectId?: string | null;
 };
+
+type ViewTab = "active" | "history";
 
 export function ScriptsPageClient({
   scripts,
@@ -85,6 +90,7 @@ export function ScriptsPageClient({
   // Client filter + sort
   const [filterClientId, setFilterClientId] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<"updated" | "name">("updated");
+  const [view, setView] = useState<ViewTab>("active");
 
   // Multi-select
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -136,6 +142,24 @@ export function ScriptsPageClient({
     }
   }
 
+  function handleComplete(id: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    startBulk(async () => {
+      await completeScript(id);
+      router.refresh();
+    });
+  }
+
+  function handleRestore(id: string, e: React.MouseEvent) {
+    e.stopPropagation();
+    e.preventDefault();
+    startBulk(async () => {
+      await restoreScript(id);
+      router.refresh();
+    });
+  }
+
   function toggleSelect(id: string, e: React.MouseEvent) {
     e.stopPropagation();
     setSelectedIds(prev => {
@@ -169,7 +193,10 @@ export function ScriptsPageClient({
   // Filtered scripts (client filter + search)
   const clientsWithScripts = clients.filter(c => scripts.some(s => s.client?.id === c.id || s.clientId === c.id));
 
-  const filteredScripts = scripts.filter(s => {
+  const activeScripts = scripts.filter(s => !s.completedAt);
+  const historyScripts = scripts.filter(s => !!s.completedAt);
+
+  const filteredScripts = (view === "active" ? activeScripts : historyScripts).filter(s => {
     if (filterClientId) {
       const cid = s.client?.id ?? s.clientId;
       if (cid !== filterClientId) return false;
@@ -249,6 +276,32 @@ export function ScriptsPageClient({
         </Button>
       </div>
 
+      {/* Active / History tabs */}
+      <div className="inline-flex items-center gap-1 rounded-[10px] border border-border/40 bg-card p-1">
+        <button
+          onClick={() => setView("active")}
+          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
+            view === "active"
+              ? "bg-foreground text-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          פעילים
+          <span className="text-[10px] opacity-70">({activeScripts.length})</span>
+        </button>
+        <button
+          onClick={() => setView("history")}
+          className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[12px] font-medium transition-colors ${
+            view === "history"
+              ? "bg-foreground text-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          תסריטים אחרונים
+          <span className="text-[10px] opacity-70">({historyScripts.length})</span>
+        </button>
+      </div>
+
       {/* Filters row */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Client selector */}
@@ -321,15 +374,30 @@ export function ScriptsPageClient({
             {he.scriptEditor.createFirstScript}
           </Button>
         </div>
+      ) : filteredScripts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="mb-4 rounded-[14px] bg-foreground/[0.03] p-5 ring-1 ring-border/20">
+            {view === "history" ? <CheckCircle2 className="h-8 w-8 text-foreground/30" /> : <FileText className="h-8 w-8 text-foreground/30" />}
+          </div>
+          <h2 className="text-[13px] font-semibold text-foreground/40">
+            {view === "history" ? "אין תסריטים מסומנים כהושלמו" : "אין תסריטים פעילים"}
+          </h2>
+          <p className="mt-1 text-[11px] text-foreground/30">
+            {view === "history" ? "תסריטים שתסיים יופיעו כאן" : "צור תסריט חדש או החזר תסריטים אחרונים"}
+          </p>
+        </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredScripts.map((script) => {
             const isSelected = selectedIds.has(script.id);
+            const isHistory = !!script.completedAt;
             return (
               <div
                 key={script.id}
                 onClick={() => router.push(`/scripts/${script.id}`)}
-                className={`glass-card relative cursor-pointer rounded-[14px] border bg-card p-5 transition-all duration-300 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] ${isSelected ? "border-foreground/40 ring-1 ring-foreground/20" : "border-border/40 hover:border-border/60"}`}
+                className={`group glass-card relative cursor-pointer rounded-[14px] border p-5 transition-all duration-300 hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.08)] ${
+                  isHistory ? "bg-muted/30 opacity-80" : "bg-card"
+                } ${isSelected ? "border-foreground/40 ring-1 ring-foreground/20" : "border-border/40 hover:border-border/60"}`}
               >
                 {/* Checkbox */}
                 <button
@@ -344,12 +412,13 @@ export function ScriptsPageClient({
                     : <Square className="h-4 w-4 text-muted-foreground" />}
                 </button>
 
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex items-start justify-between gap-2 pr-6">
                   <div className="flex items-center gap-2 min-w-0">
+                    {isHistory && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
                     {platformIcons[script.platform] ?? (
                       <FileText className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="truncate font-semibold text-foreground">
+                    <span className={`truncate font-semibold text-foreground ${isHistory ? "line-through decoration-muted-foreground/40 text-muted-foreground" : ""}`}>
                       {script.title}
                     </span>
                   </div>
@@ -377,15 +446,36 @@ export function ScriptsPageClient({
                   )}
                 </div>
 
-                {script.content && (
+                {script.content && !isHistory && (
                   <p className="mt-3 line-clamp-2 text-xs text-muted-foreground leading-relaxed">
                     {script.content.replace(/<[^>]+>/g, "").slice(0, 120)}
                   </p>
                 )}
 
-                <div className="mt-4 flex items-center gap-1 text-[10.5px] text-foreground/30" title={formatDateTime(script.updatedAt, locale)}>
-                  <Clock className="h-2.5 w-2.5" />
-                  <span>{timeAgo(script.updatedAt, locale)}</span>
+                <div className="mt-4 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1 text-[10.5px] text-foreground/30" title={formatDateTime(script.updatedAt, locale)}>
+                    <Clock className="h-2.5 w-2.5" />
+                    <span>{timeAgo(script.updatedAt, locale)}</span>
+                  </div>
+
+                  {/* Complete / Restore button */}
+                  {isHistory ? (
+                    <button
+                      onClick={(e) => handleRestore(script.id, e)}
+                      className="flex items-center gap-1 rounded-full bg-foreground/[0.04] hover:bg-foreground/[0.08] px-2.5 py-1 text-[11px] font-semibold text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <RotateCcw className="h-3 w-3" />
+                      החזר
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => handleComplete(script.id, e)}
+                      className="flex items-center gap-1 rounded-full bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-950/60 px-2.5 py-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 transition-colors"
+                    >
+                      <CheckCircle2 className="h-3 w-3" />
+                      בוצע
+                    </button>
+                  )}
                 </div>
               </div>
             );
