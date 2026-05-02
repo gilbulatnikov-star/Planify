@@ -4,13 +4,13 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Plus, CalendarDays, Trash2, Users, FolderOpen } from "lucide-react";
+import { Plus, CalendarDays, Trash2, Users, FolderOpen, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { useT } from "@/lib/i18n";
-import { createContentBoard, deleteContentBoard } from "@/lib/actions/content-board-actions";
+import { createContentBoard, updateContentBoard, deleteContentBoard } from "@/lib/actions/content-board-actions";
 
 type Board = {
   id: string;
@@ -38,24 +38,42 @@ export function ContentBoardsPageClient({
   const he = useT();
   const router = useRouter();
   const [showNew, setShowNew] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState("");
   const [newClientId, setNewClientId] = useState("");
   const [newProjectId, setNewProjectId] = useState("");
   const [, startTransition] = useTransition();
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
 
-  async function handleCreate() {
+  function startEdit(board: Board, e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    setEditingId(board.id);
+    setNewTitle(board.title);
+    setNewClientId(board.client?.id ?? "");
+    setNewProjectId(board.project?.id ?? "");
+    setShowNew(true);
+  }
+
+  function resetForm() {
+    setNewTitle("");
+    setNewClientId("");
+    setNewProjectId("");
+    setShowNew(false);
+    setEditingId(null);
+  }
+
+  async function handleSave() {
     if (!newTitle.trim()) return;
     const fd = new FormData();
     fd.set("title", newTitle.trim());
-    if (newClientId) fd.set("clientId", newClientId);
-    if (newProjectId) fd.set("projectId", newProjectId);
-    const result = await createContentBoard(fd);
+    fd.set("clientId", newClientId);
+    fd.set("projectId", newProjectId);
+    const result = editingId
+      ? await updateContentBoard(editingId, fd)
+      : await createContentBoard(fd);
     if (result.success) {
-      setNewTitle("");
-      setNewClientId("");
-      setNewProjectId("");
-      setShowNew(false);
+      resetForm();
       router.refresh();
     }
   }
@@ -109,10 +127,10 @@ export function ContentBoardsPageClient({
             />
           </div>
           <div className="flex gap-2">
-            <Button size="sm" onClick={handleCreate} disabled={!newTitle.trim()}>
-              {he.common.create}
+            <Button size="sm" onClick={handleSave} disabled={!newTitle.trim()}>
+              {editingId ? he.common.save : he.common.create}
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => { setShowNew(false); setNewTitle(""); }}>
+            <Button size="sm" variant="ghost" onClick={resetForm}>
               {he.common.cancel}
             </Button>
           </div>
@@ -131,25 +149,35 @@ export function ContentBoardsPageClient({
                       <CalendarDays className="h-4 w-4 text-muted-foreground" />
                       <h3 className="text-sm font-semibold text-foreground">{board.title}</h3>
                     </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        if (deleteConfirm === board.id) {
-                          startTransition(async () => {
-                            await deleteContentBoard(board.id);
-                            router.refresh();
-                          });
-                          setDeleteConfirm(null);
-                        } else {
-                          setDeleteConfirm(board.id);
-                          setTimeout(() => setDeleteConfirm(null), 3000);
-                        }
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => startEdit(board, e)}
+                        title="ערוך לוח"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (deleteConfirm === board.id) {
+                            startTransition(async () => {
+                              await deleteContentBoard(board.id);
+                              router.refresh();
+                            });
+                            setDeleteConfirm(null);
+                          } else {
+                            setDeleteConfirm(board.id);
+                            setTimeout(() => setDeleteConfirm(null), 3000);
+                          }
+                        }}
+                        title="מחק לוח"
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-all"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {board.client && (

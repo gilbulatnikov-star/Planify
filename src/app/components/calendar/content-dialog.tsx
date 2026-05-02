@@ -63,6 +63,10 @@ interface ContentDialogProps {
   defaultDate?: string;
   defaultClientId?: string | null;
   defaultProjectId?: string | null;
+  /** When true, hide the client picker entirely — board is locked to one client. */
+  lockClient?: boolean;
+  /** When true, hide the project picker entirely — board is locked to one project. */
+  lockProject?: boolean;
   clients: { id: string; name: string }[];
   projects: { id: string; title: string; clientId?: string | null }[];
   scripts: { id: string; title: string; projectId?: string | null; clientId?: string | null }[];
@@ -87,6 +91,8 @@ export function ContentDialog({
   defaultDate,
   defaultClientId,
   defaultProjectId,
+  lockClient,
+  lockProject,
   clients,
   projects,
   scripts,
@@ -305,6 +311,7 @@ export function ContentDialog({
             </div>
 
             {/* לקוח */}
+            {!lockClient && (
             <div className="col-span-2 space-y-2">
               <div className="flex items-center justify-between">
                 <Label>{`${he.common.client} (${he.common.optional})`}</Label>
@@ -359,8 +366,10 @@ export function ContentDialog({
                 />
               )}
             </div>
+            )}
 
             {/* פרויקט */}
+            {!lockProject && (
             <div className="col-span-2 space-y-2">
               <div className="flex items-center justify-between">
                 <Label>{`${he.common.project} (${he.common.optional})`}</Label>
@@ -387,6 +396,7 @@ export function ContentDialog({
                 triggerClassName="w-full"
               />
             </div>
+            )}
 
             {/* תסריט */}
             {scripts.length > 0 && (

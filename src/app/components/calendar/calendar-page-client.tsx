@@ -543,6 +543,8 @@ export function CalendarPageClient({
         defaultDate={selectedDate}
         defaultClientId={boardClientId ?? selectedClientId}
         defaultProjectId={boardProjectId ?? null}
+        lockClient={!!boardClientId}
+        lockProject={!!boardProjectId}
         clients={clients}
         projects={projects}
         scripts={scripts}
