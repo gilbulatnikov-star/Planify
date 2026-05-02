@@ -30,6 +30,7 @@ import {
 } from "@/lib/actions/calendar-actions";
 import { createClientQuick } from "@/lib/actions/client-actions";
 import { createScript } from "@/lib/actions/script-actions";
+import { createProject } from "@/lib/actions/project-actions";
 import { Plus, X, Check, Trash2, ArrowUpRight } from "lucide-react";
 import { useT } from "@/lib/i18n";
 
@@ -129,9 +130,13 @@ export function ContentDialog({
   const [newScriptMode, setNewScriptMode] = useState(false);
   const [newScriptTitle, setNewScriptTitle] = useState("");
   const [creatingScript, setCreatingScript] = useState(false);
+  const [newProjectMode, setNewProjectMode] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [creatingProject, setCreatingProject] = useState(false);
   const [error, setError]                 = useState<string | null>(null);
   const [localClients, setLocalClients]   = useState(clients);
   const [localScripts, setLocalScripts]   = useState(scripts);
+  const [localProjects, setLocalProjects] = useState(projects);
   const [dateValue, setDateValue]         = useState(
     content?.date ? formatDateForInput(content.date) : defaultDate ?? ""
   );
@@ -153,16 +158,19 @@ export function ContentDialog({
     setNewClientName("");
     setNewScriptMode(false);
     setNewScriptTitle("");
+    setNewProjectMode(false);
+    setNewProjectTitle("");
     setLocalClients(clients);
     setLocalScripts(scripts);
+    setLocalProjects(projects);
     setDateValue(content?.date ? formatDateForInput(content.date) : defaultDate ?? "");
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, content]);
 
   // Projects filtered by the currently selected client
   const filteredProjects = clientId
-    ? projects.filter((p) => !p.clientId || p.clientId === clientId)
-    : projects;
+    ? localProjects.filter((p) => !p.clientId || p.clientId === clientId)
+    : localProjects;
 
   // Scripts filtered by client first, then by project. Scripts already linked to
   // a different client are hidden — when no client is selected, hide scripts that
@@ -200,6 +208,28 @@ export function ContentDialog({
       setScriptId(result.id);
       setNewScriptMode(false);
       setNewScriptTitle("");
+    }
+  }
+
+  async function handleCreateProject() {
+    const title = newProjectTitle.trim();
+    if (!title) return;
+    setCreatingProject(true);
+    const fd = new FormData();
+    fd.set("title", title);
+    if (clientId) fd.set("clientId", clientId);
+    const result = await createProject(fd);
+    setCreatingProject(false);
+    if (result.success && "projectId" in result && typeof result.projectId === "string") {
+      const newProject = {
+        id: result.projectId,
+        title,
+        clientId: clientId || null,
+      };
+      setLocalProjects((prev) => [...prev, newProject]);
+      setProjectId(result.projectId);
+      setNewProjectMode(false);
+      setNewProjectTitle("");
     }
   }
 
@@ -405,7 +435,7 @@ export function ContentDialog({
             <div className="col-span-2 space-y-2">
               <div className="flex items-center justify-between">
                 <Label>{`${he.common.project} (${he.common.optional})`}</Label>
-                {projectId && (
+                {projectId && !newProjectMode && (
                   <Link
                     href={`/projects/${projectId}${returnToParam}`}
                     onClick={() => onOpenChange(false)}
@@ -416,17 +446,55 @@ export function ContentDialog({
                   </Link>
                 )}
               </div>
-              <SearchableSelect
-                options={[
-                  { value: "", label: he.common.noProject },
-                  ...filteredProjects.map((p) => ({ value: p.id, label: p.title })),
-                ]}
-                value={projectId}
-                onChange={(v) => handleProjectChange(v)}
-                placeholder={he.common.selectProject}
-                searchPlaceholder={he.common.searchPlaceholder}
-                triggerClassName="w-full"
-              />
+              {newProjectMode ? (
+                <div className="flex gap-1.5">
+                  <Input
+                    autoFocus
+                    value={newProjectTitle}
+                    onChange={(e) => setNewProjectTitle(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleCreateProject(); } }}
+                    placeholder="שם הפרויקט החדש..."
+                    className="flex-1 h-9 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCreateProject}
+                    disabled={creatingProject || !newProjectTitle.trim()}
+                    className="flex h-9 items-center gap-1.5 rounded-md bg-foreground px-3 text-xs font-semibold text-background hover:bg-foreground/90 disabled:opacity-40 disabled:pointer-events-none transition-colors"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    {creatingProject ? "..." : "צור"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setNewProjectMode(false); setNewProjectTitle(""); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-red-500 transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <SearchableSelect
+                  options={[
+                    { value: "", label: he.common.noProject },
+                    ...filteredProjects.map((p) => ({ value: p.id, label: p.title })),
+                  ]}
+                  value={projectId}
+                  onChange={(v) => handleProjectChange(v)}
+                  placeholder={he.common.selectProject}
+                  searchPlaceholder={he.common.searchPlaceholder}
+                  triggerClassName="w-full"
+                  createAction={
+                    <button
+                      type="button"
+                      onClick={() => { setNewProjectMode(true); setProjectId(""); }}
+                      className="flex w-full items-center gap-2 px-2 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                    >
+                      <Plus className="h-3.5 w-3.5" />צור פרויקט חדש
+                    </button>
+                  }
+                />
+              )}
             </div>
             )}
 
