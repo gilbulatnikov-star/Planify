@@ -287,10 +287,19 @@ export function CalendarPageClient({
         </motion.div>
       )}
       <motion.div variants={fadeUp} className="flex flex-wrap items-center gap-2 justify-between">
-        <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{boardTitle ?? he.calendar.title}</h1>
+        <div className="flex flex-col gap-1">
+          <h1 className="text-[22px] font-extrabold tracking-[-0.03em] text-foreground">{boardTitle ?? he.calendar.title}</h1>
+          {boardClientId && selectedClientName && (
+            <span className="inline-flex items-center gap-1.5 self-start rounded-full bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400">
+              <User className="h-3 w-3" />
+              {selectedClientName}
+            </span>
+          )}
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {/* Client selector */}
+          {/* Client selector — hidden when the board itself is already locked to a client */}
+          {!boardClientId && (
           <div className="relative">
             {clientMenuOpen && <div className="fixed inset-0 z-40" onClick={() => setClientMenuOpen(false)} />}
             <button
@@ -324,6 +333,7 @@ export function CalendarPageClient({
               </div>
             )}
           </div>
+          )}
 
           {/* Google Calendar popover */}
           <div className="relative">
