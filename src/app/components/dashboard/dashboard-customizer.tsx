@@ -389,7 +389,7 @@ export function DashboardCustomizer({
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="space-y-5 max-w-[1100px]">
+    <div className="space-y-5 max-w-[1400px] mx-auto">
 
       {/* ── Toolbar (edit mode toggle) ── */}
       <div className="flex items-center justify-end gap-2">

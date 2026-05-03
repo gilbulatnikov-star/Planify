@@ -162,7 +162,7 @@ export function ReportsPageClient({ data }: { data: ReportsData }) {
   const previousMonth = months.length > 1 ? months[months.length - 2] : null;
 
   return (
-    <div className="space-y-6 max-w-[1100px]">
+    <div className="space-y-6 max-w-[1400px] mx-auto">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 8 }}

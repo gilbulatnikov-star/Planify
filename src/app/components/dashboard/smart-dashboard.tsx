@@ -351,7 +351,7 @@ export function SmartDashboard({ data, userName }: { data: SmartDashboardData; u
   const urgentCount = (urgent.approachingDeadlines?.length ?? 0) + (urgent.overdueInvoices?.length ?? 0);
 
   return (
-    <motion.div className="space-y-5 max-w-[1100px]" variants={sv} initial="hidden" animate="show">
+    <motion.div className="space-y-5 max-w-[1400px] mx-auto" variants={sv} initial="hidden" animate="show">
       <motion.div variants={fv}><GreetingWidget userName={userName} /></motion.div>
       <motion.div variants={fv}><QuickActionsWidget /></motion.div>
       <motion.div variants={fv}><KpiWidget data={data} /></motion.div>
