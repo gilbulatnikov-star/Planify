@@ -608,6 +608,7 @@ export function ScriptEditorClient({
   const [showColMenu, setShowColMenu] = useState(false);
   const [showViewMenu, setShowViewMenu] = useState(false);
   const [showPlatformMenu, setShowPlatformMenu] = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
 
   // AI state
   const [aiMode, setAiMode] = useState<"idle" | "generate">("idle");
@@ -632,14 +633,18 @@ export function ScriptEditorClient({
 
   // Close menus on outside click
   useEffect(() => {
-    if (!showColMenu && !showViewMenu) return;
+    if (!showColMenu && !showViewMenu && !showExportMenu) return;
     function handler(e: MouseEvent) {
       const target = e.target as Element;
-      if (!target.closest("[data-menu]")) { setShowColMenu(false); setShowViewMenu(false); }
+      if (!target.closest("[data-menu]")) {
+        setShowColMenu(false);
+        setShowViewMenu(false);
+        setShowExportMenu(false);
+      }
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
-  }, [showColMenu, showViewMenu]);
+  }, [showColMenu, showViewMenu, showExportMenu]);
 
   // Auto-save
   useEffect(() => {
@@ -724,7 +729,7 @@ export function ScriptEditorClient({
     setScriptCtxMenu(null);
   }
 
-  async function exportShotListPDF() {
+  async function exportShotListPDF(mode: "rich" | "simple" = "rich") {
     try {
       const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
         import("jspdf"),
@@ -732,8 +737,13 @@ export function ScriptEditorClient({
       ]);
 
       const today = new Date().toLocaleDateString("he-IL");
-      // Exclude frameUrl from PDF (images would require network + inflate PDF size)
-      const cols = COLUMNS.filter(c => visibleCols.has(c.id) && c.id !== "frameUrl");
+      const includeFrames = mode === "rich";
+      // Rich mode keeps the FRAME column and renders <img>; simple drops it entirely.
+      const cols = COLUMNS.filter(c => {
+        if (!visibleCols.has(c.id)) return false;
+        if (c.id === "frameUrl" && !includeFrames) return false;
+        return true;
+      });
       const shots = orderedShots;
 
       // ── Build styled HTML ──────────────────────────────────────────────────
@@ -756,10 +766,15 @@ export function ScriptEditorClient({
       const bodyRows = shots.map((shot, i) => {
         const bg = i % 2 === 0 ? "#ffffff" : "#f9fafb";
         return `<tr>
-          <td style="${tdBase};background:${bg};font-weight:800;color:#6366f1;width:36px;text-align:center;">
+          <td style="${tdBase};background:${bg};font-weight:800;color:${mode === "rich" ? "#6366f1" : "#111827"};width:36px;text-align:center;">
             ${customShotNo ? shot.customShotNum : shot.shotNum}
           </td>
           ${cols.map(c => {
+            if (c.id === "frameUrl") {
+              return shot.frameUrl
+                ? `<td style="${tdBase};background:${bg};width:140px;"><img src="${shot.frameUrl}" style="width:120px;height:72px;object-fit:cover;border-radius:6px;display:block;"/></td>`
+                : `<td style="${tdBase};background:${bg};width:140px;color:#d1d5db;">—</td>`;
+            }
             const val = String((shot as Record<string, unknown>)[c.id] ?? "") || "—";
             return `<td style="${tdBase};background:${bg};">${val}</td>`;
           }).join("")}
@@ -780,7 +795,7 @@ export function ScriptEditorClient({
         "font-family:-apple-system,system-ui,'Segoe UI',Helvetica,Arial,sans-serif",
       ].join(";");
 
-      container.innerHTML = `
+      const richHeader = `
         <div style="background:linear-gradient(135deg,#6366f1,#818cf8);color:#fff;padding:20px 28px 18px;display:flex;justify-content:space-between;align-items:center;">
           <div>
             <div style="font-size:24px;font-weight:900;letter-spacing:-0.02em;margin-bottom:4px;">
@@ -791,16 +806,38 @@ export function ScriptEditorClient({
           <div style="background:rgba(255,255,255,0.18);border-radius:10px;padding:6px 16px;font-size:13px;font-weight:700;">
             ${shots.length} shots
           </div>
-        </div>
+        </div>`;
+
+      const simpleHeader = `
+        <div style="padding:18px 28px 12px;border-bottom:1px solid #e5e7eb;">
+          <div style="font-size:18px;font-weight:800;color:#111827;letter-spacing:-0.02em;margin-bottom:3px;">
+            ${title || "רשימת שוטים"}
+          </div>
+          <div style="font-size:10px;color:#6b7280;">${metaLine}</div>
+        </div>`;
+
+      container.innerHTML = `
+        ${mode === "rich" ? richHeader : simpleHeader}
         <table style="width:100%;border-collapse:collapse;">
           <thead>${headerRow}</thead>
           <tbody>${bodyRows}</tbody>
         </table>
-        <div style="padding:10px 28px;font-size:9px;color:#d1d5db;text-align:center;background:#f9fafb;border-top:1px solid #f3f4f6;">
-          Qlipy CRM  ·  ${today}
-        </div>
+        ${mode === "rich" ? `<div style="padding:10px 28px;font-size:9px;color:#d1d5db;text-align:center;background:#f9fafb;border-top:1px solid #f3f4f6;">Qlipy CRM  ·  ${today}</div>` : ""}
       `;
       document.body.appendChild(container);
+
+      // Wait for any embedded <img> tags to finish decoding before snapshotting.
+      // (Data URLs are usually instant, but Safari sometimes needs an event-loop tick.)
+      const imgs = Array.from(container.querySelectorAll("img"));
+      if (imgs.length > 0) {
+        await Promise.all(imgs.map((img) => {
+          if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+          return new Promise<void>((resolve) => {
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+          });
+        }));
+      }
 
       // ── Render to canvas ───────────────────────────────────────────────────
       const canvas = await html2canvas(container, {
@@ -856,7 +893,8 @@ export function ScriptEditorClient({
       const safeName = (title || "shot-list")
         .replace(/[<>:"/\\|?*]/g, "")
         .trim() || "shot-list";
-      doc.save(`${safeName}.pdf`);
+      const suffix = mode === "simple" ? "-simple" : "";
+      doc.save(`${safeName}${suffix}.pdf`);
 
     } catch (err) {
       console.error("PDF export error:", err);
@@ -1355,10 +1393,35 @@ export function ScriptEditorClient({
                     />
                   )}
                 </div>
-                <button onClick={exportShotListPDF}
-                  className="flex items-center gap-1 rounded-lg border border-border bg-card text-muted-foreground px-2.5 py-1.5 text-xs font-medium hover:bg-muted transition-colors">
-                  <Download className="h-3.5 w-3.5" /><span className="hidden sm:inline">PDF</span>
-                </button>
+                <div className="relative" data-menu>
+                  <button
+                    onClick={() => { setShowExportMenu((v) => !v); setShowColMenu(false); setShowViewMenu(false); }}
+                    className={`flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                      showExportMenu ? "border-foreground bg-foreground text-background" : "border-border bg-card text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    <Download className="h-3.5 w-3.5" /><span className="hidden sm:inline">PDF</span>
+                    <ChevronDown className="h-3 w-3" />
+                  </button>
+                  {showExportMenu && (
+                    <div className="absolute left-0 top-full z-50 mt-1 min-w-[200px] rounded-xl border border-border/40 bg-popover py-1.5 shadow-xl">
+                      <button
+                        onClick={() => { setShowExportMenu(false); exportShotListPDF("rich"); }}
+                        className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-right hover:bg-muted transition-colors"
+                      >
+                        <span className="text-sm font-semibold text-foreground">PDF עם תמונות</span>
+                        <span className="text-[11px] text-muted-foreground">עיצוב מלא, כולל פריימים</span>
+                      </button>
+                      <button
+                        onClick={() => { setShowExportMenu(false); exportShotListPDF("simple"); }}
+                        className="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-right hover:bg-muted transition-colors"
+                      >
+                        <span className="text-sm font-semibold text-foreground">PDF פשוט</span>
+                        <span className="text-[11px] text-muted-foreground">טבלה נקייה, ללא תמונות</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
                 {storyboardAtLimit ? (
                   <button onClick={() => setStoryboardUpgradeOpen(true)}
                     className="flex items-center gap-1.5 rounded-lg bg-amber-500 text-background px-2.5 py-1.5 text-xs font-medium hover:bg-amber-600 transition-colors">
