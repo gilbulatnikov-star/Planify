@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useId } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import {
   ArrowRight, Wand2, Send, Sparkles, Save, ChevronDown, CheckCircle2, RotateCcw,
   Youtube, Instagram, Podcast, Megaphone, Facebook, Loader2, Check,
@@ -646,21 +647,39 @@ export function ScriptEditorClient({
     return () => document.removeEventListener("mousedown", handler);
   }, [showColMenu, showViewMenu, showExportMenu]);
 
-  // Auto-save
+  // Auto-save — skips the initial mount (otherwise it fires immediately
+  // with no actual changes and shows misleading "saved" feedback). Also
+  // surfaces failures via a toast so silent save errors aren't swallowed.
+  const isFirstSaveRender = useRef(true);
   useEffect(() => {
+    if (isFirstSaveRender.current) {
+      isFirstSaveRender.current = false;
+      return;
+    }
     if (saveTimeout.current) clearTimeout(saveTimeout.current);
     setSaved(false);
     saveTimeout.current = setTimeout(async () => {
       setSaving(true);
-      await updateScript(script.id, {
-        title, content, platform, duration,
-        shotListData: JSON.stringify(shotList),
-        projectId: linkedProjectId || undefined,
-        clientId: linkedClientId || undefined,
-      });
-      setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
+      try {
+        const result = await updateScript(script.id, {
+          title, content, platform, duration,
+          shotListData: JSON.stringify(shotList),
+          projectId: linkedProjectId || undefined,
+          clientId: linkedClientId || undefined,
+        });
+        if (result && typeof result === "object" && "success" in result && result.success === false) {
+          toast.error("שמירה נכשלה: " + (("error" in result && result.error) || "שגיאה לא ידועה"));
+          setSaving(false);
+          return;
+        }
+        setSaving(false);
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      } catch (err) {
+        setSaving(false);
+        toast.error("שמירה נכשלה — בדוק חיבור לאינטרנט");
+        console.error("Script save failed:", err);
+      }
     }, 1500);
     return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
   }, [title, content, platform, duration, shotList, linkedProjectId, linkedClientId, script.id]);
@@ -978,15 +997,26 @@ export function ScriptEditorClient({
               if (saving) return;
               if (saveTimeout.current) clearTimeout(saveTimeout.current);
               setSaving(true);
-              await updateScript(script.id, {
-                title, content, platform, duration,
-                shotListData: JSON.stringify(shotList),
-                projectId: linkedProjectId || undefined,
-                clientId: linkedClientId || undefined,
-              });
-              setSaving(false);
-              setSaved(true);
-              setTimeout(() => setSaved(false), 2000);
+              try {
+                const result = await updateScript(script.id, {
+                  title, content, platform, duration,
+                  shotListData: JSON.stringify(shotList),
+                  projectId: linkedProjectId || undefined,
+                  clientId: linkedClientId || undefined,
+                });
+                if (result && typeof result === "object" && "success" in result && result.success === false) {
+                  toast.error("שמירה נכשלה: " + (("error" in result && result.error) || "שגיאה לא ידועה"));
+                  setSaving(false);
+                  return;
+                }
+                setSaving(false);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 2000);
+              } catch (err) {
+                setSaving(false);
+                toast.error("שמירה נכשלה — בדוק חיבור לאינטרנט");
+                console.error("Script save failed:", err);
+              }
             }}
             disabled={saving}
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg px-2.5 py-1.5 transition-colors shrink-0"
