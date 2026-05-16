@@ -98,10 +98,11 @@ function getTheme(dark: boolean, accent: string) {
 
 // ── Grid Preview ────────────────────────────────────────────────
 function GridPreview({
-  content, currentMonth, themeColor, logoUrl, clientName, darkMode,
+  content, currentMonth, themeColor, logoUrl, clientName, darkMode, fromDate, toDate,
 }: {
   content: ContentItem[]; currentMonth: Date; themeColor: string;
   logoUrl: string | null; clientName: string; darkMode: boolean;
+  fromDate: string; toDate: string;
 }) {
   const he = useT();
   const DAY_NAMES = he.calendar.dayNames as unknown as string[];
@@ -144,7 +145,18 @@ function GridPreview({
             <tr key={wi}>
               {week.map((day, di) => {
                 const inMonth = isSameMonth(day, currentMonth);
-                const dayItems = content.filter((item) => isSameDay(new Date(item.date), day));
+                const hasRange = !!(fromDate && toDate);
+                const rangeStart = hasRange ? new Date(fromDate) : null;
+                const rangeEnd = hasRange ? new Date(toDate) : null;
+                if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+                const dayItems = content.filter((item) => {
+                  if (!isSameDay(new Date(item.date), day)) return false;
+                  if (hasRange) {
+                    const d = new Date(item.date);
+                    return d >= rangeStart! && d <= rangeEnd!;
+                  }
+                  return true;
+                });
                 return (
                   <td key={di} style={{ background: t.cellBg, border: `1px solid ${t.border}`, padding: "5px", verticalAlign: "top", height: "80px", opacity: inMonth ? 1 : (darkMode ? 0.15 : 0.2) }}>
                     <div style={{ fontSize: "11px", fontWeight: 700, color: t.dayNum, marginBottom: "4px" }}>{format(day, "d")}</div>
@@ -168,15 +180,26 @@ function GridPreview({
 
 // ── Timeline Preview ─────────────────────────────────────────────
 function TimelinePreview({
-  content, currentMonth, themeColor, logoUrl, clientName, darkMode,
+  content, currentMonth, themeColor, logoUrl, clientName, darkMode, fromDate, toDate,
 }: {
   content: ContentItem[]; currentMonth: Date; themeColor: string;
   logoUrl: string | null; clientName: string; darkMode: boolean;
+  fromDate: string; toDate: string;
 }) {
   const he = useT();
-  const monthLabel = format(currentMonth, "MMMM yyyy", { locale: heLocale });
+  const hasRange = !!(fromDate && toDate);
+  const rangeStart = hasRange ? new Date(fromDate) : null;
+  const rangeEnd = hasRange ? new Date(toDate) : null;
+  if (rangeEnd) rangeEnd.setHours(23, 59, 59, 999);
+  const headerLabel = hasRange
+    ? `${format(rangeStart!, "d בMMMM", { locale: heLocale })} – ${format(rangeEnd!, "d בMMMM yyyy", { locale: heLocale })}`
+    : format(currentMonth, "MMMM yyyy", { locale: heLocale });
   const sorted = [...content]
-    .filter((item) => isSameMonth(new Date(item.date), currentMonth))
+    .filter((item) => {
+      const d = new Date(item.date);
+      if (hasRange) return d >= rangeStart! && d <= rangeEnd!;
+      return isSameMonth(d, currentMonth);
+    })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   const t = getTheme(darkMode, themeColor);
 
@@ -185,7 +208,7 @@ function TimelinePreview({
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px", paddingBottom: "16px", minHeight: "90px", borderBottom: `3px solid ${darkMode ? t.border : themeColor}` }}>
         <div>
-          <div style={{ fontSize: "26px", fontWeight: 800, color: darkMode ? t.text : themeColor, lineHeight: 1.15 }}>{monthLabel}</div>
+          <div style={{ fontSize: "26px", fontWeight: 800, color: darkMode ? t.text : themeColor, lineHeight: 1.15 }}>{headerLabel}</div>
           {clientName && <div style={{ fontSize: "13px", color: t.subText, marginTop: "3px" }}>{clientName}</div>}
         </div>
         {logoUrl && (
@@ -239,6 +262,9 @@ export function CalendarExportStudio({
   const [darkMode, setDarkMode] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [zoom, setZoom] = useState(0.7);
+  // Date range (optional). When both are set, exports use the range instead of currentMonth.
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const handleLogoUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -292,7 +318,7 @@ export function CalendarExportStudio({
     try {
       const canvas = await captureToCanvas();
       const link = document.createElement("a");
-      link.download = `לוח-תוכן-${clientName || "export"}-${format(currentMonth, "yyyy-MM")}.png`;
+      link.download = `לוח-תוכן-${clientName || "export"}-${fileLabel}.png`;
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (err) {
@@ -321,7 +347,7 @@ export function CalendarExportStudio({
 
       const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
       pdf.addImage(canvas.toDataURL("image/jpeg", 0.95), "JPEG", x, y, imgW, imgH);
-      pdf.save(`לוח-תוכן-${clientName || "export"}-${format(currentMonth, "yyyy-MM")}.pdf`);
+      pdf.save(`לוח-תוכן-${clientName || "export"}-${fileLabel}.pdf`);
     } catch (err) {
       console.error("PDF export failed:", err);
       alert(he.calendarExport.exportPdfFailed);
@@ -332,7 +358,11 @@ export function CalendarExportStudio({
 
   if (!open) return null;
 
-  const previewProps = { content, currentMonth, themeColor, logoUrl, clientName, darkMode };
+  const previewProps = { content, currentMonth, themeColor, logoUrl, clientName, darkMode, fromDate, toDate };
+  // Filename suffix — date range overrides month label when set
+  const fileLabel = fromDate && toDate
+    ? `${fromDate}_to_${toDate}`
+    : format(currentMonth, "yyyy-MM");
 
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm sm:p-4">
@@ -444,6 +474,44 @@ export function CalendarExportStudio({
               </button>
               <input ref={colorInputRef} type="color" value={themeColor}
                 onChange={(e) => setThemeColor(e.target.value)} className="sr-only" />
+            </div>
+
+            {/* Date range */}
+            <div>
+              <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">טווח תאריכים</p>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] text-muted-foreground w-8 shrink-0">מ-</label>
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="flex-1 rounded-lg border border-border bg-card px-2 py-1.5 text-xs text-foreground outline-none focus:border-ring focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                <div className="flex items-center gap-2">
+                  <label className="text-[11px] text-muted-foreground w-8 shrink-0">עד</label>
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="flex-1 rounded-lg border border-border bg-card px-2 py-1.5 text-xs text-foreground outline-none focus:border-ring focus:ring-1 focus:ring-ring"
+                  />
+                </div>
+                {(fromDate || toDate) && (
+                  <button
+                    onClick={() => { setFromDate(""); setToDate(""); }}
+                    className="w-full text-[11px] text-muted-foreground hover:text-foreground py-1 transition-colors"
+                  >
+                    איפוס לחודש הנוכחי
+                  </button>
+                )}
+                <p className="text-[10px] text-muted-foreground/70">
+                  {fromDate && toDate
+                    ? "מציג רק אירועים בטווח שנבחר"
+                    : "ברירת מחדל — חודש נוכחי"}
+                </p>
+              </div>
             </div>
 
             {/* Logo */}
