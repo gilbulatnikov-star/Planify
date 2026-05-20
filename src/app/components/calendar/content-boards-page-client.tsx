@@ -149,7 +149,7 @@ export function ContentBoardsPageClient({
                       <CalendarDays className="h-4 w-4 text-muted-foreground" />
                       <h3 className="text-sm font-semibold text-foreground">{board.title}</h3>
                     </div>
-                    <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => startEdit(board, e)}
                         title="ערוך לוח"

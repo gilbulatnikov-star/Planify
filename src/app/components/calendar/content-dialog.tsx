@@ -576,22 +576,22 @@ export function ContentDialog({
           </div>
 
           {error && <p className="text-sm text-red-500 bg-red-50 dark:bg-red-950/30 rounded-lg px-3 py-2">{error}</p>}
-          <DialogFooter className="flex-row-reverse sm:flex-row gap-2">
+          <DialogFooter className="gap-2 sm:me-auto:flex-1">
             {isEditing && onRequestDelete && (
               <Button
                 type="button"
                 variant="outline"
-                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 me-auto"
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 w-full sm:w-auto sm:me-auto"
                 onClick={() => { onOpenChange(false); onRequestDelete(content!.id); }}
               >
                 <Trash2 className="h-4 w-4 me-1.5" />
                 {he.common.deleteContent}
               </Button>
             )}
-            <DialogClose render={<Button variant="outline" />}>
+            <DialogClose render={<Button variant="outline" className="w-full sm:w-auto" />}>
               {he.common.cancel}
             </DialogClose>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending} className="w-full sm:w-auto">
               {isPending ? he.common.saving : isEditing ? he.common.updateContent : he.common.addContent}
             </Button>
           </DialogFooter>
