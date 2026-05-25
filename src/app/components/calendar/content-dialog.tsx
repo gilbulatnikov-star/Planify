@@ -32,6 +32,7 @@ import { createClientQuick } from "@/lib/actions/client-actions";
 import { createScript } from "@/lib/actions/script-actions";
 import { createProject } from "@/lib/actions/project-actions";
 import { Plus, X, Check, Trash2, ArrowUpRight } from "lucide-react";
+import { toast } from "sonner";
 import { useT } from "@/lib/i18n";
 
 // ─── Color options ────────────────────────────────────────────────────────────
@@ -294,8 +295,43 @@ export function ContentDialog({
 
       if (result.success) {
         setError(null);
+        // Capture form data BEFORE closing — closure used by the toast action below
+        const savedTitle = titleValue;
+        const savedDate = dateValue;
+        const savedNotes = (formData.get("notes") as string) ?? "";
+        const savedClientName = localClients.find((c) => c.id === resolvedClientId)?.name ?? "";
         onOpenChange(false);
         router.refresh();
+        // Only prompt for Google Calendar on NEW events (not edits)
+        if (!isEditing && savedDate) {
+          toast("האם להוסיף את האירוע ליומן Google?", {
+            description: savedTitle,
+            duration: 8000,
+            action: {
+              label: "כן, הוסף",
+              onClick: () => {
+                const d = new Date(savedDate);
+                d.setHours(12, 0, 0, 0);
+                const end = new Date(d.getTime() + 3600 * 1000);
+                const fmt = (dt: Date) => dt.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z";
+                const details = [savedClientName ? `לקוח: ${savedClientName}` : "", savedNotes]
+                  .filter(Boolean)
+                  .join(" | ");
+                const url =
+                  `https://calendar.google.com/calendar/render?action=TEMPLATE` +
+                  `&text=${encodeURIComponent(savedTitle)}` +
+                  `&dates=${fmt(d)}/${fmt(end)}` +
+                  (details ? `&details=${encodeURIComponent(details)}` : "") +
+                  `&sf=true&output=xml`;
+                window.open(url, "_blank", "noopener");
+              },
+            },
+            cancel: {
+              label: "לא",
+              onClick: () => { /* dismiss */ },
+            },
+          });
+        }
       } else {
         setError(result.error ?? "שגיאה בשמירה");
       }
