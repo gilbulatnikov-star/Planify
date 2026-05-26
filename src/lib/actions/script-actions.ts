@@ -78,6 +78,7 @@ export async function updateScript(
     shotListData?: string;
     projectId?: string;
     clientId?: string;
+    audioUrl?: string | null;
   }
 ) {
   const session = await auth();

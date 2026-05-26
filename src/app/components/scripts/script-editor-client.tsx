@@ -39,6 +39,7 @@ type ShotItem = {
   content: string;
   dialogues: string;
   note: string;
+  location: string;
   sound: string;
   shotType: string;
   lens: string;
@@ -61,6 +62,7 @@ type Tab = "script" | "shotlist";
 type Script = {
   id: string; title: string; content: string; platform: string;
   duration: string; notes: string; shotListData: string;
+  audioUrl?: string | null;
   completedAt?: Date | null;
   project: { id: string; title: string } | null;
   client: { id: string; name: string } | null;
@@ -75,13 +77,14 @@ const COLUMNS: ColDef[] = [
   { id: "frameUrl",   label: "FRAME",      defaultVisible: true  },
   { id: "content",    label: "CONTENT",    defaultVisible: true  },
   { id: "shotSize",   label: "SHOT SIZE",  defaultVisible: true  },
+  { id: "location",   label: "LOCATION",   defaultVisible: true  },
+  { id: "note",       label: "NOTE",       defaultVisible: true  },
   { id: "lens",       label: "LENS",       defaultVisible: true  },
   { id: "movement",   label: "MOVEMENT",   defaultVisible: true  },
   { id: "startTime",  label: "START TIME", defaultVisible: false },
   { id: "endTime",    label: "END TIME",   defaultVisible: false },
   { id: "duration",   label: "DURATION",   defaultVisible: false },
   { id: "dialogues",  label: "DIALOGUES",  defaultVisible: false },
-  { id: "note",       label: "NOTE",       defaultVisible: false },
   { id: "sound",      label: "SOUND",      defaultVisible: false },
   { id: "shotType",   label: "SHOT TYPE",  defaultVisible: false },
   { id: "equipment",  label: "EQUIPMENT",  defaultVisible: false },
@@ -125,7 +128,7 @@ function newShot(num: number): ShotItem {
     shotNum: num, customShotNum: String(num),
     startTime: "", endTime: "", frameUrl: "",
     shotSize: "", duration: "", content: "",
-    dialogues: "", note: "", sound: "", shotType: "",
+    dialogues: "", note: "", location: "", sound: "", shotType: "",
     lens: "", movement: "", equipment: "", frameRate: "",
     lighting: "", castId: "", prop: "", clothing: "", makeup: "",
   };
@@ -291,6 +294,7 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
 
       {cell("content", <InputCell value={shot.content} onChange={upd("content")} placeholder={he.scriptEditor.action} />)}
       {cell("shotSize", <SelectCell value={shot.shotSize} opts={SHOT_SIZE_OPTS} onChange={upd("shotSize")} />)}
+      {cell("location", <InputCell value={shot.location} onChange={upd("location")} placeholder="לוקיישן..." />)}
       {cell("lens", <ComboCell value={shot.lens} opts={LENS_OPTS} onChange={upd("lens")} placeholder={he.scriptEditor.lensPlaceholder} />)}
       {cell("movement", <SelectCell value={shot.movement} opts={MOVEMENT_OPTS} onChange={upd("movement")} />)}
       {cell("startTime", <InputCell type="time" value={shot.startTime} onChange={upd("startTime")} />)}
@@ -374,10 +378,13 @@ function AutoGrowTextarea({
 
 // ─── Storyboard Card ──────────────────────────────────────────────────────────
 
-function StoryboardCard({ shot, customShotNo, showFrames, onUpdate, onDelete }: {
+function StoryboardCard({ shot, customShotNo, showFrames, onUpdate, onDelete, audioEnabled, onPlaySection, onCaptureTime }: {
   shot: ShotItem; customShotNo: boolean; showFrames: boolean;
   onUpdate: (id: string, field: keyof ShotItem, value: string) => void;
   onDelete: (id: string) => void;
+  audioEnabled?: boolean;
+  onPlaySection?: (shot: ShotItem) => void;
+  onCaptureTime?: (shotId: string, field: "startTime" | "endTime") => void;
 }) {
   const he = useT();
   return (
@@ -432,6 +439,57 @@ function StoryboardCard({ shot, customShotNo, showFrames, onUpdate, onDelete }: 
           minRows={2}
           className="rounded-lg border border-transparent bg-transparent px-1 py-0.5 text-xs text-foreground focus:outline-none focus:border-border focus:bg-muted font-[inherit] transition-colors"
         />
+
+        {/* Optional second-row inputs — location & note inline */}
+        <div className="grid grid-cols-2 gap-1.5">
+          <input
+            type="text"
+            value={shot.location ?? ""}
+            onChange={(e) => onUpdate(shot.id, "location", e.target.value)}
+            placeholder="לוקיישן"
+            className="w-full rounded border border-transparent bg-muted/40 px-2 py-1 text-[11px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-border focus:bg-muted transition-colors"
+          />
+          <input
+            type="text"
+            value={shot.note ?? ""}
+            onChange={(e) => onUpdate(shot.id, "note", e.target.value)}
+            placeholder="הערה"
+            className="w-full rounded border border-transparent bg-muted/40 px-2 py-1 text-[11px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-border focus:bg-muted transition-colors"
+          />
+        </div>
+
+        {/* Audio sync controls — only show when audio is loaded */}
+        {audioEnabled && (
+          <div className="flex items-center gap-1 pt-1.5 border-t border-border/40">
+            <button
+              type="button"
+              onClick={() => onPlaySection?.(shot)}
+              disabled={!shot.startTime}
+              title={shot.startTime ? "נגן קטע" : "סמן קודם התחלה"}
+              className="flex items-center gap-1 rounded-full bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 px-2 py-0.5 text-[10px] font-semibold hover:bg-blue-100 dark:hover:bg-blue-950/60 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              ▶ נגן
+            </button>
+            <button
+              type="button"
+              onClick={() => onCaptureTime?.(shot.id, "startTime")}
+              title="לכוד זמן נוכחי כהתחלה"
+              className="rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground px-2 py-0.5 text-[10px] font-medium transition-colors"
+            >
+              סמן ⏱ התחלה
+              {shot.startTime && <span className="ms-1 text-foreground font-semibold">{shot.startTime}</span>}
+            </button>
+            <button
+              type="button"
+              onClick={() => onCaptureTime?.(shot.id, "endTime")}
+              title="לכוד זמן נוכחי כסוף"
+              className="rounded-full bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground px-2 py-0.5 text-[10px] font-medium transition-colors"
+            >
+              סוף
+              {shot.endTime && <span className="ms-1 text-foreground font-semibold">{shot.endTime}</span>}
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -619,11 +677,57 @@ export function ScriptEditorClient({
   const isPredefinedPlatform = PLATFORMS.some((p: { value: string }) => p.value === platform);
   const [customPlatformMode, setCustomPlatformMode] = useState(!isPredefinedPlatform && !!platform);
   const [shotList, setShotList] = useState<ShotItem[]>(() => {
-    try { return JSON.parse(script.shotListData || "[]"); } catch { return []; }
+    try {
+      const parsed = JSON.parse(script.shotListData || "[]") as Partial<ShotItem>[];
+      // Backward-compat: older shots may not have a `location` field
+      return parsed.map((s) => ({ ...newShot(s.shotNum ?? 1), ...s })) as ShotItem[];
+    } catch { return []; }
   });
   const [activeTab, setActiveTab] = useState<Tab>("script");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Audio player — for syncing shots with a song/voiceover
+  const [audioUrl, setAudioUrl] = useState<string>(script.audioUrl ?? "");
+  const [audioInput, setAudioInput] = useState(false);
+  const [audioInputValue, setAudioInputValue] = useState("");
+  const audioRef = useRef<HTMLAudioElement>(null);
+  function playShotSection(shot: ShotItem) {
+    const el = audioRef.current;
+    if (!el) return;
+    const toSec = (t: string): number | null => {
+      if (!t) return null;
+      const parts = t.split(":").map((p) => parseInt(p, 10));
+      if (parts.some((n) => isNaN(n))) return null;
+      // mm:ss or hh:mm:ss
+      if (parts.length === 2) return parts[0] * 60 + parts[1];
+      if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
+      return null;
+    };
+    const start = toSec(shot.startTime);
+    const end = toSec(shot.endTime);
+    if (start === null) return;
+    el.currentTime = start;
+    el.play();
+    if (end !== null && end > start) {
+      const onTime = () => {
+        if (el.currentTime >= end) {
+          el.pause();
+          el.removeEventListener("timeupdate", onTime);
+        }
+      };
+      el.addEventListener("timeupdate", onTime);
+    }
+  }
+  function setShotTimeFromAudio(shotId: string, field: "startTime" | "endTime") {
+    const el = audioRef.current;
+    if (!el) return;
+    const t = el.currentTime;
+    const mm = Math.floor(t / 60);
+    const ss = Math.floor(t % 60);
+    const formatted = `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+    setShotList((prev) => prev.map((s) => (s.id === shotId ? { ...s, [field]: formatted } : s)));
+  }
 
   // Shot list view state
   const [visibleCols, setVisibleCols] = useState<Set<string>>(
@@ -699,6 +803,7 @@ export function ScriptEditorClient({
           shotListData: JSON.stringify(shotList),
           projectId: linkedProjectId || undefined,
           clientId: linkedClientId || undefined,
+          audioUrl: audioUrl || null,
         });
         if (result && typeof result === "object" && "success" in result && result.success === false) {
           toast.error("שמירה נכשלה: " + (("error" in result && result.error) || "שגיאה לא ידועה"));
@@ -715,7 +820,7 @@ export function ScriptEditorClient({
       }
     }, 1500);
     return () => { if (saveTimeout.current) clearTimeout(saveTimeout.current); };
-  }, [title, content, platform, duration, shotList, linkedProjectId, linkedClientId, script.id]);
+  }, [title, content, platform, duration, shotList, linkedProjectId, linkedClientId, audioUrl, script.id]);
 
   // Scroll chat
   useEffect(() => {
@@ -1499,6 +1604,60 @@ export function ScriptEditorClient({
               </div>
             </div>
 
+            {/* Audio sync — sticky bar with player and per-shot timing controls */}
+            <div className="bg-card border-b border-border px-3 md:px-5 py-2.5 shrink-0">
+              {audioUrl ? (
+                <div className="flex items-center gap-3 flex-wrap">
+                  <audio ref={audioRef} src={audioUrl} controls className="h-9 max-w-full" />
+                  <button
+                    onClick={() => { setAudioUrl(""); setAudioInput(false); setAudioInputValue(""); }}
+                    className="text-[11px] text-muted-foreground hover:text-red-500 transition-colors"
+                  >
+                    הסר אודיו
+                  </button>
+                  <span className="text-[11px] text-muted-foreground">
+                    💡 לחץ ▶️ ליד שוט כדי לנגן את הקטע, או "סמן התחלה/סוף" ללכוד את הזמן הנוכחי
+                  </span>
+                </div>
+              ) : audioInput ? (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <input
+                    autoFocus
+                    type="url"
+                    value={audioInputValue}
+                    onChange={(e) => setAudioInputValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") { e.preventDefault(); setAudioUrl(audioInputValue.trim()); setAudioInput(false); }
+                      if (e.key === "Escape") { setAudioInput(false); setAudioInputValue(""); }
+                    }}
+                    placeholder="הדבק קישור ישיר ל-MP3 / WAV (לדוגמה מ-Dropbox, Drive)"
+                    className="flex-1 min-w-[280px] rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground outline-none focus:border-foreground"
+                  />
+                  <button
+                    onClick={() => { setAudioUrl(audioInputValue.trim()); setAudioInput(false); }}
+                    disabled={!audioInputValue.trim()}
+                    className="rounded-lg bg-foreground text-background px-3 py-1.5 text-xs font-semibold hover:bg-foreground/90 disabled:opacity-40 transition-colors"
+                  >
+                    טען
+                  </button>
+                  <button
+                    onClick={() => { setAudioInput(false); setAudioInputValue(""); }}
+                    className="text-[11px] text-muted-foreground hover:text-foreground"
+                  >
+                    ביטול
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setAudioInput(true)}
+                  className="flex items-center gap-1.5 rounded-lg border border-dashed border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:border-foreground hover:text-foreground transition-colors"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  הוסף אודיו לתסריט (לסנכרון עם השוטים)
+                </button>
+              )}
+            </div>
+
             {shotList.length === 0 ? (
               <div className="flex flex-col items-center justify-center flex-1 text-center">
                 <Film className="h-12 w-12 text-gray-200 mb-4" />
@@ -1514,7 +1673,17 @@ export function ScriptEditorClient({
               <div className="flex-1 overflow-auto p-5">
                 <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                   {orderedShots.map((shot) => (
-                    <StoryboardCard key={shot.id} shot={shot} customShotNo={customShotNo} showFrames={showFrames} onUpdate={updateShot} onDelete={deleteShot} />
+                    <StoryboardCard
+                      key={shot.id}
+                      shot={shot}
+                      customShotNo={customShotNo}
+                      showFrames={showFrames}
+                      onUpdate={updateShot}
+                      onDelete={deleteShot}
+                      audioEnabled={!!audioUrl}
+                      onPlaySection={playShotSection}
+                      onCaptureTime={setShotTimeFromAudio}
+                    />
                   ))}
                   {storyboardAtLimit ? (
                     <button onClick={() => setStoryboardUpgradeOpen(true)}
