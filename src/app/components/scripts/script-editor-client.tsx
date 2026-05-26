@@ -339,6 +339,39 @@ function ShotTableRow({ shot, idx, visibleCols, showFrames, foldMode, customShot
   );
 }
 
+// ─── Auto-growing textarea — grows with content, never scrolls inside ──────────
+
+function AutoGrowTextarea({
+  value, onChange, placeholder, minRows = 2, className = "",
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  minRows?: number;
+  className?: string;
+}) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  const resize = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  };
+  // Resize on initial mount and whenever value changes externally
+  useEffect(() => { resize(); }, [value]);
+  return (
+    <textarea
+      ref={ref}
+      value={value}
+      onChange={(e) => { onChange(e.target.value); }}
+      onInput={resize}
+      rows={minRows}
+      placeholder={placeholder}
+      className={`w-full resize-none overflow-hidden ${className}`}
+    />
+  );
+}
+
 // ─── Storyboard Card ──────────────────────────────────────────────────────────
 
 function StoryboardCard({ shot, customShotNo, showFrames, onUpdate, onDelete }: {
@@ -392,12 +425,12 @@ function StoryboardCard({ shot, customShotNo, showFrames, onUpdate, onDelete }: 
             <Trash2 className="h-3.5 w-3.5" />
           </button>
         </div>
-        <textarea
+        <AutoGrowTextarea
           value={shot.content}
-          onChange={(e) => onUpdate(shot.id, "content", e.target.value)}
+          onChange={(v) => onUpdate(shot.id, "content", v)}
           placeholder={he.scriptEditor.actionDesc}
-          rows={2}
-          className="w-full resize-none rounded-lg border border-transparent bg-transparent px-1 py-0.5 text-xs text-foreground focus:outline-none focus:border-border focus:bg-muted font-[inherit] transition-colors"
+          minRows={2}
+          className="rounded-lg border border-transparent bg-transparent px-1 py-0.5 text-xs text-foreground focus:outline-none focus:border-border focus:bg-muted font-[inherit] transition-colors"
         />
       </div>
     </div>
