@@ -2,7 +2,6 @@
 
 import { useState, useTransition, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import Link from "next/link";
 import {
   Dialog,
   DialogContent,
@@ -338,6 +337,46 @@ export function ContentDialog({
     });
   }
 
+  /** Save the event (if it has the minimum required fields) and then navigate
+   * to the given URL. Used by the "Open script/project/client" inline links so
+   * the event + its linkage is persisted before the user leaves the dialog.
+   * If the form is incomplete (missing title or date), shows an inline error
+   * instead of navigating — so unsaved data isn't silently dropped.
+   */
+  async function saveAndNavigate(url: string) {
+    if (!titleValue.trim()) {
+      setError("יש למלא שם אירוע לפני המעבר");
+      return;
+    }
+    if (!dateValue) {
+      setError("יש לבחור תאריך לאירוע לפני המעבר");
+      return;
+    }
+    const formData = new FormData();
+    formData.set("title", titleValue);
+    formData.set("date", dateValue);
+    formData.set("notes", (document.getElementById("notes") as HTMLTextAreaElement)?.value ?? "");
+    formData.set("clientId", clientId);
+    formData.set("projectId", projectId);
+    formData.set("scriptId", scriptId);
+    formData.set("color", selectedColor);
+    formData.set("status", statusValue);
+    formData.set("contentType", "general");
+    if (boardId) formData.set("boardId", boardId);
+
+    const result = isEditing
+      ? await updateScheduledContent(content!.id, formData)
+      : await createScheduledContent(formData);
+
+    if (result.success) {
+      setError(null);
+      onOpenChange(false);
+      router.push(url);
+    } else {
+      setError(result.error ?? "שגיאה בשמירה");
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-lg">
@@ -414,14 +453,14 @@ export function ContentDialog({
               <div className="flex items-center justify-between">
                 <Label>{`${he.common.client} (${he.common.optional})`}</Label>
                 {clientId && !newClientMode && (
-                  <Link
-                    href={`/clients${returnToParam}`}
-                    onClick={() => onOpenChange(false)}
+                  <button
+                    type="button"
+                    onClick={() => saveAndNavigate(`/clients${returnToParam}`)}
                     className="flex items-center gap-1.5 rounded-full bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-950/60 transition-colors"
                   >
                     <ArrowUpRight className="h-3 w-3" />
                     {he.common.openClient ?? "פתח לקוח"}
-                  </Link>
+                  </button>
                 )}
               </div>
               {newClientMode ? (
@@ -472,14 +511,14 @@ export function ContentDialog({
               <div className="flex items-center justify-between">
                 <Label>{`${he.common.project} (${he.common.optional})`}</Label>
                 {projectId && !newProjectMode && (
-                  <Link
-                    href={`/projects/${projectId}${returnToParam}`}
-                    onClick={() => onOpenChange(false)}
+                  <button
+                    type="button"
+                    onClick={() => saveAndNavigate(`/projects/${projectId}${returnToParam}`)}
                     className="flex items-center gap-1.5 rounded-full bg-violet-50 dark:bg-violet-950/40 px-2.5 py-1 text-[11px] font-semibold text-violet-700 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-950/60 transition-colors"
                   >
                     <ArrowUpRight className="h-3 w-3" />
                     {he.common.openProject ?? "פתח פרויקט"}
-                  </Link>
+                  </button>
                 )}
               </div>
               {newProjectMode ? (
@@ -539,14 +578,14 @@ export function ContentDialog({
               <div className="flex items-center justify-between">
                 <Label>{`${he.common.script} (${he.common.optional})`}</Label>
                 {scriptId && !newScriptMode && (
-                  <Link
-                    href={`/scripts/${scriptId}${returnToParam}`}
-                    onClick={() => onOpenChange(false)}
+                  <button
+                    type="button"
+                    onClick={() => saveAndNavigate(`/scripts/${scriptId}${returnToParam}`)}
                     className="flex items-center gap-1.5 rounded-full bg-orange-50 dark:bg-orange-950/40 px-2.5 py-1 text-[11px] font-semibold text-orange-700 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-950/60 transition-colors"
                   >
                     <ArrowUpRight className="h-3 w-3" />
                     {he.common.openScript ?? "פתח תסריט"}
-                  </Link>
+                  </button>
                 )}
               </div>
               {newScriptMode ? (
